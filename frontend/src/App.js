@@ -3,8 +3,8 @@ import { useState } from 'react';
 import convert from 'color-convert';
 
 import './App.css';
-import ControlPane from './ControlPane'
-import Structure from './Structure'
+import ControlPane from './components/ColorPicker/ControlPane'
+import Structure from './components/ColorPicker/Structure'
 
 //github pages
 //focusPlaneはon offできるように

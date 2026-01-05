@@ -5,8 +5,8 @@ import * as THREE from 'three'
 import convert from 'color-convert';
 import styled from 'styled-components';
 
-import './App.css';
-import sampleColors from './constants/sampleColors'
+import '../../App.css';
+import sampleColors from '../../constants/sampleColors'
 
 const Particles = (props) => {
 

@@ -4,7 +4,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 
 import convert from 'color-convert';
-import './App.css';
+import '../../App.css';
 import Focus from './Focus';
 import FocusPlane from './FocusPlane';
 import FocusLine from './FocusLine';

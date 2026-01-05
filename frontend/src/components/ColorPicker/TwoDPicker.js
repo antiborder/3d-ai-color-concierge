@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import styled from 'styled-components';
 import convert from 'color-convert';
-import { systemColors } from './constants/systemColors'
+import { systemColors } from '../../constants/systemColors'
 
 const TwoDPicker = (props) => {
 

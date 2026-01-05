@@ -1,7 +1,7 @@
 import React from 'react'
 import StraightLine from './StraightLine'
 import Circle from './Circle'
-import {systemColors} from './constants/systemColors'
+import {systemColors} from '../../constants/systemColors'
 
 
 const FocusLine = (props) => {
