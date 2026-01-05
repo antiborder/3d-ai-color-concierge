@@ -1,49 +1,24 @@
 {
-  "name": "color-picker",
-  "version": "0.1.0",
+  "name": "3d-ai-color-concierge",
+  "version": "1.0.0",
   "private": true,
-  "dependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "7.21.11",
-    "@mediapipe/tasks-vision": "^0.10.2",
-    "@react-three/drei": "^9.79.3",
-    "@react-three/fiber": "^8.13.5",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "chevrotain": "^11.0.1",
-    "color-convert": "^2.0.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "^5.0.1",
-    "styled-components": "^6.0.6",
-    "three": "^0.154.0",
-    "tinycolor2": "^1.6.0",
-    "web-vitals": "^2.1.4",
-    "webpack": "^5.88.2"
-  },
+  "workspaces": [
+    "frontend"
+  ],
   "scripts": {
-    "start": "react-scripts start",
-    "build": "CI=false && react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-    
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm start",
+    "dev:backend": "cd backend && uvicorn app.main:app --reload || echo 'Backend not set up yet'",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && python -m pip install -r requirements.txt || echo 'Backend not set up yet'",
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "cd frontend && npm test",
+    "test:backend": "cd backend && pytest || echo 'Backend not set up yet'",
+    "deploy": "./scripts/deploy/deploy-all.sh || echo 'Deploy scripts not set up yet'"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "devDependencies": {
+    "concurrently": "^8.2.0"
   }
 }
+

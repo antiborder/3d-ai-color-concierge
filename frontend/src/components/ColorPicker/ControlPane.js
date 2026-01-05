@@ -3,9 +3,9 @@ import styled from 'styled-components';
 import convert from 'color-convert';
 import TwoDPicker from './TwoDPicker'
 
-import './App.css';
-import { systemColors } from './constants/systemColors.js'
-import { SyncIcon } from './assets/Icons.js';
+import '../../App.css';
+import { systemColors } from '../../constants/systemColors.js'
+import { SyncIcon } from '../../assets/Icons.js';
 
 const ControlPane = (props) => {
 
