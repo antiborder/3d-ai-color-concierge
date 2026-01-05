@@ -1,3 +1,21 @@
+# 開発環境の立ち上げ
+
+## クイックスタート
+
+プロジェクトを初めてセットアップする場合、以下のコマンドを実行してください：
+
+```bash
+npm install
+npm start
+```
+
+1. `npm install` - プロジェクトの依存関係をインストールします
+2. `npm start` - 開発サーバーを起動します（通常は http://localhost:3000 で自動的に開きます）
+
+開発サーバーが起動すると、コードを変更すると自動的にブラウザがリロードされます。
+
+---
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
