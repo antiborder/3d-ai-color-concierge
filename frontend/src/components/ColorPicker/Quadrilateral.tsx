@@ -17,16 +17,11 @@ const Quadrilateral = (props: QuadrilateralProps) => {
     ...props.points[2], // Point 3
     ...props.points[2], // Point 3
     ...props.points[3], // Point 4
-    ...props.points[0]  // Point 1
+    ...props.points[0], // Point 1
   ]);
   geometry.setAttribute('position', new BufferAttribute(positions, 3));
 
-  return (
-    <Scene
-      geometry={geometry} 
-      color={props.color || '#ffffff'}
-    />
-  );
+  return <Scene geometry={geometry} color={props.color || '#ffffff'} />;
 };
 
 interface SceneProps {
@@ -45,10 +40,9 @@ const Scene = (props: SceneProps) => {
         transparent={true}
         side={THREE.DoubleSide}
       />
-    {/* @ts-ignore - React Three Fiber mesh element */}
+      {/* @ts-ignore - React Three Fiber mesh element */}
     </mesh>
   );
 };
 
 export default Quadrilateral;
-

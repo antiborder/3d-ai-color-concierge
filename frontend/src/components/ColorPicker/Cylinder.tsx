@@ -9,23 +9,25 @@ interface CylinderProps {
 
 const Cylinder = (props: CylinderProps) => {
   // ジオメトリの作成
-  const geometry = new THREE.CylinderGeometry(props.radius, props.radius, props.height, 32, 1, true);
+  const geometry = new THREE.CylinderGeometry(
+    props.radius,
+    props.radius,
+    props.height,
+    32,
+    1,
+    true
+  );
   const material = new THREE.MeshBasicMaterial({
     color: 0xffffff,
     opacity: 0.3,
     transparent: true,
-    side: props.side || THREE.DoubleSide
+    side: props.side || THREE.DoubleSide,
   });
 
   return (
     // @ts-ignore - React Three Fiber mesh element
-    <mesh
-      geometry={geometry}
-      material={material}
-      position={[0, 0, 0]}
-    />
+    <mesh geometry={geometry} material={material} position={[0, 0, 0]} />
   );
 };
 
 export default Cylinder;
-

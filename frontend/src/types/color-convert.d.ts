@@ -35,4 +35,3 @@ declare module 'color-convert' {
   const convert: Convert;
   export default convert;
 }
-

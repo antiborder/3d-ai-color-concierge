@@ -14,31 +14,34 @@ export interface ControlPaneProps {
   focusL: number;
   focusHsvS: number;
   focusV: number;
-  
+
   // Color space
   shape: ColorSpace;
-  
+
   // Main elements
   rgbMainElement: 'R' | 'G' | 'B';
   cmykMainElement: 'C' | 'M' | 'Y' | 'K';
   hslMainElement: 'H' | 'S' | 'L';
   hsvMainElement: 'H' | 'S' | 'V';
-  
+
   // Hex input
   hexInput: string;
   setHexInput: (value: string) => void;
-  
+
   // Handlers
   handleLabel: () => void;
   handleClick: (r: number, g: number, b: number) => void;
   handleHsvElementClick: (h: number, s: number, v: number) => void;
   onShapeClick: (shape: ColorSpace) => void;
   onRgbChange: (event: React.ChangeEvent<HTMLInputElement>, colorParam: 'R' | 'G' | 'B') => void;
-  onCmykChange: (event: React.ChangeEvent<HTMLInputElement>, colorParam: 'C' | 'M' | 'Y' | 'K') => void;
+  onCmykChange: (
+    event: React.ChangeEvent<HTMLInputElement>,
+    colorParam: 'C' | 'M' | 'Y' | 'K'
+  ) => void;
   onHslChange: (event: React.ChangeEvent<HTMLInputElement>, colorParam: 'H' | 'S' | 'L') => void;
   onHsvChange: (event: React.ChangeEvent<HTMLInputElement>, colorParam: 'H' | 'HsvS' | 'V') => void;
   onHexUpdate: () => void;
-  
+
   // Setters
   setRgbMainElement: (symbol: 'R' | 'G' | 'B') => void;
   setCmykMainElement: (symbol: 'C' | 'M' | 'Y' | 'K') => void;
@@ -60,4 +63,3 @@ export interface SliderContainerProps {
   shape: ColorSpace;
   panelShape: ColorSpace;
 }
-

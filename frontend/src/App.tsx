@@ -49,7 +49,10 @@ function App() {
 
   const [hexInput, setHexInput] = useState<string>('FFFFFF');
 
-  const handleRgbChange = (event: React.ChangeEvent<HTMLInputElement>, colorParam: 'R' | 'G' | 'B') => {
+  const handleRgbChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    colorParam: 'R' | 'G' | 'B'
+  ) => {
     let [r, g, b] = [focusR, focusG, focusB];
     switch (colorParam) {
       case 'R':
@@ -85,7 +88,10 @@ function App() {
     setHexInput(convert.rgb.hex([r, g, b]));
   };
 
-  const handleCmykChange = (event: React.ChangeEvent<HTMLInputElement>, colorParam: 'C' | 'M' | 'Y' | 'K') => {
+  const handleCmykChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    colorParam: 'C' | 'M' | 'Y' | 'K'
+  ) => {
     let [c, m, y, k] = [focusC, focusM, focusY, focusK];
     switch (colorParam) {
       case 'C':
@@ -120,7 +126,10 @@ function App() {
     setHexInput(convert.cmyk.hex([c, m, y, k]));
   };
 
-  const handleHslChange = (event: React.ChangeEvent<HTMLInputElement>, colorParam: 'H' | 'S' | 'L') => {
+  const handleHslChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    colorParam: 'H' | 'S' | 'L'
+  ) => {
     let [h, s, l] = [focusH, focusS, focusL];
     switch (colorParam) {
       case 'H':
@@ -152,7 +161,10 @@ function App() {
     setHexInput(convert.hsl.hex([h, s, l]));
   };
 
-  const handleHsvChange = (event: React.ChangeEvent<HTMLInputElement>, colorParam: 'H' | 'HsvS' | 'V') => {
+  const handleHsvChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    colorParam: 'H' | 'HsvS' | 'V'
+  ) => {
     let [h, s, v] = [focusH, focusHsvS, focusV];
     switch (colorParam) {
       case 'H':
@@ -316,4 +328,3 @@ function App() {
 }
 
 export default App;
-
