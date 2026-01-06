@@ -88,7 +88,7 @@ const FocusPlane = (props: FocusPlaneProps) => {
               ]}
             />
           )}
-          {/* @ts-ignore */}
+          {/* @ts-ignore - React Three Fiber group element */}
           <group rotation={[Math.PI / 2, 0, 0]}>
             {props.hslMainElement === 'S' && (
               <Cylinder
@@ -132,7 +132,7 @@ const FocusPlane = (props: FocusPlaneProps) => {
               ]}
             />
           )}
-          {/* @ts-ignore */}
+          {/* @ts-ignore - React Three Fiber group element */}
           <group rotation={[Math.PI / 2, 0, 0]}>
             {props.hsvMainElement === 'S' && (
               <Cylinder
