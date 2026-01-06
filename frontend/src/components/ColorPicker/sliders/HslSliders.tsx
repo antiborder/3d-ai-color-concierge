@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ControlPaneProps } from '../../../types/controlPane';
 import type { ColorSpace } from '../../../types/color';
 import ShapeButton from './ShapeButton';
@@ -12,6 +13,7 @@ interface HslSlidersProps extends ControlPaneProps {
 }
 
 const HslSliders = (props: HslSlidersProps) => {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(props.shape === 'HSL');
   return (
     <div className="controlPanel">
@@ -27,7 +29,7 @@ const HslSliders = (props: HslSlidersProps) => {
           {...props}
           setIsVisible={setIsVisible}
           shapeName={'HSL'}
-          content={'H:Hue(色相)\nS:Satulation(彩度)\nL:Lightness(明度)'}
+          content={t('colorSpace.hsl.description')}
         />
         <button
           className="showSlidersButton"

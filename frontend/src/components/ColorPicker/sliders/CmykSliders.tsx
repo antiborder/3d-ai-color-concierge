@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ControlPaneProps } from '../../../types/controlPane';
 import type { ColorSpace } from '../../../types/color';
 import ShapeButton from './ShapeButton';
@@ -12,6 +13,7 @@ interface CmykSlidersProps extends ControlPaneProps {
 }
 
 const CmykSliders = (props: CmykSlidersProps) => {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(props.shape === 'CMYK');
   return (
     <div className="controlPanel">
@@ -27,7 +29,7 @@ const CmykSliders = (props: CmykSlidersProps) => {
           {...props}
           setIsVisible={setIsVisible}
           shapeName={'CMYK'}
-          content={'C:Cyan(シアン)\nM:Magenta(マゼンタ)\nY:Yellow(黄)\nK:Key(黒)'}
+          content={t('colorSpace.cmyk.description')}
         />
         <button
           className="showSlidersButton"

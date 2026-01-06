@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ControlPaneProps } from '../../../types/controlPane';
 import type { ColorSpace } from '../../../types/color';
 import ShapeButton from './ShapeButton';
@@ -12,6 +13,7 @@ interface RgbSlidersProps extends ControlPaneProps {
 }
 
 const RgbSliders = (props: RgbSlidersProps) => {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(props.shape === 'RGB');
   return (
     <div className="controlPanel">
@@ -27,7 +29,7 @@ const RgbSliders = (props: RgbSlidersProps) => {
           {...props}
           setIsVisible={setIsVisible}
           shapeName={'RGB'}
-          content={'R:Red(赤)\nG:Green(緑)\nB:Blue(青)'}
+          content={t('colorSpace.rgb.description')}
         />
         <button
           className="showSlidersButton"
