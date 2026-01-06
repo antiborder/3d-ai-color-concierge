@@ -24,10 +24,7 @@ const Cylinder = (props: CylinderProps) => {
     side: props.side || THREE.DoubleSide,
   });
 
-  return (
-    // @ts-ignore - React Three Fiber mesh element
-    <mesh geometry={geometry} material={material} position={[0, 0, 0]} />
-  );
+  return <mesh geometry={geometry} material={material} position={[0, 0, 0]} />;
 };
 
 export default Cylinder;

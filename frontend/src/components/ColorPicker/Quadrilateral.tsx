@@ -31,16 +31,13 @@ interface SceneProps {
 
 const Scene = (props: SceneProps) => {
   return (
-    // @ts-ignore - React Three Fiber mesh element
     <mesh geometry={props.geometry}>
-      {/* @ts-ignore - React Three Fiber material element */}
       <meshBasicMaterial
         color={props.color}
         opacity={0.4}
         transparent={true}
         side={THREE.DoubleSide}
       />
-      {/* @ts-ignore - React Three Fiber mesh element */}
     </mesh>
   );
 };

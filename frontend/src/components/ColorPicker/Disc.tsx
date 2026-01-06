@@ -19,7 +19,6 @@ const Disc = (props: DiscProps) => {
   });
 
   return (
-    // @ts-ignore - React Three Fiber mesh element
     <mesh
       position={props.position}
       rotation={[Math.PI / 2, 0, 0]}
