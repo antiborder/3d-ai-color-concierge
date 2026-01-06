@@ -1,6 +1,7 @@
 import './App.css';
 import ControlPane from './components/ColorPicker/ControlPane';
 import Structure from './components/ColorPicker/Structure';
+import Header from './components/common/Header';
 import { useColorState } from './hooks/useColorState';
 
 function App() {
@@ -67,6 +68,7 @@ function App() {
 
   return (
     <>
+      <Header />
       <Structure
         shape={colorState.shape}
         isLabelShown={colorState.isLabelShown}

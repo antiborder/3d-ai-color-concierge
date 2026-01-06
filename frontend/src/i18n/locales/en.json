@@ -1,0 +1,23 @@
+{
+  "colorSpace": {
+    "rgb": {
+      "description": "R:Red\nG:Green\nB:Blue"
+    },
+    "cmyk": {
+      "description": "C:Cyan\nM:Magenta\nY:Yellow\nK:Key"
+    },
+    "hsl": {
+      "description": "H:Hue\nS:Saturation\nL:Lightness"
+    },
+    "hsv": {
+      "description": "H:Hue\nS:Saturation\nV:Value"
+    }
+  },
+  "errors": {
+    "generic": "An error occurred",
+    "network": "Network error occurred",
+    "timeout": "Timeout occurred",
+    "invalidInput": "Invalid input"
+  }
+}
+

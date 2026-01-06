@@ -1,0 +1,23 @@
+{
+  "colorSpace": {
+    "rgb": {
+      "description": "R:Red(赤)\nG:Green(緑)\nB:Blue(青)"
+    },
+    "cmyk": {
+      "description": "C:Cyan(シアン)\nM:Magenta(マゼンタ)\nY:Yellow(黄)\nK:Key(黒)"
+    },
+    "hsl": {
+      "description": "H:Hue(色相)\nS:Saturation(彩度)\nL:Lightness(明度)"
+    },
+    "hsv": {
+      "description": "H:Hue(色相)\nS:Saturation(彩度)\nV:Value(輝度)"
+    }
+  },
+  "errors": {
+    "generic": "エラーが発生しました",
+    "network": "ネットワークエラーが発生しました",
+    "timeout": "タイムアウトが発生しました",
+    "invalidInput": "無効な入力です"
+  }
+}
+
