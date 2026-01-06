@@ -55,22 +55,26 @@ function App() {
   ) => {
     let [r, g, b] = [focusR, focusG, focusB];
     switch (colorParam) {
-      case 'R':
+      case 'R': {
         r = Number(event.target.value);
         setFocusR(r);
         break;
-      case 'G':
+      }
+      case 'G': {
         g = Number(event.target.value);
         setFocusG(g);
         break;
-      case 'B':
+      }
+      case 'B': {
         b = Number(event.target.value);
         setFocusB(b);
         break;
-      default:
+      }
+      default: {
         r = Number(event.target.value);
         setFocusR(r);
         break;
+      }
     }
 
     setFocusC(convert.rgb.cmyk([r, g, b])[0]);
@@ -94,23 +98,27 @@ function App() {
   ) => {
     let [c, m, y, k] = [focusC, focusM, focusY, focusK];
     switch (colorParam) {
-      case 'C':
+      case 'C': {
         c = Number(event.target.value);
         setFocusC(c);
         break;
-      case 'M':
+      }
+      case 'M': {
         m = Number(event.target.value);
         setFocusM(m);
         break;
-      case 'Y':
+      }
+      case 'Y': {
         y = Number(event.target.value);
         setFocusY(y);
         break;
+      }
       case 'K':
-      default:
+      default: {
         k = Number(event.target.value);
         setFocusK(k);
         break;
+      }
     }
     setFocusR(convert.cmyk.rgb([c, m, y, k])[0]);
     setFocusG(convert.cmyk.rgb([c, m, y, k])[1]);
@@ -132,19 +140,22 @@ function App() {
   ) => {
     let [h, s, l] = [focusH, focusS, focusL];
     switch (colorParam) {
-      case 'H':
+      case 'H': {
         setFocusH(Number(event.target.value));
         h = Number(event.target.value);
         break;
-
-      case 'S':
+      }
+      case 'S': {
         setFocusS(Number(event.target.value));
         s = Number(event.target.value);
         break;
+      }
       case 'L':
-      default:
+      default: {
         setFocusL(Number(event.target.value));
         l = Number(event.target.value);
+        break;
+      }
     }
     setFocusR(convert.hsl.rgb([h, s, l])[0]);
     setFocusG(convert.hsl.rgb([h, s, l])[1]);
@@ -167,19 +178,22 @@ function App() {
   ) => {
     let [h, s, v] = [focusH, focusHsvS, focusV];
     switch (colorParam) {
-      case 'H':
+      case 'H': {
         setFocusH(Number(event.target.value));
         h = Number(event.target.value);
         break;
-      case 'HsvS':
+      }
+      case 'HsvS': {
         setFocusHsvS(Number(event.target.value));
         s = Number(event.target.value);
         break;
+      }
       case 'V':
-      default:
+      default: {
         setFocusV(Number(event.target.value));
         v = Number(event.target.value);
         break;
+      }
     }
     setFocusR(convert.hsv.rgb([h, s, v])[0]);
     setFocusG(convert.hsv.rgb([h, s, v])[1]);

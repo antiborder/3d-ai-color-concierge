@@ -247,7 +247,7 @@ const HsvColorElement = (props: ColorElementProps) => {
           : isOnHorizontalLine
             ? systemColors['W']
             : '#' + convert.hsv.hex([(j * 360) / 64, focusHsvS, 100 - (i * 100) / 64]);
-      case 'V':
+      case 'V': {
         const [x, y] = [j - 32 + 0.5, 32 - i - 0.5];
         const [radius, angle] = getPolarPosition(x, y);
         const isOnRadialLine =
@@ -263,6 +263,7 @@ const HsvColorElement = (props: ColorElementProps) => {
             : isOnCircleLine
               ? systemColors['W']
               : '#' + convert.hsv.hex([(angle * 360) / (2 * Math.PI), (radius * 100) / 32, focusV]);
+      }
       default:
         return '#000000';
     }
@@ -281,12 +282,13 @@ const HsvColorElement = (props: ColorElementProps) => {
         h = (j * 360) / 64;
         v = ((64 - i) * 100) / 64;
         break;
-      case 'V':
+      case 'V': {
         const [x, y] = [j - 32, 32 - i];
         const [radius, angle] = getPolarPosition(x, y);
         h = (angle * 360) / (2 * Math.PI);
         hsvS = (radius * 100) / 32;
         break;
+      }
     }
     const [r, g, b] = convert.hsv.rgb([h, hsvS, v]);
     props.handleClick(r, g, b);
@@ -343,7 +345,7 @@ const HslColorElement = (props: ColorElementProps) => {
           : isOnHorizontalLine
             ? systemColors['W']
             : '#' + convert.hsl.hex([(j * 360) / 64, focusS, 100 - (i * 100) / 64]);
-      case 'L':
+      case 'L': {
         const [x, y] = [j - 32 + 0.5, 32 - i - 0.5];
         const [radius, angle] = getPolarPosition(x, y);
         const isOnRadialLine =
@@ -358,6 +360,7 @@ const HslColorElement = (props: ColorElementProps) => {
             : isOnCircleLine
               ? systemColors['W']
               : '#' + convert.hsl.hex([(angle * 360) / (2 * Math.PI), (radius * 100) / 32, focusL]);
+      }
       default:
         return '#000000';
     }
@@ -376,12 +379,13 @@ const HslColorElement = (props: ColorElementProps) => {
         h = (j * 360) / 64;
         l = ((64 - i) * 100) / 64;
         break;
-      case 'L':
+      case 'L': {
         const [x, y] = [j - 32, 32 - i];
         const [radius, angle] = getPolarPosition(x, y);
         h = (angle * 360) / (2 * Math.PI);
         s = (radius * 100) / 32;
         break;
+      }
     }
     const [r, g, b] = convert.hsl.rgb([h, s, l]);
     props.handleClick(r, g, b);
