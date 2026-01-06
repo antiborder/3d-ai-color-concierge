@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import convert from 'color-convert';
-import TwoDPicker from './TwoDPicker'
-
+import TwoDPicker from './TwoDPicker';
+import type { ControlPaneProps, SliderContainerProps } from '../../types/controlPane';
+import type { ColorSpace } from '../../types/color';
 import '../../App.css';
-import { systemColors } from '../../constants/systemColors.js'
+import { systemColors } from '../../constants/systemColors.js';
 import { SyncIcon } from '../../assets/Icons.js';
 
-const ControlPane = (props) => {
-
+const ControlPane = (props: ControlPaneProps) => {
   return (
     <StyledControlPane>
       <CurrentColor {...props} />
@@ -35,51 +35,33 @@ const ControlPane = (props) => {
       />
 
       <TwoDPicker {...props} />
-
-      {/* <div style={{ display: 'flex' }}>
-        <div style={{ backgroundColor: '#FF0000', width: '24px', margin: '4px 4px 4px 4px' }}>        R    </div>
-        <div style={{ backgroundColor: '#00FF00', width: '24px', margin: '4px 4px 4px 4px' }}>        G      </div>
-        <div style={{ backgroundColor: '#0000FF', width: '24px', margin: '4px 4px 4px 4px' }}>        B      </div>
-        <div style={{ backgroundColor: '#FFFFFF', width: '24px', margin: '4px 4px 4px 4px' }}>        W      </div>
-        <div style={{ backgroundColor: '#000000', color: '#FFFFFF', width: '24px', margin: '4px 4px 4px 4px' }}>        K      </div>
-      </div> */}
     </StyledControlPane>
-  )
-}
+  );
+};
 
-const CurrentColor = (props) => {
-  // const [isHexFormat, setIsHexFormat] = useState(true)
+const CurrentColor = (props: ControlPaneProps) => {
   const handleHexUpdate = () => {
     if (props.hexInput.match(/^[0-9A-Fa-f]{6}$/)) {
-      // setIsHexFormat(true)
-      props.onHexUpdate()
+      props.onHexUpdate();
     }
-    else {
-      // setIsHexFormat(false)
-    }
-  }
+  };
+  
   const isUpdatable = () => {
-    return props.hexInput !== convert.rgb.hex([props.focusR, props.focusG, props.focusB])
-  }
-  const handleChange = (value) => {
-    props.setHexInput(value)
-    // if (value.match(/^[0-9A-Fa-f]{6}$/)) {
-    //   setIsHexFormat(true)
-
-    // }
-    // else{
-    //   setIsHexFormat(false)
-    // }
-    console.log(isHexFormat())
-
-  }
+    return props.hexInput !== convert.rgb.hex([props.focusR, props.focusG, props.focusB]);
+  };
+  
+  const handleChange = (value: string) => {
+    props.setHexInput(value);
+  };
+  
   const isHexFormat = () => {
-    return props.hexInput.match(/^[0-9A-Fa-f]{6}$/) ? true : false
-  }
+    return props.hexInput.match(/^[0-9A-Fa-f]{6}$/) !== null;
+  };
+  
   return (
     <StyledCurrentColor>
       <div className='controlPanel'>
-        <div className='currentColor' >
+        <div className='currentColor'>
           <div className='color-sample' style={{ backgroundColor: '#' + convert.rgb.hex([props.focusR, props.focusG, props.focusB]) }}>&nbsp; </div>
           <div className='hex'>#</div>
           <input className='hexInput'
@@ -93,31 +75,31 @@ const CurrentColor = (props) => {
         </div>
       </div>
     </StyledCurrentColor>
-  )
-}
+  );
+};
 
-const RgbSliders = (props) => {
-  const [isVisible, setIsVisible] = useState(props.shape === 'RGB')
+const RgbSliders = (props: ControlPaneProps & { mainElement: 'R' | 'G' | 'B'; setMainElement: (symbol: 'R' | 'G' | 'B') => void; panelShape: ColorSpace }) => {
+  const [isVisible, setIsVisible] = useState(props.shape === 'RGB');
   return (
     <div className='controlPanel'>
-        <div
-          style={{
-            display: 'flex', flexDirection: 'row', justifyContent: 'space-between',
-            height: '24px',
-          }}
+      <div
+        style={{
+          display: 'flex', flexDirection: 'row', justifyContent: 'space-between',
+          height: '24px',
+        }}
+      >
+        <ShapeButton {...props}
+          setIsVisible={setIsVisible}
+          shapeName={'RGB'}
+          content={'R:Red(赤)\nG:Green(緑)\nB:Blue(青)'}
+        />
+        <button
+          className='showSlidersButton'
+          onClick={() => { setIsVisible(!isVisible); }}
         >
-          <ShapeButton {...props}
-            setIsVisible={setIsVisible}
-            shapeName={'RGB'}
-            content={'R:Red(赤)\nG:Green(緑)\nB:Blue(青)'}
-          />
-          <button
-            className='showSlidersButton'
-            onClick={() => { setIsVisible(!isVisible) }}
-          >
-            {isVisible ? '−' : '＋'}
-          </button>
-        </div>
+          {isVisible ? '−' : '＋'}
+        </button>
+      </div>
 
       {isVisible && <>
         <SliderContainer {...props}
@@ -126,6 +108,10 @@ const RgbSliders = (props) => {
           max={255}
           color={systemColors['R']}
           onChange={(event) => props.onRgbChange(event, 'R')}
+          mainElement={props.mainElement}
+          setMainElement={props.setMainElement as (symbol: 'R' | 'G' | 'B' | 'C' | 'M' | 'Y' | 'K' | 'H' | 'S' | 'L' | 'V') => void}
+          shape={props.shape}
+          panelShape={props.panelShape}
         />
         <SliderContainer {...props}
           symbol={'G'}
@@ -133,6 +119,10 @@ const RgbSliders = (props) => {
           max={255}
           color={systemColors['G']}
           onChange={(event) => props.onRgbChange(event, 'G')}
+          mainElement={props.mainElement}
+          setMainElement={props.setMainElement as (symbol: 'R' | 'G' | 'B' | 'C' | 'M' | 'Y' | 'K' | 'H' | 'S' | 'L' | 'V') => void}
+          shape={props.shape}
+          panelShape={props.panelShape}
         />
         <SliderContainer {...props}
           symbol={'B'}
@@ -140,34 +130,38 @@ const RgbSliders = (props) => {
           max={255}
           color={systemColors['B']}
           onChange={(event) => props.onRgbChange(event, 'B')}
+          mainElement={props.mainElement}
+          setMainElement={props.setMainElement as (symbol: 'R' | 'G' | 'B' | 'C' | 'M' | 'Y' | 'K' | 'H' | 'S' | 'L' | 'V') => void}
+          shape={props.shape}
+          panelShape={props.panelShape}
         />
       </>}
     </div>
-  )
-}
+  );
+};
 
-const CmykSliders = (props) => {
-  const [isVisible, setIsVisible] = useState(props.shape === 'CMYK')
+const CmykSliders = (props: ControlPaneProps & { mainElement: 'C' | 'M' | 'Y' | 'K'; setMainElement: (symbol: 'C' | 'M' | 'Y' | 'K') => void; panelShape: ColorSpace }) => {
+  const [isVisible, setIsVisible] = useState(props.shape === 'CMYK');
   return (
     <div className='controlPanel'>
-        <div
-          style={{
-            display: 'flex', flexDirection: 'row', justifyContent: 'space-between',
-            height: '24px',
-          }}
+      <div
+        style={{
+          display: 'flex', flexDirection: 'row', justifyContent: 'space-between',
+          height: '24px',
+        }}
+      >
+        <ShapeButton {...props}
+          setIsVisible={setIsVisible}
+          shapeName={'CMYK'}
+          content={'C:Cyan(シアン)\nM:Magenta(マゼンタ)\nY:Yellow(黄)\nK:Key(黒)'}
+        />
+        <button
+          className='showSlidersButton'
+          onClick={() => { setIsVisible(!isVisible); }}
         >
-          <ShapeButton {...props}
-            setIsVisible={setIsVisible}
-            shapeName={'CMYK'}
-            content={'C:Cyan(シアン)\nM:Magenta(マゼンタ)\nY:Yellow(黄)\nK:Key(黒)'}
-          />
-          <button
-            className='showSlidersButton'
-            onClick={() => { setIsVisible(!isVisible) }}
-          >
-            {isVisible ? '−' : '＋'}
-          </button>
-        </div>
+          {isVisible ? '−' : '＋'}
+        </button>
+      </div>
 
       {isVisible && <>
         <SliderContainer {...props}
@@ -176,6 +170,10 @@ const CmykSliders = (props) => {
           max={100}
           color={systemColors['C']}
           onChange={(event) => props.onCmykChange(event, 'C')}
+          mainElement={props.mainElement}
+          setMainElement={props.setMainElement as (symbol: 'R' | 'G' | 'B' | 'C' | 'M' | 'Y' | 'K' | 'H' | 'S' | 'L' | 'V') => void}
+          shape={props.shape}
+          panelShape={props.panelShape}
         />
         <SliderContainer {...props}
           symbol={'M'}
@@ -183,6 +181,10 @@ const CmykSliders = (props) => {
           max={100}
           color={systemColors['M']}
           onChange={(event) => props.onCmykChange(event, 'M')}
+          mainElement={props.mainElement}
+          setMainElement={props.setMainElement as (symbol: 'R' | 'G' | 'B' | 'C' | 'M' | 'Y' | 'K' | 'H' | 'S' | 'L' | 'V') => void}
+          shape={props.shape}
+          panelShape={props.panelShape}
         />
         <SliderContainer {...props}
           symbol={'Y'}
@@ -190,6 +192,10 @@ const CmykSliders = (props) => {
           max={100}
           color={systemColors['Y']}
           onChange={(event) => props.onCmykChange(event, 'Y')}
+          mainElement={props.mainElement}
+          setMainElement={props.setMainElement as (symbol: 'R' | 'G' | 'B' | 'C' | 'M' | 'Y' | 'K' | 'H' | 'S' | 'L' | 'V') => void}
+          shape={props.shape}
+          panelShape={props.panelShape}
         />
         <SliderContainer {...props}
           symbol={'K'}
@@ -197,14 +203,18 @@ const CmykSliders = (props) => {
           max={100}
           color={systemColors['K']}
           onChange={(event) => props.onCmykChange(event, 'K')}
+          mainElement={props.mainElement}
+          setMainElement={props.setMainElement as (symbol: 'R' | 'G' | 'B' | 'C' | 'M' | 'Y' | 'K' | 'H' | 'S' | 'L' | 'V') => void}
+          shape={props.shape}
+          panelShape={props.panelShape}
         />
       </>}
     </div>
-  )
-}
+  );
+};
 
-const HsvSliders = (props) => {
-  const [isVisible, setIsVisible] = useState(props.shape === 'HSV')
+const HsvSliders = (props: ControlPaneProps & { mainElement: 'H' | 'S' | 'V'; setMainElement: (symbol: 'H' | 'S' | 'V') => void; panelShape: ColorSpace }) => {
+  const [isVisible, setIsVisible] = useState(props.shape === 'HSV');
   return (
     <div className='controlPanel'>
       <div
@@ -220,7 +230,7 @@ const HsvSliders = (props) => {
         />
         <button
           className='showSlidersButton'
-          onClick={() => { setIsVisible(!isVisible) }}
+          onClick={() => { setIsVisible(!isVisible); }}
         >
           {isVisible ? '−' : '＋'}
         </button>
@@ -233,6 +243,10 @@ const HsvSliders = (props) => {
           max={360}
           color={systemColors['K']}
           onChange={(event) => props.onHsvChange(event, 'H')}
+          mainElement={props.mainElement}
+          setMainElement={props.setMainElement as (symbol: 'R' | 'G' | 'B' | 'C' | 'M' | 'Y' | 'K' | 'H' | 'S' | 'L' | 'V') => void}
+          shape={props.shape}
+          panelShape={props.panelShape}
         />
         <SliderContainer {...props}
           symbol={'S'}
@@ -240,6 +254,10 @@ const HsvSliders = (props) => {
           max={100}
           color={systemColors['K']}
           onChange={(event) => props.onHsvChange(event, 'HsvS')}
+          mainElement={props.mainElement}
+          setMainElement={props.setMainElement as (symbol: 'R' | 'G' | 'B' | 'C' | 'M' | 'Y' | 'K' | 'H' | 'S' | 'L' | 'V') => void}
+          shape={props.shape}
+          panelShape={props.panelShape}
         />
         <SliderContainer {...props}
           symbol={'V'}
@@ -247,14 +265,18 @@ const HsvSliders = (props) => {
           max={100}
           color={systemColors['K']}
           onChange={(event) => props.onHsvChange(event, 'V')}
+          mainElement={props.mainElement}
+          setMainElement={props.setMainElement as (symbol: 'R' | 'G' | 'B' | 'C' | 'M' | 'Y' | 'K' | 'H' | 'S' | 'L' | 'V') => void}
+          shape={props.shape}
+          panelShape={props.panelShape}
         />
       </>}
     </div>
-  )
-}
+  );
+};
 
-const HslSliders = (props) => {
-  const [isVisible, setIsVisible] = useState(props.shape === 'HSL')
+const HslSliders = (props: ControlPaneProps & { mainElement: 'H' | 'S' | 'L'; setMainElement: (symbol: 'H' | 'S' | 'L') => void; panelShape: ColorSpace }) => {
+  const [isVisible, setIsVisible] = useState(props.shape === 'HSL');
   return (
     <div className='controlPanel'>
       <div
@@ -270,7 +292,7 @@ const HslSliders = (props) => {
         />
         <button
           className='showSlidersButton'
-          onClick={() => { setIsVisible(!isVisible) }}
+          onClick={() => { setIsVisible(!isVisible); }}
         >
           {isVisible ? '−' : '＋'}
         </button>
@@ -282,6 +304,10 @@ const HslSliders = (props) => {
           max={360}
           color={systemColors['K']}
           onChange={(event) => props.onHslChange(event, 'H')}
+          mainElement={props.mainElement}
+          setMainElement={props.setMainElement as (symbol: 'R' | 'G' | 'B' | 'C' | 'M' | 'Y' | 'K' | 'H' | 'S' | 'L' | 'V') => void}
+          shape={props.shape}
+          panelShape={props.panelShape}
         />
         <SliderContainer {...props}
           symbol={'S'}
@@ -289,6 +315,10 @@ const HslSliders = (props) => {
           max={100}
           color={systemColors['K']}
           onChange={(event) => props.onHslChange(event, 'S')}
+          mainElement={props.mainElement}
+          setMainElement={props.setMainElement as (symbol: 'R' | 'G' | 'B' | 'C' | 'M' | 'Y' | 'K' | 'H' | 'S' | 'L' | 'V') => void}
+          shape={props.shape}
+          panelShape={props.panelShape}
         />
         <SliderContainer {...props}
           symbol={'L'}
@@ -296,48 +326,57 @@ const HslSliders = (props) => {
           max={100}
           color={systemColors['K']}
           onChange={(event) => props.onHslChange(event, 'L')}
+          mainElement={props.mainElement}
+          setMainElement={props.setMainElement as (symbol: 'R' | 'G' | 'B' | 'C' | 'M' | 'Y' | 'K' | 'H' | 'S' | 'L' | 'V') => void}
+          shape={props.shape}
+          panelShape={props.panelShape}
         />
       </>}
     </div>
-  )
+  );
+};
+
+interface ShapeButtonProps extends ControlPaneProps {
+  setIsVisible: (visible: boolean) => void;
+  shapeName: ColorSpace;
+  content: string;
 }
 
-const ShapeButton = (props) => {
-  const [isHovered, setIsHovered] = useState(false)
+const ShapeButton = (props: ShapeButtonProps) => {
+  const [isHovered, setIsHovered] = useState(false);
   const handlePointerOver = () => {
-    setIsHovered(true)
-  }
+    setIsHovered(true);
+  };
   const handlePointerOut = () => {
-    setIsHovered(false)
-  }
+    setIsHovered(false);
+  };
   return (
     <>
       <div style={{ height: '24px' }}>
         <button
           className={props.shape === props.shapeName ? 'inactiveShapeButton' : 'activeShapeButton'}
-          onClick={() => { props.setIsVisible(true); props.onShapeClick(props.shapeName) }}
+          onClick={() => { props.setIsVisible(true); props.onShapeClick(props.shapeName); }}
           onPointerOver={() => handlePointerOver()}
           onPointerOut={() => handlePointerOut()}
         >
           {props.shapeName}
         </button>
-        {((isHovered)) &&
-          <div className='shapeBubble' >
+        {(isHovered) &&
+          <div className='shapeBubble'>
             {props.content}
           </div>
         }
       </div>
     </>
+  );
+};
 
-  )
-}
-
-function SliderContainer(props) {
+const SliderContainer = (props: SliderContainerProps) => {
   const [, setValue] = useState(props.value);
   const isActive = props.mainElement === props.symbol && props.shape === props.panelShape;
 
-  const handleChange = (event) => {
-    setValue(event.target.value);
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(Number(event.target.value));
     props.onChange(event);
   };
 
@@ -345,7 +384,7 @@ function SliderContainer(props) {
     <StyledSliderContainer>
       {props.symbol !== 'K' &&
         <button
-          onClick={() => props.setMainElement(props.symbol)}
+          onClick={() => props.setMainElement(props.symbol as 'R' | 'G' | 'B' | 'C' | 'M' | 'Y' | 'K' | 'H' | 'S' | 'L' | 'V')}
           className={isActive ? 'mainElement labelOn' : 'mainElement labelOff'}>
           {props.mainElement === props.symbol ?
             <div style={{
@@ -363,7 +402,7 @@ function SliderContainer(props) {
               ・
             </div>}
         </button>}
-      {props.symbol == 'K' && <div style={{ width: '22px' }}></div>}
+      {props.symbol === 'K' && <div style={{ width: '22px' }}></div>}
       {props.symbol}
       <input type="range" min="0" step="1" max={props.max} value={props.value} onChange={handleChange} />
       <div className='value'>
@@ -371,7 +410,7 @@ function SliderContainer(props) {
       </div>
     </StyledSliderContainer>
   );
-}
+};
 
 const StyledControlPane = styled.div`
     width: 340px;
@@ -524,3 +563,4 @@ const StyledSliderContainer = styled.div`
   `;
 
 export default ControlPane;
+
