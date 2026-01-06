@@ -2,6 +2,7 @@ import './App.css';
 import ControlPane from './components/ColorPicker/ControlPane';
 import Structure from './components/ColorPicker/Structure';
 import Header from './components/common/Header';
+import VoiceControl from './components/VoiceControl/VoiceControl';
 import { useColorState } from './hooks/useColorState';
 
 function App() {
@@ -66,6 +67,19 @@ function App() {
     updateFromHex(colorState.hexInput);
   };
 
+  // Handle voice recognition transcript
+  const handleVoiceTranscript = (transcript: string) => {
+    // TODO: Phase 5 - Implement command parsing and execution
+    // For now, just log the transcript
+    console.log('Voice transcript:', transcript);
+    // In Phase 5, this will parse the transcript and execute commands
+  };
+
+  const handleVoiceError = (error: string) => {
+    console.error('Voice recognition error:', error);
+    // TODO: Show error message to user (can use toast notification in future)
+  };
+
   return (
     <>
       <Header />
@@ -127,6 +141,7 @@ function App() {
         setHexInput={setHexInput}
         onHexUpdate={handleHexUpdate}
       />
+      <VoiceControl onTranscript={handleVoiceTranscript} onError={handleVoiceError} />
     </>
   );
 }
