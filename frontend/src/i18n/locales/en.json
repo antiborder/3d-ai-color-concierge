@@ -18,6 +18,17 @@
     "network": "Network error occurred",
     "timeout": "Timeout occurred",
     "invalidInput": "Invalid input"
+  },
+  "voiceControl": {
+    "start": "Start voice recognition",
+    "stop": "Stop voice recognition",
+    "textPlaceholder": "Enter text...",
+    "submit": "Submit",
+    "notSupported": "Speech recognition is not supported in this browser",
+    "noSpeech": "No speech detected",
+    "audioCapture": "Microphone not found or access denied",
+    "notAllowed": "Microphone permission denied",
+    "networkError": "Network error occurred"
   }
 }
 

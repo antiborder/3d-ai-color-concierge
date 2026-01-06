@@ -18,6 +18,17 @@
     "network": "ネットワークエラーが発生しました",
     "timeout": "タイムアウトが発生しました",
     "invalidInput": "無効な入力です"
+  },
+  "voiceControl": {
+    "start": "音声認識を開始",
+    "stop": "音声認識を停止",
+    "textPlaceholder": "テキストを入力...",
+    "submit": "送信",
+    "notSupported": "このブラウザでは音声認識がサポートされていません",
+    "noSpeech": "音声が検出されませんでした",
+    "audioCapture": "マイクが見つからないか、アクセスが拒否されました",
+    "notAllowed": "マイクの権限が拒否されました",
+    "networkError": "ネットワークエラーが発生しました"
   }
 }
 
