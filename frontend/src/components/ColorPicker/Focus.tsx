@@ -30,11 +30,8 @@ const Focus = (props: FocusProps) => {
 
   return (
     <>
-      {/* @ts-ignore - React Three Fiber group element */}
       <group position={position} rotation={[0, 0, -Math.PI]}>
-        {/* @ts-ignore - animated.mesh type complexity */}
         <animated.mesh ref={ref}>
-          {/* @ts-ignore - React Three Fiber group element */}
           <group position={[0, 0, 0.5]} rotation={[Math.PI / 2, 0, 0]}>
             <Text color={'#000000'} fontSize={1.1}>
               {'V'}
@@ -42,10 +39,8 @@ const Focus = (props: FocusProps) => {
             <Text color={'#000000'} fontSize={1.6} position={[0, 0.2, 0]}>
               {'I'}
             </Text>
-            {/* @ts-ignore - React Three Fiber group element */}
           </group>
         </animated.mesh>
-        {/* @ts-ignore - React Three Fiber group element */}
       </group>
     </>
   );

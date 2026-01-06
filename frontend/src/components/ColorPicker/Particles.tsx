@@ -76,7 +76,6 @@ const Particle = ({
   const particleColor =
     '#' + convert.rgb.hex([Math.round(props.r), Math.round(props.g), Math.round(props.b)]);
 
-  // @ts-ignore - useSpring type complexity
   const { position } = useSpring({
     from: {
       position: [0, 0, 0] as [number, number, number],
@@ -89,10 +88,9 @@ const Particle = ({
             ? props.getHslPosition(props.r, props.g, props.b)
             : props.getHsvPosition(props.r, props.g, props.b),
     },
-    config: { duration: '500' },
+    config: { duration: 500 },
   });
 
-  // @ts-ignore - useSpring type complexity
   const { scale } = useSpring({
     scale: hovered ? 1.8 : 1,
     config: config.wobbly,
@@ -115,7 +113,6 @@ const Particle = ({
   };
 
   return (
-    // @ts-ignore - animated.mesh type complexity
     <animated.mesh
       position={position}
       onPointerOver={() => handlePointerOver()}
@@ -123,9 +120,7 @@ const Particle = ({
       scale={scale}
       onClick={props.onParticleClick}
     >
-      {/* @ts-ignore - React Three Fiber geometry element */}
       <sphereGeometry attach="geometry" args={[0.12, 32, 32]} />
-      {/* @ts-ignore - React Three Fiber material element */}
       <meshBasicMaterial
         attach="material"
         color={particleColor}

@@ -92,13 +92,9 @@ const Structure = (props: StructureProps) => {
   return (
     <div>
       <Canvas camera={{ position: cameraPosition }} style={{ height: '120vh', width: '120vw' }}>
-        {/* @ts-ignore - React Three Fiber color element */}
         <color attach="background" args={['#C3C3C3']} />
-
-        {/* @ts-ignore - React Three Fiber ambientLight element */}
         <ambientLight color="#ffffff" intensity={1} />
         <OrbitControls />
-        {/* @ts-ignore - React Three Fiber group element */}
         <group rotation={[-Math.PI / 2, 0, 0]}>
           <Particles
             {...props}
@@ -132,7 +128,6 @@ const Structure = (props: StructureProps) => {
             cylinderRadius={cylinderRadius}
             cylinderHeight={cylinderHeight}
           />
-          {/* @ts-ignore - React Three Fiber group closing tag */}
         </group>
       </Canvas>
     </div>
