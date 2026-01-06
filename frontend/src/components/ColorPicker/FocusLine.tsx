@@ -2,7 +2,12 @@ import React from 'react';
 import StraightLine from './StraightLine';
 import Circle from './Circle';
 import { systemColors } from '../../constants/systemColors';
-import type { StructureProps, PositionFunction, RescaleHslFunction, CylindricalToCartesianFunction } from '../../types/structure';
+import type {
+  StructureProps,
+  PositionFunction,
+  RescaleHslFunction,
+  CylindricalToCartesianFunction,
+} from '../../types/structure';
 
 interface FocusLineProps extends StructureProps {
   getRgbPosition: PositionFunction;
@@ -15,7 +20,11 @@ interface FocusLineProps extends StructureProps {
 }
 
 const FocusLine = (props: FocusLineProps) => {
-  const [rescaledH, rescaledS, rescaledL] = props.rescaleHsl(props.focusH, props.focusS, props.focusL);
+  const [rescaledH, rescaledS, rescaledL] = props.rescaleHsl(
+    props.focusH,
+    props.focusS,
+    props.focusL
+  );
   const rescaledHsvS = props.rescaleHsl(props.focusH, props.focusHsvS, props.focusV)[1];
   const rescaledV = props.rescaleHsl(props.focusH, props.focusHsvS, props.focusV)[2];
 
@@ -27,13 +36,9 @@ const FocusLine = (props: FocusLineProps) => {
             <StraightLine
               points={[
                 props.getRgbPosition(0, props.focusG, props.focusB),
-                props.getRgbPosition(255, props.focusG, props.focusB)
+                props.getRgbPosition(255, props.focusG, props.focusB),
               ]}
-              color={
-                systemColors[
-                  props.rgbMainElement === 'G' ? 'B' : 'G'
-                ]
-              }
+              color={systemColors[props.rgbMainElement === 'G' ? 'B' : 'G']}
             />
           )}
 
@@ -41,13 +46,9 @@ const FocusLine = (props: FocusLineProps) => {
             <StraightLine
               points={[
                 props.getRgbPosition(props.focusR, 0, props.focusB),
-                props.getRgbPosition(props.focusR, 255, props.focusB)
+                props.getRgbPosition(props.focusR, 255, props.focusB),
               ]}
-              color={
-                systemColors[
-                  props.rgbMainElement === 'B' ? 'R' : 'B'
-                ]
-              }
+              color={systemColors[props.rgbMainElement === 'B' ? 'R' : 'B']}
             />
           )}
 
@@ -55,13 +56,9 @@ const FocusLine = (props: FocusLineProps) => {
             <StraightLine
               points={[
                 props.getRgbPosition(props.focusR, props.focusG, 0),
-                props.getRgbPosition(props.focusR, props.focusG, 255)
+                props.getRgbPosition(props.focusR, props.focusG, 255),
               ]}
-              color={
-                systemColors[
-                  props.rgbMainElement === 'R' ? 'G' : 'R'
-                ]
-              }
+              color={systemColors[props.rgbMainElement === 'R' ? 'G' : 'R']}
             />
           )}
         </>
@@ -72,39 +69,27 @@ const FocusLine = (props: FocusLineProps) => {
             <StraightLine
               points={[
                 props.getRgbPosition(0, props.focusG, props.focusB),
-                props.getRgbPosition(255, props.focusG, props.focusB)
+                props.getRgbPosition(255, props.focusG, props.focusB),
               ]}
-              color={
-                systemColors[
-                  props.cmykMainElement === 'M' ? 'Y' : 'M'
-                ]
-              }
+              color={systemColors[props.cmykMainElement === 'M' ? 'Y' : 'M']}
             />
           )}
           {props.cmykMainElement !== 'M' && (
             <StraightLine
               points={[
                 props.getRgbPosition(props.focusR, 0, props.focusB),
-                props.getRgbPosition(props.focusR, 255, props.focusB)
+                props.getRgbPosition(props.focusR, 255, props.focusB),
               ]}
-              color={
-                systemColors[
-                  props.cmykMainElement === 'Y' ? 'C' : 'Y'
-                ]
-              }
+              color={systemColors[props.cmykMainElement === 'Y' ? 'C' : 'Y']}
             />
           )}
           {props.cmykMainElement !== 'Y' && (
             <StraightLine
               points={[
                 props.getRgbPosition(props.focusR, props.focusG, 0),
-                props.getRgbPosition(props.focusR, props.focusG, 255)
+                props.getRgbPosition(props.focusR, props.focusG, 255),
               ]}
-              color={
-                systemColors[
-                  props.cmykMainElement === 'C' ? 'M' : 'C'
-                ]
-              }
+              color={systemColors[props.cmykMainElement === 'C' ? 'M' : 'C']}
             />
           )}
         </>
@@ -113,26 +98,14 @@ const FocusLine = (props: FocusLineProps) => {
       {props.shape === 'HSL' && (
         <>
           {props.hslMainElement !== 'H' && (
-            <Circle
-              radius={rescaledS}
-              position={[0, 0, rescaledL]}
-              color={systemColors["W"]}
-            />
+            <Circle radius={rescaledS} position={[0, 0, rescaledL]} color={systemColors['W']} />
           )}
 
           {props.hslMainElement !== 'S' && (
             <StraightLine
               points={[
-                props.cylindricalToCartesian(
-                  rescaledH,
-                  0,
-                  rescaledL
-                ),
-                props.cylindricalToCartesian(
-                  rescaledH,
-                  props.cylinderRadius,
-                  rescaledL
-                )
+                props.cylindricalToCartesian(rescaledH, 0, rescaledL),
+                props.cylindricalToCartesian(rescaledH, props.cylinderRadius, rescaledL),
               ]}
               color={systemColors['K']}
             />
@@ -141,18 +114,10 @@ const FocusLine = (props: FocusLineProps) => {
           {props.hslMainElement !== 'L' && (
             <StraightLine
               points={[
-                props.cylindricalToCartesian(
-                  rescaledH,
-                  rescaledS,
-                  -props.cylinderHeight / 2
-                ),
-                props.cylindricalToCartesian(
-                  rescaledH,
-                  rescaledS,
-                  props.cylinderHeight / 2
-                )
+                props.cylindricalToCartesian(rescaledH, rescaledS, -props.cylinderHeight / 2),
+                props.cylindricalToCartesian(rescaledH, rescaledS, props.cylinderHeight / 2),
               ]}
-              color={systemColors["DEEP_GRAY"]}
+              color={systemColors['DEEP_GRAY']}
             />
           )}
         </>
@@ -160,46 +125,26 @@ const FocusLine = (props: FocusLineProps) => {
       {props.shape === 'HSV' && (
         <>
           {props.hsvMainElement !== 'H' && (
-            <Circle
-              radius={rescaledHsvS}
-              position={[0, 0, rescaledV]}
-              color={systemColors["W"]}
-            />
+            <Circle radius={rescaledHsvS} position={[0, 0, rescaledV]} color={systemColors['W']} />
           )}
 
           {props.hsvMainElement !== 'S' && (
             <StraightLine
               points={[
-                props.cylindricalToCartesian(
-                  rescaledH,
-                  0,
-                  rescaledV
-                ),
-                props.cylindricalToCartesian(
-                  rescaledH,
-                  props.cylinderRadius,
-                  rescaledV
-                )
+                props.cylindricalToCartesian(rescaledH, 0, rescaledV),
+                props.cylindricalToCartesian(rescaledH, props.cylinderRadius, rescaledV),
               ]}
-              color={systemColors["K"]}
+              color={systemColors['K']}
             />
           )}
 
           {props.hsvMainElement !== 'V' && (
             <StraightLine
               points={[
-                props.cylindricalToCartesian(
-                  rescaledH,
-                  rescaledHsvS,
-                  -props.cylinderHeight / 2
-                ),
-                props.cylindricalToCartesian(
-                  rescaledH,
-                  rescaledHsvS,
-                  props.cylinderHeight / 2
-                )
+                props.cylindricalToCartesian(rescaledH, rescaledHsvS, -props.cylinderHeight / 2),
+                props.cylindricalToCartesian(rescaledH, rescaledHsvS, props.cylinderHeight / 2),
               ]}
-              color={systemColors["DEEP_GRAY"]}
+              color={systemColors['DEEP_GRAY']}
             />
           )}
         </>
@@ -209,4 +154,3 @@ const FocusLine = (props: FocusLineProps) => {
 };
 
 export default FocusLine;
-

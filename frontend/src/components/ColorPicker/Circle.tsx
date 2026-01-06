@@ -9,15 +9,8 @@ interface CircleProps {
 
 const Circle = (props: CircleProps) => {
   const points = getCirclePoints(props.radius);
-  
-  return (
-    <Line
-      points={points}
-      color={props.color}
-      lineWidth={3}
-      position={props.position}
-    />
-  );
+
+  return <Line points={points} color={props.color} lineWidth={3} position={props.position} />;
 };
 
 // Helper function to calculate circle points
@@ -37,4 +30,3 @@ const getCirclePoints = (radius: number): number[] => {
 };
 
 export default Circle;
-

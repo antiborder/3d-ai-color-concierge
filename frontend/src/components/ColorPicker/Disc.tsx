@@ -15,19 +15,18 @@ const Disc = (props: DiscProps) => {
     color: 0xffffff,
     opacity: 0.4,
     transparent: true,
-    side: props.side || THREE.DoubleSide
+    side: props.side || THREE.DoubleSide,
   });
-  
+
   return (
     // @ts-ignore - React Three Fiber mesh element
-    <mesh 
-      position={props.position} 
-      rotation={[Math.PI / 2, 0, 0]} 
-      geometry={geometry} 
+    <mesh
+      position={props.position}
+      rotation={[Math.PI / 2, 0, 0]}
+      geometry={geometry}
       material={material}
     />
   );
 };
 
 export default Disc;
-

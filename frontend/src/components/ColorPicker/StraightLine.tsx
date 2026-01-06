@@ -11,14 +11,9 @@ interface StraightLineProps {
 const StraightLine = (props: StraightLineProps) => {
   return (
     <>
-      <Line
-        points={props.points}
-        color={props.color}
-        lineWidth={3}
-      />
+      <Line points={props.points} color={props.color} lineWidth={3} />
     </>
   );
 };
 
 export default StraightLine;
-

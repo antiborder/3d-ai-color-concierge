@@ -31,7 +31,7 @@ h1 {
   left: 50%;
   transform: translate(-50%, -50%);
   color: white;
-  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   font-size: 55px;
   letter-spacing: 1px;
 }
