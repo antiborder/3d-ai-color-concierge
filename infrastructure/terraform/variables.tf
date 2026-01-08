@@ -23,12 +23,13 @@ variable "stage_name" {
 }
 
 variable "cors_origins" {
-  description = "CORS allowed origins"
+  description = "CORS allowed origins (wildcards not supported in API Gateway v2)"
   type        = list(string)
   default = [
     "http://localhost:3000",
-    "http://localhost:5173",
-    "https://*.cloudfront.net"
+    "http://localhost:5173"
+    # CloudFront domain will be added later with specific domain name
+    # Example: "https://d1234567890.cloudfront.net"
   ]
 }
 

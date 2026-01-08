@@ -192,7 +192,7 @@
 - **API**: API Gateway (REST API → WebSocket API移行予定)
 
 #### Lambda設定
-- **ランタイム**: Python 3.11
+- **ランタイム**: Python 3.13
 - **タイムアウト**: 30秒
 - **メモリ**: 512MB（初回実装、様子を見て調整）
 - **同時実行数**: 適切な制限を設定
@@ -234,7 +234,7 @@
 - **スタイリング**: styled-components (既存)
 
 ### バックエンド
-- **言語**: Python 3.11+
+- **言語**: Python 3.13
 - **フレームワーク**: FastAPI
 - **LLM**: Google Gemini 3 Flash API
 - **実行環境**: AWS Lambda
