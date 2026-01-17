@@ -18,8 +18,18 @@ pip install -r requirements.txt
 ### 3. 環境変数の設定
 
 ```bash
-cp .env.example .env
-# .envファイルを編集して必要な環境変数を設定
+cp env.example .env
+# .envファイルを編集してGEMINI_API_KEYを設定
+```
+
+**重要**: `GEMINI_API_KEY`は必須です。APIキーは以下から取得できます：
+- https://makersuite.google.com/app/apikey
+
+`.env`ファイルの例：
+```
+GEMINI_API_KEY=your-gemini-api-key-here
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+ENVIRONMENT=development
 ```
 
 ### 4. AWS認証情報の設定
@@ -73,11 +83,14 @@ APIドキュメント: http://localhost:8000/docs
 
 ```bash
 export AWS_PROFILE=3d-color-concierge
+export TF_VAR_gemini_api_key="your-gemini-api-key-here"
 cd infrastructure/terraform
 terraform init
 terraform plan
 terraform apply
 ```
+
+**重要**: `TF_VAR_gemini_api_key`環境変数を設定するか、`terraform.tfvars`ファイルを作成して設定してください（`terraform.tfvars`は`.gitignore`に含まれています）。
 
 ## テスト
 
@@ -87,11 +100,21 @@ terraform apply
 # ヘルスチェック
 curl http://localhost:8000/health
 
-# 音声処理エンドポイント（モック）
+# 音声処理エンドポイント（Gemini API統合）
 curl -X POST http://localhost:8000/api/voice/process \
   -H "Content-Type: application/json" \
   -d '{
     "transcript": "赤を選んで",
+    "current_color": {"r": 128, "g": 128, "b": 128},
+    "conversation_history": [],
+    "language": "ja"
+  }'
+
+# チャットボット応答のテスト
+curl -X POST http://localhost:8000/api/voice/process \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transcript": "落ち着いた青を提案して",
     "current_color": {"r": 128, "g": 128, "b": 128},
     "conversation_history": [],
     "language": "ja"

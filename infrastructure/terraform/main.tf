@@ -82,6 +82,7 @@ resource "aws_lambda_function" "api" {
       ENVIRONMENT = var.environment
       CORS_ORIGINS = join(",", var.cors_origins)
       API_STAGE_NAME = var.stage_name
+      GEMINI_API_KEY = var.gemini_api_key
     }
   }
 }
