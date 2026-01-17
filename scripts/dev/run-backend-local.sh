@@ -20,8 +20,19 @@ pip install -r requirements.txt
 
 # 環境変数ファイルが存在しない場合は作成
 if [ ! -f ".env" ]; then
-    echo "Creating .env file from .env.example..."
-    cp .env.example .env 2>/dev/null || echo "# CORS_ORIGINS=http://localhost:3000,http://localhost:5173" > .env
+    echo "Creating .env file from env.example..."
+    if [ -f "env.example" ]; then
+        cp env.example .env
+        echo "Please edit .env file and set your GEMINI_API_KEY"
+    else
+        echo "# Gemini API Configuration" > .env
+        echo "GEMINI_API_KEY=your-gemini-api-key-here" >> .env
+        echo "# CORS_ORIGINS=http://localhost:3000,http://localhost:5173" >> .env
+        echo "ENVIRONMENT=development" >> .env
+        echo "API_VERSION=v1" >> .env
+        echo "API_STAGE_NAME=dev" >> .env
+        echo "Please edit .env file and set your GEMINI_API_KEY"
+    fi
 fi
 
 # FastAPIサーバーを起動

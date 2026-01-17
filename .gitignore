@@ -45,6 +45,11 @@ samconfig.toml
 .env.production.local
 backend/.env
 
+# Terraform
+*.tfvars
+*.tfstate
+*.tfstate.*
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

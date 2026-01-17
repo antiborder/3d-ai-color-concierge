@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     # 環境
     ENVIRONMENT: str = "development"
     
+    # Gemini API設定
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL_NAME: str = "gemini-3-flash-preview"  # Gemini 3 Flash (preview) as per design document
+    
     class Config:
         env_file = ".env"
         case_sensitive = True
@@ -32,6 +36,11 @@ class Settings(BaseSettings):
             # 環境変数から読み込んだ場合（カンマ区切り）
             return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
         return self.CORS_ORIGINS
+    
+    def validate_gemini_key(self) -> None:
+        """Gemini APIキーの検証"""
+        if not self.GEMINI_API_KEY:
+            raise ValueError("GEMINI_API_KEY environment variable is not set")
 
 
 settings = Settings()
