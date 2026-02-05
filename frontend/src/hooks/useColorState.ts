@@ -271,6 +271,63 @@ export const useColorState = () => {
     setColorState((prev) => ({ ...prev, hexInput: hex.toUpperCase() }));
   }, []);
 
+  /**
+   * Adjust HSL value (brightness, saturation, or hue)
+   * Always adjusts in HSL color space regardless of current color space
+   */
+  const adjustHslValue = useCallback(
+    (property: 'brightness' | 'saturation' | 'hue', direction: 'up' | 'down', amount?: number) => {
+      const currentH = colorState.h;
+      const currentS = colorState.s;
+      const currentL = colorState.l;
+
+      let newH = currentH;
+      let newS = currentS;
+      let newL = currentL;
+
+      // Calculate adjustment amount
+      // Default: 20% for brightness/saturation (relative), 10 for hue (absolute)
+      let adjustmentAmount: number;
+      if (amount !== undefined) {
+        // Use specified amount (absolute value)
+        adjustmentAmount = amount;
+      } else {
+        // Default adjustment based on property
+        if (property === 'hue') {
+          // Hue: absolute adjustment (0-360 range), default 10
+          adjustmentAmount = 10;
+        } else {
+          // Brightness/Saturation: 20% of current value (relative)
+          const currentValue = property === 'brightness' ? currentL : currentS;
+          adjustmentAmount = Math.round(currentValue * 0.2);
+          // Minimum adjustment of 1 if calculated value is too small
+          if (adjustmentAmount < 1) {
+            adjustmentAmount = 1;
+          }
+        }
+      }
+
+      // Apply adjustment
+      if (property === 'brightness') {
+        newL = direction === 'up' ? currentL + adjustmentAmount : currentL - adjustmentAmount;
+        // Clip to 0-100 range
+        newL = Math.max(0, Math.min(100, newL));
+      } else if (property === 'saturation') {
+        newS = direction === 'up' ? currentS + adjustmentAmount : currentS - adjustmentAmount;
+        // Clip to 0-100 range
+        newS = Math.max(0, Math.min(100, newS));
+      } else if (property === 'hue') {
+        newH = direction === 'up' ? currentH + adjustmentAmount : currentH - adjustmentAmount;
+        // Clip to 0-360 range (circular)
+        newH = ((newH % 360) + 360) % 360;
+      }
+
+      // Update color using HSL
+      updateFromHsl(newH, newS, newL);
+    },
+    [colorState.h, colorState.s, colorState.l, updateFromHsl]
+  );
+
   return {
     colorState,
     updateFromRgb,
@@ -289,5 +346,6 @@ export const useColorState = () => {
     setHsvMainElement,
     toggleLabel,
     setHexInput,
+    adjustHslValue,
   };
 };

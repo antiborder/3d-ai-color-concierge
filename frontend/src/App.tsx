@@ -1,16 +1,16 @@
 import './App.css';
+import { Toaster } from 'react-hot-toast';
 import ControlPane from './components/ColorPicker/ControlPane';
 import Structure from './components/ColorPicker/Structure';
 import Header from './components/common/Header';
 import VoiceControl from './components/VoiceControl/VoiceControl';
 import { useColorState } from './hooks/useColorState';
+import { useVoiceCommand } from './hooks/useVoiceCommand';
 
 function App() {
   const {
     colorState,
     updateFromRgb,
-    updateFromCmyk,
-    updateFromHsl,
     updateFromHsv,
     updateFromHex,
     updateRgbValue,
@@ -24,6 +24,7 @@ function App() {
     setHsvMainElement,
     toggleLabel,
     setHexInput,
+    adjustHslValue,
   } = useColorState();
 
   // Handler functions for color changes
@@ -67,21 +68,31 @@ function App() {
     updateFromHex(colorState.hexInput);
   };
 
+  // Voice command handlers
+  const voiceCommandHandlers = {
+    updateFromRgb,
+    updateRgbValue,
+    setShape,
+    toggleLabel,
+    adjustHslValue,
+  };
+
+  // Use voice command hook
+  const { processCommand } = useVoiceCommand(colorState, voiceCommandHandlers);
+
   // Handle voice recognition transcript
   const handleVoiceTranscript = (transcript: string) => {
-    // TODO: Phase 5 - Implement command parsing and execution
-    // For now, just log the transcript
-    console.log('Voice transcript:', transcript);
-    // In Phase 5, this will parse the transcript and execute commands
+    processCommand(transcript);
   };
 
   const handleVoiceError = (error: string) => {
     console.error('Voice recognition error:', error);
-    // TODO: Show error message to user (can use toast notification in future)
+    // Error is already handled by useVoiceCommand with toast notification
   };
 
   return (
     <>
+      <Toaster position="top-right" />
       <Header />
       <Structure
         shape={colorState.shape}

@@ -33,3 +33,12 @@ variable "cors_origins" {
   ]
 }
 
+variable "gemini_api_key" {
+  description = "Gemini API key (sensitive - set via TF_VAR_gemini_api_key or terraform.tfvars)"
+  type        = string
+  sensitive   = true
+  # No default - must be provided via environment variable or terraform.tfvars
+  # Example: export TF_VAR_gemini_api_key="your-key-here"
+  # Or create terraform.tfvars (which should be in .gitignore)
+}
+

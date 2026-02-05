@@ -10,6 +10,10 @@ terraform {
       source  = "hashicorp/archive"
       version = "~> 2.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.0"
+    }
   }
   
   backend "s3" {
@@ -66,9 +70,62 @@ data "archive_file" "lambda_zip" {
   ]
 }
 
+# S3バケット（Lambdaデプロイ用）
+resource "random_id" "bucket_suffix" {
+  byte_length = 4
+}
+
+resource "aws_s3_bucket" "lambda_deployments" {
+  bucket = "${var.project_name}-lambda-deployments-${random_id.bucket_suffix.hex}"
+}
+
+resource "aws_s3_bucket_versioning" "lambda_deployments" {
+  bucket = aws_s3_bucket.lambda_deployments.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "lambda_deployments" {
+  bucket = aws_s3_bucket.lambda_deployments.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# S3オブジェクト（Lambda ZIPをアップロード）
+resource "aws_s3_object" "lambda_zip" {
+  bucket = aws_s3_bucket.lambda_deployments.id
+  key    = "lambda_function_${data.archive_file.lambda_zip.output_base64sha256}.zip"
+  source = data.archive_file.lambda_zip.output_path
+  etag   = data.archive_file.lambda_zip.output_md5
+}
+
+# Lambda実行ロールにS3読み取り権限を追加
+resource "aws_iam_role_policy" "lambda_s3_read" {
+  name = "${var.project_name}-lambda-s3-read"
+  role = aws_iam_role.lambda_execution_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject"
+        ]
+        Resource = "${aws_s3_bucket.lambda_deployments.arn}/*"
+      }
+    ]
+  })
+}
+
 # Lambda関数
 resource "aws_lambda_function" "api" {
-  filename         = data.archive_file.lambda_zip.output_path
+  s3_bucket        = aws_s3_bucket.lambda_deployments.id
+  s3_key           = aws_s3_object.lambda_zip.key
   function_name   = "${var.project_name}-api"
   role            = aws_iam_role.lambda_execution_role.arn
   handler         = "app.lambda_handler.handler"

@@ -24,6 +24,34 @@ backend/**/__pycache__/
 venv/
 env/
 ENV/
+backend/venv/
+
+# Python packages (installed directly in backend/)
+backend/bin/
+backend/*.so
+backend/*.pth
+backend/google/
+backend/googleapiclient/
+backend/google_auth_httplib2.py
+backend/grpc/
+backend/grpc_status/
+backend/httplib2/
+backend/proto/
+backend/pyasn1/
+backend/pyasn1_modules/
+backend/pycparser/
+backend/pyparsing/
+backend/requests/
+backend/rsa/
+backend/tqdm/
+backend/certifi/
+backend/cffi/
+backend/charset_normalizer/
+backend/cryptography/
+backend/apiclient/
+backend/_yaml/
+backend/dateutil/
+backend/uritemplate/
 
 # AWS
 .aws-sam/
