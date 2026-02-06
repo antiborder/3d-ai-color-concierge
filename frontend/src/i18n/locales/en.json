@@ -29,7 +29,8 @@
     "audioCapture": "Microphone not found or access denied",
     "notAllowed": "Microphone permission denied",
     "networkError": "Network error occurred",
-    "chatHistory": "Chat History"
+    "chatHistory": "Chat History",
+    "stopTTS": "Stop speaking"
   },
   "chatbot": {
     "history": {

@@ -36,13 +36,15 @@ export interface VoiceCommandHandlers {
  * @param handlers - コマンド実行用のハンドラー関数
  * @param conversationHistory - 会話履歴
  * @param onHistoryUpdate - 会話履歴更新コールバック
+ * @param onSpeak - 音声合成コールバック（テキストを音声で読み上げる）
  * @returns processCommand - 音声トランスクリプトを処理してコマンドを実行する関数
  */
 export function useVoiceCommand(
   currentColorState: ColorState,
   handlers: VoiceCommandHandlers,
   conversationHistory: ConversationMessage[] = [],
-  onHistoryUpdate?: (history: ConversationMessage[]) => void
+  onHistoryUpdate?: (history: ConversationMessage[]) => void,
+  onSpeak?: (text: string) => void
 ) {
   const { i18n } = useTranslation();
 
@@ -87,9 +89,19 @@ export function useVoiceCommand(
         // レスポンスタイプに応じて処理
         if (response.type === 'command' && response.command) {
           executeCommand(response.command, handlers);
+          // コマンド実行時の人間っぽいメッセージを音声合成
+          // 会話履歴の最後のメッセージ（アシスタントの応答）を使用
+          if (onSpeak && response.updated_history.length > 0) {
+            const lastMessage = response.updated_history[response.updated_history.length - 1];
+            if (lastMessage.role === 'assistant' && lastMessage.content) {
+              onSpeak(lastMessage.content);
+            }
+          }
         } else if (response.type === 'chatbot' && response.response) {
-          // チャットボット応答は会話履歴に追加済み（APIレスポンスのupdated_historyに含まれる）
-          // ステップ6.2で音声合成を実装予定
+          // チャットボット応答を音声合成
+          if (onSpeak && response.response) {
+            onSpeak(response.response);
+          }
         }
       } catch (error) {
         const errorMessage =
@@ -98,7 +110,7 @@ export function useVoiceCommand(
         toast.error(errorMessage);
       }
     },
-    [currentColorState, handlers, i18n.language, conversationHistory, onHistoryUpdate]
+    [currentColorState, handlers, i18n.language, conversationHistory, onHistoryUpdate, onSpeak]
   );
 
   return { processCommand };

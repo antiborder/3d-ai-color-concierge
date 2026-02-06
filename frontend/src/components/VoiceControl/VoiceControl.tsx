@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useVoiceRecognition } from '../../hooks/useVoiceRecognition';
+import { useTTS } from '../../hooks/useTTS';
 import styled, { keyframes } from 'styled-components';
 
 interface VoiceControlProps {
@@ -8,9 +9,15 @@ interface VoiceControlProps {
   onError?: (error: string) => void;
   onOpenChatHistory?: () => void;
   isLoading?: boolean;
+  onSpeak?: (text: string) => void;
 }
 
-const VoiceControl = ({ onTranscript, onError, onOpenChatHistory, isLoading = false }: VoiceControlProps) => {
+const VoiceControl = ({
+  onTranscript,
+  onError,
+  onOpenChatHistory,
+  isLoading = false,
+}: VoiceControlProps) => {
   const { t } = useTranslation();
   const [textInput, setTextInput] = useState('');
 
@@ -36,6 +43,24 @@ const VoiceControl = ({ onTranscript, onError, onOpenChatHistory, isLoading = fa
     continuous: false,
     interimResults: false,
   });
+
+  // TTS hook - ユーザーが話し始めたら停止
+  const {
+    isSpeaking,
+    stop: stopTTS,
+    stopIfSpeaking,
+  } = useTTS({
+    onError: (error) => {
+      console.error('TTS error:', error);
+    },
+  });
+
+  // ユーザーが話し始めたら音声を停止
+  useEffect(() => {
+    if (isListening) {
+      stopIfSpeaking();
+    }
+  }, [isListening, stopIfSpeaking]);
 
   const handleMicClick = () => {
     if (isListening) {
@@ -96,6 +121,11 @@ const VoiceControl = ({ onTranscript, onError, onOpenChatHistory, isLoading = fa
           <ChatHistoryButton onClick={onOpenChatHistory} title={t('voiceControl.chatHistory')}>
             <ChatIcon />
           </ChatHistoryButton>
+        )}
+        {isSpeaking && (
+          <StopButton onClick={stopTTS} title={t('voiceControl.stopTTS', 'Stop speaking')}>
+            <StopIcon />
+          </StopButton>
         )}
       </VoiceInputContainer>
       {isLoading && <LoadingMessage>{t('chatbot.loading')}</LoadingMessage>}
@@ -301,5 +331,43 @@ const LoadingMessage = styled.div`
   font-size: 12px;
   text-align: center;
 `;
+
+const StopButton = styled.button`
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background-color: #ff4444;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  flex-shrink: 0;
+
+  &:hover {
+    background-color: #cc0000;
+    transform: scale(1.05);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+`;
+
+const StopIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="6" y="6" width="12" height="12" rx="2" />
+  </svg>
+);
 
 export default VoiceControl;

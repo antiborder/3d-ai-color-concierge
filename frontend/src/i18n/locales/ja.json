@@ -29,7 +29,8 @@
     "audioCapture": "マイクが見つからないか、アクセスが拒否されました",
     "notAllowed": "マイクの権限が拒否されました",
     "networkError": "ネットワークエラーが発生しました",
-    "chatHistory": "チャット履歴"
+    "chatHistory": "チャット履歴",
+    "stopTTS": "音声を停止"
   },
   "chatbot": {
     "history": {

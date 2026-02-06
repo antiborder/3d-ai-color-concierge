@@ -9,6 +9,7 @@ import ChatHistoryModal from './components/Chatbot/ChatHistoryModal';
 import { useColorState } from './hooks/useColorState';
 import { useVoiceCommand } from './hooks/useVoiceCommand';
 import { useChatbot } from './hooks/useChatbot';
+import { useTTS } from './hooks/useTTS';
 
 function App() {
   const {
@@ -72,14 +73,8 @@ function App() {
   };
 
   // Chatbot hook for conversation history management
-  const {
-    conversationHistory,
-    isModalOpen,
-    updateHistory,
-    clearHistory,
-    openModal,
-    closeModal,
-  } = useChatbot();
+  const { conversationHistory, isModalOpen, updateHistory, clearHistory, openModal, closeModal } =
+    useChatbot();
 
   // Voice command handlers
   const voiceCommandHandlers = {
@@ -93,12 +88,20 @@ function App() {
   // Loading state for API calls
   const [isLoading, setIsLoading] = useState(false);
 
+  // TTS hook for speech synthesis
+  const { speak } = useTTS({
+    onError: (error) => {
+      console.error('TTS error:', error);
+    },
+  });
+
   // Use voice command hook with conversation history
   const { processCommand } = useVoiceCommand(
     colorState,
     voiceCommandHandlers,
     conversationHistory,
-    updateHistory
+    updateHistory,
+    speak // 音声合成コールバックを渡す
   );
 
   // Handle voice recognition transcript

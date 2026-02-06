@@ -99,9 +99,13 @@ When the user's input is a command, respond with:
       "color": {"r": 255, "g": 0, "b": 0}
     }
   },
-  "response": null
+  "response": "Selected red."
 }
 ```
+
+**Important**: Even for command responses, you must include a natural, human-like message in the `response` field.
+- Examples: "Selected red.", "Increased brightness by 20%.", "Switched to RGB mode."
+- Do not use system messages like "Command executed: SELECT_COLOR".
 
 ### Type 2: Chatbot Response
 When the user's input is a question, request for advice, or color coordination suggestion, respond with:
@@ -175,9 +179,13 @@ JSON形式で応答する必要があります。レスポンスタイプは2つ
       "color": {"r": 255, "g": 0, "b": 0}
     }
   },
-  "response": null
+  "response": "赤を選択しました。"
 }
 ```
+
+**重要**: コマンドレスポンスの場合でも、`response`フィールドに人間が話すような自然なメッセージを必ず含めてください。
+- 例: 「赤を選択しました。」「明度を20%上げました。」「RGBモードに切り替えました。」
+- システムメッセージ（例: 「コマンドを実行しました: SELECT_COLOR」）は使用しないでください。
 
 ### タイプ2: チャットボットレスポンス
 ユーザーの入力が質問、アドバイスのリクエスト、またはカラーコーディネートの提案の場合、以下の形式で応答：
@@ -409,11 +417,16 @@ class GeminiService:
             updated_history.append(ConversationMessage(role="user", content=transcript))
             
             if response_type == "command":
-                # コマンドの場合は簡潔な応答を追加
-                if language == "en":
-                    assistant_response = f"Command executed: {command.action}"
+                # コマンドの場合は、AIが生成した人間っぽいメッセージを使用
+                # response_textがnullの場合はフォールバックメッセージを使用
+                if response_text:
+                    assistant_response = response_text
                 else:
-                    assistant_response = f"コマンドを実行しました: {command.action}"
+                    # フォールバック（通常は発生しない）
+                    if language == "en":
+                        assistant_response = f"Command executed: {command.action}"
+                    else:
+                        assistant_response = f"コマンドを実行しました: {command.action}"
             else:
                 # チャットボットの場合は生成された応答を使用
                 assistant_response = response_text or ""
