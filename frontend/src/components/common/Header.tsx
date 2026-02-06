@@ -16,6 +16,10 @@ const Header = () => {
 
   const handleLanguageChange = (langCode: string) => {
     i18n.changeLanguage(langCode);
+    // URLのクエリパラメータを更新
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', langCode);
+    window.history.pushState({}, '', url.toString());
     setIsOpen(false);
   };
 

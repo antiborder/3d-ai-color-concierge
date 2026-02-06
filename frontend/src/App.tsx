@@ -1,5 +1,6 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Toaster } from 'react-hot-toast';
 import ControlPane from './components/ColorPicker/ControlPane';
 import Structure from './components/ColorPicker/Structure';
@@ -12,6 +13,36 @@ import { useChatbot } from './hooks/useChatbot';
 import { useTTS } from './hooks/useTTS';
 
 function App() {
+  const { i18n } = useTranslation();
+
+  // URLのクエリパラメータ（?lang=jaなど）を監視して言語を更新
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const langParam = urlParams.get('lang');
+    if (langParam && (langParam === 'ja' || langParam === 'en')) {
+      if (i18n.language !== langParam) {
+        i18n.changeLanguage(langParam);
+      }
+    }
+  }, [i18n]);
+
+  // ブラウザの戻る/進むボタンでURLが変更されたときも言語を更新
+  useEffect(() => {
+    const handlePopState = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const langParam = urlParams.get('lang');
+      if (langParam && (langParam === 'ja' || langParam === 'en')) {
+        if (i18n.language !== langParam) {
+          i18n.changeLanguage(langParam);
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [i18n]);
   const {
     colorState,
     updateFromRgb,

@@ -25,8 +25,10 @@ i18n
       escapeValue: false, // React already escapes values
     },
     detection: {
-      order: ['localStorage', 'navigator'],
+      // クエリパラメータを最優先で検出
+      order: ['querystring', 'localStorage', 'navigator'],
       caches: ['localStorage'],
+      lookupQuerystring: 'lang', // ?lang=ja または ?lang=en
       lookupLocalStorage: 'i18nextLng',
       // Convert browser language to our language codes
       convertDetectedLanguage: (lng: string) => {
