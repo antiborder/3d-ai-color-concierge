@@ -1,11 +1,14 @@
 import './App.css';
+import { useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import ControlPane from './components/ColorPicker/ControlPane';
 import Structure from './components/ColorPicker/Structure';
 import Header from './components/common/Header';
 import VoiceControl from './components/VoiceControl/VoiceControl';
+import ChatHistoryModal from './components/Chatbot/ChatHistoryModal';
 import { useColorState } from './hooks/useColorState';
 import { useVoiceCommand } from './hooks/useVoiceCommand';
+import { useChatbot } from './hooks/useChatbot';
 
 function App() {
   const {
@@ -68,6 +71,16 @@ function App() {
     updateFromHex(colorState.hexInput);
   };
 
+  // Chatbot hook for conversation history management
+  const {
+    conversationHistory,
+    isModalOpen,
+    updateHistory,
+    clearHistory,
+    openModal,
+    closeModal,
+  } = useChatbot();
+
   // Voice command handlers
   const voiceCommandHandlers = {
     updateFromRgb,
@@ -77,16 +90,30 @@ function App() {
     adjustHslValue,
   };
 
-  // Use voice command hook
-  const { processCommand } = useVoiceCommand(colorState, voiceCommandHandlers);
+  // Loading state for API calls
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Use voice command hook with conversation history
+  const { processCommand } = useVoiceCommand(
+    colorState,
+    voiceCommandHandlers,
+    conversationHistory,
+    updateHistory
+  );
 
   // Handle voice recognition transcript
-  const handleVoiceTranscript = (transcript: string) => {
-    processCommand(transcript);
+  const handleVoiceTranscript = async (transcript: string) => {
+    setIsLoading(true);
+    try {
+      await processCommand(transcript);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleVoiceError = (error: string) => {
     console.error('Voice recognition error:', error);
+    setIsLoading(false);
     // Error is already handled by useVoiceCommand with toast notification
   };
 
@@ -152,7 +179,18 @@ function App() {
         setHexInput={setHexInput}
         onHexUpdate={handleHexUpdate}
       />
-      <VoiceControl onTranscript={handleVoiceTranscript} onError={handleVoiceError} />
+      <VoiceControl
+        onTranscript={handleVoiceTranscript}
+        onError={handleVoiceError}
+        onOpenChatHistory={openModal}
+        isLoading={isLoading}
+      />
+      <ChatHistoryModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        conversationHistory={conversationHistory}
+        onClearHistory={clearHistory}
+      />
     </>
   );
 }

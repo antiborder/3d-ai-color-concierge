@@ -28,6 +28,15 @@
     "noSpeech": "No speech detected",
     "audioCapture": "Microphone not found or access denied",
     "notAllowed": "Microphone permission denied",
-    "networkError": "Network error occurred"
+    "networkError": "Network error occurred",
+    "chatHistory": "Chat History"
+  },
+  "chatbot": {
+    "history": {
+      "title": "Chat History",
+      "clear": "Clear",
+      "empty": "No conversation history yet."
+    },
+    "loading": "Processing..."
   }
 }

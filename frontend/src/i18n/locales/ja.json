@@ -28,6 +28,15 @@
     "noSpeech": "音声が検出されませんでした",
     "audioCapture": "マイクが見つからないか、アクセスが拒否されました",
     "notAllowed": "マイクの権限が拒否されました",
-    "networkError": "ネットワークエラーが発生しました"
+    "networkError": "ネットワークエラーが発生しました",
+    "chatHistory": "チャット履歴"
+  },
+  "chatbot": {
+    "history": {
+      "title": "チャット履歴",
+      "clear": "クリア",
+      "empty": "まだ会話履歴がありません。"
+    },
+    "loading": "処理中..."
   }
 }

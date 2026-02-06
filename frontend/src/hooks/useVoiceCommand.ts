@@ -5,7 +5,12 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { processVoiceInput } from '@/services/voiceApi';
-import type { ColorState as VoiceColorState, VoiceProcessRequest, Command } from '@/types/voice';
+import type {
+  ColorState as VoiceColorState,
+  VoiceProcessRequest,
+  Command,
+  ConversationMessage,
+} from '@/types/voice';
 import type { ColorSpace } from '@/types/color';
 import type { ColorState } from '@/types/colorState';
 
@@ -29,9 +34,16 @@ export interface VoiceCommandHandlers {
  *
  * @param currentColorState - 現在の色状態
  * @param handlers - コマンド実行用のハンドラー関数
+ * @param conversationHistory - 会話履歴
+ * @param onHistoryUpdate - 会話履歴更新コールバック
  * @returns processCommand - 音声トランスクリプトを処理してコマンドを実行する関数
  */
-export function useVoiceCommand(currentColorState: ColorState, handlers: VoiceCommandHandlers) {
+export function useVoiceCommand(
+  currentColorState: ColorState,
+  handlers: VoiceCommandHandlers,
+  conversationHistory: ConversationMessage[] = [],
+  onHistoryUpdate?: (history: ConversationMessage[]) => void
+) {
   const { i18n } = useTranslation();
 
   /**
@@ -57,24 +69,27 @@ export function useVoiceCommand(currentColorState: ColorState, handlers: VoiceCo
         };
 
         // APIリクエストを作成
-        // ステップ5.1では会話履歴は空（ステップ6.1で実装）
         const request: VoiceProcessRequest = {
           transcript,
           current_color: currentColor,
-          conversation_history: [],
+          conversation_history: conversationHistory,
           language: i18n.language === 'ja' ? 'ja' : 'en',
         };
 
         // API呼び出し
         const response = await processVoiceInput(request);
 
+        // 会話履歴を更新
+        if (onHistoryUpdate && response.updated_history) {
+          onHistoryUpdate(response.updated_history);
+        }
+
         // レスポンスタイプに応じて処理
         if (response.type === 'command' && response.command) {
           executeCommand(response.command, handlers);
         } else if (response.type === 'chatbot' && response.response) {
-          // ステップ5.1ではチャットボット応答はログ出力のみ
-          // ステップ6.1でUI表示を実装
-          console.log('Chatbot response:', response.response);
+          // チャットボット応答は会話履歴に追加済み（APIレスポンスのupdated_historyに含まれる）
+          // ステップ6.2で音声合成を実装予定
         }
       } catch (error) {
         const errorMessage =
@@ -83,7 +98,7 @@ export function useVoiceCommand(currentColorState: ColorState, handlers: VoiceCo
         toast.error(errorMessage);
       }
     },
-    [currentColorState, handlers, i18n.language]
+    [currentColorState, handlers, i18n.language, conversationHistory, onHistoryUpdate]
   );
 
   return { processCommand };

@@ -6,9 +6,11 @@ import styled, { keyframes } from 'styled-components';
 interface VoiceControlProps {
   onTranscript: (transcript: string) => void;
   onError?: (error: string) => void;
+  onOpenChatHistory?: () => void;
+  isLoading?: boolean;
 }
 
-const VoiceControl = ({ onTranscript, onError }: VoiceControlProps) => {
+const VoiceControl = ({ onTranscript, onError, onOpenChatHistory, isLoading = false }: VoiceControlProps) => {
   const { t } = useTranslation();
   const [textInput, setTextInput] = useState('');
 
@@ -60,7 +62,7 @@ const VoiceControl = ({ onTranscript, onError }: VoiceControlProps) => {
       <VoiceInputContainer>
         <MicButton
           onClick={handleMicClick}
-          disabled={!isSupported}
+          disabled={!isSupported || isLoading}
           $isListening={isListening}
           title={
             isSupported
@@ -84,13 +86,19 @@ const VoiceControl = ({ onTranscript, onError }: VoiceControlProps) => {
             value={textInput}
             onChange={handleTextChange}
             placeholder={t('voiceControl.textPlaceholder')}
-            disabled={isListening}
+            disabled={isListening || isLoading}
           />
-          <SubmitButton type="submit" disabled={!textInput.trim() || isListening}>
+          <SubmitButton type="submit" disabled={!textInput.trim() || isListening || isLoading}>
             {t('voiceControl.submit')}
           </SubmitButton>
         </TextInputForm>
+        {onOpenChatHistory && (
+          <ChatHistoryButton onClick={onOpenChatHistory} title={t('voiceControl.chatHistory')}>
+            <ChatIcon />
+          </ChatHistoryButton>
+        )}
       </VoiceInputContainer>
+      {isLoading && <LoadingMessage>{t('chatbot.loading')}</LoadingMessage>}
       {error && <ErrorMessage>{error}</ErrorMessage>}
       {!isSupported && <WarningMessage>{t('voiceControl.notSupported')}</WarningMessage>}
     </StyledVoiceControl>
@@ -244,6 +252,54 @@ const WarningMessage = styled.div`
   color: #856404;
   border-radius: 4px;
   font-size: 12px;
+`;
+
+const ChatHistoryButton = styled.button`
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background-color: #6c757d;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  flex-shrink: 0;
+
+  &:hover {
+    background-color: #5a6268;
+    transform: scale(1.05);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+`;
+
+const ChatIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+);
+
+const LoadingMessage = styled.div`
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border-radius: 4px;
+  font-size: 12px;
+  text-align: center;
 `;
 
 export default VoiceControl;
