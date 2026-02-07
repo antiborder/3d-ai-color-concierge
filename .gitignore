@@ -26,17 +26,26 @@ env/
 ENV/
 backend/venv/
 
-# Python packages (installed directly in backend/)
+# Python packages (installed directly in backend/ for Lambda deployment)
 backend/bin/
 backend/*.so
 backend/*.pth
+backend/*.dist-info/
 backend/google/
 backend/googleapiclient/
+backend/google_ai_generativelanguage/
+backend/google_api_core/
+backend/google_api_python_client/
+backend/google_auth/
 backend/google_auth_httplib2.py
+backend/google_generativeai/
+backend/googleapis_common_protos/
 backend/grpc/
 backend/grpc_status/
 backend/httplib2/
 backend/proto/
+backend/proto_plus/
+backend/protobuf/
 backend/pyasn1/
 backend/pyasn1_modules/
 backend/pycparser/
@@ -52,6 +61,34 @@ backend/apiclient/
 backend/_yaml/
 backend/dateutil/
 backend/uritemplate/
+backend/boto3/
+backend/botocore/
+backend/jmespath/
+backend/s3transfer/
+backend/python_dateutil/
+backend/urllib3/
+backend/idna/
+backend/six/
+backend/typing_extensions/
+backend/annotated_types/
+backend/fastapi/
+backend/starlette/
+backend/pydantic/
+backend/pydantic_core/
+backend/pydantic_settings/
+backend/mangum/
+backend/uvicorn/
+backend/anyio/
+backend/click/
+backend/h11/
+backend/httptools/
+backend/pyyaml/
+backend/uvloop/
+backend/watchfiles/
+backend/websockets/
+backend/python_multipart/
+backend/dotenv/
+backend/multipart/
 
 # AWS
 .aws-sam/

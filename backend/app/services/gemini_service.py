@@ -316,6 +316,8 @@ def parse_gemini_response(response_text: str) -> Dict[str, Any]:
     Raises:
         ValueError: JSONパースに失敗した場合
     """
+    original_text = response_text  # 元のテキストを保持
+    
     # JSONコードブロックを除去
     response_text = response_text.strip()
     if response_text.startswith("```json"):
@@ -331,8 +333,34 @@ def parse_gemini_response(response_text: str) -> Dict[str, Any]:
     try:
         return json.loads(response_text)
     except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse Gemini response as JSON: {response_text}")
-        raise ValueError(f"Invalid JSON response from Gemini: {str(e)}")
+        # エラー詳細をログ出力（長い場合は最初と最後の部分を出力）
+        error_msg = f"JSON parse error: {str(e)}"
+        if len(original_text) > 1000:
+            logger.error(
+                f"Failed to parse Gemini response as JSON. "
+                f"Response length: {len(original_text)}. "
+                f"First 500 chars: {original_text[:500]}... "
+                f"Last 500 chars: ...{original_text[-500:]}"
+            )
+        else:
+            logger.error(f"Failed to parse Gemini response as JSON: {original_text}")
+        
+        # 不完全なJSONを修復する試み（responseフィールドが途中で切れている場合）
+        if "Unterminated string" in str(e) and '"response":' in response_text:
+            try:
+                # responseフィールドの値を空文字列に置き換えて修復を試みる
+                import re
+                # "response": "..." の部分を "response": "" に置き換え
+                fixed_text = re.sub(r'"response":\s*"[^"]*$', '"response": ""', response_text)
+                # 閉じ括弧を追加
+                if not fixed_text.rstrip().endswith('}'):
+                    fixed_text = fixed_text.rstrip() + '}'
+                logger.warning(f"Attempting to fix incomplete JSON: {fixed_text}")
+                return json.loads(fixed_text)
+            except (json.JSONDecodeError, Exception) as fix_error:
+                logger.error(f"Failed to fix incomplete JSON: {str(fix_error)}")
+        
+        raise ValueError(f"Invalid JSON response from Gemini: {error_msg}")
 
 
 class GeminiService:
@@ -395,6 +423,9 @@ class GeminiService:
             # Gemini APIを呼び出し
             response = self.model.generate_content(full_prompt)
             response_text = response.text
+            
+            # レスポンス全体をログ出力（デバッグ用）
+            logger.info(f"Gemini API response (length: {len(response_text)}): {response_text}")
             
             # レスポンスをパース
             parsed = parse_gemini_response(response_text)

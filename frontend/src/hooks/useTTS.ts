@@ -34,16 +34,72 @@ export function useTTS(options: UseTTSOptions = {}) {
   const queueRef = useRef<string[]>([]);
   const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const isProcessingRef = useRef(false);
+  const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
 
-  // ブラウザサポートの確認
+  // 若い女性の音声を選択する関数
+  const selectFemaleVoice = useCallback((lang: string): SpeechSynthesisVoice | null => {
+    const voices = voicesRef.current;
+
+    // 言語に応じた女性音声の名前パターン（優先順位順）
+    const femaleVoicePatterns: Record<string, string[]> = {
+      'ja-JP': [
+        'Kyoko', // macOS
+        'Otoya', // macOS（一部のバージョン）
+        'female', // 一般的なパターン
+        'woman', // 一般的なパターン
+        '女性', // 日本語パターン
+      ],
+      'en-US': [
+        'Samantha', // macOS
+        'Karen', // Windows
+        'Zira', // Windows
+        'female', // 一般的なパターン
+        'woman', // 一般的なパターン
+      ],
+    };
+
+    const patterns = femaleVoicePatterns[lang] || [];
+
+    // パターンにマッチする音声を優先順位順に探す
+    for (const pattern of patterns) {
+      const voice = voices.find(
+        (v) => v.lang === lang && v.name.toLowerCase().includes(pattern.toLowerCase())
+      );
+      if (voice) return voice;
+    }
+
+    // パターンにマッチしない場合、言語に一致する最初の音声を返す
+    return voices.find((v) => v.lang === lang) || null;
+  }, []);
+
+  // 音声リストを取得・更新
+  const loadVoices = useCallback(() => {
+    const voices = window.speechSynthesis.getVoices();
+    voicesRef.current = voices;
+  }, []);
+
+  // ブラウザサポートの確認と音声リストの読み込み
   useEffect(() => {
     const isSupported = 'speechSynthesis' in window;
     setState((prev) => ({ ...prev, isSupported }));
 
     if (!isSupported && onError) {
       onError('Speech synthesis is not supported in this browser');
+      return;
     }
-  }, [onError]);
+
+    // 音声リストを読み込む
+    loadVoices();
+
+    // voiceschangedイベントを監視（音声リストが非同期で読み込まれる場合があるため）
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = null;
+      }
+    };
+  }, [onError, loadVoices]);
 
   // 言語マッピング
   const getLanguage = useCallback((): string => {
@@ -74,9 +130,18 @@ export function useTTS(options: UseTTSOptions = {}) {
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = getLanguage();
+    const lang = getLanguage();
+    utterance.lang = lang;
+
+    // 若い女性の音声を選択
+    const femaleVoice = selectFemaleVoice(lang);
+    if (femaleVoice) {
+      utterance.voice = femaleVoice;
+    }
+
+    // ピッチを上げて若い声に近づける（1.0がデフォルト、1.15が若い声）
+    utterance.pitch = 1.15;
     utterance.rate = 1.0; // デフォルト速度
-    utterance.pitch = 1.0; // デフォルトピッチ
     utterance.volume = 1.0; // デフォルト音量
 
     utterance.onend = () => {
@@ -124,7 +189,7 @@ export function useTTS(options: UseTTSOptions = {}) {
 
     currentUtteranceRef.current = utterance;
     window.speechSynthesis.speak(utterance);
-  }, [getLanguage, onSpeakingStart, onSpeakingEnd, onError]);
+  }, [getLanguage, selectFemaleVoice, onSpeakingStart, onSpeakingEnd, onError]);
 
   // 音声をキューに追加して再生
   const speak = useCallback(
