@@ -5,7 +5,7 @@
 1. AWS CLIがインストールされていること
 2. `aws configure --profile 3d-color-concierge`で認証情報が設定されていること
 3. Terraformがインストールされていること
-4. バックエンドのAPI Gatewayが既にデプロイされていること
+4. バックエンド（ECS/Fargate）がTerraformで作成済みであること（CloudFront配下 `/api/*`, `/ws/*` に到達できる）
 
 ## デプロイ手順
 
@@ -26,11 +26,9 @@ terraform plan
 terraform apply
 ```
 
-**重要**: `main.tf`に重複しているAPI Gatewayリソース（355-372行目）がある場合は、削除してください。既存のAPI Gatewayリソース（147-160行目）が正しく動作します。
-
 ### 2. 環境変数の設定
 
-フロントエンドのビルド時にAPI GatewayのURLを設定します。
+フロントエンドのビルド時に CloudFront 配下の API/WS を参照するように設定します（同一オリジン推奨）。
 
 ```bash
 cd frontend
@@ -38,8 +36,9 @@ cd frontend
 # .envファイルを作成（.env.exampleをコピー）
 cp .env.example .env
 
-# .envファイルを編集して、API GatewayのURLを設定
-# VITE_API_BASE_URL=https://r9o5cdmnbc.execute-api.ap-northeast-1.amazonaws.com/dev
+# .envファイルを編集して、CloudFront（同一オリジン）のURLを設定
+# VITE_API_BASE_URL=https://<cloudfront-domain-name>.cloudfront.net
+# VITE_WS_BASE_URL=wss://<cloudfront-domain-name>.cloudfront.net
 ```
 
 ### 3. フロントエンドをデプロイ
@@ -59,7 +58,7 @@ cd ../scripts/deploy
 
 ### 4. CORS設定の更新（初回のみ）
 
-CloudFront URLを取得して、API GatewayのCORS設定に追加する必要があります。
+CloudFront URLを取得して、バックエンドのCORS許可オリジンに追加します（Terraform変数 `cors_origins`）。
 
 ```bash
 cd infrastructure/terraform
@@ -69,7 +68,7 @@ CLOUDFRONT_URL=$(terraform output -raw cloudfront_url)
 echo "CloudFront URL: $CLOUDFRONT_URL"
 ```
 
-その後、以下のいずれかの方法でCORS設定を更新します：
+その後、以下の方法でCORS設定を更新します：
 
 #### 方法1: Terraform変数を更新
 
@@ -83,13 +82,7 @@ cors_origins = [
 ]
 ```
 
-その後、`terraform apply`を実行してAPI Gatewayを更新します。
-
-#### 方法2: AWSコンソールから手動更新
-
-1. AWSコンソールでAPI Gatewayに移動
-2. CORS設定を編集
-3. CloudFront URLを追加
+その後、`terraform apply`を実行してバックエンド（ECSタスク定義の環境変数 `CORS_ORIGINS`）を更新します。
 
 ## トラブルシューティング
 
@@ -103,7 +96,7 @@ CloudFrontのキャッシュ無効化には数分かかることがあります�
 
 ### CORSエラーが発生する
 
-API GatewayのCORS設定にCloudFront URLが含まれているか確認してください。
+バックエンドの `CORS_ORIGINS` に CloudFront URL が含まれているか確認してください（Terraform `cors_origins`）。
 
 ## デプロイ後の確認
 

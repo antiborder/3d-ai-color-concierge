@@ -10,7 +10,7 @@ from app.services.duckdns_updater import run_duckdns_updater
 import asyncio
 
 # Load .env file for local development
-# In Lambda, environment variables are set directly
+# In container deployments (ECS/Fargate), environment variables are set on the task definition
 if os.getenv("ENVIRONMENT") != "production":
     load_dotenv()
 

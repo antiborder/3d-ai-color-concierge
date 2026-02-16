@@ -16,14 +16,8 @@ variable "environment" {
   default     = "dev"
 }
 
-variable "stage_name" {
-  description = "API Gateway stage name"
-  type        = string
-  default     = "dev"
-}
-
 variable "cors_origins" {
-  description = "CORS allowed origins (wildcards not supported in API Gateway v2)"
+  description = "CORS allowed origins for the backend (FastAPI)"
   type        = list(string)
   default = [
     "http://localhost:3000",

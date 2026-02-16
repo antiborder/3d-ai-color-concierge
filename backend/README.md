@@ -116,7 +116,7 @@ AWS_PROFILE=3d-color-concierge aws logs tail /ecs/3d-color-concierge/backend --s
 
 ## テスト
 
-ここでは **ECS/Fargate + CloudFront 配下**の確認に寄せます（Lambda/API Gateway の例は使用しません）。
+ここでは **ECS/Fargate + CloudFront 配下**の確認に寄せます。
 
 ### 1) CloudFront 経由で WS トークン取得
 `/api/ws/token` が 200 を返せれば、Backend への疎通と Cookie/トークン発行が概ねOKです。

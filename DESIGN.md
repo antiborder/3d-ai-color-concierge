@@ -155,27 +155,19 @@
         │                     │
         ▼                     ▼
 ┌──────────────┐    ┌──────────────────────────┐
-│  S3 Bucket   │    │  API Gateway             │
-│  (静的ファイル) │    │  ├── REST API (初期)    │
-│              │    │  └── WebSocket (後期)    │
+│  S3 Bucket   │    │  ECS (Fargate)            │
+│  (静的ファイル) │    │  (Python + FastAPI)      │
+│              │    │  ├── REST: /api/*          │
+│              │    │  └── WS:   /ws/*           │
 └──────────────┘    └──────────┬───────────────┘
                                │
                                ▼
-                    ┌──────────────────────────┐
-                    │  Lambda Function         │
-                    │  (Python + FastAPI)      │
-                    │  ├── タイムアウト: 30秒   │
-                    │  ├── メモリ: 512MB       │
-                    │  └── 同時実行数制限: 設定 │
-                    └──────────┬───────────────┘
-                               │
-                               ▼
-                    ┌──────────────────────────┐
-                    │  Gemini 3 Flash API      │
-                    │  ├── コマンド解析         │
-                    │  ├── カラーコンシェルジュ │
-                    │  └── 多言語対応          │
-                    └──────────────────────────┘
+                     ┌──────────────────────────┐
+                     │  Gemini Live API         │
+                     │  ├── 音声ストリーミング   │
+                     │  ├── tool call（UI操作）  │
+                     │  └── 多言語対応          │
+                     └──────────────────────────┘
 ```
 
 ### インフラ詳細
@@ -187,31 +179,19 @@
 - **SSL**: CloudFrontで自動対応
 
 #### バックエンド
-- **実行環境**: AWS Lambda
+- **実行環境**: AWS ECS (Fargate)
 - **フレームワーク**: FastAPI (Python)
-- **API**: API Gateway (REST API → WebSocket API移行予定)
-
-#### Lambda設定
-- **ランタイム**: Python 3.13
-- **タイムアウト**: 30秒
-- **メモリ**: 512MB（初回実装、様子を見て調整）
-- **同時実行数**: 適切な制限を設定
-- **環境変数**: APIキー等を環境変数で管理
+- **エンドポイント**: CloudFront 経由で `/api/*` と `/ws/*` をECSへプロキシ
 
 #### CloudFront設定
 - **キャッシュポリシー**: APIリクエストはキャッシュしない
 - **CORS**: CloudFront経由のアクセス + 開発環境のオリジンを許可
 - **SSL/TLS**: 強制
 
-#### API Gateway設定
-- **REST API**: 初期実装
-- **WebSocket API**: 後期移行
-- **CORS**: 適切に設定
-
 ### セキュリティ
 
 #### APIキー管理
-- **方法**: 環境変数（Lambdaの環境変数として設定）
+- **方法**: 環境変数（ECSタスク定義で設定）
 - **Gemini APIキー**: 環境変数で管理
 
 #### CORS設定
@@ -237,14 +217,12 @@
 - **言語**: Python 3.13
 - **フレームワーク**: FastAPI
 - **LLM**: Google Gemini 3 Flash API
-- **実行環境**: AWS Lambda
-- **API Gateway**: AWS API Gateway
+- **実行環境**: AWS ECS (Fargate)
 
 ### インフラ
 - **フロントエンドホスティング**: AWS S3
 - **CDN**: AWS CloudFront
-- **サーバーレス**: AWS Lambda
-- **API**: AWS API Gateway
+- **バックエンド**: AWS ECS (Fargate)
 
 ---
 
@@ -383,7 +361,7 @@
 │   ├── requirements-dev.txt          # 開発用依存関係
 │   ├── .env.example                   # 環境変数テンプレート
 │   ├── pytest.ini                     # pytest設定
-│   └── lambda_handler.py              # Lambdaハンドラー（Mangum使用）
+│   └── Dockerfile                     # ECS/Fargate用コンテナ定義
 │
 ├── shared/                            # 共有コード
 │   ├── types/                         # 共有型定義
@@ -394,24 +372,7 @@
 │       └── colorConstants.ts
 │
 ├── infrastructure/                    # インフラ設定
-│   ├── aws/                           # AWS設定
-│   │   ├── lambda/                    # Lambda設定
-│   │   │   ├── function.yaml          # CloudFormation/Terraform
-│   │   │   └── deployment.yaml
-│   │   │
-│   │   ├── api-gateway/               # API Gateway設定
-│   │   │   └── api.yaml
-│   │   │
-│   │   ├── s3/                        # S3設定
-│   │   │   └── bucket.yaml
-│   │   │
-│   │   ├── cloudfront/                # CloudFront設定
-│   │   │   └── distribution.yaml
-│   │   │
-│   │   └── iam/                       # IAMロール設定
-│   │       └── roles.yaml
-│   │
-│   └── terraform/                     # Terraform設定（オプション）
+│   └── terraform/                     # Terraform設定
 │       ├── main.tf
 │       ├── variables.tf
 │       └── outputs.tf
@@ -420,11 +381,9 @@
 │   ├── deploy/                        # デプロイスクリプト
 │   │   ├── deploy-frontend.sh
 │   │   ├── deploy-backend.sh
-│   │   └── deploy-all.sh
 │   │
-│   ├── build/                         # ビルドスクリプト
-│   │   ├── build-frontend.sh
-│   │   └── build-lambda.sh
+│   ├── dev/                           # 開発用スクリプト
+│   │   └── run-backend-local.sh
 │   │
 │   └── setup/                         # セットアップスクリプト
 │       ├── setup-dev.sh
@@ -432,9 +391,7 @@
 │
 ├── docs/                              # ドキュメント
 │   ├── DESIGN.md                      # 設計ドキュメント（このファイル）
-│   ├── API.md                         # API仕様書
-│   ├── DEPLOYMENT.md                  # デプロイ手順
-│   └── CONTRIBUTING.md                # コントリビューションガイド
+│   └── FRONTEND_DEPLOYMENT.md         # フロントエンドデプロイ手順
 │
 ├── .gitignore                         # Git除外設定
 ├── .gitattributes                     # Git属性設定
@@ -515,13 +472,13 @@
 
 #### backend/requirements.txt
 ```
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-google-generativeai==0.3.0
-mangum==0.17.0
-pydantic==2.5.0
-python-multipart==0.0.6
-boto3==1.29.0
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+google-genai==1.63.0
+pydantic==2.10.0
+pydantic-settings==2.6.0
+python-multipart==0.0.20
+boto3==1.35.0
 ```
 
 ### 利点
@@ -547,9 +504,9 @@ boto3==1.29.0
    ↓
 3. フロントエンド: 音声認識結果を取得
    ↓ POST /api/voice/process
-4. API Gateway (REST)
+4. CloudFront（/api/* はキャッシュなし）
    ↓
-5. Lambda Function (FastAPI)
+5. ECS Service (FastAPI)
    ├── リクエスト解析
    ├── 現在の色状態を取得（リクエストに含まれる）
    ├── 会話履歴を取得（リクエストに含まれる）
@@ -587,9 +544,9 @@ boto3==1.29.0
    ↓
 3. フロントエンド: WebSocket接続（既存接続を使用）
    ↓ WebSocket送信
-4. API Gateway (WebSocket)
+4. CloudFront（/ws/* はキャッシュなし）
    ↓
-5. Lambda Function (FastAPI)
+5. ECS Service (FastAPI)
    ├── 既存の処理ロジックを再利用
    ├── ストリーミング対応（オプション）
    └── WebSocket経由でレスポンス送信
@@ -741,14 +698,14 @@ boto3==1.29.0
 
 ### フェーズ4: バックエンド構築（REST API）（2-3週間）
 
-#### ステップ4.1: Lambda + FastAPI基盤
-- [ ] Lambda関数の作成
+#### ステップ4.1: ECS/Fargate + FastAPI基盤
+- [ ] ECSクラスタ・サービスの作成
 - [ ] FastAPIアプリケーションの作成
-- [ ] API Gatewayの設定（REST API）
+- [ ] CloudFront→`/api/*`→ECS のルーティング設定
 - [ ] 基本的なエンドポイントの実装
 
 **本番環境テスト**:
-- API GatewayからLambda関数が正常に呼び出されることを確認
+- CloudFront経由でバックエンドが正常に呼び出されることを確認
 - 基本的なレスポンスが返ることを確認
 
 #### ステップ4.2: Gemini 3 Flash統合
@@ -893,7 +850,7 @@ boto3==1.29.0
 ### フェーズ9: WebSocket API移行（2-3週間）
 
 #### ステップ9.1: WebSocket基盤
-- [ ] API Gateway WebSocket APIの設定
+- [ ] CloudFront→`/ws/*`→ECS のWebSocketルーティング確認
 - [ ] WebSocket接続管理の実装
 - [ ] 既存処理ロジックの再利用
 
@@ -935,13 +892,13 @@ boto3==1.29.0
 - テキスト入力フォールバックを提供
 - 対応ブラウザの案内を表示
 
-#### 2. Lambda実行時間制限
-- **最大**: 30秒
-- **API Gateway経由**: 29秒制限あり
+#### 2. セッション/接続の制約（Gemini Live）
+- **無音/アイドル**: 一定時間でセッションが終了する可能性
+- **切断時**: `audio_stream_end` 等で発話区切りを通知しないと応答が遅れる場合がある
 
 **対策**: 
-- タイムアウトを20秒に設定（余裕を持たせる）
-- タイムアウト時のエラーハンドリング
+- バックエンドで受信ループを継続し keepalive を維持
+- 発話終了時に `end_audio_stream()` を送信
 
 #### 3. 音声認識の精度
 - 背景ノイズ、方言・アクセントによる誤認識の可能性
@@ -980,9 +937,9 @@ boto3==1.29.0
 - キャッシング戦略の検討
 - タイムアウト設定（20秒）
 
-#### 2. Lambda同時実行数
-- 適切な制限を設定
-- コスト管理
+#### 2. ECSスケーリング/同時接続
+- 同時接続数に応じてタスク数を調整（必要に応じてオートスケール）
+- コストと安定性のバランスを取る
 
 ### コスト管理
 
@@ -991,10 +948,9 @@ boto3==1.29.0
 - 使用量の監視
 - コストアラートの設定
 
-#### 2. Lambda使用量
-- メモリ設定（512MBで開始）
-- 同時実行数の制限
-- コスト監視
+#### 2. ECS/Fargate使用量
+- CPU/メモリ設定の最適化
+- タスク数（スケール）を含めたコスト監視
 
 ### 将来の拡張性
 
@@ -1026,7 +982,7 @@ boto3==1.29.0
 2. **段階的実装**: REST APIから開始し、後でWebSocket APIに移行
 3. **多言語対応**: UI全体を多言語化
 4. **音声統合**: Web Speech API + Web Speech Synthesis API
-5. **インフラ**: AWS Lambda + S3 + CloudFront
+5. **インフラ**: AWS ECS (Fargate) + S3 + CloudFront
 
 ### 次のステップ
 
