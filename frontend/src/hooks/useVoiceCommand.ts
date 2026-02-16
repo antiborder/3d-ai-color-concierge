@@ -119,7 +119,7 @@ export function useVoiceCommand(
 /**
  * コマンドを実行
  */
-function executeCommand(command: Command, handlers: VoiceCommandHandlers): void {
+export function executeCommand(command: Command, handlers: VoiceCommandHandlers): void {
   switch (command.action) {
     case 'SELECT_COLOR': {
       const color = command.parameters.color as { r: number; g: number; b: number };

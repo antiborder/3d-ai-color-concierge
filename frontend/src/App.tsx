@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toaster } from 'react-hot-toast';
 import ControlPane from './components/ColorPicker/ControlPane';
@@ -8,7 +8,8 @@ import Header from './components/common/Header';
 import VoiceControl from './components/VoiceControl/VoiceControl';
 import ChatHistoryModal from './components/Chatbot/ChatHistoryModal';
 import { useColorState } from './hooks/useColorState';
-import { useVoiceCommand } from './hooks/useVoiceCommand';
+import { executeCommand, useVoiceCommand } from './hooks/useVoiceCommand';
+import type { Command as VoiceCommand } from './types/voice';
 import { useChatbot } from './hooks/useChatbot';
 
 function App() {
@@ -126,8 +127,20 @@ function App() {
     updateHistory
   );
 
+  // When a WS tool-call command arrives, we apply it directly and skip the REST
+  // processing for the next short window to avoid double-applying.
+  const skipRestUntilRef = useRef<number>(0);
+
+  const handleWsCommand = (command: VoiceCommand) => {
+    skipRestUntilRef.current = Date.now() + 1500;
+    executeCommand(command, voiceCommandHandlers);
+  };
+
   // Handle voice recognition transcript
   const handleVoiceTranscript = async (transcript: string) => {
+    if (Date.now() < skipRestUntilRef.current) {
+      return;
+    }
     setIsLoading(true);
     try {
       await processCommand(transcript);
@@ -206,6 +219,7 @@ function App() {
       />
       <VoiceControl
         onTranscript={handleVoiceTranscript}
+        onCommand={handleWsCommand}
         onError={handleVoiceError}
         onOpenChatHistory={openModal}
         isLoading={isLoading}

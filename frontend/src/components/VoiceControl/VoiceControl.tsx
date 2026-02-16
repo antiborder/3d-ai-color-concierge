@@ -2,9 +2,11 @@ import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useVoiceStreaming } from '../../hooks/useVoiceStreaming';
 import styled, { keyframes } from 'styled-components';
+import type { Command } from '../../types/voice';
 
 interface VoiceControlProps {
   onTranscript: (transcript: string) => void;
+  onCommand?: (command: Command) => void;
   onError?: (error: string) => void;
   onOpenChatHistory?: () => void;
   isLoading?: boolean;
@@ -13,6 +15,7 @@ interface VoiceControlProps {
 
 const VoiceControl = ({
   onTranscript,
+  onCommand,
   onError,
   onOpenChatHistory,
   isLoading = false,
@@ -36,6 +39,7 @@ const VoiceControl = ({
 
   const { isStreaming, isConnecting, error, start, stop } = useVoiceStreaming({
     onFinalTranscript: handleResult,
+    onCommand,
     onError: handleStreamingError,
   });
 

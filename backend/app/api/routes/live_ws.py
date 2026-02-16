@@ -14,6 +14,7 @@ Gemini Live 音声ストリーミング用 WebSocket エンドポイント。
     - {"type":"ready","inputSampleRateHz":16000,"outputSampleRateHz":24000}
     - {"type":"transcript","text":"...","final":true|false}
     - {"type":"assistant_text","text":"..."} (SDKがテキストも返す場合)
+    - {"type":"command","command":{...},"tool_name":"...","tool_call_id":"..."} (tool callでUI操作する場合)
     - {"type":"error","message":"..."}
   - Binary:
     - PCM S16LE 24kHz mono の生フレーム（Gemini音声出力）
@@ -35,6 +36,7 @@ from app.services.gemini_live_client import (
 from app.services.gemini_live_types import (
     LiveAssistantTextEvent,
     LiveAudioChunk,
+    LiveCommandEvent,
     LiveErrorEvent,
     LiveTranscriptEvent,
 )
@@ -205,6 +207,17 @@ async def live_voice_ws(ws: WebSocket):
                 )
             elif isinstance(ev, LiveAssistantTextEvent):
                 await ws.send_text(json.dumps({"type": "assistant_text", "text": ev.text}))
+            elif isinstance(ev, LiveCommandEvent):
+                await ws.send_text(
+                    json.dumps(
+                        {
+                            "type": "command",
+                            "command": ev.command,
+                            "tool_name": ev.tool_name,
+                            "tool_call_id": ev.tool_call_id,
+                        }
+                    )
+                )
             elif isinstance(ev, LiveErrorEvent):
                 await ws.send_text(json.dumps({"type": "error", "message": ev.message, "code": ev.code}))
 

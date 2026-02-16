@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { Command } from '@/types/voice';
 
 type WsInboundText =
   | {
@@ -18,6 +19,12 @@ type WsInboundText =
       text: string;
     }
   | {
+      type: 'command';
+      command: Command;
+      tool_name?: string;
+      tool_call_id?: string;
+    }
+  | {
       type: 'error';
       message: string;
       code?: string;
@@ -25,12 +32,13 @@ type WsInboundText =
 
 export interface UseVoiceStreamingOptions {
   onFinalTranscript?: (text: string) => void;
+  onCommand?: (command: Command) => void;
   onError?: (message: string) => void;
 }
 
 export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   const { i18n } = useTranslation();
-  const { onFinalTranscript, onError } = options;
+  const { onFinalTranscript, onCommand, onError } = options;
 
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
@@ -354,6 +362,8 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           if (msg.type === 'transcript') {
             setTranscript(msg.text);
             if (msg.final && onFinalTranscript) onFinalTranscript(msg.text);
+          } else if (msg.type === 'command') {
+            if (onCommand) onCommand(msg.command);
           } else if (msg.type === 'error') {
             setErr(msg.message);
           }
@@ -419,6 +429,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     i18n.language,
     isConnecting,
     isStreaming,
+    onCommand,
     onFinalTranscript,
     schedulePcmPlayback,
     setErr,

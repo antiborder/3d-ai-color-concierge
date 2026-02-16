@@ -11,7 +11,7 @@ Gemini Live（Multimodal Live API）連携で使う、最小限の型・イベ�
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, Optional, Union
+from typing import Any, Literal, Optional, Union
 
 
 AudioFormat = Literal["pcm_s16le"]
@@ -51,5 +51,22 @@ class LiveErrorEvent:
     code: Optional[str] = None
 
 
-LiveEvent = Union[LiveAudioChunk, LiveTranscriptEvent, LiveAssistantTextEvent, LiveErrorEvent]
+@dataclass(frozen=True)
+class LiveCommandEvent:
+    """
+    Gemini Live tool_call から生成された「UIへ適用すべきコマンド」イベント。
+    """
+
+    command: dict[str, Any]
+    tool_name: Optional[str] = None
+    tool_call_id: Optional[str] = None
+
+
+LiveEvent = Union[
+    LiveAudioChunk,
+    LiveTranscriptEvent,
+    LiveAssistantTextEvent,
+    LiveCommandEvent,
+    LiveErrorEvent,
+]
 

@@ -23,6 +23,7 @@ from app.config.settings import settings
 from app.services.gemini_live_types import (
     LiveAssistantTextEvent,
     LiveAudioChunk,
+    LiveCommandEvent,
     LiveErrorEvent,
     LiveEvent,
     LiveTranscriptEvent,
@@ -34,6 +35,117 @@ logger = logging.getLogger("uvicorn.error")
 
 DEFAULT_INPUT_SAMPLE_RATE_HZ = 16000
 DEFAULT_OUTPUT_SAMPLE_RATE_HZ = 24000
+
+
+def _live_tools() -> list[dict]:
+    """
+    Gemini Live tools (function_declarations).
+    We keep the schema minimal and map directly to the frontend's command model.
+    """
+    # NOTE: google-genai expects the "tools" structure to be a list of tool entries.
+    # The most common form is:
+    #   [{"function_declarations": [{"name": "...", "parameters": {...}}, ...]}]
+    return [
+        {
+            "function_declarations": [
+                {
+                    "name": "SELECT_COLOR",
+                    "description": "Select a specific RGB color.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "r": {"type": "integer", "minimum": 0, "maximum": 255},
+                            "g": {"type": "integer", "minimum": 0, "maximum": 255},
+                            "b": {"type": "integer", "minimum": 0, "maximum": 255},
+                        },
+                        "required": ["r", "g", "b"],
+                    },
+                },
+                {
+                    "name": "SET_COLOR",
+                    "description": "Set one or more RGB channels directly (r/g/b).",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "r": {"type": "integer", "minimum": 0, "maximum": 255},
+                            "g": {"type": "integer", "minimum": 0, "maximum": 255},
+                            "b": {"type": "integer", "minimum": 0, "maximum": 255},
+                        },
+                    },
+                },
+                {
+                    "name": "ADJUST_VALUE",
+                    "description": "Adjust brightness/saturation/hue.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "property": {
+                                "type": "string",
+                                "enum": ["brightness", "saturation", "hue"],
+                            },
+                            "direction": {"type": "string", "enum": ["up", "down"]},
+                            "amount": {"type": "number", "minimum": 0},
+                        },
+                        "required": ["property", "direction"],
+                    },
+                },
+                {
+                    "name": "CHANGE_SHAPE",
+                    "description": "Switch color space / UI shape (RGB/CMYK/HSL/HSV).",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "colorSpace": {
+                                "type": "string",
+                                "enum": ["RGB", "CMYK", "HSL", "HSV"],
+                            }
+                        },
+                        "required": ["colorSpace"],
+                    },
+                },
+                {
+                    "name": "TOGGLE_LABEL",
+                    "description": "Toggle label visibility.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {"visible": {"type": "boolean"}},
+                    },
+                },
+            ]
+        }
+    ]
+
+
+def _live_system_instruction(language: str) -> dict:
+    """
+    Provide role + tool-usage instruction to Gemini Live.
+    We intentionally avoid the old 'JSON-only response' constraint here and instead
+    rely on tool calls for UI actions.
+    """
+    if language == "en":
+        text = (
+            "You are ai-color-concierge for a 3D color picker.\n"
+            "Your job is to help the user change colors and UI state, and also chat naturally.\n"
+            "\n"
+            "## Tool usage rules\n"
+            "- If the user asks to change color / adjust brightness/saturation/hue / change color space / toggle labels, you MUST use a tool call.\n"
+            "- Available tools: SELECT_COLOR, SET_COLOR, ADJUST_VALUE, CHANGE_SHAPE, TOGGLE_LABEL.\n"
+            "- After making the tool call, also respond naturally (short) in English (audio response).\n"
+            "- If it is not a UI action, respond normally with suggestions and explanations.\n"
+        )
+    else:
+        text = (
+            "あなたは3Dカラーピッカーの ai-color-concierge です。\n"
+            "ユーザーの意図を理解し、色やUI状態を音声で手早く操作できるように支援しつつ、自然に会話してください。\n"
+            "\n"
+            "## tool call ルール\n"
+            "- ユーザーの発話がUI操作（色変更/明度・彩度・色相調整/色空間変更/ラベル表示切替）に該当する場合は、必ず tool call を使ってください。\n"
+            "- 利用可能な tool: SELECT_COLOR, SET_COLOR, ADJUST_VALUE, CHANGE_SHAPE, TOGGLE_LABEL。\n"
+            "- tool call を出した後も、会話として自然な短い返答を日本語で話してください（音声応答）。\n"
+            "- UI操作に該当しない場合は、通常の会話として色の提案や説明をしてください。\n"
+        )
+    # LiveConnectConfig.system_instruction は Content として解釈される（dictでもOK）
+    return {"role": "system", "parts": [{"text": text}]}
 
 
 @dataclass(frozen=True)
@@ -237,6 +349,8 @@ class GeminiLiveSession:
         # Build connect config. Note: google-genai versions differ on accepted keys for LiveConnectConfig.
         config_raw: dict = {
             "response_modalities": ["AUDIO"],
+            "system_instruction": _live_system_instruction(self._cfg.language),
+            "tools": _live_tools(),
             # NOTE: language/input_audio_format/output_audio_format は 1.63.0 では extra_forbidden のため、
             # LiveConnectConfig.model_fields を見て許可されているキーへマップする。
             "language": self._cfg.language,
@@ -725,6 +839,78 @@ class GeminiLiveSession:
                                 t = getattr(p, "text", None)
                                 if isinstance(t, str) and t.strip():
                                     await self._event_q.put(LiveAssistantTextEvent(text=t.strip()))
+
+                    # 0-b) google-genai>=1.x: tool call / function call (UI操作)
+                    tc = getattr(msg, "tool_call", None) or getattr(msg, "toolCall", None)
+                    if tc is not None:
+                        function_calls = getattr(tc, "function_calls", None) or getattr(tc, "functionCalls", None)
+                        if function_calls is None and isinstance(tc, dict):
+                            function_calls = tc.get("function_calls") or tc.get("functionCalls")
+
+                        if function_calls:
+                            # Best-effort: respond "ok" so the model can continue the turn.
+                            try:
+                                from google.genai import types  # type: ignore
+
+                                FunctionResponse = getattr(types, "FunctionResponse", None)
+                            except Exception:
+                                FunctionResponse = None
+
+                            for fc in function_calls:
+                                name = getattr(fc, "name", None) if not isinstance(fc, dict) else fc.get("name")
+                                args = getattr(fc, "args", None) if not isinstance(fc, dict) else fc.get("args")
+                                call_id = getattr(fc, "id", None) if not isinstance(fc, dict) else fc.get("id")
+                                if not isinstance(args, dict):
+                                    args = {}
+
+                                if isinstance(name, str) and name:
+                                    # Map tool call args -> frontend command schema
+                                    cmd: dict = {"action": name, "parameters": {}}
+                                    if name == "SELECT_COLOR":
+                                        cmd["parameters"] = {
+                                            "color": {
+                                                "r": int(args.get("r", 0)),
+                                                "g": int(args.get("g", 0)),
+                                                "b": int(args.get("b", 0)),
+                                            }
+                                        }
+                                    elif name == "SET_COLOR":
+                                        # pass through r/g/b if present
+                                        for k in ("r", "g", "b"):
+                                            if k in args:
+                                                cmd["parameters"][k] = int(args[k])
+                                    elif name == "ADJUST_VALUE":
+                                        cmd["parameters"] = {
+                                            "property": args.get("property"),
+                                            "direction": args.get("direction"),
+                                        }
+                                        if "amount" in args:
+                                            cmd["parameters"]["amount"] = args.get("amount")
+                                    elif name == "CHANGE_SHAPE":
+                                        cmd["parameters"] = {"colorSpace": args.get("colorSpace")}
+                                    elif name == "TOGGLE_LABEL":
+                                        cmd["parameters"] = {"visible": args.get("visible")}
+                                    else:
+                                        cmd["parameters"] = args
+
+                                    await self._event_q.put(
+                                        LiveCommandEvent(command=cmd, tool_name=name, tool_call_id=call_id)
+                                    )
+
+                                    # Send tool response back to Gemini Live
+                                    try:
+                                        send_tool = getattr(self._live, "send_tool_response", None)
+                                        if callable(send_tool) and FunctionResponse is not None:
+                                            fr = FunctionResponse(
+                                                name=name,
+                                                response={"result": "ok"},
+                                                id=call_id,
+                                            )
+                                            maybe = send_tool(function_responses=fr)
+                                            if inspect.isawaitable(maybe):
+                                                await maybe
+                                    except Exception as e:
+                                        logger.info("GeminiLiveSession send_tool_response failed: %s", str(e))
 
                     # 音声出力
                     audio = getattr(msg, "audio", None) or msg.get("audio") if isinstance(msg, dict) else None
