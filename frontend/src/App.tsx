@@ -10,7 +10,6 @@ import ChatHistoryModal from './components/Chatbot/ChatHistoryModal';
 import { useColorState } from './hooks/useColorState';
 import { useVoiceCommand } from './hooks/useVoiceCommand';
 import { useChatbot } from './hooks/useChatbot';
-import { useTTS } from './hooks/useTTS';
 
 function App() {
   const { i18n } = useTranslation();
@@ -119,20 +118,12 @@ function App() {
   // Loading state for API calls
   const [isLoading, setIsLoading] = useState(false);
 
-  // TTS hook for speech synthesis
-  const { speak } = useTTS({
-    onError: (error) => {
-      console.error('TTS error:', error);
-    },
-  });
-
   // Use voice command hook with conversation history
   const { processCommand } = useVoiceCommand(
     colorState,
     voiceCommandHandlers,
     conversationHistory,
-    updateHistory,
-    speak // 音声合成コールバックを渡す
+    updateHistory
   );
 
   // Handle voice recognition transcript

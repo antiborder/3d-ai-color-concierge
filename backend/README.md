@@ -58,77 +58,97 @@ APIドキュメント: http://localhost:8000/docs
 
 ## デプロイ
 
+このリポジトリのバックエンドは **ECS(Fargate) 上の FastAPI** としてデプロイします（Lambda手順は使用しません）。
+
 ### 前提条件
+- AWS CLI がインストールされていること
+- `aws configure --profile 3d-color-concierge` で認証情報が設定されていること
+- Terraform がインストールされていること
+- Docker + `buildx`（multi-arch build/push に使用）
 
-- AWS CLIがインストールされていること
-- `aws configure --profile 3d-color-concierge`で認証情報が設定されていること
-- Terraformがインストールされていること
-
-### デプロイ方法
-
-デプロイスクリプトを使用（推奨）：
-
-```bash
-./scripts/deploy/deploy-backend.sh
-```
-
-このスクリプトは自動的に`3d-color-concierge`プロファイルを使用し、以下の処理を実行します：
-1. Lambda用の依存関係をLinux互換のwheelとしてインストール
-2. TerraformでLambda関数とAPI Gatewayをデプロイ
-3. デプロイ後のクリーンアップ
-
-デプロイが完了すると、APIエンドポイントのURLが表示されます。
-
-### 手動デプロイ
+### 1) ECRへ Docker イメージを build/push（multi-arch）
+Fargate のプラットフォーム差分（amd64/arm64）で `CannotPullContainerError` にならないよう、**multi-arch** で push します。
 
 ```bash
 export AWS_PROFILE=3d-color-concierge
-export TF_VAR_gemini_api_key="your-gemini-api-key-here"
-cd infrastructure/terraform
+
+cd /Users/mo/Projects/3d-color-picker/3d-ai-color-concierge/backend
+
+TAG="v2-$(date +%Y%m%d-%H%M%S)"
+echo "$TAG"
+
+# ECR login（403 Forbidden 対策として毎回やるのが安全）
+AWS_PROFILE=3d-color-concierge aws ecr get-login-password --region ap-northeast-1 \
+| docker login --username AWS --password-stdin 478157933567.dkr.ecr.ap-northeast-1.amazonaws.com
+
+docker buildx build --platform linux/amd64,linux/arm64 \
+  -t 478157933567.dkr.ecr.ap-northeast-1.amazonaws.com/3d-color-concierge-backend:$TAG \
+  --push .
+```
+
+### 2) Terraform apply（ECS/Fargate へ反映）
+`infrastructure/terraform/terraform.tfvars` の **`backend_image_tag` を上の `TAG` に更新**し、適用します。
+
+また、最低限以下の変数が必要です（値は例）:
+- `gemini_api_key`
+- `ws_token_secret`
+- `gemini_live_model_name`（例: `gemini-2.5-flash-native-audio-preview-12-2025`）
+
+```bash
+export AWS_PROFILE=3d-color-concierge
+cd /Users/mo/Projects/3d-color-picker/3d-ai-color-concierge/infrastructure/terraform
 terraform init
-terraform plan
 terraform apply
 ```
 
-**重要**: `TF_VAR_gemini_api_key`環境変数を設定するか、`terraform.tfvars`ファイルを作成して設定してください（`terraform.tfvars`は`.gitignore`に含まれています）。
+### 3) CloudWatch Logs で確認
+
+```bash
+AWS_PROFILE=3d-color-concierge aws logs tail /ecs/3d-color-concierge/backend --since 10m --follow
+```
+
+少なくとも以下が見えると、Gemini Live 接続・受信ループ開始までOKです：
+- `google-genai live SDK debug ... google_genai_version: "1.63.0"`
+- `GeminiLiveSession recv_loop started (live_type=AsyncSession)`
+
+### 参考
+フロントデプロイ（S3+CloudFront）は `docs/FRONTEND_DEPLOYMENT.md` を参照してください。
 
 ## テスト
 
-### ローカル環境
+ここでは **ECS/Fargate + CloudFront 配下**の確認に寄せます（Lambda/API Gateway の例は使用しません）。
+
+### 1) CloudFront 経由で WS トークン取得
+`/api/ws/token` が 200 を返せれば、Backend への疎通と Cookie/トークン発行が概ねOKです。
 
 ```bash
-# ヘルスチェック
-curl http://localhost:8000/health
-
-# 音声処理エンドポイント（Gemini API統合）
-curl -X POST http://localhost:8000/api/voice/process \
-  -H "Content-Type: application/json" \
-  -d '{
-    "transcript": "赤を選んで",
-    "current_color": {"r": 128, "g": 128, "b": 128},
-    "conversation_history": [],
-    "language": "ja"
-  }'
-
-# チャットボット応答のテスト
-curl -X POST http://localhost:8000/api/voice/process \
-  -H "Content-Type: application/json" \
-  -d '{
-    "transcript": "落ち着いた青を提案して",
-    "current_color": {"r": 128, "g": 128, "b": 128},
-    "conversation_history": [],
-    "language": "ja"
-  }'
+curl -i "https://<cloudfront-domain>/api/ws/token?return_token=1"
 ```
 
-### デプロイ後のテスト
+期待:
+- `HTTP/2 200`
+- ボディが `{"token":"..."}` のJSON
 
-デプロイ完了後、表示されたAPIエンドポイントに対してテストを実行：
+### 2) CloudFront 経由で WebSocket 接続（手元で確認）
+ブラウザ（フロント）で確認するのが基本ですが、CLI で疎通だけ確認したい場合は `wscat` を使えます。
 
 ```bash
-# ヘルスチェック
-curl https://<api-endpoint>/dev/health
-
-# ルートエンドポイント
-curl https://<api-endpoint>/dev/
+# 例: Node 製 wscat（未インストールなら: npm i -g wscat）
+wscat -c "wss://<cloudfront-domain>/ws/live?ws_token=<token>"
 ```
+
+接続後、最初に start を送ります:
+
+```json
+{"type":"start","language":"ja"}
+```
+
+### 3) CloudWatch Logs で Backend の挙動を見る
+
+```bash
+AWS_PROFILE=3d-color-concierge aws logs tail /ecs/3d-color-concierge/backend --since 10m --follow
+```
+
+目安:
+- `GeminiLiveSession recv_loop started (live_type=AsyncSession)` が出る
+- 音声入力後に `LiveServerMessage.server_content...` の解釈が進み、ブラウザへ `ws.send_bytes(...)` が返る（=返信音声が聞こえる）

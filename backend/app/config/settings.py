@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     # Gemini API設定
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL_NAME: str = "gemini-3-flash-preview"  # Gemini 3 Flash (preview) as per design document
+
+    # Gemini Live API設定（音声ストリーミング）
+    # SDK/モデル名は変わりやすいので、別ENVで上書き可能にしておく
+    GEMINI_LIVE_MODEL_NAME: str = "gemini-live"  # 実運用では適切なLive対応モデル名に差し替え
     
     class Config:
         env_file = ".env"

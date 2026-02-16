@@ -1,7 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useVoiceRecognition } from '../../hooks/useVoiceRecognition';
-import { useTTS } from '../../hooks/useTTS';
+import { useVoiceStreaming } from '../../hooks/useVoiceStreaming';
 import styled, { keyframes } from 'styled-components';
 
 interface VoiceControlProps {
@@ -28,45 +27,23 @@ const VoiceControl = ({
     [onTranscript]
   );
 
-  const handleError = useCallback(
-    (error: string) => {
-      if (onError) {
-        onError(error);
-      }
+  const handleStreamingError = useCallback(
+    (message: string) => {
+      if (onError) onError(message);
     },
     [onError]
   );
 
-  const { isListening, isSupported, error, startListening, stopListening } = useVoiceRecognition({
-    onResult: handleResult,
-    onError: handleError,
-    continuous: false,
-    interimResults: false,
+  const { isStreaming, isConnecting, error, start, stop } = useVoiceStreaming({
+    onFinalTranscript: handleResult,
+    onError: handleStreamingError,
   });
-
-  // TTS hook - ユーザーが話し始めたら停止
-  const {
-    isSpeaking,
-    stop: stopTTS,
-    stopIfSpeaking,
-  } = useTTS({
-    onError: (error) => {
-      console.error('TTS error:', error);
-    },
-  });
-
-  // ユーザーが話し始めたら音声を停止
-  useEffect(() => {
-    if (isListening) {
-      stopIfSpeaking();
-    }
-  }, [isListening, stopIfSpeaking]);
 
   const handleMicClick = () => {
-    if (isListening) {
-      stopListening();
+    if (isStreaming || isConnecting) {
+      stop();
     } else {
-      startListening();
+      start();
     }
   };
 
@@ -87,17 +64,11 @@ const VoiceControl = ({
       <VoiceInputContainer>
         <MicButton
           onClick={handleMicClick}
-          disabled={!isSupported || isLoading}
-          $isListening={isListening}
-          title={
-            isSupported
-              ? isListening
-                ? t('voiceControl.stop')
-                : t('voiceControl.start')
-              : t('voiceControl.notSupported')
-          }
+          disabled={isLoading}
+          $isListening={isStreaming}
+          title={isStreaming ? t('voiceControl.stop') : t('voiceControl.start')}
         >
-          {isListening ? (
+          {isStreaming ? (
             <PulsingMic>
               <MicIcon />
             </PulsingMic>
@@ -111,9 +82,9 @@ const VoiceControl = ({
             value={textInput}
             onChange={handleTextChange}
             placeholder={t('voiceControl.textPlaceholder')}
-            disabled={isListening || isLoading}
+            disabled={isStreaming || isLoading}
           />
-          <SubmitButton type="submit" disabled={!textInput.trim() || isListening || isLoading}>
+          <SubmitButton type="submit" disabled={!textInput.trim() || isStreaming || isLoading}>
             {t('voiceControl.submit')}
           </SubmitButton>
         </TextInputForm>
@@ -122,15 +93,9 @@ const VoiceControl = ({
             <ChatIcon />
           </ChatHistoryButton>
         )}
-        {isSpeaking && (
-          <StopButton onClick={stopTTS} title={t('voiceControl.stopTTS', 'Stop speaking')}>
-            <StopIcon />
-          </StopButton>
-        )}
       </VoiceInputContainer>
       {isLoading && <LoadingMessage>{t('chatbot.loading')}</LoadingMessage>}
       {error && <ErrorMessage>{error}</ErrorMessage>}
-      {!isSupported && <WarningMessage>{t('voiceControl.notSupported')}</WarningMessage>}
     </StyledVoiceControl>
   );
 };
@@ -275,15 +240,6 @@ const ErrorMessage = styled.div`
   font-size: 12px;
 `;
 
-const WarningMessage = styled.div`
-  margin-top: 8px;
-  padding: 8px;
-  background-color: #fff3cd;
-  color: #856404;
-  border-radius: 4px;
-  font-size: 12px;
-`;
-
 const ChatHistoryButton = styled.button`
   width: 48px;
   height: 48px;
@@ -331,43 +287,5 @@ const LoadingMessage = styled.div`
   font-size: 12px;
   text-align: center;
 `;
-
-const StopButton = styled.button`
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: none;
-  background-color: #ff4444;
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
-  flex-shrink: 0;
-
-  &:hover {
-    background-color: #cc0000;
-    transform: scale(1.05);
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
-  }
-`;
-
-const StopIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect x="6" y="6" width="12" height="12" rx="2" />
-  </svg>
-);
 
 export default VoiceControl;

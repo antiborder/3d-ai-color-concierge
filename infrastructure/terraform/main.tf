@@ -1,6 +1,6 @@
 terraform {
   required_version = ">= 1.0"
-  
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -15,7 +15,7 @@ terraform {
       version = "~> 3.0"
     }
   }
-  
+
   backend "s3" {
     # 後で設定（S3バケットとDynamoDBテーブルが必要）
     # bucket = "your-terraform-state-bucket"
@@ -126,18 +126,18 @@ resource "aws_iam_role_policy" "lambda_s3_read" {
 resource "aws_lambda_function" "api" {
   s3_bucket        = aws_s3_bucket.lambda_deployments.id
   s3_key           = aws_s3_object.lambda_zip.key
-  function_name   = "${var.project_name}-api"
-  role            = aws_iam_role.lambda_execution_role.arn
-  handler         = "app.lambda_handler.handler"
+  function_name    = "${var.project_name}-api"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "app.lambda_handler.handler"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
-  runtime         = "python3.13"
-  timeout         = 30
-  memory_size     = 512
+  runtime          = "python3.13"
+  timeout          = 30
+  memory_size      = 512
 
   environment {
     variables = {
-      ENVIRONMENT = var.environment
-      CORS_ORIGINS = join(",", var.cors_origins)
+      ENVIRONMENT    = var.environment
+      CORS_ORIGINS   = join(",", var.cors_origins)
       API_STAGE_NAME = var.stage_name
       GEMINI_API_KEY = var.gemini_api_key
     }
@@ -149,13 +149,13 @@ resource "aws_apigatewayv2_api" "rest_api" {
   name          = "${var.project_name}-rest-api"
   protocol_type = "HTTP"
   description   = "REST API for 3D Color Concierge"
-  
+
   cors_configuration {
-    allow_origins = var.cors_origins
-    allow_methods = ["*"]
-    allow_headers = ["*"]
+    allow_origins     = var.cors_origins
+    allow_methods     = ["*"]
+    allow_headers     = ["*"]
     allow_credentials = true
-    max_age = 300
+    max_age           = 300
   }
 }
 
@@ -176,10 +176,10 @@ resource "aws_apigatewayv2_route" "api_route" {
 # Lambda関数へのAPI Gateway実行権限
 resource "aws_lambda_permission" "api_gateway_invoke" {
   statement_id  = "AllowAPIGatewayInvoke"
-  action       = "lambda:InvokeFunction"
+  action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.api.function_name
-  principal    = "apigateway.amazonaws.com"
-  source_arn   = "${aws_apigatewayv2_api.rest_api.execution_arn}/*/*"
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.rest_api.execution_arn}/*/*"
 }
 
 # API Gatewayステージ
@@ -271,6 +271,66 @@ resource "aws_cloudfront_distribution" "frontend" {
     domain_name              = aws_s3_bucket.frontend.bucket_regional_domain_name
     origin_id                = "S3-${aws_s3_bucket.frontend.id}"
     origin_access_control_id = aws_cloudfront_origin_access_control.frontend.id
+  }
+
+  # Backend origin (Fargate Public IP via DuckDNS)
+  # NOTE: duckdns_domain が未設定の場合でも terraform apply 自体は通すために example.com にフォールバック。
+  origin {
+    domain_name = var.duckdns_domain != "" ? "${var.duckdns_domain}.duckdns.org" : "example.com"
+    origin_id   = "Backend-${var.project_name}"
+
+    custom_origin_config {
+      http_port              = var.backend_port
+      https_port             = 443
+      origin_protocol_policy = "http-only"
+      origin_ssl_protocols   = ["TLSv1.2"]
+    }
+  }
+
+  # Backend API (no cache)
+  ordered_cache_behavior {
+    path_pattern     = "/api/*"
+    target_origin_id = "Backend-${var.project_name}"
+
+    allowed_methods = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods  = ["GET", "HEAD", "OPTIONS"]
+    compress        = true
+
+    forwarded_values {
+      query_string = true
+      headers      = ["*"]
+      cookies {
+        forward = "all"
+      }
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 0
+    max_ttl                = 0
+  }
+
+  # Backend WebSocket (no cache)
+  ordered_cache_behavior {
+    path_pattern     = "/ws/*"
+    target_origin_id = "Backend-${var.project_name}"
+
+    allowed_methods = ["GET", "HEAD", "OPTIONS"]
+    cached_methods  = ["GET", "HEAD", "OPTIONS"]
+    compress        = false
+
+    forwarded_values {
+      query_string = true
+      headers      = ["*"]
+      cookies {
+        forward = "all"
+      }
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 0
+    max_ttl                = 0
   }
 
   default_cache_behavior {

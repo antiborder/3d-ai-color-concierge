@@ -6,4 +6,7 @@ pydantic-settings==2.6.0
 python-multipart==0.0.20
 boto3==1.35.0
 google-generativeai==0.8.2
+# NOTE: Pin to a single version to avoid ECS/Docker builds drifting across SDK APIs.
+# Bump intentionally, then verify via CloudWatch log: "google-genai live SDK debug {...}".
+google-genai==1.63.0
 python-dotenv==1.0.0
