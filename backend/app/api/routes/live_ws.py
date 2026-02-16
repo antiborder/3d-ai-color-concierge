@@ -183,8 +183,8 @@ async def live_voice_ws(ws: WebSocket):
                 pass
             try:
                 await session.end_audio_stream()
-            except Exception:
-                pass
+            except Exception as e2:
+                logger.info("GeminiLiveSession end_audio_stream failed: %s", str(e2))
             stop_evt.set()
 
     async def live_to_client(session: GeminiLiveSession):
@@ -229,6 +229,8 @@ async def live_voice_ws(ws: WebSocket):
             done, pending = await asyncio.wait({t1, t2}, return_when=asyncio.FIRST_COMPLETED)
             for p in pending:
                 p.cancel()
+            # best-effort: wait for cancellation to settle
+            await asyncio.gather(*pending, return_exceptions=True)
     except Exception as e:
         logger.exception("WS internal error", extra={"origin": origin, "client_ip": client_ip})
         # best-effort: send error to client before closing

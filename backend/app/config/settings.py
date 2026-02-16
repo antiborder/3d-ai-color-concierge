@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     # Gemini Live API設定（音声ストリーミング）
     # SDK/モデル名は変わりやすいので、別ENVで上書き可能にしておく
     GEMINI_LIVE_MODEL_NAME: str = "gemini-live"  # 実運用では適切なLive対応モデル名に差し替え
+
+    # Gemini Live SDK の詳細 introspection ログを出すか（通常は不要でログが肥大化する）
+    # 例: GEMINI_LIVE_SDK_DEBUG=1
+    GEMINI_LIVE_SDK_DEBUG: bool = False
     
     class Config:
         env_file = ".env"

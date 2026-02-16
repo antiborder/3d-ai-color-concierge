@@ -38,7 +38,7 @@ ECR_REPO_URL="$(terraform output -raw ecr_backend_repository_url 2>/dev/null || 
 if [ -z "$ECR_REPO_URL" ]; then
   echo "Error: Could not get ecr_backend_repository_url from Terraform."
   echo "Please run 'terraform apply' first to create the infrastructure."
-  exit 1
+    exit 1
 fi
 echo "ECR repository: $ECR_REPO_URL"
 
@@ -58,7 +58,7 @@ echo "Updating terraform.tfvars backend_image_tag..."
 cd "$TERRAFORM_DIR"
 if ! grep -q '^backend_image_tag' terraform.tfvars; then
   echo "Error: terraform.tfvars does not contain backend_image_tag."
-  exit 1
+    exit 1
 fi
 sed -i.bak "s/^backend_image_tag\\s*=\\s*\\\".*\\\"/backend_image_tag = \\\"$IMAGE_TAG\\\"/g" terraform.tfvars
 rm -f terraform.tfvars.bak
@@ -76,7 +76,7 @@ echo "Applying Terraform configuration..."
 read -p "Do you want to apply these changes? (y/n) " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-  terraform apply
+    terraform apply
   echo ""
   echo "=========================================="
   echo "Backend deployment completed!"
@@ -87,6 +87,6 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "WebSocket (Live): ${CLOUDFRONT_URL/https:/wss:}/ws/live"
   fi
 else
-  echo "Deployment cancelled."
+    echo "Deployment cancelled."
 fi
 

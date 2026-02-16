@@ -37,6 +37,117 @@ DEFAULT_INPUT_SAMPLE_RATE_HZ = 16000
 DEFAULT_OUTPUT_SAMPLE_RATE_HZ = 24000
 
 
+def _sdk_debug_enabled() -> bool:
+    # 外部挙動に関係ない重い introspection ログを抑制するためのフラグ
+    # Settings 経由で環境変数から上書き可能（GEMINI_LIVE_SDK_DEBUG=1）
+    try:
+        return bool(getattr(settings, "GEMINI_LIVE_SDK_DEBUG", False))
+    except Exception:
+        return False
+
+
+def _b64_to_bytes(s: str) -> Optional[bytes]:
+    try:
+        return base64.b64decode(s)
+    except Exception:
+        return None
+
+
+def _extract_blob_bytes(x) -> Optional[bytes]:
+    if x is None:
+        return None
+    if isinstance(x, (bytes, bytearray)):
+        return bytes(x)
+    if isinstance(x, dict):
+        d = x.get("data")
+        if isinstance(d, (bytes, bytearray)):
+            return bytes(d)
+        if isinstance(d, str):
+            return _b64_to_bytes(d)
+        return None
+    d = getattr(x, "data", None)
+    if isinstance(d, (bytes, bytearray)):
+        return bytes(d)
+    if isinstance(d, str):
+        return _b64_to_bytes(d)
+    return None
+
+
+def _extract_mime(x) -> Optional[str]:
+    if x is None:
+        return None
+    if isinstance(x, dict):
+        mt = x.get("mime_type") or x.get("mimeType")
+        return mt if isinstance(mt, str) else None
+    mt = getattr(x, "mime_type", None) or getattr(x, "mimeType", None)
+    return mt if isinstance(mt, str) else None
+
+
+async def _await_if_needed(x):
+    if inspect.isawaitable(x):
+        return await x
+    return x
+
+
+def _err_str(e: Exception, limit: int = 240) -> str:
+    s = str(e)
+    if len(s) > limit:
+        return s[:limit] + "…"
+    return s
+
+
+def _tool_call_function_calls(tool_call) -> list:
+    """
+    tool_call から function_calls を取り出す（SDK差分を吸収）。
+    """
+    if tool_call is None:
+        return []
+    function_calls = getattr(tool_call, "function_calls", None) or getattr(tool_call, "functionCalls", None)
+    if function_calls is None and isinstance(tool_call, dict):
+        function_calls = tool_call.get("function_calls") or tool_call.get("functionCalls")
+    if not function_calls:
+        return []
+    # SDKにより tuple 等もあり得るが、とにかく iterable を list 化する
+    try:
+        return list(function_calls)
+    except Exception:
+        return []
+
+
+def _tool_call_to_frontend_command(name: str, args: dict) -> dict:
+    """
+    tool call args -> frontend command schema へ変換。
+    外部挙動を変えないため、現行のキー/型変換に合わせる。
+    """
+    cmd: dict = {"action": name, "parameters": {}}
+    if name == "SELECT_COLOR":
+        cmd["parameters"] = {
+            "color": {
+                "r": int(args.get("r", 0)),
+                "g": int(args.get("g", 0)),
+                "b": int(args.get("b", 0)),
+            }
+        }
+    elif name == "SET_COLOR":
+        for k in ("r", "g", "b"):
+            if k in args:
+                cmd["parameters"][k] = int(args[k])
+    elif name == "ADJUST_VALUE":
+        cmd["parameters"] = {
+            "property": args.get("property"),
+            "direction": args.get("direction"),
+        }
+        if "amount" in args:
+            cmd["parameters"]["amount"] = args.get("amount")
+    elif name == "CHANGE_SHAPE":
+        cmd["parameters"] = {"colorSpace": args.get("colorSpace")}
+    elif name == "TOGGLE_LABEL":
+        cmd["parameters"] = {"visible": args.get("visible")}
+    else:
+        cmd["parameters"] = args
+    return cmd
+
+
 def _live_tools() -> list[dict]:
     """
     Gemini Live tools (function_declarations).
@@ -197,7 +308,8 @@ class GeminiLiveSession:
         await self._open_live(client)
 
         # 1回だけSDKの実体をログ出し（ECS上のバージョン差異を確定させる）
-        if not self._did_log_sdk_debug:
+        # NOTE: 量が多く、通常運用ではノイズになるためフラグで抑制する
+        if _sdk_debug_enabled() and (not self._did_log_sdk_debug):
             self._did_log_sdk_debug = True
             try:
                 import importlib.metadata as md
@@ -444,30 +556,37 @@ class GeminiLiveSession:
             self._live_cm = conn
             self._live = await self._live_cm.__aenter__()
 
-    async def send_audio(self, pcm_s16le_bytes: bytes) -> None:
+    async def _ensure_live_connected(self) -> bool:
+        """
+        Ensure self._live is connected.
+        Returns True if connected, False if an error was enqueued.
+        """
         if self._closed:
-            return
-        if self._live_ended or not self._live:
-            # If Gemini closed the session due to inactivity, reconnect on first audio.
-            try:
-                from google import genai  # type: ignore
+            return False
+        if self._live and (not self._live_ended):
+            return True
+        # If Gemini closed the session due to inactivity, reconnect on first audio.
+        try:
+            from google import genai  # type: ignore
 
-                client = genai.Client(api_key=settings.GEMINI_API_KEY)
-                await self._close_live()
-                await self._open_live(client)
-                if self._recv_task is None or self._recv_task.done():
-                    self._recv_task = asyncio.create_task(self._recv_loop())
-            except Exception as e:
-                await self._event_q.put(LiveErrorEvent(message=f"Failed to reconnect Gemini Live session: {e}"))
-                return
-        # SDK依存: 入力音声の送信方法はバージョン差が大きいので、複数の形を順に試す。
-        # 代表例:
-        # - session.send_realtime_input(audio=Blob(...)) もしくは media=Blob(...)
-        # - session.send({...}) / session.send(input_audio=...)
-        # NOTE: google-genai 1.63.0 の例は mime_type="audio/pcm" が基本。
-        # サンプルレート等は connect config 側で指定する（realtime_input_config 等）。
+            client = genai.Client(api_key=settings.GEMINI_API_KEY)
+            await self._close_live()
+            await self._open_live(client)
+            if self._recv_task is None or self._recv_task.done():
+                self._recv_task = asyncio.create_task(self._recv_loop())
+            return True
+        except Exception as e:
+            await self._event_q.put(
+                LiveErrorEvent(message=f"Failed to reconnect Gemini Live session: {e}")
+            )
+            return False
+
+    def _build_audio_payloads(self, pcm_s16le_bytes: bytes) -> tuple[str, object, dict, dict]:
+        """
+        Build (mime, blob_payload, dict_bytes, dict_b64) for SDK calls.
+        blob_payload may be None.
+        """
         mime = "audio/pcm"
-        # SDKが types.Blob を要求する場合と dict を受け付ける場合があるので両対応する
         blob_payload = None
         try:
             from google.genai import types  # type: ignore
@@ -478,231 +597,241 @@ class GeminiLiveSession:
         except Exception:
             blob_payload = None
 
-        # dict fallback variants
         dict_bytes = {"mime_type": mime, "data": pcm_s16le_bytes}
         dict_b64 = {"mime_type": mime, "data": base64.b64encode(pcm_s16le_bytes).decode("ascii")}
+        return mime, blob_payload, dict_bytes, dict_b64
 
-        async def _await_if_needed(x):
-            if inspect.isawaitable(x):
-                return await x
-            return x
+    async def _send_audio_via_send_realtime_input(
+        self, blob_payload, dict_bytes: dict, allow_reconnect: bool = True
+    ) -> Optional[object]:
+        """
+        Try send_realtime_input(audio=...) then media=... as fallback.
+        Returns:
+          - None on success
+          - "unavailable" if send_realtime_input is not callable
+          - (audio_exc, media_exc) tuple if both routes failed
+        """
+        fn = getattr(self._live, "send_realtime_input", None)
+        if not callable(fn):
+            return "unavailable"
+        try:
+            await _await_if_needed(fn(audio=blob_payload or dict_bytes))
+            return None
+        except Exception as e:
+            # SDKドキュメント/実装例では audio ではなく media に音声Blobを入れる例もあるためフォールバック
+            try:
+                await _await_if_needed(fn(media=blob_payload or dict_bytes))
+                return None
+            except Exception as e2:
+                combined = f"{_err_str(e)}; {_err_str(e2)}"
+                if allow_reconnect and (
+                    "keepalive ping timeout" in combined or "no close frame received" in combined
+                ):
+                    # If the underlying WS is dead (keepalive ping timeout), do one reconnect + retry.
+                    try:
+                        from google import genai  # type: ignore
 
-        def _err_str(e: Exception, limit: int = 240) -> str:
-            s = str(e)
-            if len(s) > limit:
-                return s[:limit] + "…"
-            return s
+                        client = genai.Client(api_key=settings.GEMINI_API_KEY)
+                        await self._close_live()
+                        await self._open_live(client)
+                        if self._recv_task is None or self._recv_task.done():
+                            self._recv_task = asyncio.create_task(self._recv_loop())
+                        fn2 = getattr(self._live, "send_realtime_input", None)
+                        if callable(fn2):
+                            await _await_if_needed(fn2(audio=blob_payload or dict_bytes))
+                            return None
+                    except Exception:
+                        pass
+                return (e, e2)
 
+    async def _send_audio_via_send_typed_input(self, dict_bytes: dict, dict_b64: dict, pcm_s16le_bytes: bytes) -> Optional[Exception]:
+        """
+        Legacy fallback: try session.send(input=LiveClientRealtimeInput(...)).
+        Returns None on success, otherwise the last exception.
+        """
+        send_attr = getattr(self._live, "send", None)
+        send_fn = send_attr
+        if not callable(send_fn):
+            return Exception("send unavailable")
         last_err: Optional[Exception] = None
+        try:
+            from google.genai import types  # type: ignore
+
+            rt = getattr(types, "LiveClientRealtimeInput", None)
+            if rt is None:
+                return Exception(
+                    "types.LiveClientRealtimeInput is missing in this google-genai version"
+                )
+
+            fields = getattr(rt, "model_fields", None)
+            field_keys = set(fields.keys()) if isinstance(fields, dict) else set()
+            rt_obj = None
+            rt_err: Optional[Exception] = None
+
+            # google-genai==0.8.0 のログでは LiveClientRealtimeInput_fields=["media_chunks"] が確定。
+            # その場合は media_chunks=[chunk] の形で送る（chunk は型or dict）。
+            if "media_chunks" in field_keys:
+                chunk_type_names = [
+                    "LiveClientMediaChunk",
+                    "LiveClientMediaChunkDict",
+                    "LiveMediaChunk",
+                    "LiveMediaChunkDict",
+                ]
+                chunk_type = None
+                for n in chunk_type_names:
+                    t = getattr(types, n, None)
+                    if t is not None:
+                        chunk_type = t
+                        break
+
+                chunk_dict_candidates = [
+                    ("dict_b64", dict_b64),
+                    ("dict_bytes", dict_bytes),
+                ]
+                # 一部バージョンでは Blob が chunk として通る場合がある
+                blob_payload = None
+                try:
+                    Blob = getattr(types, "Blob", None)
+                    if Blob is not None:
+                        blob_payload = Blob(data=pcm_s16le_bytes, mime_type=dict_bytes.get("mime_type"))
+                except Exception:
+                    blob_payload = None
+                if blob_payload is not None:
+                    chunk_dict_candidates.insert(0, ("Blob", blob_payload))
+
+                for cname, cval in chunk_dict_candidates:
+                    try:
+                        if chunk_type is not None and callable(chunk_type):
+                            if isinstance(cval, dict):
+                                chunk_obj = chunk_type(**cval)
+                            else:
+                                chunk_obj = cval
+                        else:
+                            chunk_obj = cval
+
+                        rt_obj = rt(media_chunks=[chunk_obj])
+                        rt_err = None
+                        logger.info(
+                            "GeminiLiveSession: constructed LiveClientRealtimeInput(media_chunks=...) using %s",
+                            cname,
+                        )
+                        break
+                    except Exception as e:
+                        rt_err = e
+            else:
+                # 旧/別版: audio/media のどちらか
+                field_candidates: list[str] = []
+                if "audio" in field_keys:
+                    field_candidates.append("audio")
+                if "media" in field_keys:
+                    field_candidates.append("media")
+                if not field_candidates:
+                    field_candidates = ["audio", "media"]
+
+                value_candidates = [
+                    ("dict_bytes", dict_bytes),
+                    ("dict_b64", dict_b64),
+                    ("raw_bytes", pcm_s16le_bytes),
+                ]
+                blob_payload = None
+                try:
+                    Blob = getattr(types, "Blob", None)
+                    if Blob is not None:
+                        blob_payload = Blob(data=pcm_s16le_bytes, mime_type=dict_bytes.get("mime_type"))
+                except Exception:
+                    blob_payload = None
+                if blob_payload is not None:
+                    value_candidates.insert(0, ("Blob", blob_payload))
+
+                for key in field_candidates:
+                    for _, val in value_candidates:
+                        if val is None:
+                            continue
+                        try:
+                            rt_obj = rt(**{key: val})
+                            rt_err = None
+                            break
+                        except Exception as e:
+                            rt_err = e
+                    if rt_obj is not None:
+                        break
+
+            if rt_obj is None:
+                return Exception(f"cannot construct LiveClientRealtimeInput: {_err_str(rt_err)}")
+
+            # send() のシグネチャに合わせて渡す kwargs を絞る
+            try:
+                sig = inspect.signature(send_fn)
+                params = set(sig.parameters.keys())
+            except Exception:
+                params = {"input", "end_of_turn"}
+
+            for kwargs in ({"input": rt_obj}, {"input": rt_obj, "end_of_turn": False}):
+                filtered = {k: v for k, v in kwargs.items() if k in params}
+                try:
+                    await _await_if_needed(send_fn(**filtered))
+                    return None
+                except TypeError as e:
+                    last_err = e
+                except Exception as e:
+                    last_err = e
+                    break
+            return last_err or Exception("send(input=...) failed")
+        except Exception as e:
+            return e
+
+    async def send_audio(self, pcm_s16le_bytes: bytes) -> None:
+        if not await self._ensure_live_connected():
+            return
+        # SDK依存: 入力音声の送信方法はバージョン差が大きいので、複数の形を順に試す。
+        # 代表例:
+        # - session.send_realtime_input(audio=Blob(...)) もしくは media=Blob(...)
+        # - session.send({...}) / session.send(input_audio=...)
+        # NOTE: google-genai 1.63.0 の例は mime_type="audio/pcm" が基本。
+        # サンプルレート等は connect config 側で指定する（realtime_input_config 等）。
+        _, blob_payload, dict_bytes, dict_b64 = self._build_audio_payloads(pcm_s16le_bytes)
 
         # 1) send_realtime_input(audio=...) が使えるならそれを優先する。
         #    SDKソース上は `audio` も `media` も1つだけ指定可能（len(kwargs)==1）。
-        fn = getattr(self._live, "send_realtime_input", None)
-        if callable(fn):
-            try:
-                await _await_if_needed(fn(audio=blob_payload or dict_bytes))
-                return
-            except Exception as e:
-                last_err = e
-                # SDKドキュメント/実装例では audio ではなく media に音声Blobを入れる例もあるためフォールバック
-                try:
-                    await _await_if_needed(fn(media=blob_payload or dict_bytes))
-                    return
-                except Exception as e2:
-                    # If the underlying WS is dead (keepalive ping timeout), do one reconnect + retry.
-                    combined = f"{_err_str(e)}; {_err_str(e2)}"
-                    if "keepalive ping timeout" in combined or "no close frame received" in combined:
-                        try:
-                            from google import genai  # type: ignore
+        rt_result = await self._send_audio_via_send_realtime_input(blob_payload, dict_bytes)
+        if rt_result is None:
+            return
 
-                            client = genai.Client(api_key=settings.GEMINI_API_KEY)
-                            await self._close_live()
-                            await self._open_live(client)
-                            if self._recv_task is None or self._recv_task.done():
-                                self._recv_task = asyncio.create_task(self._recv_loop())
-                            fn2 = getattr(self._live, "send_realtime_input", None)
-                            if callable(fn2):
-                                await _await_if_needed(fn2(audio=blob_payload or dict_bytes))
-                                return
-                        except Exception:
-                            pass
-                    # ここでは send(input=...) にフォールバックしても音声扱いされず迷走しがちなので、
-                    # 2経路の失敗理由を返して終了する。
-                    msg = (
-                        f"Failed to send audio: audio=... -> {_err_str(e)}; "
-                        f"media=... -> {_err_str(e2)}"
-                    )
-                    await self._event_q.put(LiveErrorEvent(message=msg))
-                    return
+        # audio/media の2経路が失敗した場合は理由を返して終了する。（従来挙動）
+        # NOTE: send_realtime_input が無いケース（unavailable）のみ、続けて send(input=...) を試す。
+        if rt_result != "unavailable":
+            try:
+                e, e2 = rt_result  # type: ignore[misc]
+            except Exception:
+                e, e2 = rt_result, rt_result
+            msg = (
+                f"Failed to send audio: audio=... -> {_err_str(e)}; "
+                f"media=... -> {_err_str(e2)}"
+            )
+            await self._event_q.put(LiveErrorEvent(message=msg))
+            return
 
         # 2) send_realtime_input が無いSDK向け: send(input=...) を試す（typedのみ）
-        send_attr = getattr(self._live, "send", None)
-        send_fn = send_attr
-        if callable(send_fn):
-            # 2-a) Typed realtime input (推奨)
-            try:
-                from google.genai import types  # type: ignore
+        err2 = await self._send_audio_via_send_typed_input(dict_bytes, dict_b64, pcm_s16le_bytes)
+        if err2 is None:
+            return
 
-                rt = getattr(types, "LiveClientRealtimeInput", None)
-                if rt is not None:
-                    # このSDKバージョンでは `audio` ではなく `media` が正しい可能性がある。
-                    # モデルのフィールドを見て最適なキーで初期化する。
-                    fields = getattr(rt, "model_fields", None)
-                    field_keys = set(fields.keys()) if isinstance(fields, dict) else set()
-                    rt_obj = None
-                    rt_err: Optional[Exception] = None
-
-                    # google-genai==0.8.0 のログでは LiveClientRealtimeInput_fields=["media_chunks"] が確定。
-                    # その場合は media_chunks=[chunk] の形で送る（chunk は型or dict）。
-                    if "media_chunks" in field_keys:
-                        # まずは "chunk" の型が用意されていればそれを優先
-                        chunk_type_names = [
-                            "LiveClientMediaChunk",
-                            "LiveClientMediaChunkDict",
-                            "LiveMediaChunk",
-                            "LiveMediaChunkDict",
-                        ]
-                        chunk_type = None
-                        for n in chunk_type_names:
-                            t = getattr(types, n, None)
-                            if t is not None:
-                                chunk_type = t
-                                break
-
-                        # chunk の候補（bytes は弾かれる可能性が高いので b64 を先に試す）
-                        chunk_dict_candidates = [
-                            ("dict_b64", dict_b64),
-                            ("dict_bytes", dict_bytes),
-                        ]
-                        if blob_payload is not None:
-                            # 一部バージョンでは Blob が chunk として通る場合がある
-                            chunk_dict_candidates.insert(0, ("Blob", blob_payload))
-
-                        for cname, cval in chunk_dict_candidates:
-                            try:
-                                if chunk_type is not None and callable(chunk_type):
-                                    # pydantic model なら **kwargs を期待することが多い
-                                    if isinstance(cval, dict):
-                                        chunk_obj = chunk_type(**cval)
-                                    else:
-                                        # Blob 等
-                                        chunk_obj = cval
-                                else:
-                                    chunk_obj = cval
-
-                                rt_obj = rt(media_chunks=[chunk_obj])
-                                rt_err = None
-                                logger.info(
-                                    "GeminiLiveSession: constructed LiveClientRealtimeInput(media_chunks=...) using %s",
-                                    cname,
-                                )
-                                break
-                            except Exception as e:
-                                rt_err = e
-                    else:
-                        # 旧/別版: audio/media のどちらか
-                        field_candidates: list[str] = []
-                        if "audio" in field_keys:
-                            field_candidates.append("audio")
-                        if "media" in field_keys:
-                            field_candidates.append("media")
-                        if not field_candidates:
-                            field_candidates = ["audio", "media"]
-
-                        value_candidates = [
-                            ("Blob", blob_payload),
-                            ("dict_bytes", dict_bytes),
-                            ("dict_b64", dict_b64),
-                            ("raw_bytes", pcm_s16le_bytes),
-                        ]
-                        for key in field_candidates:
-                            for _, val in value_candidates:
-                                if val is None:
-                                    continue
-                                try:
-                                    rt_obj = rt(**{key: val})
-                                    rt_err = None
-                                    break
-                                except Exception as e:
-                                    rt_err = e
-                            if rt_obj is not None:
-                                break
-
-                    if rt_obj is None:
-                        msg = (
-                            "Failed to send audio: cannot construct LiveClientRealtimeInput: "
-                            f"{_err_str(rt_err)}"
-                        )
-                        await self._event_q.put(LiveErrorEvent(message=msg))
-                        return
-
-                    # send() のシグネチャに合わせて渡す kwargs を絞る
-                    try:
-                        sig = inspect.signature(send_fn)
-                        params = set(sig.parameters.keys())
-                    except Exception:
-                        params = {"input", "end_of_turn"}
-
-                    for kwargs in (
-                        {"input": rt_obj},
-                        {"input": rt_obj, "end_of_turn": False},
-                    ):
-                        filtered = {k: v for k, v in kwargs.items() if k in params}
-                        try:
-                            await _await_if_needed(send_fn(**filtered))
-                            return
-                        except TypeError as e:
-                            last_err = e
-                        except Exception as e:
-                            last_err = e
-                            break
-                    # send() を試したが全て失敗した場合は、ここで理由を返して終了（fallthroughしない）
-                    msg = (
-                        f"Failed to send audio: send(input=...) failed: {_err_str(last_err)}"
-                        if last_err
-                        else "Failed to send audio: send(input=...) failed"
-                    )
-                    logger.info("GeminiLiveSession send_audio error %s", msg)
-                    await self._event_q.put(LiveErrorEvent(message=msg))
-                    return
-                else:
-                    # typedが無いなら、SDK差分なので無理にdictを投げずに切り分け情報を返す
-                    msg = (
+        # typedが無いなら、SDK差分なので無理にdictを投げずに切り分け情報を返す（従来挙動に合わせる）
+        if "LiveClientRealtimeInput is missing" in str(err2) or "missing in this google-genai version" in str(err2):
+            await self._event_q.put(
+                LiveErrorEvent(
+                    message=(
                         "Failed to send audio: send_realtime_input is unavailable and "
                         "types.LiveClientRealtimeInput is missing in this google-genai version"
                     )
-                    await self._event_q.put(LiveErrorEvent(message=msg))
-                    return
-            except Exception as e:
-                last_err = e
-                msg = f"Failed to send audio: send(input=...) failed: {_err_str(e)}"
-                logger.info("GeminiLiveSession send_audio error %s", msg)
-                await self._event_q.put(LiveErrorEvent(message=msg))
-                return
+                )
+            )
+            return
 
-        # ここまで来る場合は、SDKに send_realtime_input も send も無い/見つからない。
-        sendish = []
-        try:
-            sendish = sorted(
-                [
-                    n
-                    for n in dir(self._live)
-                    if ("send" in n or "realtime" in n) and not n.startswith("_")
-                ]
-            )[:40]
-        except Exception:
-            pass
-        msg = (
-            "Failed to send audio: no supported send method on live session "
-            f"(send_attr_type={type(send_attr).__name__}, send_callable={callable(send_attr)}, "
-            f"sendish={sendish})"
-        )
-        try:
-            msg += f" (live_type={type(self._live).__name__})"
-        except Exception:
-            pass
+        msg = f"Failed to send audio: send(input=...) failed: {_err_str(err2)}"
         logger.info("GeminiLiveSession send_audio error %s", msg)
         await self._event_q.put(LiveErrorEvent(message=msg))
+        return
 
     async def end_audio_stream(self) -> None:
         """
@@ -782,40 +911,6 @@ class GeminiLiveSession:
                 # msg構造はSDK依存。代表的に audio, text, transcript を拾う。
                 # 可能な限り「落ちない」実装にしてログ/イベントで追えるようにする。
                 try:
-                    def _b64_to_bytes(s: str) -> Optional[bytes]:
-                        try:
-                            return base64.b64decode(s)
-                        except Exception:
-                            return None
-
-                    def _extract_blob_bytes(x) -> Optional[bytes]:
-                        if x is None:
-                            return None
-                        if isinstance(x, (bytes, bytearray)):
-                            return bytes(x)
-                        if isinstance(x, dict):
-                            d = x.get("data")
-                            if isinstance(d, (bytes, bytearray)):
-                                return bytes(d)
-                            if isinstance(d, str):
-                                return _b64_to_bytes(d)
-                            return None
-                        d = getattr(x, "data", None)
-                        if isinstance(d, (bytes, bytearray)):
-                            return bytes(d)
-                        if isinstance(d, str):
-                            return _b64_to_bytes(d)
-                        return None
-
-                    def _extract_mime(x) -> Optional[str]:
-                        if x is None:
-                            return None
-                        if isinstance(x, dict):
-                            mt = x.get("mime_type") or x.get("mimeType")
-                            return mt if isinstance(mt, str) else None
-                        mt = getattr(x, "mime_type", None) or getattr(x, "mimeType", None)
-                        return mt if isinstance(mt, str) else None
-
                     # 0) google-genai>=1.x: LiveServerMessage.server_content.model_turn.parts[].inline_data に音声が入る
                     sc = getattr(msg, "server_content", None)
                     if sc is not None:
@@ -842,75 +937,44 @@ class GeminiLiveSession:
 
                     # 0-b) google-genai>=1.x: tool call / function call (UI操作)
                     tc = getattr(msg, "tool_call", None) or getattr(msg, "toolCall", None)
-                    if tc is not None:
-                        function_calls = getattr(tc, "function_calls", None) or getattr(tc, "functionCalls", None)
-                        if function_calls is None and isinstance(tc, dict):
-                            function_calls = tc.get("function_calls") or tc.get("functionCalls")
+                    function_calls = _tool_call_function_calls(tc)
+                    if function_calls:
+                        # Best-effort: respond "ok" so the model can continue the turn.
+                        try:
+                            from google.genai import types  # type: ignore
 
-                        if function_calls:
-                            # Best-effort: respond "ok" so the model can continue the turn.
-                            try:
-                                from google.genai import types  # type: ignore
+                            FunctionResponse = getattr(types, "FunctionResponse", None)
+                        except Exception:
+                            FunctionResponse = None
 
-                                FunctionResponse = getattr(types, "FunctionResponse", None)
-                            except Exception:
-                                FunctionResponse = None
+                        send_tool = getattr(self._live, "send_tool_response", None)
 
-                            for fc in function_calls:
-                                name = getattr(fc, "name", None) if not isinstance(fc, dict) else fc.get("name")
-                                args = getattr(fc, "args", None) if not isinstance(fc, dict) else fc.get("args")
-                                call_id = getattr(fc, "id", None) if not isinstance(fc, dict) else fc.get("id")
-                                if not isinstance(args, dict):
-                                    args = {}
+                        for fc in function_calls:
+                            name = getattr(fc, "name", None) if not isinstance(fc, dict) else fc.get("name")
+                            args = getattr(fc, "args", None) if not isinstance(fc, dict) else fc.get("args")
+                            call_id = getattr(fc, "id", None) if not isinstance(fc, dict) else fc.get("id")
+                            if not isinstance(args, dict):
+                                args = {}
 
-                                if isinstance(name, str) and name:
-                                    # Map tool call args -> frontend command schema
-                                    cmd: dict = {"action": name, "parameters": {}}
-                                    if name == "SELECT_COLOR":
-                                        cmd["parameters"] = {
-                                            "color": {
-                                                "r": int(args.get("r", 0)),
-                                                "g": int(args.get("g", 0)),
-                                                "b": int(args.get("b", 0)),
-                                            }
-                                        }
-                                    elif name == "SET_COLOR":
-                                        # pass through r/g/b if present
-                                        for k in ("r", "g", "b"):
-                                            if k in args:
-                                                cmd["parameters"][k] = int(args[k])
-                                    elif name == "ADJUST_VALUE":
-                                        cmd["parameters"] = {
-                                            "property": args.get("property"),
-                                            "direction": args.get("direction"),
-                                        }
-                                        if "amount" in args:
-                                            cmd["parameters"]["amount"] = args.get("amount")
-                                    elif name == "CHANGE_SHAPE":
-                                        cmd["parameters"] = {"colorSpace": args.get("colorSpace")}
-                                    elif name == "TOGGLE_LABEL":
-                                        cmd["parameters"] = {"visible": args.get("visible")}
-                                    else:
-                                        cmd["parameters"] = args
+                            if isinstance(name, str) and name:
+                                cmd = _tool_call_to_frontend_command(name, args)
+                                await self._event_q.put(
+                                    LiveCommandEvent(command=cmd, tool_name=name, tool_call_id=call_id)
+                                )
 
-                                    await self._event_q.put(
-                                        LiveCommandEvent(command=cmd, tool_name=name, tool_call_id=call_id)
-                                    )
-
-                                    # Send tool response back to Gemini Live
-                                    try:
-                                        send_tool = getattr(self._live, "send_tool_response", None)
-                                        if callable(send_tool) and FunctionResponse is not None:
-                                            fr = FunctionResponse(
-                                                name=name,
-                                                response={"result": "ok"},
-                                                id=call_id,
-                                            )
-                                            maybe = send_tool(function_responses=fr)
-                                            if inspect.isawaitable(maybe):
-                                                await maybe
-                                    except Exception as e:
-                                        logger.info("GeminiLiveSession send_tool_response failed: %s", str(e))
+                                # Send tool response back to Gemini Live
+                                try:
+                                    if callable(send_tool) and FunctionResponse is not None:
+                                        fr = FunctionResponse(
+                                            name=name,
+                                            response={"result": "ok"},
+                                            id=call_id,
+                                        )
+                                        maybe = send_tool(function_responses=fr)
+                                        if inspect.isawaitable(maybe):
+                                            await maybe
+                                except Exception as e:
+                                    logger.info("GeminiLiveSession send_tool_response failed: %s", str(e))
 
                     # 音声出力
                     audio = getattr(msg, "audio", None) or msg.get("audio") if isinstance(msg, dict) else None
