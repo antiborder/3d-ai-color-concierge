@@ -75,7 +75,6 @@ export AWS_PROFILE=3d-color-concierge
 cd /Users/mo/Projects/3d-color-picker/3d-ai-color-concierge/backend
 
 TAG="v2-$(date +%Y%m%d-%H%M%S)"
-echo "$TAG"
 
 # ECR login（403 Forbidden 対策として毎回やるのが安全）
 AWS_PROFILE=3d-color-concierge aws ecr get-login-password --region ap-northeast-1 \
@@ -84,6 +83,7 @@ AWS_PROFILE=3d-color-concierge aws ecr get-login-password --region ap-northeast-
 docker buildx build --platform linux/amd64,linux/arm64 \
   -t 478157933567.dkr.ecr.ap-northeast-1.amazonaws.com/3d-color-concierge-backend:$TAG \
   --push .
+echo "$TAG"
 ```
 
 ### 2) Terraform apply（ECS/Fargate へ反映）
@@ -98,7 +98,7 @@ docker buildx build --platform linux/amd64,linux/arm64 \
 export AWS_PROFILE=3d-color-concierge
 cd /Users/mo/Projects/3d-color-picker/3d-ai-color-concierge/infrastructure/terraform
 terraform init
-terraform apply
+terraform apply --auto-approve
 ```
 
 ### 3) CloudWatch Logs で確認

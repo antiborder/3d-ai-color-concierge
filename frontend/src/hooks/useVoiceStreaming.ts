@@ -90,12 +90,16 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     }
   }, []);
 
-  const cleanupWs = useCallback(() => {
+  const cleanupWs = useCallback((opts?: { code?: number; reason?: string }) => {
     const ws = wsRef.current;
     wsRef.current = null;
     if (ws) {
       try {
-        ws.close();
+        if (opts?.code != null) {
+          ws.close(opts.code, opts.reason);
+        } else {
+          ws.close();
+        }
       } catch {
         // ignore
       }
@@ -285,7 +289,8 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     }
 
     cleanupAudio();
-    cleanupWs();
+    // Close with a normal-close code so the browser doesn't surface a pseudo "1005".
+    cleanupWs({ code: 1000, reason: 'client stop' });
   }, [cleanupAudio, cleanupWs, clearReconnectTimer]);
 
   const start = useCallback(async () => {
@@ -398,8 +403,11 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
         setIsConnecting(false);
         cleanupAudio();
 
-        // 正常終了(1000)ならエラー表示しない
-        if (evt.code && evt.code !== 1000) {
+        // stop() などの「意図的な切断」はエラー表示しない。
+        // close event の 1005 は「close code なし」を表す擬似コードで、正常系でも出やすい。
+        const isExpectedClose =
+          !shouldReconnectRef.current || evt.code === 1000 || evt.code === 1005;
+        if (!isExpectedClose) {
           setErr(`WebSocket closed (code=${evt.code}) ${evt.reason || ''}`.trim());
         }
 
