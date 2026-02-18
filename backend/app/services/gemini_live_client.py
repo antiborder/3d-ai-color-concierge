@@ -148,6 +148,46 @@ def _tool_call_to_frontend_command(name: str, args: dict) -> dict:
     return cmd
 
 
+def _extract_text_from_transcription_obj(x) -> Optional[str]:
+    """
+    受信メッセージ内の「書き起こし」オブジェクトからテキストを取り出すためのbest-effort。
+    `output_audio_transcription` 由来の構造は SDK/モデルで変わり得るため、落ちない抽出を優先する。
+    """
+    if x is None:
+        return None
+    if isinstance(x, str):
+        return x.strip() or None
+    if isinstance(x, dict):
+        # common shapes
+        for k in ("text", "transcript", "transcription"):
+            v = x.get(k)
+            if isinstance(v, str) and v.strip():
+                return v.strip()
+        # nested: {"transcript": {"text": "..."}}
+        v2 = x.get("transcript")
+        if isinstance(v2, dict):
+            t = v2.get("text")
+            if isinstance(t, str) and t.strip():
+                return t.strip()
+        return None
+    # pydantic/model objects
+    t = getattr(x, "text", None)
+    if isinstance(t, str) and t.strip():
+        return t.strip()
+    tr = getattr(x, "transcript", None)
+    if isinstance(tr, str) and tr.strip():
+        return tr.strip()
+    tr2 = getattr(x, "transcription", None)
+    if isinstance(tr2, str) and tr2.strip():
+        return tr2.strip()
+    tr_obj = getattr(x, "transcript", None)
+    if tr_obj is not None:
+        t2 = getattr(tr_obj, "text", None)
+        if isinstance(t2, str) and t2.strip():
+            return t2.strip()
+    return None
+
+
 def _live_tools() -> list[dict]:
     """
     Gemini Live tools (function_declarations).
@@ -463,6 +503,9 @@ class GeminiLiveSession:
             "response_modalities": ["AUDIO"],
             "system_instruction": _live_system_instruction(self._cfg.language),
             "tools": _live_tools(),
+            # Ask the server to generate an automatic transcript for the model's output audio.
+            # This gives "audio-consistent" text without requiring response_modalities=["TEXT"].
+            "output_audio_transcription": {},
             # NOTE: language/input_audio_format/output_audio_format は 1.63.0 では extra_forbidden のため、
             # LiveConnectConfig.model_fields を見て許可されているキーへマップする。
             "language": self._cfg.language,
@@ -914,6 +957,17 @@ class GeminiLiveSession:
                     # 0) google-genai>=1.x: LiveServerMessage.server_content.model_turn.parts[].inline_data に音声が入る
                     sc = getattr(msg, "server_content", None)
                     if sc is not None:
+                        # 0-a) output audio transcription (server-generated)
+                        oat = (
+                            getattr(sc, "output_audio_transcription", None)
+                            or getattr(sc, "outputAudioTranscription", None)
+                        )
+                        if oat is None and isinstance(sc, dict):
+                            oat = sc.get("output_audio_transcription") or sc.get("outputAudioTranscription")
+                        txt = _extract_text_from_transcription_obj(oat)
+                        if txt:
+                            await self._event_q.put(LiveAssistantTextEvent(text=txt))
+
                         model_turn = getattr(sc, "model_turn", None) or getattr(sc, "modelTurn", None)
                         parts = getattr(model_turn, "parts", None) if model_turn is not None else None
                         if parts:

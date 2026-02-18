@@ -45,7 +45,7 @@ async def run_duckdns_updater(stop_evt: asyncio.Event) -> None:
     logger.info("DuckDNS updater enabled for domain=%s, interval=%ss", domain, interval_s)
 
     try:
-        # 起動直後に即時更新
+    # 起動直後に即時更新
         while not stop_evt.is_set():
             try:
                 result = await asyncio.to_thread(_do_update, domain, token)

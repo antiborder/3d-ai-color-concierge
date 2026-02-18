@@ -28,11 +28,17 @@ class Settings(BaseSettings):
 
     # Gemini Live API設定（音声ストリーミング）
     # SDK/モデル名は変わりやすいので、別ENVで上書き可能にしておく
-    GEMINI_LIVE_MODEL_NAME: str = "gemini-live"  # 実運用では適切なLive対応モデル名に差し替え
+    GEMINI_LIVE_MODEL_NAME: str = "gemini-2.5-flash-native-audio-preview-12-2025"  # 実運用では適切なLive対応モデル名に差し替え
 
     # Gemini Live SDK の詳細 introspection ログを出すか（通常は不要でログが肥大化する）
     # 例: GEMINI_LIVE_SDK_DEBUG=1
     GEMINI_LIVE_SDK_DEBUG: bool = False
+
+    # WebSocket 認証（短命トークン署名）
+    # - 本番では必ず安全な値を注入する
+    # - ローカル開発では scripts/dev/run-backend-local.sh が自動生成する
+    WS_TOKEN_SECRET: str = ""
+    WS_TOKEN_TTL_SEC: int = 60
     
     class Config:
         env_file = ".env"

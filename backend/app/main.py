@@ -1,4 +1,6 @@
 import os
+import re
+from urllib.parse import urlparse
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -25,9 +27,44 @@ _duckdns_stop_evt = asyncio.Event()
 _duckdns_task: asyncio.Task | None = None
 
 # CORS設定
+def _cors_regex_from_allowed_origins(allowed: list[str]) -> str | None:
+    """
+    Starlette の CORSMiddleware は allow_origins の "*.example.com" を解釈しないため、
+    "https://*.cloudfront.net" のような設定は allow_origin_regex に変換して扱う。
+    """
+    patterns: list[str] = []
+    for a in allowed:
+        a = (a or "").strip()
+        if not a or "*." not in a:
+            continue
+        try:
+            p = urlparse(a)
+        except Exception:
+            continue
+
+        scheme = (p.scheme or "").lower()
+        host = (p.hostname or "").lower()
+        if not scheme or not host.startswith("*."):
+            continue
+        suffix = host[2:]  # drop "*."
+        # allow optional port just in case
+        patterns.append(rf"{re.escape(scheme)}://.*\.{re.escape(suffix)}(?::\d+)?$")
+
+    if not patterns:
+        return None
+    # re.match() is used internally, so anchor at beginning.
+    return r"^(" + "|".join(patterns) + r")"
+
+
+_cors_allowed = settings.get_cors_origins()
+_cors_allow_regex = _cors_regex_from_allowed_origins(_cors_allowed)
+# Keep exact-match origins in allow_origins; wildcard entries are handled by regex.
+_cors_allow_origins = [o for o in _cors_allowed if "*." not in (o or "")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.get_cors_origins(),
+    allow_origins=_cors_allow_origins,
+    allow_origin_regex=_cors_allow_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
