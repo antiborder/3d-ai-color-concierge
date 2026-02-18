@@ -32,6 +32,12 @@ CORS_ORIGINS=http://localhost:3000,http://localhost:5173
 ENVIRONMENT=development
 ```
 
+#### ローカル音声（Gemini Live）を使う場合
+最低限これも設定してください：
+- **`GEMINI_LIVE_MODEL_NAME`**: Live対応モデル名（例: `gemini-2.5-flash-native-audio-preview-12-2025`）
+
+`WS_TOKEN_SECRET` は WebSocket 用トークン署名鍵です（ローカルは未設定なら自動生成でもOK）。
+
 ### 4. AWS認証情報の設定
 
 このプロジェクト専用のAWSプロファイルを設定します：
@@ -50,11 +56,20 @@ aws configure --profile 3d-color-concierge
 
 ### 5. ローカル開発サーバーの起動
 
+推奨は、スクリプト経由で起動する方法です（`.env` の作成、`WS_TOKEN_SECRET` の自動生成、IPv6待受などを含みます）：
+
 ```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+cd /Users/mo/Projects/3d-color-picker/3d-ai-color-concierge
+./scripts/dev/run-backend-local.sh
 ```
 
 APIドキュメント: http://localhost:8000/docs
+
+#### 疎通確認（HTTP）
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8000/docs
+curl -s -o /dev/null -w "%{http_code}\n" "http://127.0.0.1:8000/api/ws/token?return_token=1"
+```
 
 ## デプロイ
 

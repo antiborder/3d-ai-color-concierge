@@ -25,7 +25,57 @@ npm start
 通常は `http://localhost:3000` が開きます。
 
 ## ローカル開発（バックエンド）
-詳細は `backend/README.md` を参照してください。
+詳細は `backend/README.md` を参照してください（推奨: `scripts/dev/run-backend-local.sh`）。
+
+## ローカル環境でのテスト手順（推奨）
+ここでは **ローカルFrontend + ローカルBackend** の組み合わせで、HTTP/WSの疎通とUIの基本確認をします。
+
+### 1) Backend 起動（8000）
+```bash
+cd /Users/mo/Projects/3d-color-picker/3d-ai-color-concierge
+./scripts/dev/run-backend-local.sh
+```
+
+初回は `backend/.env` が作られるので、最低限これを設定してください：
+- **`GEMINI_API_KEY`**: 有効な Gemini API Key
+- **`GEMINI_LIVE_MODEL_NAME`**: Live対応モデル名（例: `gemini-2.5-flash-native-audio-preview-12-2025`）
+
+メモ:
+- `WS_TOKEN_SECRET` は未設定ならローカル用に自動生成され、`backend/.env` に保存されます。
+- macOS等で `localhost` が IPv6(::1) 優先でも繋がるよう、ローカルは `::` で待ち受けます。
+
+### 2) Backend の疎通確認（HTTP）
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8000/docs
+curl -s -o /dev/null -w "%{http_code}\n" "http://127.0.0.1:8000/api/ws/token?return_token=1"
+```
+
+期待:
+- `/docs` → **200**
+- `/api/ws/token` → **200**（JSONで `{"token":"..."}` が返る）
+
+### 3) Frontend をローカルBackendへ向ける
+`frontend/.env.local`（なければ作成）に以下を設定します：
+- **`VITE_API_BASE_URL=http://127.0.0.1:8000`**
+- **`VITE_WS_BASE_URL=ws://127.0.0.1:8000`**
+
+起動:
+```bash
+cd /Users/mo/Projects/3d-color-picker/3d-ai-color-concierge/frontend
+npm install
+npm run dev
+```
+
+### 4) 音声（WebSocket）最低限の確認
+ブラウザでマイク許可 → マイクボタンで開始し、以下が満たされれば「WS〜Backend〜Gemini Live」経路は概ねOKです：
+- **`WebSocket closed (code=1006)` が出ない**
+- 音声入力後に **transcript / 返信音声** が返る（モデル設定に依存）
+
+### 5) よくある詰まり（ローカル）
+- **`Internal error: 1007 ... API key ...`**: `GEMINI_API_KEY` が無効/期限切れ/壊れている
+- **`models/... is not found ...`**: `GEMINI_LIVE_MODEL_NAME` がLive接続に対応していない
+- **`ERR_CONNECTION_REFUSED`**: backendが起動していない、または別プロセスが8000を掴んでいる
+- **`/api/ws/token` が 500**: `WS_TOKEN_SECRET` 未設定（通常は起動スクリプトが自動生成）
 
 ## デプロイ（AWS: CloudFront + ECS Fargate）
 この手順は「**本番相当（CloudFront配下、同一オリジン）で WebSocket 音声返信まで確認**」するためのものです。
