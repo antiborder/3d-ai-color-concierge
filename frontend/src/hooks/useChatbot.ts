@@ -1,7 +1,7 @@
 /**
  * チャットボット会話履歴管理hook
  */
-import { useState, useCallback } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import type { ConversationMessage } from '@/types/voice';
 
 /**
@@ -9,14 +9,18 @@ import type { ConversationMessage } from '@/types/voice';
  * 会話履歴を管理（React stateのみ、ページリロードで消える）
  */
 export function useChatbot() {
+  // History coming from the REST API (/api/voice/*). Used as model context.
   const [conversationHistory, setConversationHistory] = useState<ConversationMessage[]>([]);
+  // Extra messages coming from the Live WS stream (e.g. output_audio_transcription).
+  // Kept separate so REST-driven history updates don't wipe them.
+  const [liveExtraHistory, setLiveExtraHistory] = useState<ConversationMessage[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   /**
-   * 会話履歴にメッセージを追加
+   * 会話履歴（Live/WS由来）にメッセージを追加
    */
   const addMessage = useCallback((message: ConversationMessage) => {
-    setConversationHistory((prev) => [...prev, message]);
+    setLiveExtraHistory((prev) => [...prev, message]);
   }, []);
 
   /**
@@ -27,10 +31,33 @@ export function useChatbot() {
   }, []);
 
   /**
+   * 表示用の会話履歴（API履歴 + WS追加分）
+   *
+   * 仕様:
+   * - WS由来の assistant テキストは「音声とほぼ同じ」表示が目的なので、
+   *   直前の assistant メッセージがある場合は置き換える（重複表示を減らす）。
+   */
+  const displayHistory = useMemo(() => {
+    const merged: ConversationMessage[] = [...conversationHistory];
+    for (const msg of liveExtraHistory) {
+      if (msg.role === 'assistant') {
+        const last = merged[merged.length - 1];
+        if (last && last.role === 'assistant') {
+          merged[merged.length - 1] = msg;
+          continue;
+        }
+      }
+      merged.push(msg);
+    }
+    return merged;
+  }, [conversationHistory, liveExtraHistory]);
+
+  /**
    * 会話履歴をクリア
    */
   const clearHistory = useCallback(() => {
     setConversationHistory([]);
+    setLiveExtraHistory([]);
   }, []);
 
   /**
@@ -49,6 +76,7 @@ export function useChatbot() {
 
   return {
     conversationHistory,
+    displayHistory,
     isModalOpen,
     addMessage,
     updateHistory,

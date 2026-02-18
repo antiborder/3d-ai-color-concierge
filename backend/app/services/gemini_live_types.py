@@ -41,6 +41,10 @@ class LiveAssistantTextEvent:
     """アシスタントのテキスト（音声とは別チャンネルで来る場合用）。"""
 
     text: str
+    # Where this assistant text came from.
+    # - "output_audio_transcription": server-generated transcript of the model's OUTPUT audio
+    # - "text_part": plain text parts in the model turn (fallback)
+    source: Optional[Literal["output_audio_transcription", "text_part"]] = None
 
 
 @dataclass(frozen=True)

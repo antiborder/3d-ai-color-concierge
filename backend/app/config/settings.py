@@ -30,9 +30,18 @@ class Settings(BaseSettings):
     # SDK/モデル名は変わりやすいので、別ENVで上書き可能にしておく
     GEMINI_LIVE_MODEL_NAME: str = "gemini-2.5-flash-native-audio-preview-12-2025"  # 実運用では適切なLive対応モデル名に差し替え
 
+    # Gemini Live の API version
+    # - output_audio_transcription 等の一部機能が v1alpha 限定の場合があるため、必要なら v1alpha を使う
+    # 例: GEMINI_LIVE_API_VERSION=v1alpha
+    GEMINI_LIVE_API_VERSION: str = "v1alpha"
+
     # Gemini Live SDK の詳細 introspection ログを出すか（通常は不要でログが肥大化する）
     # 例: GEMINI_LIVE_SDK_DEBUG=1
     GEMINI_LIVE_SDK_DEBUG: bool = False
+
+    # Gemini Live 受信イベント（output_audio_transcription 等）のデバッグログを出すか
+    # 例: GEMINI_LIVE_CHAT_DEBUG=1
+    GEMINI_LIVE_CHAT_DEBUG: bool = False
 
     # WebSocket 認証（短命トークン署名）
     # - 本番では必ず安全な値を注入する

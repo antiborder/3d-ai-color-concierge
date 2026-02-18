@@ -206,7 +206,25 @@ async def live_voice_ws(ws: WebSocket):
                     )
                 )
             elif isinstance(ev, LiveAssistantTextEvent):
-                await ws.send_text(json.dumps({"type": "assistant_text", "text": ev.text}))
+                if getattr(settings, "GEMINI_LIVE_CHAT_DEBUG", False):
+                    try:
+                        logger.info(
+                            "LIVE_CHAT_DEBUG send assistant_text source=%s txt_len=%s txt_preview=%r",
+                            ev.source,
+                            len(ev.text) if ev.text else 0,
+                            (ev.text[:200] if ev.text else None),
+                        )
+                    except Exception:
+                        logger.info("LIVE_CHAT_DEBUG send assistant_text (failed to log details)")
+                await ws.send_text(
+                    json.dumps(
+                        {
+                            "type": "assistant_text",
+                            "text": ev.text,
+                            "source": ev.source,
+                        }
+                    )
+                )
             elif isinstance(ev, LiveCommandEvent):
                 await ws.send_text(
                     json.dumps(

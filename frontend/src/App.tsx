@@ -104,8 +104,16 @@ function App() {
   };
 
   // Chatbot hook for conversation history management
-  const { conversationHistory, isModalOpen, updateHistory, clearHistory, openModal, closeModal } =
-    useChatbot();
+  const {
+    conversationHistory,
+    displayHistory,
+    isModalOpen,
+    addMessage,
+    updateHistory,
+    clearHistory,
+    openModal,
+    closeModal,
+  } = useChatbot();
 
   // Voice command handlers
   const voiceCommandHandlers = {
@@ -139,6 +147,9 @@ function App() {
   // Handle voice recognition transcript
   const handleVoiceTranscript = async (transcript: string) => {
     if (Date.now() < skipRestUntilRef.current) {
+      // In WS tool-call mode we intentionally skip the REST processing to avoid double-applying.
+      // Still, we want to keep the user's utterance in the visible chat history.
+      addMessage({ role: 'user', content: transcript });
       return;
     }
     setIsLoading(true);
@@ -147,6 +158,22 @@ function App() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleAssistantMessage = (text: string, meta?: { source?: string | null }) => {
+    // We only want "chat-like" assistant messages that correspond to the OUTPUT audio.
+    // If backend provides a source, prefer server-generated output audio transcripts.
+    // NOTE: backend may emit either of these depending on SDK/API version:
+    // - output_audio_transcription
+    // - output_transcription
+    if (
+      meta?.source &&
+      meta.source !== 'output_audio_transcription' &&
+      meta.source !== 'output_transcription'
+    ) {
+      return;
+    }
+    addMessage({ role: 'assistant', content: text });
   };
 
   const handleVoiceError = (error: string) => {
@@ -219,6 +246,7 @@ function App() {
       />
       <VoiceControl
         onTranscript={handleVoiceTranscript}
+        onAssistantMessage={handleAssistantMessage}
         onCommand={handleWsCommand}
         onError={handleVoiceError}
         onOpenChatHistory={openModal}
@@ -227,7 +255,7 @@ function App() {
       <ChatHistoryModal
         isOpen={isModalOpen}
         onClose={closeModal}
-        conversationHistory={conversationHistory}
+        conversationHistory={displayHistory}
         onClearHistory={clearHistory}
       />
     </>

@@ -17,6 +17,7 @@ type WsInboundText =
   | {
       type: 'assistant_text';
       text: string;
+      source?: 'output_audio_transcription' | 'text_part' | null;
     }
   | {
       type: 'command';
@@ -32,13 +33,14 @@ type WsInboundText =
 
 export interface UseVoiceStreamingOptions {
   onFinalTranscript?: (text: string) => void;
+  onAssistantMessage?: (text: string, meta?: { source?: string | null }) => void;
   onCommand?: (command: Command) => void;
   onError?: (message: string) => void;
 }
 
 export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   const { i18n } = useTranslation();
-  const { onFinalTranscript, onCommand, onError } = options;
+  const { onFinalTranscript, onAssistantMessage, onCommand, onError } = options;
 
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
@@ -367,6 +369,11 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           if (msg.type === 'transcript') {
             setTranscript(msg.text);
             if (msg.final && onFinalTranscript) onFinalTranscript(msg.text);
+          } else if (msg.type === 'assistant_text') {
+            // Prefer "audio-consistent" assistant text (output_audio_transcription) for chat history display.
+            if (msg.text && onAssistantMessage) {
+              onAssistantMessage(msg.text, { source: msg.source });
+            }
           } else if (msg.type === 'command') {
             if (onCommand) onCommand(msg.command);
           } else if (msg.type === 'error') {
@@ -438,6 +445,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     isConnecting,
     isStreaming,
     onCommand,
+    onAssistantMessage,
     onFinalTranscript,
     schedulePcmPlayback,
     setErr,

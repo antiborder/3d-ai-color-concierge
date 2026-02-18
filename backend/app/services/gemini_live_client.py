@@ -33,6 +33,50 @@ from app.services.gemini_live_types import (
 # CloudWatchで確実に見える uvicorn.error ロガーへ寄せる。
 logger = logging.getLogger("uvicorn.error")
 
+def _make_genai_client():
+    """
+    Create google-genai Client for Live API.
+
+    NOTE: Some Live features (e.g. output_audio_transcription) may be available only on v1alpha.
+    We allow configuring the API version via settings.GEMINI_LIVE_API_VERSION.
+    """
+    # 遅延import: Lambda環境やローカルでSDKが無い場合に分かりやすく落とす
+    try:
+        from google import genai  # type: ignore
+    except Exception as e:  # pragma: no cover
+        raise RuntimeError(
+            "google-genai is required for Gemini Live. "
+            "Install backend requirements (google-genai)."
+        ) from e
+
+    if not settings.GEMINI_API_KEY:
+        raise RuntimeError("GEMINI_API_KEY is not configured")
+
+    api_version = getattr(settings, "GEMINI_LIVE_API_VERSION", None)
+    if api_version:
+        if getattr(settings, "GEMINI_LIVE_CHAT_DEBUG", False):
+            try:
+                logger.info("LIVE_CHAT_DEBUG google-genai http_options.api_version=%s", api_version)
+            except Exception:
+                pass
+        try:
+            from google.genai import types  # type: ignore
+
+            HttpOptions = getattr(types, "HttpOptions", None)
+            if HttpOptions is not None:
+                try:
+                    return genai.Client(
+                        api_key=settings.GEMINI_API_KEY,
+                        http_options=HttpOptions(api_version=api_version),
+                    )
+                except TypeError:
+                    # Older client signatures might not accept http_options.
+                    pass
+        except Exception:
+            pass
+
+    return genai.Client(api_key=settings.GEMINI_API_KEY)
+
 DEFAULT_INPUT_SAMPLE_RATE_HZ = 16000
 DEFAULT_OUTPUT_SAMPLE_RATE_HZ = 24000
 
@@ -44,6 +88,67 @@ def _sdk_debug_enabled() -> bool:
         return bool(getattr(settings, "GEMINI_LIVE_SDK_DEBUG", False))
     except Exception:
         return False
+
+
+def _chat_debug_enabled() -> bool:
+    """
+    output_audio_transcription 等の「会話表示に関わる」受信内容を切り分けるためのログフラグ。
+    例: GEMINI_LIVE_CHAT_DEBUG=1
+    """
+    try:
+        return bool(getattr(settings, "GEMINI_LIVE_CHAT_DEBUG", False))
+    except Exception:
+        return False
+
+
+def _deep_find_keys(x, *, keys: tuple[str, ...], max_depth: int = 6, max_items: int = 200):
+    """
+    Debug helper: walk dict/list/pydantic-ish objects and report paths where certain keys appear.
+    Best-effort and bounded to avoid huge logs.
+    """
+    found: list[tuple[str, object]] = []
+    seen: set[int] = set()
+
+    def _iter(obj, path: str, depth: int, budget: list[int]):
+        if depth > max_depth or budget[0] <= 0:
+            return
+        try:
+            oid = id(obj)
+            if oid in seen:
+                return
+            seen.add(oid)
+        except Exception:
+            pass
+
+        budget[0] -= 1
+
+        if isinstance(obj, dict):
+            for k, v in list(obj.items())[:50]:
+                k_str = k if isinstance(k, str) else None
+                if k_str and k_str in keys:
+                    found.append((f"{path}.{k_str}" if path else k_str, v))
+                _iter(v, f"{path}.{k_str}" if path else (k_str or "<?>"), depth + 1, budget)
+            return
+
+        if isinstance(obj, (list, tuple)):
+            for i, v in enumerate(list(obj)[:50]):
+                _iter(v, f"{path}[{i}]", depth + 1, budget)
+            return
+
+        # pydantic / dataclass-ish: try model_dump / dict
+        for attr in ("model_dump", "dict"):
+            fn = getattr(obj, attr, None)
+            if callable(fn):
+                try:
+                    d = fn()  # type: ignore[misc]
+                    if isinstance(d, dict):
+                        _iter(d, path, depth + 1, budget)
+                        return
+                except Exception:
+                    pass
+
+    _iter(x, "", 0, [max_items])
+    return found
 
 
 def _b64_to_bytes(s: str) -> Optional[bytes]:
@@ -188,6 +293,44 @@ def _extract_text_from_transcription_obj(x) -> Optional[str]:
     return None
 
 
+def _extract_finished_from_transcription_obj(x) -> Optional[bool]:
+    """
+    output_transcription / output_audio_transcription オブジェクトから finished フラグを取り出す best-effort。
+    """
+    if x is None:
+        return None
+    if isinstance(x, dict):
+        v = x.get("finished")
+        if isinstance(v, bool):
+            return v
+        return None
+    v2 = getattr(x, "finished", None)
+    if isinstance(v2, bool):
+        return v2
+    return None
+
+
+def _merge_streaming_text(prev: str, chunk: str) -> str:
+    """
+    ストリーミングで届くテキストを「累積表示用」に統合する。
+    - server が「差分chunk」を送る場合: prev + chunk
+    - server が「全文（ここまで）」を送る場合: chunk へ置換
+    """
+    prev = prev or ""
+    chunk = (chunk or "").strip()
+    if not chunk:
+        return prev
+    if not prev:
+        return chunk
+    # If server sends cumulative text so far, prefer replacement.
+    if chunk.startswith(prev) and len(chunk) >= len(prev):
+        return chunk
+    # If chunk already appended, avoid duplication.
+    if prev.endswith(chunk):
+        return prev
+    return prev + chunk
+
+
 def _live_tools() -> list[dict]:
     """
     Gemini Live tools (function_declarations).
@@ -329,22 +472,10 @@ class GeminiLiveSession:
         self._live = None
         self._live_cm = None  # async context manager (SDKによってはconnectがこちらを返す)
         self._did_log_sdk_debug = False
+        self._out_transcription_buf: str = ""
 
     async def __aenter__(self) -> "GeminiLiveSession":
-        if not settings.GEMINI_API_KEY:
-            raise RuntimeError("GEMINI_API_KEY is not configured")
-
-        # 遅延import: Lambda環境やローカルでSDKが無い場合に分かりやすく落とす
-        try:
-            # google-genai SDK
-            from google import genai  # type: ignore
-        except Exception as e:  # pragma: no cover
-            raise RuntimeError(
-                "google-genai is required for Gemini Live. "
-                "Install backend requirements (google-genai)."
-            ) from e
-
-        client = genai.Client(api_key=settings.GEMINI_API_KEY)
+        client = _make_genai_client()
         await self._open_live(client)
 
         # 1回だけSDKの実体をログ出し（ECS上のバージョン差異を確定させる）
@@ -610,9 +741,7 @@ class GeminiLiveSession:
             return True
         # If Gemini closed the session due to inactivity, reconnect on first audio.
         try:
-            from google import genai  # type: ignore
-
-            client = genai.Client(api_key=settings.GEMINI_API_KEY)
+            client = _make_genai_client()
             await self._close_live()
             await self._open_live(client)
             if self._recv_task is None or self._recv_task.done():
@@ -672,9 +801,7 @@ class GeminiLiveSession:
                 ):
                     # If the underlying WS is dead (keepalive ping timeout), do one reconnect + retry.
                     try:
-                        from google import genai  # type: ignore
-
-                        client = genai.Client(api_key=settings.GEMINI_API_KEY)
+                        client = _make_genai_client()
                         await self._close_live()
                         await self._open_live(client)
                         if self._recv_task is None or self._recv_task.done():
@@ -954,19 +1081,86 @@ class GeminiLiveSession:
                 # msg構造はSDK依存。代表的に audio, text, transcript を拾う。
                 # 可能な限り「落ちない」実装にしてログ/イベントで追えるようにする。
                 try:
+                    if _chat_debug_enabled():
+                        try:
+                            hits = _deep_find_keys(
+                                msg,
+                                keys=(
+                                    "output_audio_transcription",
+                                    "outputAudioTranscription",
+                                    "output_transcription",
+                                    "outputTranscription",
+                                    "input_audio_transcription",
+                                    "inputAudioTranscription",
+                                ),
+                            )
+                            if hits:
+                                # Log only a few hits to keep logs readable
+                                preview = []
+                                for pth, val in hits[:5]:
+                                    s = None
+                                    try:
+                                        if isinstance(val, str):
+                                            s = val[:200]
+                                        elif isinstance(val, dict):
+                                            s = str(list(val.keys())[:20])
+                                        else:
+                                            s = str(type(val).__name__)
+                                    except Exception:
+                                        s = "<unprintable>"
+                                    preview.append(f"{pth}={s}")
+                                logger.info("LIVE_CHAT_DEBUG deep_key_hits %s", "; ".join(preview))
+                        except Exception:
+                            logger.info("LIVE_CHAT_DEBUG deep_key_hits (failed)")
+
                     # 0) google-genai>=1.x: LiveServerMessage.server_content.model_turn.parts[].inline_data に音声が入る
                     sc = getattr(msg, "server_content", None)
                     if sc is not None:
                         # 0-a) output audio transcription (server-generated)
+                        # NOTE: server field names differ by SDK/API version.
+                        # We've observed `server_content.output_transcription` in v1alpha.
                         oat = (
                             getattr(sc, "output_audio_transcription", None)
                             or getattr(sc, "outputAudioTranscription", None)
                         )
-                        if oat is None and isinstance(sc, dict):
-                            oat = sc.get("output_audio_transcription") or sc.get("outputAudioTranscription")
-                        txt = _extract_text_from_transcription_obj(oat)
+                        ot = getattr(sc, "output_transcription", None) or getattr(sc, "outputTranscription", None)
+                        if isinstance(sc, dict):
+                            oat = oat or sc.get("output_audio_transcription") or sc.get("outputAudioTranscription")
+                            ot = ot or sc.get("output_transcription") or sc.get("outputTranscription")
+
+                        transcription_obj = oat if oat is not None else ot
+                        transcription_source = (
+                            "output_audio_transcription" if oat is not None else ("output_transcription" if ot is not None else None)
+                        )
+                        txt = _extract_text_from_transcription_obj(transcription_obj)
+                        finished = _extract_finished_from_transcription_obj(transcription_obj)
+                        if _chat_debug_enabled():
+                            try:
+                                logger.info(
+                                    "LIVE_CHAT_DEBUG oat has_oat=%s source=%s oat_type=%s txt_len=%s txt_preview=%r",
+                                    transcription_obj is not None,
+                                    transcription_source,
+                                    type(transcription_obj).__name__ if transcription_obj is not None else None,
+                                    len(txt) if txt else 0,
+                                    (txt[:200] if txt else None),
+                                )
+                            except Exception:
+                                logger.info("LIVE_CHAT_DEBUG oat (failed to log details)")
                         if txt:
-                            await self._event_q.put(LiveAssistantTextEvent(text=txt))
+                            # output transcription can arrive in multiple small chunks; merge for stable chat display.
+                            if transcription_source in ("output_transcription", "output_audio_transcription"):
+                                self._out_transcription_buf = _merge_streaming_text(
+                                    self._out_transcription_buf, txt
+                                )
+                                txt_to_emit = self._out_transcription_buf
+                            else:
+                                txt_to_emit = txt
+                            await self._event_q.put(
+                                LiveAssistantTextEvent(text=txt_to_emit, source=transcription_source)
+                            )
+                            # Reset buffer at end of this output transcription stream.
+                            if finished is True:
+                                self._out_transcription_buf = ""
 
                         model_turn = getattr(sc, "model_turn", None) or getattr(sc, "modelTurn", None)
                         parts = getattr(model_turn, "parts", None) if model_turn is not None else None
@@ -977,6 +1171,12 @@ class GeminiLiveSession:
                                 mt = _extract_mime(candidate) or _extract_mime(inline)
                                 b = _extract_blob_bytes(candidate)
                                 if b and (mt or "").startswith("audio/"):
+                                    if _chat_debug_enabled():
+                                        logger.info(
+                                            "LIVE_CHAT_DEBUG audio_part bytes=%s mime=%s",
+                                            len(b),
+                                            mt,
+                                        )
                                     await self._event_q.put(
                                         LiveAudioChunk(
                                             direction="out",
@@ -987,7 +1187,20 @@ class GeminiLiveSession:
                                 # text part fallback
                                 t = getattr(p, "text", None)
                                 if isinstance(t, str) and t.strip():
-                                    await self._event_q.put(LiveAssistantTextEvent(text=t.strip()))
+                                    if _chat_debug_enabled():
+                                        try:
+                                            logger.info(
+                                                "LIVE_CHAT_DEBUG text_part txt_len=%s txt_preview=%r",
+                                                len(t.strip()),
+                                                t.strip()[:200],
+                                            )
+                                        except Exception:
+                                            logger.info(
+                                                "LIVE_CHAT_DEBUG text_part (failed to log details)"
+                                            )
+                                    await self._event_q.put(
+                                        LiveAssistantTextEvent(text=t.strip(), source="text_part")
+                                    )
 
                     # 0-b) google-genai>=1.x: tool call / function call (UI操作)
                     tc = getattr(msg, "tool_call", None) or getattr(msg, "toolCall", None)
@@ -1063,7 +1276,9 @@ class GeminiLiveSession:
                     # テキスト出力（アシスタント）
                     text_out = getattr(msg, "text", None) or msg.get("text") if isinstance(msg, dict) else None
                     if isinstance(text_out, str) and text_out.strip():
-                        await self._event_q.put(LiveAssistantTextEvent(text=text_out.strip()))
+                        await self._event_q.put(
+                            LiveAssistantTextEvent(text=text_out.strip(), source="text_part")
+                        )
 
                 except Exception as parse_err:
                     await self._event_q.put(

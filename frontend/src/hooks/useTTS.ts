@@ -25,16 +25,18 @@ export function useTTS(options: UseTTSOptions = {}) {
   const { i18n } = useTranslation();
   const { onSpeakingStart, onSpeakingEnd, onError } = options;
 
-  const [state, setState] = useState<TTSState>({
+  const [state, setState] = useState<TTSState>(() => ({
     isSpeaking: false,
-    isSupported: false,
+    isSupported: typeof window !== 'undefined' && 'speechSynthesis' in window,
     queueLength: 0,
-  });
+  }));
 
   const queueRef = useRef<string[]>([]);
   const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const isProcessingRef = useRef(false);
   const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
+  // Avoid self-referential callbacks inside SpeechSynthesis event handlers.
+  const processQueueRef = useRef<(() => void) | null>(null);
 
   // 若い女性の音声を選択する関数
   const selectFemaleVoice = useCallback((lang: string): SpeechSynthesisVoice | null => {
@@ -80,10 +82,7 @@ export function useTTS(options: UseTTSOptions = {}) {
 
   // ブラウザサポートの確認と音声リストの読み込み
   useEffect(() => {
-    const isSupported = 'speechSynthesis' in window;
-    setState((prev) => ({ ...prev, isSupported }));
-
-    if (!isSupported && onError) {
+    if (!state.isSupported && onError) {
       onError('Speech synthesis is not supported in this browser');
       return;
     }
@@ -99,7 +98,7 @@ export function useTTS(options: UseTTSOptions = {}) {
         window.speechSynthesis.onvoiceschanged = null;
       }
     };
-  }, [onError, loadVoices]);
+  }, [onError, loadVoices, state.isSupported]);
 
   // 言語マッピング
   const getLanguage = useCallback((): string => {
@@ -160,7 +159,7 @@ export function useTTS(options: UseTTSOptions = {}) {
 
       // キューに次の音声があれば再生
       if (queueRef.current.length > 0) {
-        processQueue();
+        processQueueRef.current?.();
       }
     };
 
@@ -183,13 +182,23 @@ export function useTTS(options: UseTTSOptions = {}) {
 
       // エラーが発生してもキューを続行
       if (queueRef.current.length > 0) {
-        processQueue();
+        processQueueRef.current?.();
       }
     };
 
     currentUtteranceRef.current = utterance;
     window.speechSynthesis.speak(utterance);
   }, [getLanguage, selectFemaleVoice, onSpeakingStart, onSpeakingEnd, onError]);
+
+  // Keep a ref to the latest processQueue callback for SpeechSynthesis handlers.
+  useEffect(() => {
+    processQueueRef.current = processQueue;
+    return () => {
+      if (processQueueRef.current === processQueue) {
+        processQueueRef.current = null;
+      }
+    };
+  }, [processQueue]);
 
   // 音声をキューに追加して再生
   const speak = useCallback(
