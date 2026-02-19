@@ -13,11 +13,14 @@ type WsInboundText =
       text: string;
       final: boolean;
       language?: string;
+      segmentId?: string | null;
     }
   | {
       type: 'assistant_text';
       text: string;
-      source?: 'output_audio_transcription' | 'text_part' | null;
+      source?: 'output_audio_transcription' | 'output_transcription' | 'text_part' | null;
+      segmentId?: string | null;
+      final?: boolean | null;
     }
   | {
       type: 'command';
@@ -33,14 +36,21 @@ type WsInboundText =
 
 export interface UseVoiceStreamingOptions {
   onFinalTranscript?: (text: string) => void;
-  onAssistantMessage?: (text: string, meta?: { source?: string | null }) => void;
+  onTranscriptUpdate?: (
+    text: string,
+    meta?: { final?: boolean | null; segmentId?: string | null; language?: string | null }
+  ) => void;
+  onAssistantMessage?: (
+    text: string,
+    meta?: { source?: string | null; segmentId?: string | null; final?: boolean | null }
+  ) => void;
   onCommand?: (command: Command) => void;
   onError?: (message: string) => void;
 }
 
 export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   const { i18n } = useTranslation();
-  const { onFinalTranscript, onAssistantMessage, onCommand, onError } = options;
+  const { onFinalTranscript, onTranscriptUpdate, onAssistantMessage, onCommand, onError } = options;
 
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
@@ -368,11 +378,22 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
 
           if (msg.type === 'transcript') {
             setTranscript(msg.text);
+            if (onTranscriptUpdate) {
+              onTranscriptUpdate(msg.text, {
+                final: msg.final,
+                segmentId: msg.segmentId,
+                language: msg.language ?? null,
+              });
+            }
             if (msg.final && onFinalTranscript) onFinalTranscript(msg.text);
           } else if (msg.type === 'assistant_text') {
             // Prefer "audio-consistent" assistant text (output_audio_transcription) for chat history display.
             if (msg.text && onAssistantMessage) {
-              onAssistantMessage(msg.text, { source: msg.source });
+              onAssistantMessage(msg.text, {
+                source: msg.source,
+                segmentId: msg.segmentId,
+                final: msg.final,
+              });
             }
           } else if (msg.type === 'command') {
             if (onCommand) onCommand(msg.command);
@@ -447,6 +468,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     onCommand,
     onAssistantMessage,
     onFinalTranscript,
+    onTranscriptUpdate,
     schedulePcmPlayback,
     setErr,
     stop,

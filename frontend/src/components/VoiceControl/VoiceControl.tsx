@@ -6,7 +6,14 @@ import type { Command } from '../../types/voice';
 
 interface VoiceControlProps {
   onTranscript: (transcript: string) => void;
-  onAssistantMessage?: (text: string, meta?: { source?: string | null }) => void;
+  onTranscriptUpdate?: (
+    text: string,
+    meta?: { final?: boolean | null; segmentId?: string | null; language?: string | null }
+  ) => void;
+  onAssistantMessage?: (
+    text: string,
+    meta?: { source?: string | null; segmentId?: string | null; final?: boolean | null }
+  ) => void;
   onCommand?: (command: Command) => void;
   onError?: (error: string) => void;
   onOpenChatHistory?: () => void;
@@ -16,6 +23,7 @@ interface VoiceControlProps {
 
 const VoiceControl = ({
   onTranscript,
+  onTranscriptUpdate,
   onAssistantMessage,
   onCommand,
   onError,
@@ -41,6 +49,7 @@ const VoiceControl = ({
 
   const { isStreaming, isConnecting, error, start, stop } = useVoiceStreaming({
     onFinalTranscript: handleResult,
+    onTranscriptUpdate,
     onAssistantMessage,
     onCommand,
     onError: handleStreamingError,

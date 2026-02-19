@@ -4,12 +4,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
-import type { ConversationMessage } from '@/types/voice';
+import type { ChatDisplayMessage } from '@/hooks/useChatbot';
 
 interface ChatHistoryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  conversationHistory: ConversationMessage[];
+  conversationHistory: ChatDisplayMessage[];
   onClearHistory: () => void;
 }
 

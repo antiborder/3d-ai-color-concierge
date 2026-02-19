@@ -34,6 +34,7 @@ class LiveTranscriptEvent:
     text: str
     is_final: bool = False
     language: Optional[str] = None
+    segment_id: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -43,8 +44,15 @@ class LiveAssistantTextEvent:
     text: str
     # Where this assistant text came from.
     # - "output_audio_transcription": server-generated transcript of the model's OUTPUT audio
+    # - "output_transcription": server-generated transcript of the model's OUTPUT audio (observed in v1alpha)
     # - "text_part": plain text parts in the model turn (fallback)
-    source: Optional[Literal["output_audio_transcription", "text_part"]] = None
+    source: Optional[
+        Literal["output_audio_transcription", "output_transcription", "text_part"]
+    ] = None
+    # Segment identifier for grouping streaming updates into one bubble.
+    segment_id: Optional[str] = None
+    # Whether this text is the final (completed) transcript for the segment.
+    is_final: Optional[bool] = None
 
 
 @dataclass(frozen=True)

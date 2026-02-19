@@ -49,7 +49,8 @@ from app.config.settings import settings
 router = APIRouter()
 
 _conn_limiter = FixedWindowRateLimiter(limit=20, window_seconds=60)
-logger = logging.getLogger(__name__)
+# Use uvicorn logger so it ends up in backend-local.log consistently.
+logger = logging.getLogger("uvicorn.error")
 
 
 @router.websocket("/live")
@@ -195,6 +196,16 @@ async def live_voice_ws(ws: WebSocket):
                 # 音声はbinaryで返す
                 await ws.send_bytes(ev.data)
             elif isinstance(ev, LiveTranscriptEvent):
+                if getattr(settings, "GEMINI_LIVE_CHAT_DEBUG", False):
+                    try:
+                        logger.info(
+                            "LIVE_CHAT_DEBUG send transcript final=%s txt_len=%s txt_preview=%r",
+                            ev.is_final,
+                            len(ev.text) if ev.text else 0,
+                            (ev.text[:200] if ev.text else None),
+                        )
+                    except Exception:
+                        logger.info("LIVE_CHAT_DEBUG send transcript (failed to log details)")
                 await ws.send_text(
                     json.dumps(
                         {
@@ -202,6 +213,7 @@ async def live_voice_ws(ws: WebSocket):
                             "text": ev.text,
                             "final": ev.is_final,
                             "language": ev.language,
+                            "segmentId": ev.segment_id,
                         }
                     )
                 )
@@ -209,8 +221,10 @@ async def live_voice_ws(ws: WebSocket):
                 if getattr(settings, "GEMINI_LIVE_CHAT_DEBUG", False):
                     try:
                         logger.info(
-                            "LIVE_CHAT_DEBUG send assistant_text source=%s txt_len=%s txt_preview=%r",
+                            "LIVE_CHAT_DEBUG send assistant_text source=%s segmentId=%s final=%s txt_len=%s txt_preview=%r",
                             ev.source,
+                            ev.segment_id,
+                            ev.is_final,
                             len(ev.text) if ev.text else 0,
                             (ev.text[:200] if ev.text else None),
                         )
@@ -222,6 +236,8 @@ async def live_voice_ws(ws: WebSocket):
                             "type": "assistant_text",
                             "text": ev.text,
                             "source": ev.source,
+                            "segmentId": ev.segment_id,
+                            "final": ev.is_final,
                         }
                     )
                 )

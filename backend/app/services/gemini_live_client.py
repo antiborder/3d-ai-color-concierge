@@ -473,6 +473,11 @@ class GeminiLiveSession:
         self._live_cm = None  # async context manager (SDKによってはconnectがこちらを返す)
         self._did_log_sdk_debug = False
         self._out_transcription_buf: str = ""
+        self._out_transcription_segment_id: Optional[str] = None
+        self._out_transcription_seq: int = 0
+        self._in_transcription_buf: str = ""
+        self._in_transcription_segment_id: Optional[str] = None
+        self._in_transcription_seq: int = 0
 
     async def __aenter__(self) -> "GeminiLiveSession":
         client = _make_genai_client()
@@ -637,6 +642,10 @@ class GeminiLiveSession:
             # Ask the server to generate an automatic transcript for the model's output audio.
             # This gives "audio-consistent" text without requiring response_modalities=["TEXT"].
             "output_audio_transcription": {},
+            # Ask the server to generate an automatic transcript for the user's INPUT audio.
+            # Field name differs by API/SDK version; we include both and let LiveConnectConfig filtering drop unsupported keys.
+            "input_audio_transcription": {},
+            "input_transcription": {},
             # NOTE: language/input_audio_format/output_audio_format は 1.63.0 では extra_forbidden のため、
             # LiveConnectConfig.model_fields を見て許可されているキーへマップする。
             "language": self._cfg.language,
@@ -1090,6 +1099,8 @@ class GeminiLiveSession:
                                     "outputAudioTranscription",
                                     "output_transcription",
                                     "outputTranscription",
+                                    "input_transcription",
+                                    "inputTranscription",
                                     "input_audio_transcription",
                                     "inputAudioTranscription",
                                 ),
@@ -1137,10 +1148,11 @@ class GeminiLiveSession:
                         if _chat_debug_enabled():
                             try:
                                 logger.info(
-                                    "LIVE_CHAT_DEBUG oat has_oat=%s source=%s oat_type=%s txt_len=%s txt_preview=%r",
+                                    "LIVE_CHAT_DEBUG oat has_oat=%s source=%s oat_type=%s finished=%s txt_len=%s txt_preview=%r",
                                     transcription_obj is not None,
                                     transcription_source,
                                     type(transcription_obj).__name__ if transcription_obj is not None else None,
+                                    finished,
                                     len(txt) if txt else 0,
                                     (txt[:200] if txt else None),
                                 )
@@ -1149,18 +1161,90 @@ class GeminiLiveSession:
                         if txt:
                             # output transcription can arrive in multiple small chunks; merge for stable chat display.
                             if transcription_source in ("output_transcription", "output_audio_transcription"):
+                                # If user started speaking again, treat it as a boundary and start a new assistant segment.
+                                # This compensates for SDK/API variants where `finished` never becomes True.
+                                if self._out_transcription_segment_id is not None and self._in_transcription_segment_id is not None:
+                                    self._out_transcription_buf = ""
+                                    self._out_transcription_segment_id = None
                                 self._out_transcription_buf = _merge_streaming_text(
                                     self._out_transcription_buf, txt
                                 )
                                 txt_to_emit = self._out_transcription_buf
+                                if self._out_transcription_segment_id is None:
+                                    self._out_transcription_seq += 1
+                                    self._out_transcription_segment_id = f"asst_out_{self._out_transcription_seq}"
                             else:
                                 txt_to_emit = txt
                             await self._event_q.put(
-                                LiveAssistantTextEvent(text=txt_to_emit, source=transcription_source)
+                                LiveAssistantTextEvent(
+                                    text=txt_to_emit,
+                                    source=transcription_source,
+                                    segment_id=self._out_transcription_segment_id
+                                    if transcription_source
+                                    in ("output_transcription", "output_audio_transcription")
+                                    else None,
+                                    is_final=finished if isinstance(finished, bool) else None,
+                                )
                             )
                             # Reset buffer at end of this output transcription stream.
                             if finished is True:
                                 self._out_transcription_buf = ""
+                                self._out_transcription_segment_id = None
+
+                        # 0-b) input audio transcription (user ASR)
+                        it = (
+                            getattr(sc, "input_audio_transcription", None)
+                            or getattr(sc, "inputAudioTranscription", None)
+                            or getattr(sc, "input_transcription", None)
+                            or getattr(sc, "inputTranscription", None)
+                        )
+                        if isinstance(sc, dict):
+                            it = it or sc.get("input_audio_transcription") or sc.get("inputAudioTranscription")
+                            it = it or sc.get("input_transcription") or sc.get("inputTranscription")
+                        it_txt = _extract_text_from_transcription_obj(it)
+                        it_finished = _extract_finished_from_transcription_obj(it)
+                        if _chat_debug_enabled() and it is not None:
+                            try:
+                                logger.info(
+                                    "LIVE_CHAT_DEBUG it has_it=%s it_type=%s finished=%s txt_len=%s txt_preview=%r",
+                                    it is not None,
+                                    type(it).__name__ if it is not None else None,
+                                    it_finished,
+                                    len(it_txt) if it_txt else 0,
+                                    (it_txt[:200] if it_txt else None),
+                                )
+                            except Exception:
+                                logger.info("LIVE_CHAT_DEBUG it (failed to log details)")
+                        if it_txt:
+                            # Stream user transcript as a single updatable bubble.
+                            if self._in_transcription_segment_id is None:
+                                self._in_transcription_seq += 1
+                                self._in_transcription_segment_id = f"user_in_{self._in_transcription_seq}"
+                                self._in_transcription_buf = ""
+                            self._in_transcription_buf = _merge_streaming_text(
+                                self._in_transcription_buf, it_txt.strip()
+                            )
+                            await self._event_q.put(
+                                LiveTranscriptEvent(
+                                    text=self._in_transcription_buf,
+                                    is_final=False,
+                                    language=self._cfg.language,
+                                    segment_id=self._in_transcription_segment_id,
+                                )
+                            )
+
+                        # If assistant starts outputting, finalize the current user segment once.
+                        if txt and self._in_transcription_segment_id is not None and self._in_transcription_buf.strip():
+                            await self._event_q.put(
+                                LiveTranscriptEvent(
+                                    text=self._in_transcription_buf.strip(),
+                                    is_final=True,
+                                    language=self._cfg.language,
+                                    segment_id=self._in_transcription_segment_id,
+                                )
+                            )
+                            self._in_transcription_buf = ""
+                            self._in_transcription_segment_id = None
 
                         model_turn = getattr(sc, "model_turn", None) or getattr(sc, "modelTurn", None)
                         parts = getattr(model_turn, "parts", None) if model_turn is not None else None

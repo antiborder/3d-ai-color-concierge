@@ -146,10 +146,12 @@ function App() {
 
   // Handle voice recognition transcript
   const handleVoiceTranscript = async (transcript: string) => {
+    // Always show the user's utterance in the visible chat history immediately.
+    if (transcript && transcript.trim()) {
+      addMessage({ role: 'user', content: transcript.trim() });
+    }
     if (Date.now() < skipRestUntilRef.current) {
       // In WS tool-call mode we intentionally skip the REST processing to avoid double-applying.
-      // Still, we want to keep the user's utterance in the visible chat history.
-      addMessage({ role: 'user', content: transcript });
       return;
     }
     setIsLoading(true);
@@ -160,7 +162,10 @@ function App() {
     }
   };
 
-  const handleAssistantMessage = (text: string, meta?: { source?: string | null }) => {
+  const handleAssistantMessage = (
+    text: string,
+    meta?: { source?: string | null; segmentId?: string | null; final?: boolean | null }
+  ) => {
     // We only want "chat-like" assistant messages that correspond to the OUTPUT audio.
     // If backend provides a source, prefer server-generated output audio transcripts.
     // NOTE: backend may emit either of these depending on SDK/API version:
@@ -173,7 +178,32 @@ function App() {
     ) {
       return;
     }
-    addMessage({ role: 'assistant', content: text });
+    addMessage({
+      role: 'assistant',
+      content: text,
+      meta: {
+        source: meta?.source,
+        segmentId: meta?.segmentId,
+        final: meta?.final,
+      },
+    });
+  };
+
+  const handleTranscriptUpdate = (
+    text: string,
+    meta?: { final?: boolean | null; segmentId?: string | null; language?: string | null }
+  ) => {
+    // Show user's voice transcription in chat history as a streaming/updatable bubble.
+    if (!text || !text.trim()) return;
+    addMessage({
+      role: 'user',
+      content: text.trim(),
+      meta: {
+        source: 'input_transcription',
+        segmentId: meta?.segmentId ?? null,
+        final: meta?.final ?? null,
+      },
+    });
   };
 
   const handleVoiceError = (error: string) => {
@@ -246,6 +276,7 @@ function App() {
       />
       <VoiceControl
         onTranscript={handleVoiceTranscript}
+        onTranscriptUpdate={handleTranscriptUpdate}
         onAssistantMessage={handleAssistantMessage}
         onCommand={handleWsCommand}
         onError={handleVoiceError}
