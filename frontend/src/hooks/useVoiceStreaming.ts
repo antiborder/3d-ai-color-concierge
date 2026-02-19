@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Command } from '@/types/voice';
+import type { ColorState as UiColorState } from '@/types/colorState';
 
 type WsInboundText =
   | {
@@ -35,6 +36,7 @@ type WsInboundText =
     };
 
 export interface UseVoiceStreamingOptions {
+  currentColorState?: UiColorState | null;
   onFinalTranscript?: (text: string) => void;
   onTranscriptUpdate?: (
     text: string,
@@ -50,7 +52,14 @@ export interface UseVoiceStreamingOptions {
 
 export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   const { i18n } = useTranslation();
-  const { onFinalTranscript, onTranscriptUpdate, onAssistantMessage, onCommand, onError } = options;
+  const {
+    currentColorState,
+    onFinalTranscript,
+    onTranscriptUpdate,
+    onAssistantMessage,
+    onCommand,
+    onError,
+  } = options;
 
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
@@ -71,6 +80,47 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
 
   // playback scheduling
   const playTimeRef = useRef<number>(0);
+
+  // Keep latest color state in a ref so we can access it from stable WS callbacks.
+  const currentColorRef = useRef<UiColorState | null>(null);
+  useEffect(() => {
+    currentColorRef.current = currentColorState ?? null;
+  }, [currentColorState]);
+
+  const lastSentColorJsonRef = useRef<string | null>(null);
+  const colorDebounceTimerRef = useRef<number | null>(null);
+
+  const buildWireColorState = useCallback((cs: UiColorState) => {
+    // Keep schema aligned with backend voice ColorState (r/g/b required; others optional).
+    return {
+      r: cs.r,
+      g: cs.g,
+      b: cs.b,
+      c: cs.c,
+      m: cs.m,
+      y: cs.y,
+      k: cs.k,
+      h: cs.h,
+      s: cs.s,
+      l: cs.l,
+      hsvS: cs.hsvS,
+      v: cs.v,
+    };
+  }, []);
+
+  const sendColorState = useCallback(
+    (cs: UiColorState) => {
+      const ws = wsRef.current;
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      const payload = { type: 'color_state', color: buildWireColorState(cs) };
+      try {
+        ws.send(JSON.stringify(payload));
+      } catch {
+        // ignore best-effort
+      }
+    },
+    [buildWireColorState]
+  );
 
   const cleanupAudio = useCallback(() => {
     if (processorRef.current) {
@@ -300,10 +350,43 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
       // ignore
     }
 
+    if (colorDebounceTimerRef.current != null) {
+      window.clearTimeout(colorDebounceTimerRef.current);
+      colorDebounceTimerRef.current = null;
+    }
+
     cleanupAudio();
     // Close with a normal-close code so the browser doesn't surface a pseudo "1005".
     cleanupWs({ code: 1000, reason: 'client stop' });
   }, [cleanupAudio, cleanupWs, clearReconnectTimer]);
+
+  // Debounced "current color" sync while WS is connected.
+  useEffect(() => {
+    if (!isConnected) return;
+    if (!currentColorState) return;
+
+    const json = JSON.stringify(buildWireColorState(currentColorState));
+    if (lastSentColorJsonRef.current === json) return;
+
+    if (colorDebounceTimerRef.current != null) {
+      window.clearTimeout(colorDebounceTimerRef.current);
+      colorDebounceTimerRef.current = null;
+    }
+
+    // Small debounce to avoid spamming while sliders are dragged.
+    colorDebounceTimerRef.current = window.setTimeout(() => {
+      sendColorState(currentColorState);
+      lastSentColorJsonRef.current = json;
+      colorDebounceTimerRef.current = null;
+    }, 150);
+
+    return () => {
+      if (colorDebounceTimerRef.current != null) {
+        window.clearTimeout(colorDebounceTimerRef.current);
+        colorDebounceTimerRef.current = null;
+      }
+    };
+  }, [buildWireColorState, currentColorState, isConnected, sendColorState]);
 
   const start = useCallback(async () => {
     if (isConnecting || isStreaming) return;
@@ -334,6 +417,18 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
         setIsConnected(true);
         reconnectAttemptRef.current = 0;
         ws.send(JSON.stringify({ type: 'start', language: i18n.language === 'ja' ? 'ja' : 'en' }));
+
+        // Best-effort: immediately sync current color state after start.
+        if (currentColorRef.current) {
+          sendColorState(currentColorRef.current);
+          try {
+            lastSentColorJsonRef.current = JSON.stringify(
+              buildWireColorState(currentColorRef.current)
+            );
+          } catch {
+            lastSentColorJsonRef.current = null;
+          }
+        }
 
         // mic start after WS open
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -431,6 +526,11 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
         setIsConnecting(false);
         cleanupAudio();
 
+        if (colorDebounceTimerRef.current != null) {
+          window.clearTimeout(colorDebounceTimerRef.current);
+          colorDebounceTimerRef.current = null;
+        }
+
         // stop() などの「意図的な切断」はエラー表示しない。
         // close event の 1005 は「close code なし」を表す擬似コードで、正常系でも出やすい。
         const isExpectedClose =
@@ -458,6 +558,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
       await stop();
     }
   }, [
+    buildWireColorState,
     cleanupAudio,
     clearReconnectTimer,
     ensureWsTokenCookie,
@@ -470,6 +571,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     onFinalTranscript,
     onTranscriptUpdate,
     schedulePcmPlayback,
+    sendColorState,
     setErr,
     stop,
   ]);

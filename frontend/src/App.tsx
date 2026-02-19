@@ -275,6 +275,7 @@ function App() {
         onHexUpdate={handleHexUpdate}
       />
       <VoiceControl
+        currentColorState={colorState}
         onTranscript={handleVoiceTranscript}
         onTranscriptUpdate={handleTranscriptUpdate}
         onAssistantMessage={handleAssistantMessage}

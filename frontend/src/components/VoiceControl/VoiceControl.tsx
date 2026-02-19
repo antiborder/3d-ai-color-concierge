@@ -3,8 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { useVoiceStreaming } from '../../hooks/useVoiceStreaming';
 import styled, { keyframes } from 'styled-components';
 import type { Command } from '../../types/voice';
+import type { ColorState } from '../../types/colorState';
 
 interface VoiceControlProps {
+  currentColorState?: ColorState | null;
   onTranscript: (transcript: string) => void;
   onTranscriptUpdate?: (
     text: string,
@@ -22,6 +24,7 @@ interface VoiceControlProps {
 }
 
 const VoiceControl = ({
+  currentColorState,
   onTranscript,
   onTranscriptUpdate,
   onAssistantMessage,
@@ -48,6 +51,7 @@ const VoiceControl = ({
   );
 
   const { isStreaming, isConnecting, error, start, stop } = useVoiceStreaming({
+    currentColorState,
     onFinalTranscript: handleResult,
     onTranscriptUpdate,
     onAssistantMessage,

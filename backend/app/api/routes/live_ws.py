@@ -6,6 +6,7 @@ Gemini Live 音声ストリーミング用 WebSocket エンドポイント。
   - Text(JSON):
     - {"type":"start","language":"ja"|"en"}  (最初に必ず送る)
     - {"type":"stop"}                       (任意)
+    - {"type":"color_state","color":{...}}  (任意: 現在色の同期)
   - Binary:
     - PCM S16LE 16kHz mono の生フレーム（複数回送信）
 
@@ -51,6 +52,52 @@ router = APIRouter()
 _conn_limiter = FixedWindowRateLimiter(limit=20, window_seconds=60)
 # Use uvicorn logger so it ends up in backend-local.log consistently.
 logger = logging.getLogger("uvicorn.error")
+
+def _clamp_int(v, lo: int, hi: int):
+    try:
+        if isinstance(v, bool):
+            return None
+        iv = int(v)
+    except Exception:
+        return None
+    if iv < lo:
+        iv = lo
+    if iv > hi:
+        iv = hi
+    return iv
+
+
+def _normalize_color_state(color) -> dict | None:
+    """
+    Best-effort validation for frontend-sent color_state.
+    We require r/g/b; other fields are optional and clamped.
+    """
+    if not isinstance(color, dict):
+        return None
+    r = _clamp_int(color.get("r"), 0, 255)
+    g = _clamp_int(color.get("g"), 0, 255)
+    b = _clamp_int(color.get("b"), 0, 255)
+    if r is None or g is None or b is None:
+        return None
+    out: dict = {"r": r, "g": g, "b": b}
+
+    opt_specs = {
+        "c": (0, 100),
+        "m": (0, 100),
+        "y": (0, 100),
+        "k": (0, 100),
+        "h": (0, 360),
+        "s": (0, 100),
+        "l": (0, 100),
+        "hsvS": (0, 100),
+        "v": (0, 100),
+    }
+    for k, (lo, hi) in opt_specs.items():
+        if k in color:
+            vv = _clamp_int(color.get(k), lo, hi)
+            if vv is not None:
+                out[k] = vv
+    return out
 
 
 @router.websocket("/live")
@@ -149,7 +196,8 @@ async def live_voice_ws(ws: WebSocket):
                 if "text" in incoming and incoming["text"] is not None:
                     try:
                         payload = json.loads(incoming["text"])
-                        if payload.get("type") == "stop":
+                        msg_type = payload.get("type") if isinstance(payload, dict) else None
+                        if msg_type == "stop":
                             stop_evt.set()
                             # Let Gemini flush a response for the current utterance.
                             try:
@@ -157,6 +205,21 @@ async def live_voice_ws(ws: WebSocket):
                             except Exception:
                                 pass
                             return
+                        if msg_type == "color_state" and isinstance(payload, dict):
+                            color = _normalize_color_state(payload.get("color"))
+                            if color:
+                                session.set_current_color_state(color)
+                                if getattr(settings, "GEMINI_LIVE_CHAT_DEBUG", False):
+                                    try:
+                                        logger.info(
+                                            "LIVE_CHAT_DEBUG recv color_state rgb=(%s,%s,%s) keys=%s",
+                                            color.get("r"),
+                                            color.get("g"),
+                                            color.get("b"),
+                                            sorted(list(color.keys())),
+                                        )
+                                    except Exception:
+                                        logger.info("LIVE_CHAT_DEBUG recv color_state (failed to log details)")
                     except Exception:
                         # 不正テキストは無視（プロトコル簡略化）
                         continue

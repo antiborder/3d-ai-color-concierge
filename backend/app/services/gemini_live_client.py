@@ -14,6 +14,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import inspect
+import time
 import json
 import logging
 from dataclasses import dataclass
@@ -405,6 +406,14 @@ def _live_tools() -> list[dict]:
                         "properties": {"visible": {"type": "boolean"}},
                     },
                 },
+                {
+                    "name": "GET_CURRENT_COLOR",
+                    "description": "Get the current selected color state (latest snapshot from the UI).",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {},
+                    },
+                },
             ]
         }
     ]
@@ -423,7 +432,8 @@ def _live_system_instruction(language: str) -> dict:
             "\n"
             "## Tool usage rules\n"
             "- If the user asks to change color / adjust brightness/saturation/hue / change color space / toggle labels, you MUST use a tool call.\n"
-            "- Available tools: SELECT_COLOR, SET_COLOR, ADJUST_VALUE, CHANGE_SHAPE, TOGGLE_LABEL.\n"
+            "- If the user asks what the current color is (e.g. \"What is the current RGB?\"), you MUST call GET_CURRENT_COLOR first.\n"
+            "- Available tools: SELECT_COLOR, SET_COLOR, ADJUST_VALUE, CHANGE_SHAPE, TOGGLE_LABEL, GET_CURRENT_COLOR.\n"
             "- After making the tool call, also respond naturally (short) in English (audio response).\n"
             "- If it is not a UI action, respond normally with suggestions and explanations.\n"
         )
@@ -434,7 +444,8 @@ def _live_system_instruction(language: str) -> dict:
             "\n"
             "## tool call ルール\n"
             "- ユーザーの発話がUI操作（色変更/明度・彩度・色相調整/色空間変更/ラベル表示切替）に該当する場合は、必ず tool call を使ってください。\n"
-            "- 利用可能な tool: SELECT_COLOR, SET_COLOR, ADJUST_VALUE, CHANGE_SHAPE, TOGGLE_LABEL。\n"
+            "- ユーザーが「今の色は？」「現在のRGBを教えて」など現在色の確認を求めた場合は、必ず最初に GET_CURRENT_COLOR を tool call してください。\n"
+            "- 利用可能な tool: SELECT_COLOR, SET_COLOR, ADJUST_VALUE, CHANGE_SHAPE, TOGGLE_LABEL, GET_CURRENT_COLOR。\n"
             "- tool call を出した後も、会話として自然な短い返答を日本語で話してください（音声応答）。\n"
             "- UI操作に該当しない場合は、通常の会話として色の提案や説明をしてください。\n"
         )
@@ -464,6 +475,11 @@ class GeminiLiveSession:
         self._closed = False
         self._live_ended = False
 
+        # Client-side UI state snapshot (kept by the WS layer). This is intentionally
+        # separate from Gemini state and can be used by future tools like GET_CURRENT_COLOR.
+        self.current_color_state: Optional[dict] = None
+        self.current_color_updated_at: float = 0.0
+
         # 実装の都合上、SDK依存の受信は内部タスクでqueueに流す
         self._event_q: "asyncio.Queue[LiveEvent]" = asyncio.Queue()
         self._recv_task: Optional[asyncio.Task[None]] = None
@@ -478,6 +494,14 @@ class GeminiLiveSession:
         self._in_transcription_buf: str = ""
         self._in_transcription_segment_id: Optional[str] = None
         self._in_transcription_seq: int = 0
+
+    def set_current_color_state(self, color: dict) -> None:
+        """
+        Update the latest color state snapshot provided by the frontend.
+        (A) phase: store only. (B) phase can expose this via a tool call.
+        """
+        self.current_color_state = color
+        self.current_color_updated_at = time.time()
 
     async def __aenter__(self) -> "GeminiLiveSession":
         client = _make_genai_client()
@@ -1308,6 +1332,26 @@ class GeminiLiveSession:
                                 args = {}
 
                             if isinstance(name, str) and name:
+                                # Non-UI tool: return current color snapshot without emitting a frontend command.
+                                if name == "GET_CURRENT_COLOR":
+                                    resp = {
+                                        "available": bool(self.current_color_state),
+                                        "color": self.current_color_state,
+                                        "updated_at": self.current_color_updated_at or 0.0,
+                                    }
+                                    try:
+                                        if callable(send_tool) and FunctionResponse is not None:
+                                            fr = FunctionResponse(name=name, response=resp, id=call_id)
+                                            maybe = send_tool(function_responses=fr)
+                                            if inspect.isawaitable(maybe):
+                                                await maybe
+                                    except Exception as e:
+                                        logger.info(
+                                            "GeminiLiveSession send_tool_response failed: %s", str(e)
+                                        )
+                                    continue
+
+                                # UI tool: map to a frontend command
                                 cmd = _tool_call_to_frontend_command(name, args)
                                 await self._event_q.put(
                                     LiveCommandEvent(command=cmd, tool_name=name, tool_call_id=call_id)
