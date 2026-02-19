@@ -91,7 +91,18 @@ const Structure = (props: StructureProps) => {
 
   return (
     <div>
-      <Canvas camera={{ position: cameraPosition }} style={{ height: '120vh', width: '120vw' }}>
+      <Canvas
+        camera={{ position: cameraPosition }}
+        style={{ height: '120vh', width: '120vw' }}
+        flat
+        onCreated={({ gl }) => {
+          // 色見本の表示なので、映画的なトーンマッピングを無効化して
+          // 入力HEX(#RRGGBB)が見た目として素直に出るようにする。
+          gl.toneMapping = THREE.NoToneMapping;
+          gl.toneMappingExposure = 1;
+          gl.outputColorSpace = THREE.SRGBColorSpace;
+        }}
+      >
         <color attach="background" args={['#C3C3C3']} />
         <ambientLight color="#ffffff" intensity={1} />
         <OrbitControls />
