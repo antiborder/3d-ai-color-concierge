@@ -14,13 +14,15 @@ const Header = () => {
 
   const currentLanguage = languages.find((lang) => lang.code === i18n.language) || languages[0];
 
-  const handleLanguageChange = (langCode: string) => {
-    i18n.changeLanguage(langCode);
-    // URLのクエリパラメータを更新
-    const url = new URL(window.location.href);
+  const buildTopLangUrl = (langCode: string) => {
+    const base = import.meta.env.BASE_URL || '/';
+    const url = new URL(base, window.location.origin);
     url.searchParams.set('lang', langCode);
-    window.history.pushState({}, '', url.toString());
-    setIsOpen(false);
+    return url.toString();
+  };
+
+  const handleLanguageChange = (langCode: string) => {
+    window.location.assign(buildTopLangUrl(langCode));
   };
 
   // Close dropdown when clicking outside
