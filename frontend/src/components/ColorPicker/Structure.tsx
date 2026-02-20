@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import convert from 'color-convert';
 import { useState, useEffect, useRef, useMemo } from 'react';
@@ -17,6 +17,145 @@ import type {
   RescaleHslFunction,
   CylindricalToCartesianFunction,
 } from '../../types/structure';
+
+// OrbitControlsの参照を取得してカメラを回転させるコンポーネント
+const CameraController = ({
+  r,
+  g,
+  b,
+  shape,
+  getRgbPosition,
+  getHslPosition,
+  getHsvPosition,
+}: {
+  r: number;
+  g: number;
+  b: number;
+  shape: string;
+  getRgbPosition: PositionFunction;
+  getHslPosition: PositionFunction;
+  getHsvPosition: PositionFunction;
+}) => {
+  const controlsRef = useRef<any>(null);
+  const { camera } = useThree();
+  const prevColorRef = useRef<{ r: number; g: number; b: number } | null>(null);
+  const isAnimatingRef = useRef(false);
+
+  useEffect(() => {
+    // 色が変更された時のみカメラを回転
+    const colorChanged =
+      !prevColorRef.current ||
+      prevColorRef.current.r !== r ||
+      prevColorRef.current.g !== g ||
+      prevColorRef.current.b !== b;
+
+    if (colorChanged && !isAnimatingRef.current) {
+      // 色の3D位置を取得
+      let colorPosition: [number, number, number];
+      if (shape === 'RGB' || shape === 'CMYK') {
+        colorPosition = getRgbPosition(r, g, b);
+      } else if (shape === 'HSL') {
+        colorPosition = getHslPosition(r, g, b);
+      } else {
+        colorPosition = getHsvPosition(r, g, b);
+      }
+
+      // 色の位置をベクトルに変換
+      const colorVector = new THREE.Vector3(...colorPosition);
+      const origin = new THREE.Vector3(0, 0, 0);
+
+      // 原点から色への方向ベクトル
+      const direction = colorVector.clone().sub(origin).normalize();
+
+      // OrbitControlsを使ってカメラを回転
+      if (controlsRef.current && controlsRef.current.object) {
+        isAnimatingRef.current = true;
+
+        // 現在のカメラ位置を取得
+        const currentPosition = camera.position.clone();
+        const currentTarget = controlsRef.current.target.clone();
+
+        // 色の位置がカメラに最も近くなる角度を計算
+        // 球面座標に変換（OrbitControlsは球面座標系を使用）
+        // azimuth: 水平角度（-πからπ、または0から2π）
+        // polar: 垂直角度（0からπ）
+        const azimuth = Math.atan2(direction.x, direction.z);
+        const polar = Math.acos(Math.max(-1, Math.min(1, direction.y)));
+
+        // アニメーションでスムーズに回転
+        let startAzimuth: number;
+        let startPolar: number;
+
+        // OrbitControlsのAPIを確認して使用
+        if (
+          typeof controlsRef.current.getAzimuthalAngle === 'function' &&
+          typeof controlsRef.current.getPolarAngle === 'function'
+        ) {
+          startAzimuth = controlsRef.current.getAzimuthalAngle();
+          startPolar = controlsRef.current.getPolarAngle();
+        } else {
+          // フォールバック: 現在のカメラ位置から角度を計算
+          const toCamera = currentPosition.clone().sub(currentTarget).normalize();
+          startAzimuth = Math.atan2(toCamera.x, toCamera.z);
+          startPolar = Math.acos(Math.max(-1, Math.min(1, toCamera.y)));
+        }
+
+        const duration = 1000; // 1秒
+        const startTime = Date.now();
+
+        const animate = () => {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          // イージング関数（ease-in-out）
+          const eased =
+            progress < 0.5
+              ? 2 * progress * progress
+              : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+          // 角度を補間
+          let newAzimuth = startAzimuth + (azimuth - startAzimuth) * eased;
+          let newPolar = startPolar + (polar - startPolar) * eased;
+
+          // 角度の正規化
+          newAzimuth = ((newAzimuth % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+          newPolar = Math.max(0.1, Math.min(Math.PI - 0.1, newPolar)); // 極端な角度を避ける
+
+          // OrbitControlsのAPIを使用
+          if (
+            typeof controlsRef.current.setAzimuthalAngle === 'function' &&
+            typeof controlsRef.current.setPolarAngle === 'function'
+          ) {
+            controlsRef.current.setAzimuthalAngle(newAzimuth);
+            controlsRef.current.setPolarAngle(newPolar);
+          } else {
+            // フォールバック: カメラ位置を直接計算
+            const distance = currentPosition.length();
+            const newPosition = new THREE.Vector3(
+              distance * Math.sin(newPolar) * Math.sin(newAzimuth),
+              distance * Math.cos(newPolar),
+              distance * Math.sin(newPolar) * Math.cos(newAzimuth)
+            );
+            camera.position.copy(newPosition);
+            camera.lookAt(currentTarget);
+            controlsRef.current.update();
+          }
+
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            isAnimatingRef.current = false;
+          }
+        };
+
+        animate();
+      }
+
+      prevColorRef.current = { r, g, b };
+    }
+  }, [r, g, b, shape, getRgbPosition, getHslPosition, getHsvPosition, camera]);
+
+  return <OrbitControls ref={controlsRef} />;
+};
 
 const Structure = (props: StructureProps) => {
   const cameraPosition: [number, number, number] = [0, 15, 0]; // カメラの位置
@@ -152,7 +291,15 @@ const Structure = (props: StructureProps) => {
       >
         <color attach="background" args={['#C3C3C3']} />
         <ambientLight color="#ffffff" intensity={1} />
-        <OrbitControls />
+        <CameraController
+          r={props.focusR}
+          g={props.focusG}
+          b={props.focusB}
+          shape={props.shape}
+          getRgbPosition={getRgbPosition}
+          getHslPosition={getHslPosition}
+          getHsvPosition={getHsvPosition}
+        />
         <group rotation={[-Math.PI / 2, 0, 0]}>
           <Particles
             {...props}

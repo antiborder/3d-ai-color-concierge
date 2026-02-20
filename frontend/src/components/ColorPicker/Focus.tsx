@@ -37,7 +37,7 @@ const Focus = (props: FocusProps) => {
               {'V'}
             </Text>
             <Text color={'#000000'} fontSize={1.6} position={[0, 0.2, 0]}>
-              {'I'}
+              {'i'}
             </Text>
           </group>
         </animated.mesh>
