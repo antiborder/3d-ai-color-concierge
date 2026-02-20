@@ -2,7 +2,23 @@ import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 
-const Header = () => {
+interface HeaderProps {
+  cssColorsEnabled: boolean;
+  materialColorsEnabled: boolean;
+  japaneseColorsEnabled: boolean;
+  onCssColorsToggle: (enabled: boolean) => void;
+  onMaterialColorsToggle: (enabled: boolean) => void;
+  onJapaneseColorsToggle: (enabled: boolean) => void;
+}
+
+const Header = ({
+  cssColorsEnabled,
+  materialColorsEnabled,
+  japaneseColorsEnabled,
+  onCssColorsToggle,
+  onMaterialColorsToggle,
+  onJapaneseColorsToggle,
+}: HeaderProps) => {
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -62,6 +78,32 @@ const Header = () => {
           </DropdownMenu>
         )}
       </LanguageSelector>
+      <ColorGroupFilter>
+        <CheckboxLabel>
+          <input
+            type="checkbox"
+            checked={cssColorsEnabled}
+            onChange={(e) => onCssColorsToggle(e.target.checked)}
+          />
+          <span>CSS Named Colors</span>
+        </CheckboxLabel>
+        <CheckboxLabel>
+          <input
+            type="checkbox"
+            checked={materialColorsEnabled}
+            onChange={(e) => onMaterialColorsToggle(e.target.checked)}
+          />
+          <span>Material Design Colors</span>
+        </CheckboxLabel>
+        <CheckboxLabel>
+          <input
+            type="checkbox"
+            checked={japaneseColorsEnabled}
+            onChange={(e) => onJapaneseColorsToggle(e.target.checked)}
+          />
+          <span>Japanese Traditional Colors</span>
+        </CheckboxLabel>
+      </ColorGroupFilter>
     </StyledHeader>
   );
 };
@@ -72,6 +114,10 @@ const StyledHeader = styled.header`
   right: 0;
   z-index: 1000;
   padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
 `;
 
 const LanguageSelector = styled.div`
@@ -137,6 +183,39 @@ const DropdownItem = styled.div<{ $isActive: boolean }>`
 
   span:first-child {
     font-size: 18px;
+  }
+`;
+
+const ColorGroupFilter = styled.div`
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+`;
+
+const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #333;
+  user-select: none;
+
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #4e8cee;
+  }
+
+  &:hover {
+    color: #000;
   }
 `;
 

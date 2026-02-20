@@ -24,6 +24,11 @@ export interface StructureProps {
   cmykMainElement: 'C' | 'M' | 'Y' | 'K';
   hslMainElement: 'H' | 'S' | 'L';
   hsvMainElement: 'H' | 'S' | 'V';
+
+  // Color group filters
+  cssColorsEnabled: boolean;
+  materialColorsEnabled: boolean;
+  japaneseColorsEnabled: boolean;
 }
 
 export type PositionFunction = (r: number, g: number, b: number) => [number, number, number];

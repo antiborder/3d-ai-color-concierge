@@ -286,7 +286,7 @@ export const useColorState = () => {
       let newL = currentL;
 
       // Calculate adjustment amount
-      // Default: 20% for brightness/saturation (relative), 10 for hue (absolute)
+      // Default: 10% of full range (0-100) = 10 for brightness/saturation (absolute), 10 for hue (absolute)
       let adjustmentAmount: number;
       if (amount !== undefined) {
         // Use specified amount (absolute value)
@@ -297,13 +297,9 @@ export const useColorState = () => {
           // Hue: absolute adjustment (0-360 range), default 10
           adjustmentAmount = 10;
         } else {
-          // Brightness/Saturation: 20% of current value (relative)
-          const currentValue = property === 'brightness' ? currentL : currentS;
-          adjustmentAmount = Math.round(currentValue * 0.2);
-          // Minimum adjustment of 1 if calculated value is too small
-          if (adjustmentAmount < 1) {
-            adjustmentAmount = 1;
-          }
+          // Brightness/Saturation: 10% of full range (0-100) = 10 absolute
+          // This ensures consistent adjustment regardless of current value
+          adjustmentAmount = 10;
         }
       }
 

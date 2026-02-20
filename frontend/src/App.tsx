@@ -127,6 +127,11 @@ function App() {
   // Loading state for API calls
   const [isLoading, setIsLoading] = useState(false);
 
+  // Color group filter states
+  const [cssColorsEnabled, setCssColorsEnabled] = useState(true);
+  const [materialColorsEnabled, setMaterialColorsEnabled] = useState(true);
+  const [japaneseColorsEnabled, setJapaneseColorsEnabled] = useState(false);
+
   // Use voice command hook with conversation history
   const { processCommand } = useVoiceCommand(
     colorState,
@@ -215,7 +220,14 @@ function App() {
   return (
     <>
       <Toaster position="top-right" />
-      <Header />
+      <Header
+        cssColorsEnabled={cssColorsEnabled}
+        materialColorsEnabled={materialColorsEnabled}
+        japaneseColorsEnabled={japaneseColorsEnabled}
+        onCssColorsToggle={setCssColorsEnabled}
+        onMaterialColorsToggle={setMaterialColorsEnabled}
+        onJapaneseColorsToggle={setJapaneseColorsEnabled}
+      />
       <Structure
         shape={colorState.shape}
         isLabelShown={colorState.isLabelShown}
@@ -236,6 +248,9 @@ function App() {
         cmykMainElement={colorState.cmykMainElement}
         hslMainElement={colorState.hslMainElement}
         hsvMainElement={colorState.hsvMainElement}
+        cssColorsEnabled={cssColorsEnabled}
+        materialColorsEnabled={materialColorsEnabled}
+        japaneseColorsEnabled={japaneseColorsEnabled}
       />
       <ControlPane
         handleLabel={toggleLabel}

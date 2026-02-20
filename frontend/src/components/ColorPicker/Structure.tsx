@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import convert from 'color-convert';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import '../../App.css';
 import Focus from './Focus';
 import FocusPlane from './FocusPlane';
@@ -10,6 +10,7 @@ import FocusLine from './FocusLine';
 import Particles from './Particles';
 import CubeWireframe from './CubeWireframe';
 import CylinderEllipses from './CylinderEllipses';
+import sampleColors from '../../constants/sampleColors';
 import type {
   StructureProps,
   PositionFunction,
@@ -119,6 +120,22 @@ const Structure = (props: StructureProps) => {
     return cylindricalToCartesian(theta, radius, z);
   };
 
+  // Filter colors based on enabled groups
+  const filteredColors = useMemo(() => {
+    return sampleColors.filter((color) => {
+      if (props.cssColorsEnabled && color.tag.includes('CSS')) {
+        return true;
+      }
+      if (props.materialColorsEnabled && color.tag.includes('MATERIAL')) {
+        return true;
+      }
+      if (props.japaneseColorsEnabled && color.tag.includes('JAPANESE')) {
+        return true;
+      }
+      return false;
+    });
+  }, [props.cssColorsEnabled, props.materialColorsEnabled, props.japaneseColorsEnabled]);
+
   return (
     <div>
       <Canvas
@@ -139,6 +156,7 @@ const Structure = (props: StructureProps) => {
         <group rotation={[-Math.PI / 2, 0, 0]}>
           <Particles
             {...props}
+            filteredColors={filteredColors}
             getRgbPosition={getRgbPosition}
             getHslPosition={getHslPosition}
             getHsvPosition={getHsvPosition}

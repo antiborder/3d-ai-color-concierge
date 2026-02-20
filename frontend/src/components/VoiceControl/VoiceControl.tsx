@@ -82,21 +82,21 @@ const VoiceControl = ({
   return (
     <StyledVoiceControl>
       <VoiceInputContainer>
-        <MicButton
+        <ChatButton
           onClick={handleMicClick}
           disabled={isLoading}
-          $isListening={isStreaming}
-          title={isStreaming ? t('voiceControl.stop') : t('voiceControl.start')}
+          $isListening={isStreaming || isConnecting}
         >
-          {isStreaming ? (
-            <PulsingMic>
-              <MicIcon />
-            </PulsingMic>
+          {isStreaming || isConnecting ? (
+            <>
+              <ListeningIndicator />
+              Listening...
+            </>
           ) : (
-            <MicIcon />
+            'Start Chatting ▶︎'
           )}
-        </MicButton>
-        <TextInputForm onSubmit={handleTextSubmit}>
+        </ChatButton>
+        <TextInputForm onSubmit={handleTextSubmit} style={{ display: 'none' }}>
           <TextInput
             type="text"
             value={textInput}
@@ -151,10 +151,9 @@ const VoiceInputContainer = styled.div`
   gap: 12px;
 `;
 
-const MicButton = styled.button<{ $isListening: boolean }>`
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+const ChatButton = styled.button<{ $isListening: boolean }>`
+  padding: 12px 24px;
+  border-radius: 8px;
   border: none;
   background-color: ${(props) => (props.$isListening ? '#ff4444' : '#4e8cee')};
   color: white;
@@ -162,12 +161,16 @@ const MicButton = styled.button<{ $isListening: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   transition: all 0.3s;
-  flex-shrink: 0;
+  font-size: 18px;
+  font-weight: 700;
+  flex: 1;
+  min-width: 200px;
 
   &:hover:not(:disabled) {
     background-color: ${(props) => (props.$isListening ? '#cc0000' : '#3d7bd6')};
-    transform: scale(1.05);
+    transform: scale(1.02);
   }
 
   &:disabled {
@@ -175,35 +178,15 @@ const MicButton = styled.button<{ $isListening: boolean }>`
     cursor: not-allowed;
     opacity: 0.6;
   }
-
-  svg {
-    width: 24px;
-    height: 24px;
-  }
 `;
 
-const PulsingMic = styled.div`
+const ListeningIndicator = styled.div`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: white;
   animation: ${pulse} 1.5s ease-in-out infinite;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
-
-const MicIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-    <line x1="12" y1="19" x2="12" y2="23" />
-    <line x1="8" y1="23" x2="16" y2="23" />
-  </svg>
-);
 
 const TextInputForm = styled.form`
   display: flex;

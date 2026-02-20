@@ -12,14 +12,16 @@ interface ParticlesProps extends StructureProps {
   getRgbPosition: PositionFunction;
   getHslPosition: PositionFunction;
   getHsvPosition: PositionFunction;
+  filteredColors?: typeof sampleColors;
 }
 
 const Particles = (props: ParticlesProps) => {
   const division = 6;
+  const colorsToDisplay = props.filteredColors || sampleColors;
 
   return (
     <>
-      {sampleColors.map((c, i) => {
+      {colorsToDisplay.map((c, i) => {
         const rgb = convert.hex.rgb(c.hex);
         return (
           <Particle
