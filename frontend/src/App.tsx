@@ -62,6 +62,15 @@ function App() {
     adjustHslValue,
   } = useColorState();
 
+  // 現在選択されている色を背景色に設定
+  useEffect(() => {
+    const r = Math.round(colorState.r);
+    const g = Math.round(colorState.g);
+    const b = Math.round(colorState.b);
+    const backgroundColor = `rgb(${r}, ${g}, ${b})`;
+    document.body.style.backgroundColor = backgroundColor;
+  }, [colorState.r, colorState.g, colorState.b]);
+
   // Handler functions for color changes
   const handleRgbChange = (
     event: React.ChangeEvent<HTMLInputElement>,
