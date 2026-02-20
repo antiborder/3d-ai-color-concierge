@@ -2,11 +2,14 @@ import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import convert from 'color-convert';
+import { useState, useEffect, useRef } from 'react';
 import '../../App.css';
 import Focus from './Focus';
 import FocusPlane from './FocusPlane';
 import FocusLine from './FocusLine';
 import Particles from './Particles';
+import CubeWireframe from './CubeWireframe';
+import CylinderEllipses from './CylinderEllipses';
 import type {
   StructureProps,
   PositionFunction,
@@ -20,6 +23,33 @@ const Structure = (props: StructureProps) => {
   const sizeRatio = 0.7;
   const cylinderHeight = structureSize * sizeRatio;
   const cylinderRadius = structureSize * sizeRatio;
+
+  // 外枠の表示状態を管理
+  // 変形の順番: 古い枠が消える → 色空間が変形する → 新しい枠が表示される
+  const [frameVisible, setFrameVisible] = useState(true);
+  const [displayShape, setDisplayShape] = useState(props.shape); // 表示に使うshape
+  const prevShapeRef = useRef(props.shape);
+
+  useEffect(() => {
+    // shapeが変更された場合
+    if (prevShapeRef.current !== props.shape) {
+      // 1. 古い枠が消える（即座にframeVisibleをfalseにする）
+      setFrameVisible(false);
+
+      // 2. 色空間が変形する（Particlesのアニメーションが開始される、500ms）
+      // 3. 新しい枠が表示される（500ms後に新しいshapeで枠を表示）
+      const showNewFrameDelay = setTimeout(() => {
+        setDisplayShape(props.shape); // 新しいshapeを設定
+        setFrameVisible(true); // 新しい枠を表示
+      }, 500); // Particlesのアニメーション完了後に新しい枠を表示
+
+      prevShapeRef.current = props.shape;
+
+      return () => {
+        clearTimeout(showNewFrameDelay);
+      };
+    }
+  }, [props.shape]);
 
   const rescaleRgb = (r: number, g: number, b: number): [number, number, number] => {
     return [
@@ -138,6 +168,19 @@ const Structure = (props: StructureProps) => {
             cylindricalToCartesian={cylindricalToCartesian}
             cylinderRadius={cylinderRadius}
             cylinderHeight={cylinderHeight}
+          />
+          {/* RGB/CMYK用の立方体の外枠 */}
+          <CubeWireframe
+            shape={displayShape}
+            structureSize={structureSize}
+            visible={frameVisible}
+          />
+          {/* HSL/HSV用の円柱の上面・底面の円 */}
+          <CylinderEllipses
+            shape={displayShape}
+            cylinderRadius={cylinderRadius}
+            cylinderHeight={cylinderHeight}
+            visible={frameVisible}
           />
         </group>
       </Canvas>
