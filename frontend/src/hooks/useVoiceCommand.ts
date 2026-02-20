@@ -104,6 +104,17 @@ export function useVoiceCommand(
           }
         }
       } catch (error) {
+        // DNS解決エラーやネットワークエラーは無視（WebSocketで処理されているため）
+        // fetchが失敗した場合、TypeErrorがスローされる
+        if (error instanceof TypeError) {
+          // ネットワークエラーの場合は警告のみ（WebSocketで処理されている可能性が高い）
+          console.warn(
+            'HTTP API unavailable (likely using WebSocket instead):',
+            error.message
+          );
+          return;
+        }
+        // その他のエラー（APIからのエラーレスポンスなど）はユーザーに通知
         const errorMessage =
           error instanceof Error ? error.message : 'Failed to process voice command';
         console.error('Voice command error:', error);

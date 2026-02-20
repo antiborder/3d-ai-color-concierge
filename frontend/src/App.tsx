@@ -143,9 +143,13 @@ function App() {
   // When a WS tool-call command arrives, we apply it directly and skip the REST
   // processing for the next short window to avoid double-applying.
   const skipRestUntilRef = useRef<number>(0);
+  const wsCommandProcessedRef = useRef<boolean>(false);
 
   const handleWsCommand = (command: VoiceCommand) => {
-    skipRestUntilRef.current = Date.now() + 1500;
+    // WebSocket経由でコマンドが処理されたことを記録
+    wsCommandProcessedRef.current = true;
+    // より長い時間（5秒）スキップする
+    skipRestUntilRef.current = Date.now() + 5000;
     executeCommand(command, voiceCommandHandlers);
   };
 
@@ -155,13 +159,27 @@ function App() {
     if (transcript && transcript.trim()) {
       addMessage({ role: 'user', content: transcript.trim() });
     }
-    if (Date.now() < skipRestUntilRef.current) {
-      // In WS tool-call mode we intentionally skip the REST processing to avoid double-applying.
+
+    // WebSocket経由でコマンドが処理された場合は、HTTP APIを完全にスキップ
+    if (Date.now() < skipRestUntilRef.current || wsCommandProcessedRef.current) {
+      // フラグをリセット（次のトランスクリプトのために）
+      wsCommandProcessedRef.current = false;
       return;
     }
+
     setIsLoading(true);
     try {
       await processCommand(transcript);
+    } catch (error) {
+      // HTTP APIのネットワークエラーは無視（WebSocketで処理されているため）
+      // fetchが失敗した場合、TypeErrorがスローされる
+      if (error instanceof TypeError) {
+        // ネットワークエラーの場合は警告のみ（useVoiceCommandで既に処理済み）
+        console.warn('HTTP API unavailable (likely using WebSocket instead):', error.message);
+      } else {
+        // その他のエラーは再スロー（useVoiceCommandで処理される）
+        throw error;
+      }
     } finally {
       setIsLoading(false);
     }
@@ -183,6 +201,14 @@ function App() {
     ) {
       return;
     }
+
+    // WebSocket経由でアシスタントメッセージが来た場合もフラグを設定
+    // これにより、HTTP API経由の処理をスキップして重複を防ぐ
+    if (meta?.source === 'output_audio_transcription' || meta?.source === 'output_transcription') {
+      wsCommandProcessedRef.current = true;
+      skipRestUntilRef.current = Date.now() + 5000;
+    }
+
     addMessage({
       role: 'assistant',
       content: text,
