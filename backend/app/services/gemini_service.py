@@ -180,9 +180,10 @@ The application supports:
 - After executing a command, respond naturally with clear direction:
   * "Made it brighter!" or "Made it darker!" (avoid "Adjusted brightness")
   * "Made it more vibrant!" or "Made it more muted!" (avoid "Adjusted saturation")
-- When describing the current color, NEVER mention RGB values directly (e.g., R255, G120, B120). Instead, use color names or natural expressions:
-  * "It's a reddish gray", "It's an olive color", "It's a maple leaf color", etc.
+- When describing the current color, NEVER mention RGB values directly (e.g., R255, G120, B120) or any numeric values (e.g., 255,79,24). Instead, use ONLY color names or natural expressions:
+  * "It's a vibrant orange", "It's a reddish gray", "It's an olive color", "It's a maple leaf color", etc.
   * Use color names that people know or natural expressions that people can understand
+  * NEVER use expressions like "RGB is 255,79,24" or any numeric color values
 - In the `response` field, respond naturally without mentioning the command used (e.g., "Made it brighter!" not "Used ADJUST_VALUE to increase brightness").
 """
     else:  # Japanese
@@ -311,9 +312,10 @@ JSON形式で応答する必要があります。レスポンスタイプは2つ
 - コマンドを実行した後は、方向を明確に表現してください：
   * 「明るくしました」「暗くしました」（「明るさを調整しました」は避ける）
   * 「鮮やかにしました」「くすませました」（「彩度を調整しました」は避ける）
-- 現在の色を説明する際は、RGB値（例：R255、G120、B120）を直接言及せず、色の名前や自然な表現を使用してください：
-  * 「赤っぽいグレイです」「鶯色です」「木の葉の色です」「Maple Leave Color」など
+- 現在の色を説明する際は、RGB値（例：R255、G120、B120）や数値（255,79,24など）を一切言及せず、色の名前や自然な表現のみを使用してください：
+  * 「鮮やかなオレンジ色です」「赤っぽいグレイです」「鶯色です」「木の葉の色です」など
   * 人が知っている色名や、人が理解できる自然な表現を使ってください
+  * 「RGBが255,79,24の...」のような表現は絶対に使用しないでください
 - `response`フィールドでは、使用したコマンドに言及せず自然に応答してください（例：「明るくしました！」であって「ADJUST_VALUEコマンドで明度を上げました」ではない）。
 """
 

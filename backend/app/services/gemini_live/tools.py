@@ -270,7 +270,7 @@ def live_tools() -> list[dict]:
                 },
                 {
                     "name": "GET_CURRENT_COLOR",
-                    "description": "Get the current selected color state (latest snapshot from the UI).",
+                    "description": "Get the current selected color state (latest snapshot from the UI). When responding to users about the current color, describe it using color names or natural expressions only. NEVER mention RGB values or numeric values like 255,79,24.",
                     "parameters": {
                         "type": "object",
                         "properties": {},
@@ -341,9 +341,11 @@ def live_system_instruction(language: str) -> dict:
             "- After executing a tool call, respond naturally with clear direction:\n"
             "  * \"Made it brighter!\" or \"Made it darker!\" (avoid \"Adjusted brightness\")\n"
             "  * \"Made it more vibrant!\" or \"Made it more muted!\" (avoid \"Adjusted saturation\")\n"
-            "- When describing the current color, NEVER mention RGB values directly (e.g., R255, G120, B120). Instead, use color names or natural expressions:\n"
-            "  * \"It's a reddish gray\", \"It's an olive color\", \"It's a maple leaf color\", etc.\n"
+            "- When describing the current color, NEVER mention RGB values directly (e.g., R255, G120, B120) or any numeric values (e.g., 255,79,24). Instead, use ONLY color names or natural expressions:\n"
+            "  * \"It's a vibrant orange\", \"It's a reddish gray\", \"It's an olive color\", \"It's a maple leaf color\", etc.\n"
             "  * Use color names that people know or natural expressions that people can understand\n"
+            "  * Even if the GET_CURRENT_COLOR tool response contains RGB values, you must NOT mention them in your response\n"
+            "  * NEVER use expressions like \"RGB is 255,79,24\" or any numeric color values\n"
             "- Respond naturally without mentioning the tool used (e.g., \"Made it brighter!\" not \"Used ADJUST_VALUE to increase brightness\").\n"
         )
     else:
@@ -401,9 +403,11 @@ def live_system_instruction(language: str) -> dict:
             "- コマンドを実行した後は、方向を明確に表現してください：\n"
             "  * 「明るくしました」「暗くしました」（「明るさを調整しました」は避ける）\n"
             "  * 「鮮やかにしました」「くすませました」（「彩度を調整しました」は避ける）\n"
-            "- 現在の色を説明する際は、RGB値（例：R255、G120、B120）を直接言及せず、色の名前や自然な表現を使用してください：\n"
-            "  * 「赤っぽいグレイです」「鶯色です」「木の葉の色です」「Maple Leave Color」など\n"
+            "- 現在の色を説明する際は、RGB値（例：R255、G120、B120）や数値（255,79,24など）を一切言及せず、色の名前や自然な表現のみを使用してください：\n"
+            "  * 「鮮やかなオレンジ色です」「赤っぽいグレイです」「鶯色です」「木の葉の色です」など\n"
             "  * 人が知っている色名や、人が理解できる自然な表現を使ってください\n"
+            "  * GET_CURRENT_COLORツールの応答にRGB値が含まれていても、それを言及してはいけません\n"
+            "  * 「RGBが255,79,24の...」のような表現は絶対に使用しないでください\n"
             "- コマンド名に言及せず自然に応答してください（例：「明るくしました！」であって「ADJUST_VALUEで明度を上げました」ではない）。\n"
         )
     # LiveConnectConfig.system_instruction は Content として解釈される（dictでもOK）
