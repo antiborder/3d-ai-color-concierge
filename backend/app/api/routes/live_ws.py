@@ -188,6 +188,7 @@ async def live_voice_ws(ws: WebSocket):
 
     cfg = default_live_config(language=language)
     stop_evt = asyncio.Event()
+    color_state_received = asyncio.Event()
 
     async def client_to_live(session: GeminiLiveSession):
         try:
@@ -209,6 +210,8 @@ async def live_voice_ws(ws: WebSocket):
                             color = _normalize_color_state(payload.get("color"))
                             if color:
                                 session.set_current_color_state(color)
+                                # 色状態が設定されたことを通知
+                                color_state_received.set()
                                 if getattr(settings, "GEMINI_LIVE_CHAT_DEBUG", False):
                                     try:
                                         logger.info(
@@ -318,8 +321,45 @@ async def live_voice_ws(ws: WebSocket):
             elif isinstance(ev, LiveErrorEvent):
                 await ws.send_text(json.dumps({"type": "error", "message": ev.message, "code": ev.code}))
 
+    async def send_introduction(session: GeminiLiveSession):
+        """
+        色状態が送信されるのを待ってから自己紹介を送信
+        """
+        # 色状態が送信されるのを待つ（最大1.5秒）
+        try:
+            await asyncio.wait_for(color_state_received.wait(), timeout=1.5)
+        except asyncio.TimeoutError:
+            # タイムアウトしても続行（色状態が送信されなかった場合）
+            pass
+        
+        # 色状態が設定された後に自己紹介を送信
+        await asyncio.sleep(0.2)  # 色状態処理の完了を待つ
+        
+        # 自己紹介プロンプト（短く、色に言及し、提案を含める）
+        introduction_prompt = (
+            "以下の順序で応答してください：\n"
+            "1. 最初に短く自己紹介：「初めまして。3D AI Color Conciergeです。あなたの色彩設計を3D空間でサポートいたします。」「初めまして。カラフルな3D空間でカラーコーディネイトのお手伝いをさせていただきます。」「 様々な色彩がわかりやすく配列された色空間で、あなたの色選びをサポートいたします。」\n"
+            "2. 現在選択されている色について、簡潔に自然な表現で言及してください（例：「現在選択されているのは深い海の色ですね」）。"
+            "PCCSトーンや専門用語は使わず、色の名前や自然な表現のみを使用してください。\n"
+            "3. 最後に、何かしらの提案をしてください（例：「このような色はお好みですか？」「この色の明るさをあなたの好みに合わせて調整しましょうか？」「もっと別の色を探してみましょうか？」「もっと鮮やかな方がお好みですか？」など）。"
+            if language == "ja"
+            else "Please respond in the following order:\n"
+            "1. First, briefly introduce yourself: 'Nice to meet you! I'm your 3D AI Color Concierge. I'll support your color design in 3D space.'\n"
+            "2. Mention the currently selected color briefly and naturally (e.g., 'The currently selected color is a deep ocean blue'). "
+            "Do not use PCCS tone names or technical terms, only use color names or natural expressions.\n"
+            "3. Finally, make a suggestion (e.g., 'Do you like this color?', 'Would you like to adjust the brightness of this color to your preference?', 'Would you like to explore other colors?', 'Do you prefer a more vibrant color?', etc.)."
+        )
+        try:
+            await session.send_text(introduction_prompt)
+        except Exception as e:
+            # 自己紹介送信の失敗は致命的ではないのでログのみ
+            logger.info("Failed to send introduction prompt: %s", str(e))
+
     try:
         async with GeminiLiveSession(cfg) as session:
+            # 自己紹介を送信するタスクを開始
+            intro_task = asyncio.create_task(send_introduction(session))
+            
             t1 = asyncio.create_task(client_to_live(session))
             t2 = asyncio.create_task(live_to_client(session))
 

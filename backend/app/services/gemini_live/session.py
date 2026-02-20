@@ -245,6 +245,38 @@ class GeminiLiveSession:
         await self._event_q.put(LiveErrorEvent(message=msg))
         return
 
+    async def send_text(self, text: str) -> None:
+        """
+        Send a text message to Gemini Live API, which will be converted to audio response.
+        """
+        if not await self._ensure_live_connected():
+            return
+        
+        fn = getattr(self._live, "send_realtime_input", None)
+        if not callable(fn):
+            await self._event_q.put(
+                LiveErrorEvent(message="send_realtime_input is not available for text input")
+            )
+            return
+        
+        try:
+            # Send text via send_realtime_input
+            # Try text= parameter first, then fallback to other possible parameter names
+            maybe = fn(text=text)
+            if inspect.isawaitable(maybe):
+                await maybe
+        except Exception as e:
+            # Try alternative parameter names if text= fails
+            try:
+                maybe = fn(input=text)
+                if inspect.isawaitable(maybe):
+                    await maybe
+            except Exception as e2:
+                logger.info("GeminiLiveSession send_text error: %s (fallback also failed: %s)", str(e), str(e2))
+                await self._event_q.put(
+                    LiveErrorEvent(message=f"Failed to send text: {e}")
+                )
+
     async def end_audio_stream(self) -> None:
         """
         Signal end-of-audio-stream to Gemini so it can flush a response.
