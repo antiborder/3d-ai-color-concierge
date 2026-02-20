@@ -33,11 +33,11 @@ const Focus = (props: FocusProps) => {
       <group position={position} rotation={[0, 0, -Math.PI]}>
         <animated.mesh ref={ref}>
           <group position={[0, 0, 0.5]} rotation={[Math.PI / 2, 0, 0]}>
-            <Text color={'#000000'} fontSize={1.1}>
-              {'V'}
+            <Text color={'#000000'} fontSize={1.1} position={[0, 0.10, 0]}>
+              {'∨'}
             </Text>
-            <Text color={'#000000'} fontSize={1.6} position={[0, 0.2, 0]}>
-              {'i'}
+            <Text color={'#000000'} fontSize={1.6} position={[0, 0.8, 0]}>
+              {'|'}
             </Text>
           </group>
         </animated.mesh>

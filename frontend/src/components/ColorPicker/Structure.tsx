@@ -10,6 +10,7 @@ import FocusLine from './FocusLine';
 import Particles from './Particles';
 import CubeWireframe from './CubeWireframe';
 import CylinderEllipses from './CylinderEllipses';
+import ColorCursor from './ColorCursor';
 import sampleColors from '../../constants/sampleColors';
 import type {
   StructureProps,
@@ -309,6 +310,12 @@ const Structure = (props: StructureProps) => {
             getHsvPosition={getHsvPosition}
           />
           <Focus
+            {...props}
+            getRgbPosition={getRgbPosition}
+            getHslPosition={getHslPosition}
+            getHsvPosition={getHsvPosition}
+          />
+          <ColorCursor
             {...props}
             getRgbPosition={getRgbPosition}
             getHslPosition={getHslPosition}
