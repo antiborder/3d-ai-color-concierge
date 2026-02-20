@@ -5,6 +5,129 @@ Gemini Live ツール定義と変換関数。
 from __future__ import annotations
 
 
+def rgb_to_cmyk(r: int, g: int, b: int) -> tuple[float, float, float, float]:
+    """
+    RGB値をCMYK値に変換
+    """
+    if r == 0 and g == 0 and b == 0:
+        return (0.0, 0.0, 0.0, 100.0)
+    
+    r_norm = r / 255.0
+    g_norm = g / 255.0
+    b_norm = b / 255.0
+    
+    k = 1.0 - max(r_norm, g_norm, b_norm)
+    if k == 1.0:
+        return (0.0, 0.0, 0.0, 100.0)
+    
+    c = (1.0 - r_norm - k) / (1.0 - k)
+    m = (1.0 - g_norm - k) / (1.0 - k)
+    y = (1.0 - b_norm - k) / (1.0 - k)
+    
+    return (c * 100.0, m * 100.0, y * 100.0, k * 100.0)
+
+
+def rgb_to_hsl(r: int, g: int, b: int) -> tuple[float, float, float]:
+    """
+    RGB値をHSL値に変換
+    """
+    r_norm = r / 255.0
+    g_norm = g / 255.0
+    b_norm = b / 255.0
+    
+    max_val = max(r_norm, g_norm, b_norm)
+    min_val = min(r_norm, g_norm, b_norm)
+    delta = max_val - min_val
+    
+    # Lightness
+    l = (max_val + min_val) / 2.0
+    
+    if delta == 0:
+        # Grayscale
+        h = 0.0
+        s = 0.0
+    else:
+        # Saturation
+        if l < 0.5:
+            s = delta / (max_val + min_val)
+        else:
+            s = delta / (2.0 - max_val - min_val)
+        
+        # Hue
+        if max_val == r_norm:
+            h = ((g_norm - b_norm) / delta) % 6.0
+        elif max_val == g_norm:
+            h = (b_norm - r_norm) / delta + 2.0
+        else:
+            h = (r_norm - g_norm) / delta + 4.0
+        h *= 60.0
+        if h < 0:
+            h += 360.0
+    
+    return (h, s * 100.0, l * 100.0)
+
+
+def determine_optimal_color_space(r: int, g: int, b: int, adjust_property: str | None = None) -> str:
+    """
+    色の特性に基づいて最適な色空間を決定
+    
+    Args:
+        r: Red値 (0-255)
+        g: Green値 (0-255)
+        b: Blue値 (0-255)
+        adjust_property: 調整するプロパティ ("hue", "saturation", "brightness" など)
+    
+    Returns:
+        最適な色空間 ("RGB", "CMYK", "HSL", "HSV")
+    """
+    # ADJUST_VALUEでH、S、Lの調整指示があった場合はHSLへ変形
+    if adjust_property in ("hue", "saturation", "brightness"):
+        return "HSL"
+    
+    # HSLに変換してLightnessを確認
+    h, s, l = rgb_to_hsl(r, g, b)
+    
+    # 色が白に非常に近い場合（L >= 90）はHSL空間へ変形
+    if l >= 90:
+        return "HSL"
+    
+    # RGBのcubeの頂点に相当する場合、または1つのチャンネルだけで表せる場合
+    # 閾値: 他の2つのチャンネルが10以下
+    threshold = 10
+    non_zero_channels = [ch for ch in [(r, 'R'), (g, 'G'), (b, 'B')] if ch[0] > threshold]
+    
+    if len(non_zero_channels) == 1:
+        # 1つのチャンネルだけで表せる場合
+        return "RGB"
+    
+    # RGBのcubeの頂点（(255,0,0), (0,255,0), (0,0,255)など）
+    if (r == 255 and g == 0 and b == 0) or \
+       (r == 0 and g == 255 and b == 0) or \
+       (r == 0 and g == 0 and b == 255):
+        return "RGB"
+    
+    # CMYKに変換して判定
+    c, m, y, k = rgb_to_cmyk(r, g, b)
+    
+    # CMYKでC、M、Yのうち1つだけが非ゼロ（またはK以外が1つだけ非ゼロ）の場合
+    # 閾値: 他の成分が5%以下
+    cmyk_threshold = 5.0
+    non_zero_cmyk = [val for val in [(c, 'C'), (m, 'M'), (y, 'Y')] if val[0] > cmyk_threshold]
+    
+    if len(non_zero_cmyk) == 1 and k < cmyk_threshold:
+        # C、M、Yのうち1つだけで表せる場合
+        return "CMYK"
+    
+    # 特定のパターン: (0,255,255) -> Cyan, (255,0,255) -> Magenta, (255,255,0) -> Yellow
+    if (r == 0 and g == 255 and b == 255) or \
+       (r == 255 and g == 0 and b == 255) or \
+       (r == 255 and g == 255 and b == 0):
+        return "CMYK"
+    
+    # それ以外の場合はHSVに変形
+    return "HSV"
+
+
 def tool_call_function_calls(tool_call) -> list:
     """
     tool_call から function_calls を取り出す（SDK差分を吸収）。
@@ -30,22 +153,36 @@ def tool_call_to_frontend_command(name: str, args: dict) -> dict:
     """
     cmd: dict = {"action": name, "parameters": {}}
     if name == "SELECT_COLOR":
+        r = int(args.get("r", 0))
+        g = int(args.get("g", 0))
+        b = int(args.get("b", 0))
         cmd["parameters"] = {
             "color": {
-                "r": int(args.get("r", 0)),
-                "g": int(args.get("g", 0)),
-                "b": int(args.get("b", 0)),
-            }
+                "r": r,
+                "g": g,
+                "b": b,
+            },
+            # 最適な色空間を自動決定
+            "optimalColorSpace": determine_optimal_color_space(r, g, b),
         }
     elif name == "SET_COLOR":
         for k in ("r", "g", "b"):
             if k in args:
                 cmd["parameters"][k] = int(args[k])
     elif name == "ADJUST_VALUE":
-        cmd["parameters"] = {
-            "property": args.get("property"),
-            "direction": args.get("direction"),
-        }
+        property_name = args.get("property")
+        # H、S、Lの調整指示があった場合は最適な色空間をHSLに設定
+        if property_name in ("hue", "saturation", "brightness"):
+            cmd["parameters"] = {
+                "property": property_name,
+                "direction": args.get("direction"),
+                "optimalColorSpace": "HSL",
+            }
+        else:
+            cmd["parameters"] = {
+                "property": property_name,
+                "direction": args.get("direction"),
+            }
         if "amount" in args:
             cmd["parameters"]["amount"] = args.get("amount")
     elif name == "CHANGE_SHAPE":
