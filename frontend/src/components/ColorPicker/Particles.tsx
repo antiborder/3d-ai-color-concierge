@@ -168,15 +168,25 @@ interface ParticleBubbleProps {
 
 const ParticleBubble = (props: ParticleBubbleProps) => {
   const isJapaneseColor = props.tag?.includes('JAPANESE') ?? false;
+  const isCssColor = props.tag?.includes('CSS') ?? false;
+  const isMaterialColor = props.tag?.includes('MATERIAL') ?? false;
+
+  // フォントクラスを決定
+  let fontClass = 'other-color-name'; // デフォルト
+  if (isJapaneseColor) {
+    fontClass = 'japanese-color-name';
+  } else if (isCssColor) {
+    fontClass = 'css-color-name';
+  } else if (isMaterialColor) {
+    fontClass = 'material-color-name';
+  }
 
   return (
     <StyledNodeBubble style={{}}>
-      <div
-        className={isJapaneseColor ? 'japanese-color-name' : 'other-color-name'}
-      >
-        {props.name1}
+      <div className={fontClass}>{props.name1}</div>
+      <div style={{ textAlign: 'center', fontSize: '11px', marginBottom: '8px' }}>
+        {props.name2}
       </div>
-      <div style={{ textAlign: 'center', fontSize: '11px', marginBottom: '8px' }}>{props.name2}</div>
       <div
         className="colorRectangle"
         onClick={props.onParticleClick}
@@ -219,6 +229,22 @@ const StyledNodeBubble = styled.div`
     font-weight: normal;
     font-size: 24px;
     letter-spacing: 0.1em;
+    line-height: 1.4;
+    text-align: center;
+  }
+  .css-color-name {
+    font-family: 'Roboto Slab', serif;
+    font-weight: normal;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+    text-align: center;
+  }
+  .material-color-name {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: bold;
+    font-size: 14px;
+    letter-spacing: 0.02em;
     line-height: 1.4;
     text-align: center;
   }

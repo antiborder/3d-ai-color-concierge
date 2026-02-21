@@ -51,7 +51,7 @@ export interface UseVoiceStreamingOptions {
 }
 
 export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const {
     currentColorState,
     onFinalTranscript,
@@ -509,7 +509,16 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           } else if (msg.type === 'command') {
             if (onCommand) onCommand(msg.command);
           } else if (msg.type === 'error') {
-            setErr(msg.message);
+            // エラーコード1008の場合は翻訳メッセージに置き換え
+            if (
+              msg.code === '1008' ||
+              msg.message?.includes('1008') ||
+              msg.message?.includes('Operation is not implemented')
+            ) {
+              setErr(t('errors.serviceBusy'));
+            } else {
+              setErr(msg.message);
+            }
           }
           // ready/assistant_text はUI側で必要なら後で拡張
         } else if (evt.data instanceof ArrayBuffer) {
@@ -552,7 +561,16 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
         const isExpectedClose =
           !shouldReconnectRef.current || evt.code === 1000 || evt.code === 1005;
         if (!isExpectedClose) {
-          setErr(`WebSocket closed (code=${evt.code}) ${evt.reason || ''}`.trim());
+          // エラーコード1008の場合は翻訳メッセージに置き換え
+          if (
+            evt.code === 1008 ||
+            evt.reason?.includes('1008') ||
+            evt.reason?.includes('Operation is not implemented')
+          ) {
+            setErr(t('errors.serviceBusy'));
+          } else {
+            setErr(`WebSocket closed (code=${evt.code}) ${evt.reason || ''}`.trim());
+          }
         }
 
         if (shouldReconnectRef.current) {
@@ -590,6 +608,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     sendColorState,
     setErr,
     stop,
+    t,
   ]);
 
   // onclose内でstart()を直接参照するとlintが厳しいためref経由で呼ぶ

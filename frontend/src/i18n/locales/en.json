@@ -17,7 +17,8 @@
     "generic": "An error occurred",
     "network": "Network error occurred",
     "timeout": "Timeout occurred",
-    "invalidInput": "Invalid input"
+    "invalidInput": "Invalid input",
+    "serviceBusy": "The service is currently experiencing high traffic. Please wait a moment and try again."
   },
   "voiceControl": {
     "start": "Start voice recognition",
