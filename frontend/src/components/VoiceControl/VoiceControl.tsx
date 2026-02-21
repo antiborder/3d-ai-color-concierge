@@ -18,7 +18,7 @@ interface VoiceControlProps {
   ) => void;
   onCommand?: (command: Command) => void;
   onError?: (error: string) => void;
-  onOpenChatHistory?: () => void;
+  // onOpenChatHistory?: () => void;
   isLoading?: boolean;
   onSpeak?: (text: string) => void;
 }
@@ -30,7 +30,7 @@ const VoiceControl = ({
   onAssistantMessage,
   onCommand,
   onError,
-  onOpenChatHistory,
+  // onOpenChatHistory,
   isLoading = false,
 }: VoiceControlProps) => {
   const { t } = useTranslation();
@@ -108,11 +108,11 @@ const VoiceControl = ({
             {t('voiceControl.submit')}
           </SubmitButton>
         </TextInputForm>
-        {onOpenChatHistory && (
+        {/* {onOpenChatHistory && (
           <ChatHistoryButton onClick={onOpenChatHistory} title={t('voiceControl.chatHistory')}>
             <ChatIcon />
           </ChatHistoryButton>
-        )}
+        )} */}
       </VoiceInputContainer>
       {isLoading && <LoadingMessage>{t('chatbot.loading')}</LoadingMessage>}
       {error && <ErrorMessage>{error}</ErrorMessage>}

@@ -15,8 +15,23 @@ except ImportError:
 
 from app.api.schemas.voice import ConversationMessage, Command, ColorState
 from app.config.settings import settings
+from app.services.color_service import ColorService
 
 logger = logging.getLogger(__name__)
+
+# ColorServiceのシングルトンインスタンス（プロンプト生成用）
+_color_service_for_prompt: ColorService | None = None
+
+def get_color_service_for_prompt() -> ColorService:
+    """プロンプト生成用のColorServiceインスタンスを取得"""
+    global _color_service_for_prompt
+    if _color_service_for_prompt is None:
+        try:
+            _color_service_for_prompt = ColorService()
+        except Exception as e:
+            logger.warning(f"Failed to load color service for prompt: {e}")
+            # エラー時はNoneを返す（プロンプト生成は続行）
+    return _color_service_for_prompt
 
 # Gemini API設定
 genai.configure(api_key=settings.GEMINI_API_KEY)
@@ -54,10 +69,20 @@ def build_system_prompt(language: str = "ja") -> str:
     Returns:
         システムプロンプト文字列
     """
+    # 色データの要約を取得
+    color_summary = ""
+    try:
+        color_service = get_color_service_for_prompt()
+        if color_service:
+            color_summary = color_service.get_summary_for_prompt(max_colors_per_category=15)
+    except Exception as e:
+        logger.warning(f"Failed to get color summary for prompt: {e}")
+        color_summary = "Color database is available (CSS Named Colors, Material Design Colors, Japanese Traditional Colors)"
+    
     if language == "en":
         return """# Role
-You are the world's premier "3D Color Concierge" supporting color design.
-When users select colors in 3D space, provide professional and passionate advice based on color theory, not just opinions.
+You are a  "3D Color Concierge" supporting color design.
+When users select colors in 3D space, provide professional advice based on color theory, not just opinions.
 
 Your role is to:
 1. Parse user voice commands into structured commands
@@ -87,6 +112,18 @@ Your responses must include the following theoretical background as either "hidd
 - The app displays "Material Design Colors" and "CSS Named Colors".
 - For Material Design colors, mention their "role" (Primary, On-Primary, etc.).
 - For CSS Named Colors (AliceBlue, Tomato, etc.), connect them to implementation convenience.
+
+# Available Color Database
+The application has access to a comprehensive color database. When users ask about specific colors, you can reference these colors by name. The database includes:
+""" + color_summary + """
+
+When suggesting colors or answering questions about colors, you can mention specific color names from this database. For example, if a user asks about "red colors", you can mention specific shades like "Red 500" (Material Design) or "Crimson" (CSS Named Color).
+
+# Available Color Database
+The application has access to a comprehensive color database. When users ask about specific colors, you can reference these colors by name. The database includes:
+{color_summary}
+
+When suggesting colors or answering questions about colors, you can mention specific color names from this database. For example, if a user asks about "red colors", you can mention specific shades like "Red 500" (Material Design) or "Crimson" (CSS Named Color).
 
 # Tone and Style
 - Balance expert confidence (theoretical basis) with user empathy (escort).
@@ -192,8 +229,8 @@ The application supports:
 """
     else:  # Japanese
         return """# Role
-あなたは世界最高峰の色彩設計を支援する「3D Color コンシェルジュ」です。
-ユーザーが3D空間上で色を選ぶ際、単なる感想ではなく、色彩学の「理論」に基づいた専門的かつ情熱的なアドバイスを行います。
+あなたは色彩設計を支援する「3D Color コンシェルジュ」です。
+ユーザーが3D空間上で色を選ぶ際、単なる感想ではなく、色彩学の「理論」に基づいた専門的なアドバイスを行います。
 
 役割は以下の通りです：
 1. ユーザーの音声コマンドを構造化されたコマンドに解析する
@@ -226,6 +263,12 @@ The application supports:
 - アプリ内には「Material Design Colors」と「CSS Named Colors」が表示されています。
 - Material Designの色に対しては、その「役割（Primary, On-Primary等）」に言及してください。
 - CSS Named Colors（AliceBlue, Tomato等）に対しては、実装時の利便性と結びつけて話してください。
+
+# 利用可能な色データベース
+アプリケーションには包括的な色データベースが登録されています。ユーザーが特定の色について質問した場合、これらの色名を参照できます。データベースには以下の色が含まれています：
+""" + color_summary + """
+
+色を提案したり、色に関する質問に答える際は、このデータベースの具体的な色名を言及できます。例えば、ユーザーが「赤い色」について尋ねた場合、「Red 500」（Material Design）や「Crimson」（CSS Named Color）などの具体的な色名を挙げることができます。
 
 # Tone and Style
 - 専門家としての自信（理論的根拠）と、ユーザーへの共感（エスコート）を両立させてください。

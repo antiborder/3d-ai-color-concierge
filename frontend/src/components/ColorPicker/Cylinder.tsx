@@ -19,7 +19,7 @@ const Cylinder = (props: CylinderProps) => {
   );
   const material = new THREE.MeshBasicMaterial({
     color: 0xffffff,
-    opacity: 0.3,
+    opacity: 0.2,
     transparent: true,
     side: props.side || THREE.DoubleSide,
   });
