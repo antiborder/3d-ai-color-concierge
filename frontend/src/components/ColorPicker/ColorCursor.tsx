@@ -15,7 +15,7 @@ const ColorCursor = (props: ColorCursorProps) => {
 
   useFrame(() => {
     if (meridianRef.current) {
-      meridianRef.current.rotation.y += 0.004;
+      meridianRef.current.rotation.y += 0.006;
     }
   });
 
@@ -29,7 +29,7 @@ const ColorCursor = (props: ColorCursorProps) => {
 
   // 球体のワイヤーフレームを生成
   // 半径
-  const radius = 0.21;
+  const radius = 0.123;
   // 経線（meridian）の数
   const meridians = 12;
   // 緯線（parallel）の数
@@ -80,7 +80,7 @@ const ColorCursor = (props: ColorCursorProps) => {
                 <Line
                   key={`meridian-${index}`}
                   points={points}
-                  color={selectedColor}
+                  color="#000000"
                   lineWidth={2}
                 />
               );
@@ -95,7 +95,7 @@ const ColorCursor = (props: ColorCursorProps) => {
               <Line
                 key={`meridian-${index}`}
                 points={points}
-                color="#FFFFFF"
+                color={selectedColor}
                 lineWidth={1}
               />
             );
@@ -110,7 +110,7 @@ const ColorCursor = (props: ColorCursorProps) => {
               <Line
                 key={`parallel-${index}`}
                 points={points}
-                color="#000000"
+                color="#FFFFFF"
                 lineWidth={1}
               />
             );

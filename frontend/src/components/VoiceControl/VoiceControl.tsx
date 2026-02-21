@@ -131,6 +131,15 @@ const pulse = keyframes`
   }
 `;
 
+const breathe = keyframes`
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+`;
+
 const StyledVoiceControl = styled.div`
   position: fixed;
   bottom: 20px;
@@ -167,6 +176,7 @@ const ChatButton = styled.button<{ $isListening: boolean }>`
   font-weight: 700;
   flex: 1;
   min-width: 200px;
+  animation: ${(props) => (!props.$isListening ? breathe : 'none')} 2s ease-in-out infinite;
 
   &:hover:not(:disabled) {
     background-color: ${(props) => (props.$isListening ? '#cc0000' : '#3d7bd6')};
@@ -177,6 +187,7 @@ const ChatButton = styled.button<{ $isListening: boolean }>`
     background-color: #cccccc;
     cursor: not-allowed;
     opacity: 0.6;
+    animation: none;
   }
 `;
 
