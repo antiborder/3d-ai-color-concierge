@@ -15,7 +15,7 @@ const ColorCursor = (props: ColorCursorProps) => {
 
   useFrame(() => {
     if (meridianRef.current) {
-      meridianRef.current.rotation.y += 0.01;
+      meridianRef.current.rotation.y += 0.004;
     }
   });
 
@@ -71,26 +71,52 @@ const ColorCursor = (props: ColorCursorProps) => {
   return (
     <group position={position} rotation={[0, 0, -Math.PI]}>
       <group rotation={[Math.PI / 2, 0, 0]}>
-        {/* 経線（縦の線）- 赤道に沿って回転 */}
+        {/* 経線（縦の線）- 偶数番目は選択色で回転、奇数番目は白色で固定 */}
         <group ref={meridianRef}>
-          {meridianLines.map((points, index) => (
-            <Line
-              key={`meridian-${index}`}
-              points={points}
-              color={selectedColor}
-              lineWidth={5}
-            />
-          ))}
+          {meridianLines.map((points, index) => {
+            if (index % 2 === 0) {
+              // 偶数番目：選択色で回転
+              return (
+                <Line
+                  key={`meridian-${index}`}
+                  points={points}
+                  color={selectedColor}
+                  lineWidth={2}
+                />
+              );
+            }
+            return null;
+          })}
         </group>
-        {/* 緯線（横の線） */}
-        {parallelLines.map((points, index) => (
-          <Line
-            key={`parallel-${index}`}
-            points={points}
-            color="#000000"
-            lineWidth={1}
-          />
-        ))}
+        {/* 奇数番目の経線：白色で固定 */}
+        {meridianLines.map((points, index) => {
+          if (index % 2 === 1) {
+            return (
+              <Line
+                key={`meridian-${index}`}
+                points={points}
+                color="#FFFFFF"
+                lineWidth={1}
+              />
+            );
+          }
+          return null;
+        })}
+        {/* 緯線（横の線）- 偶数番目を非表示 */}
+        {parallelLines.map((points, index) => {
+          if (index % 2 === 1) {
+            // 奇数番目のみ表示
+            return (
+              <Line
+                key={`parallel-${index}`}
+                points={points}
+                color="#000000"
+                lineWidth={1}
+              />
+            );
+          }
+          return null;
+        })}
       </group>
     </group>
   );
