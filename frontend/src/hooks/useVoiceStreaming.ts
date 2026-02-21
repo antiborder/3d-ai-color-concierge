@@ -77,6 +77,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   const shouldReconnectRef = useRef<boolean>(false);
   const reconnectAttemptRef = useRef<number>(0);
   const reconnectTimerRef = useRef<number | null>(null);
+  const isFirstTimeRef = useRef<boolean>(true); // ページロードごとにリセットされる
 
   // playback scheduling
   const playTimeRef = useRef<number>(0);
@@ -416,7 +417,22 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
       ws.onopen = async () => {
         setIsConnected(true);
         reconnectAttemptRef.current = 0;
-        ws.send(JSON.stringify({ type: 'start', language: i18n.language === 'ja' ? 'ja' : 'en' }));
+
+        // 初回フラグをチェック（useRefを使用、ページロードごとにリセット）
+        const isFirstTime = isFirstTimeRef.current;
+
+        ws.send(
+          JSON.stringify({
+            type: 'start',
+            language: i18n.language === 'ja' ? 'ja' : 'en',
+            isFirstTime: isFirstTime,
+          })
+        );
+
+        // 初回の場合はフラグを設定（次回以降は初回でないことを示す）
+        if (isFirstTime) {
+          isFirstTimeRef.current = false;
+        }
 
         // Best-effort: immediately sync current color state after start.
         if (currentColorRef.current) {

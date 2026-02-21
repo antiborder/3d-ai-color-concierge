@@ -165,6 +165,8 @@ async def live_voice_ws(ws: WebSocket):
         language = msg.get("language", "ja")
         if language not in ("ja", "en"):
             language = "ja"
+        # 初回フラグを取得（デフォルトはTrueで後方互換性を保つ）
+        is_first_time = msg.get("isFirstTime", True)
     except WebSocketDisconnect:
         # クライアント都合で切れた場合は何もしない
         return
@@ -357,8 +359,10 @@ async def live_voice_ws(ws: WebSocket):
 
     try:
         async with GeminiLiveSession(cfg) as session:
-            # 自己紹介を送信するタスクを開始
-            intro_task = asyncio.create_task(send_introduction(session))
+            # 初回の場合のみ自己紹介を送信するタスクを開始
+            intro_task = None
+            if is_first_time:
+                intro_task = asyncio.create_task(send_introduction(session))
             
             t1 = asyncio.create_task(client_to_live(session))
             t2 = asyncio.create_task(live_to_client(session))
@@ -366,8 +370,13 @@ async def live_voice_ws(ws: WebSocket):
             done, pending = await asyncio.wait({t1, t2}, return_when=asyncio.FIRST_COMPLETED)
             for p in pending:
                 p.cancel()
+            # intro_taskもキャンセル（存在する場合）
+            if intro_task and not intro_task.done():
+                intro_task.cancel()
             # best-effort: wait for cancellation to settle
             await asyncio.gather(*pending, return_exceptions=True)
+            if intro_task:
+                await asyncio.gather(intro_task, return_exceptions=True)
     except Exception as e:
         logger.exception("WS internal error", extra={"origin": origin, "client_ip": client_ip})
         # best-effort: send error to client before closing
