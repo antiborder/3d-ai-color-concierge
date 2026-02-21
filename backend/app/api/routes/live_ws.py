@@ -337,17 +337,17 @@ async def live_voice_ws(ws: WebSocket):
         
         # 自己紹介プロンプト（短く、色に言及し、提案を含める）
         introduction_prompt = (
-            "以下の順序で応答してください：\n"
-            "1. 最初に短く自己紹介：「初めまして。3D Color コンシェルジュです。あなたの色彩設計を3D空間でサポートいたします。」「初めまして。カラフルな3D空間でカラーコーディネイトのお手伝いをさせていただきます。」「 様々な色彩がわかりやすく配列された色空間で、あなたの色選びをサポートいたします。」\n"
+            "以下の順序で、短く簡潔に応答してください：\n"
+            "1. 最初に短く自己紹介：「初めまして。3D Color コンシェルジュです。」「初めまして。カラーコーディネイトのお手伝いをさせていただきます。」\n"
             "2. 現在選択されている色について、簡潔に自然な表現で言及してください（例：「現在選択されているのは深い海の色ですね」）。"
-            "PCCSトーンや専門用語は使わず、色の名前や自然な表現のみを使用してください。\n"
-            "3. 最後に、何かしらの提案をしてください（例：「このような色はお好みですか？」「この色の明るさをあなたの好みに合わせて調整しましょうか？」「もっと別の色を探してみましょうか？」「もっと鮮やかな方がお好みですか？」など）。"
+            "PCCSトーンや専門用語、理論的説明は一切使わず、色の名前や自然な表現のみを使用してください。\n"
+            "3. 最後に、短く提案をしてください（例：「この色はお好みですか？」「もっと別の色を探してみましょうか？」など）。"
             if language == "ja"
-            else "Please respond in the following order:\n"
-            "1. First, briefly introduce yourself: 'Nice to meet you! I'm your 3D Color Concierge. I'll support your color design in 3D space.'\n"
+            else "Please respond briefly and concisely in the following order:\n"
+            "1. First, briefly introduce yourself: 'Nice to meet you! I'm your 3D Color Concierge.'\n"
             "2. Mention the currently selected color briefly and naturally (e.g., 'The currently selected color is a deep ocean blue'). "
-            "Do not use PCCS tone names or technical terms, only use color names or natural expressions.\n"
-            "3. Finally, make a suggestion (e.g., 'Do you like this color?', 'Would you like to adjust the brightness of this color to your preference?', 'Would you like to explore other colors?', 'Do you prefer a more vibrant color?', etc.)."
+            "Do not use PCCS tone names, technical terms, or theoretical explanations, only use color names or natural expressions.\n"
+            "3. Finally, make a brief suggestion (e.g., 'Do you like this color?', 'Would you like to explore other colors?', etc.)."
         )
         try:
             await session.send_text(introduction_prompt)
