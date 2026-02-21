@@ -3,6 +3,7 @@ import type { ColorState } from '../types/colorState';
 import { initialColorState } from '../types/colorState';
 import { ColorConverter } from '../utils/colorConverter';
 import type { ColorSpace } from '../types/color';
+import { playTransformSound } from '../utils/soundEffects';
 
 /**
  * Custom hook for managing color state
@@ -210,51 +211,81 @@ export const useColorState = () => {
    * Set color space
    */
   const setShape = useCallback((shape: ColorSpace) => {
-    setColorState((prev) => ({ ...prev, shape }));
+    setColorState((prev) => {
+      // 色空間が実際に変更された場合のみ効果音を再生
+      if (prev.shape !== shape) {
+        playTransformSound();
+      }
+      return { ...prev, shape };
+    });
   }, []);
 
   /**
    * Set main element for RGB
    */
   const setRgbMainElement = useCallback((element: 'R' | 'G' | 'B') => {
-    setColorState((prev) => ({
-      ...prev,
-      shape: 'RGB',
-      rgbMainElement: element,
-    }));
+    setColorState((prev) => {
+      // 色空間が変更された場合のみ効果音を再生
+      if (prev.shape !== 'RGB') {
+        playTransformSound();
+      }
+      return {
+        ...prev,
+        shape: 'RGB',
+        rgbMainElement: element,
+      };
+    });
   }, []);
 
   /**
    * Set main element for CMYK
    */
   const setCmykMainElement = useCallback((element: 'C' | 'M' | 'Y' | 'K') => {
-    setColorState((prev) => ({
-      ...prev,
-      shape: 'CMYK',
-      cmykMainElement: element,
-    }));
+    setColorState((prev) => {
+      // 色空間が変更された場合のみ効果音を再生
+      if (prev.shape !== 'CMYK') {
+        playTransformSound();
+      }
+      return {
+        ...prev,
+        shape: 'CMYK',
+        cmykMainElement: element,
+      };
+    });
   }, []);
 
   /**
    * Set main element for HSL
    */
   const setHslMainElement = useCallback((element: 'H' | 'S' | 'L') => {
-    setColorState((prev) => ({
-      ...prev,
-      shape: 'HSL',
-      hslMainElement: element,
-    }));
+    setColorState((prev) => {
+      // 色空間が変更された場合のみ効果音を再生
+      if (prev.shape !== 'HSL') {
+        playTransformSound();
+      }
+      return {
+        ...prev,
+        shape: 'HSL',
+        hslMainElement: element,
+      };
+    });
   }, []);
 
   /**
    * Set main element for HSV
    */
   const setHsvMainElement = useCallback((element: 'H' | 'S' | 'V') => {
-    setColorState((prev) => ({
-      ...prev,
-      shape: 'HSV',
-      hsvMainElement: element,
-    }));
+    setColorState((prev) => {
+      // 色空間が変更された場合のみ効果音を再生
+      if (prev.shape !== 'HSV') {
+        playTransformSound();
+      }
+      return {
+        ...prev,
+        shape: 'HSV',
+        hsvMainElement: element,
+      };
+    });
   }, []);
 
   /**
