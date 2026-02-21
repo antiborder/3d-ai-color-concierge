@@ -276,6 +276,14 @@ const Structure = (props: StructureProps) => {
     });
   }, [props.cssColorsEnabled, props.materialColorsEnabled, props.japaneseColorsEnabled]);
 
+  // 選択された色を16進数に変換して背景色として使用
+  const backgroundColor = useMemo(() => {
+    const r = Math.round(props.focusR).toString(16).padStart(2, '0');
+    const g = Math.round(props.focusG).toString(16).padStart(2, '0');
+    const b = Math.round(props.focusB).toString(16).padStart(2, '0');
+    return `#${r}${g}${b}`;
+  }, [props.focusR, props.focusG, props.focusB]);
+
   return (
     <div>
       <Canvas
@@ -290,7 +298,7 @@ const Structure = (props: StructureProps) => {
           gl.outputColorSpace = THREE.SRGBColorSpace;
         }}
       >
-        <color attach="background" args={['#C3C3C3']} />
+        <color attach="background" args={[backgroundColor]} />
         <ambientLight color="#ffffff" intensity={1} />
         <CameraController
           r={props.focusR}
