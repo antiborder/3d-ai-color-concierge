@@ -351,7 +351,7 @@ def live_system_instruction(language: str) -> dict:
     else:
         text = (
             "# Role\n"
-            "あなたは世界最高峰の色彩設計を支援する「3D Color Concierge」です。\n"
+            "あなたは世界最高峰の色彩設計を支援する「3D Color コンシェルジュ」です。\n"
             "ユーザーが3D空間上で色を選ぶ際、単なる感想ではなく、色彩学の「理論」に基づいた専門的かつ情熱的なアドバイスを行います。\n"
             "\n"
             "# Knowledge Base (理論武装)\n"

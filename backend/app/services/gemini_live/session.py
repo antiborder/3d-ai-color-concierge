@@ -88,6 +88,9 @@ class GeminiLiveSession:
         self._in_transcription_buf: str = ""
         self._in_transcription_segment_id: Optional[str] = None
         self._in_transcription_seq: int = 0
+        self._text_part_buf: str = ""
+        self._text_part_segment_id: Optional[str] = None
+        self._text_part_seq: int = 0
 
     def set_current_color_state(self, color: dict) -> None:
         """
@@ -317,6 +320,9 @@ class GeminiLiveSession:
                         self._in_transcription_buf,
                         self._in_transcription_segment_id,
                         self._in_transcription_seq,
+                        self._text_part_buf,
+                        self._text_part_segment_id,
+                        self._text_part_seq,
                     ) = await process_live_message(
                         msg,
                         self._event_q,
@@ -330,6 +336,9 @@ class GeminiLiveSession:
                         self._in_transcription_buf,
                         self._in_transcription_segment_id,
                         self._in_transcription_seq,
+                        self._text_part_buf,
+                        self._text_part_segment_id,
+                        self._text_part_seq,
                     )
                 except Exception as parse_err:
                     await self._event_q.put(

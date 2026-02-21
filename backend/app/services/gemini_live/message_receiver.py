@@ -91,11 +91,14 @@ async def process_live_message(
     in_transcription_buf: str,
     in_transcription_segment_id: Optional[str],
     in_transcription_seq: int,
-) -> tuple[str, Optional[str], int, str, Optional[str], int]:
+    text_part_buf: str,
+    text_part_segment_id: Optional[str],
+    text_part_seq: int,
+) -> tuple[str, Optional[str], int, str, Optional[str], int, str, Optional[str], int]:
     """
     Process a single message from Gemini Live and emit events.
     Returns updated transcription state:
-    (out_buf, out_seg_id, out_seq, in_buf, in_seg_id, in_seq)
+    (out_buf, out_seg_id, out_seq, in_buf, in_seg_id, in_seq, text_part_buf, text_part_seg_id, text_part_seq)
     """
     # msg構造はSDK依存。代表的に audio, text, transcript を拾う。
     # 可能な限り「落ちない」実装にしてログ/イベントで追えるようにする。
@@ -201,6 +204,10 @@ async def process_live_message(
             if finished is True:
                 out_transcription_buf = ""
                 out_transcription_segment_id = None
+            # output_audio_transcriptionが来たときは、text_partのバッファをリセット（同じ発話として扱う）
+            if transcription_source in ("output_transcription", "output_audio_transcription"):
+                text_part_buf = ""
+                text_part_segment_id = None
 
         # 0-b) input audio transcription (user ASR)
         it = (
@@ -294,8 +301,21 @@ async def process_live_message(
                             logger.info(
                                 "LIVE_CHAT_DEBUG text_part (failed to log details)"
                             )
+                    # text_partもバッファリングして結合し、segmentIdを設定する
+                    if text_part_segment_id is None:
+                        text_part_seq += 1
+                        text_part_segment_id = f"asst_text_{text_part_seq}"
+                        text_part_buf = ""
+                    text_part_buf = merge_streaming_text(
+                        text_part_buf, t.strip()
+                    )
                     await event_q.put(
-                        LiveAssistantTextEvent(text=t.strip(), source="text_part")
+                        LiveAssistantTextEvent(
+                            text=text_part_buf,
+                            source="text_part",
+                            segment_id=text_part_segment_id,
+                            is_final=None,
+                        )
                     )
 
     # 0-b) google-genai>=1.x: tool call / function call (UI操作)
@@ -392,8 +412,21 @@ async def process_live_message(
     # テキスト出力（アシスタント）
     text_out = getattr(msg, "text", None) or msg.get("text") if isinstance(msg, dict) else None
     if isinstance(text_out, str) and text_out.strip():
+        # text_partもバッファリングして結合し、segmentIdを設定する
+        if text_part_segment_id is None:
+            text_part_seq += 1
+            text_part_segment_id = f"asst_text_{text_part_seq}"
+            text_part_buf = ""
+        text_part_buf = merge_streaming_text(
+            text_part_buf, text_out.strip()
+        )
         await event_q.put(
-            LiveAssistantTextEvent(text=text_out.strip(), source="text_part")
+            LiveAssistantTextEvent(
+                text=text_part_buf,
+                source="text_part",
+                segment_id=text_part_segment_id,
+                is_final=None,
+            )
         )
 
     return (
@@ -403,4 +436,7 @@ async def process_live_message(
         in_transcription_buf,
         in_transcription_segment_id,
         in_transcription_seq,
+        text_part_buf,
+        text_part_segment_id,
+        text_part_seq,
     )

@@ -45,6 +45,7 @@ export function useChatbot() {
    * 仕様:
    * - WS由来の assistant テキストは「音声とほぼ同じ」表示が目的なので、
    *   直前の assistant メッセージがある場合は置き換える（重複表示を減らす）。
+   * - 連続する同じroleのメッセージは結合して、一つのバブルとして表示する。
    */
   const displayHistory = useMemo(() => {
     const merged: ChatDisplayMessage[] = [...conversationHistory];
@@ -52,15 +53,54 @@ export function useChatbot() {
       const last = merged[merged.length - 1];
 
       // 1) If this is a streaming update, replace only the same segment bubble (user or assistant).
+      // ただし、テキストが増えている場合は結合する
       if (msg.meta?.segmentId) {
         if (last && last.role === msg.role && last.meta?.segmentId === msg.meta.segmentId) {
-          merged[merged.length - 1] = msg;
+          // テキストが増えている場合は結合、同じ場合は置き換え
+          if (msg.content.length > last.content.length && msg.content.startsWith(last.content)) {
+            // テキストが増えている（累積更新）場合は置き換え
+            merged[merged.length - 1] = msg;
+          } else if (msg.content !== last.content) {
+            // テキストが異なる場合は結合（細切れのチャンクを結合）
+            merged[merged.length - 1] = {
+              ...last,
+              content: last.content + msg.content,
+              meta: {
+                ...last.meta,
+                final: msg.meta?.final ?? last.meta?.final,
+              },
+            };
+          } else {
+            // 同じテキストの場合は置き換え
+            merged[merged.length - 1] = msg;
+          }
           continue;
         }
       }
 
       // 2) Avoid adjacent duplicates (e.g. user transcript added immediately + REST history later).
       if (last && last.role === msg.role && last.content === msg.content) {
+        continue;
+      }
+
+      // 3) 連続する同じroleのメッセージを結合（segmentIdがない場合）
+      // これにより、一つのフレーズが分割されても一つのバブルとして表示される
+      if (
+        last &&
+        last.role === msg.role &&
+        !last.meta?.segmentId &&
+        !msg.meta?.segmentId &&
+        last.meta?.source === msg.meta?.source
+      ) {
+        // 直前のメッセージに結合
+        merged[merged.length - 1] = {
+          ...last,
+          content: last.content + msg.content,
+          meta: {
+            ...last.meta,
+            final: msg.meta?.final ?? last.meta?.final,
+          },
+        };
         continue;
       }
 

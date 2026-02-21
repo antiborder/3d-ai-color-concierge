@@ -36,6 +36,7 @@ const Particles = (props: ParticlesProps) => {
             name1={c.name1}
             name2={c.name2}
             name3={c.name3}
+            tag={c.tag}
             shape={props.shape}
             emissive={new THREE.Color('#000000')}
             division={division}
@@ -57,6 +58,7 @@ interface ParticleProps {
   name1?: string;
   name2?: string;
   name3?: string;
+  tag?: string[];
   shape: 'RGB' | 'CMYK' | 'HSL' | 'HSV';
   emissive: THREE.Color;
   division: number;
@@ -156,6 +158,7 @@ interface ParticleBubbleProps {
   name1?: string;
   name2?: string;
   name3?: string;
+  tag?: string[];
   type: 'RGB' | 'CMYK' | 'HSL' | 'HSV';
   backgroundColor: string;
   textColor: string;
@@ -164,17 +167,22 @@ interface ParticleBubbleProps {
 }
 
 const ParticleBubble = (props: ParticleBubbleProps) => {
+  const isJapaneseColor = props.tag?.includes('JAPANESE') ?? false;
+
   return (
     <StyledNodeBubble style={{}}>
-      <div style={{ textAlign: 'left', fontWeight: 'bold' }}>{props.name1}</div>
+      <div
+        className={isJapaneseColor ? 'japanese-color-name' : 'other-color-name'}
+      >
+        {props.name1}
+      </div>
+      <div style={{ textAlign: 'center', fontSize: '11px', marginBottom: '8px' }}>{props.name2}</div>
       <div
         className="colorRectangle"
         onClick={props.onParticleClick}
         style={{ backgroundColor: '#' + convert.rgb.hex([props.r, props.g, props.b]) }}
       />
       {'#' + convert.rgb.hex([props.r, props.g, props.b])}
-      <br />
-      {props.name2}
       <div onClick={props.onParticleClick}>
         <span className="modalLink">この色を選ぶ</span>
       </div>
@@ -205,6 +213,22 @@ const StyledNodeBubble = styled.div`
     width: 90px;
     border: 1px solid #bbb;
     cursor: pointer;
+  }
+  .japanese-color-name {
+    font-family: 'Yuji Mai', serif;
+    font-weight: normal;
+    font-size: 24px;
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+    text-align: center;
+  }
+  .other-color-name {
+    font-family: 'Roboto Slab', serif;
+    font-weight: normal;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+    text-align: center;
   }
 `;
 
