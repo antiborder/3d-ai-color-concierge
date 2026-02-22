@@ -305,54 +305,74 @@ export const useColorState = () => {
   /**
    * Adjust HSL value (brightness, saturation, or hue)
    * Always adjusts in HSL color space regardless of current color space
+   * Uses functional update to always work with the latest state
    */
   const adjustHslValue = useCallback(
     (property: 'brightness' | 'saturation' | 'hue', direction: 'up' | 'down', amount?: number) => {
-      const currentH = colorState.h;
-      const currentS = colorState.s;
-      const currentL = colorState.l;
+      setColorState((prev) => {
+        // Get latest values from the current state
+        const currentH = prev.h;
+        const currentS = prev.s;
+        const currentL = prev.l;
 
-      let newH = currentH;
-      let newS = currentS;
-      let newL = currentL;
+        let newH = currentH;
+        let newS = currentS;
+        let newL = currentL;
 
-      // Calculate adjustment amount
-      // Default: 10% of full range (0-100) = 10 for brightness/saturation (absolute), 10 for hue (absolute)
-      let adjustmentAmount: number;
-      if (amount !== undefined) {
-        // Use specified amount (absolute value)
-        adjustmentAmount = amount;
-      } else {
-        // Default adjustment based on property
-        if (property === 'hue') {
-          // Hue: absolute adjustment (0-360 range), default 10
-          adjustmentAmount = 10;
+        // Calculate adjustment amount
+        // Default: 10% of full range (0-100) = 10 for brightness/saturation (absolute), 10 for hue (absolute)
+        let adjustmentAmount: number;
+        if (amount !== undefined) {
+          // Use specified amount (absolute value)
+          adjustmentAmount = amount;
         } else {
-          // Brightness/Saturation: 10% of full range (0-100) = 10 absolute
-          // This ensures consistent adjustment regardless of current value
-          adjustmentAmount = 10;
+          // Default adjustment based on property
+          if (property === 'hue') {
+            // Hue: absolute adjustment (0-360 range), default 10
+            adjustmentAmount = 10;
+          } else {
+            // Brightness/Saturation: 10% of full range (0-100) = 10 absolute
+            // This ensures consistent adjustment regardless of current value
+            adjustmentAmount = 10;
+          }
         }
-      }
 
-      // Apply adjustment
-      if (property === 'brightness') {
-        newL = direction === 'up' ? currentL + adjustmentAmount : currentL - adjustmentAmount;
-        // Clip to 0-100 range
-        newL = Math.max(0, Math.min(100, newL));
-      } else if (property === 'saturation') {
-        newS = direction === 'up' ? currentS + adjustmentAmount : currentS - adjustmentAmount;
-        // Clip to 0-100 range
-        newS = Math.max(0, Math.min(100, newS));
-      } else if (property === 'hue') {
-        newH = direction === 'up' ? currentH + adjustmentAmount : currentH - adjustmentAmount;
-        // Clip to 0-360 range (circular)
-        newH = ((newH % 360) + 360) % 360;
-      }
+        // Apply adjustment
+        if (property === 'brightness') {
+          newL = direction === 'up' ? currentL + adjustmentAmount : currentL - adjustmentAmount;
+          // Clip to 0-100 range
+          newL = Math.max(0, Math.min(100, newL));
+        } else if (property === 'saturation') {
+          newS = direction === 'up' ? currentS + adjustmentAmount : currentS - adjustmentAmount;
+          // Clip to 0-100 range
+          newS = Math.max(0, Math.min(100, newS));
+        } else if (property === 'hue') {
+          newH = direction === 'up' ? currentH + adjustmentAmount : currentH - adjustmentAmount;
+          // Clip to 0-360 range (circular)
+          newH = ((newH % 360) + 360) % 360;
+        }
 
-      // Update color using HSL
-      updateFromHsl(newH, newS, newL);
+        // Update color using HSL
+        const allFormats = ColorConverter.fromHsl(newH, newS, newL);
+        return {
+          ...prev,
+          r: allFormats.rgb[0],
+          g: allFormats.rgb[1],
+          b: allFormats.rgb[2],
+          c: allFormats.cmyk[0],
+          m: allFormats.cmyk[1],
+          y: allFormats.cmyk[2],
+          k: allFormats.cmyk[3],
+          h: newH,
+          s: newS,
+          l: newL,
+          hsvS: allFormats.hsv[1],
+          v: allFormats.hsv[2],
+          hexInput: allFormats.hex.toUpperCase(),
+        };
+      });
     },
-    [colorState.h, colorState.s, colorState.l, updateFromHsl]
+    [] // No dependencies needed - uses functional update
   );
 
   return {

@@ -322,6 +322,9 @@ async def process_live_message(
     tc = getattr(msg, "tool_call", None) or getattr(msg, "toolCall", None)
     function_calls = tool_call_function_calls(tc)
     if function_calls:
+        logger.info(
+            "TOOL_CALL: Received %d function call(s)", len(function_calls)
+        )
         # Best-effort: respond "ok" so the model can continue the turn.
         try:
             from google.genai import types  # type: ignore
@@ -340,6 +343,13 @@ async def process_live_message(
                 args = {}
 
             if isinstance(name, str) and name:
+                # Log tool call details
+                logger.info(
+                    "TOOL_CALL: name=%s, args=%s, call_id=%s",
+                    name,
+                    args,
+                    call_id,
+                )
                 # Non-UI tool: return current color snapshot without emitting a frontend command.
                 if name == "GET_CURRENT_COLOR":
                     resp = {
@@ -361,6 +371,11 @@ async def process_live_message(
 
                 # UI tool: map to a frontend command
                 cmd = tool_call_to_frontend_command(name, args)
+                logger.info(
+                    "TOOL_CALL: Sending command to frontend: action=%s, parameters=%s",
+                    cmd.get("action"),
+                    cmd.get("parameters"),
+                )
                 await event_q.put(
                     LiveCommandEvent(command=cmd, tool_name=name, tool_call_id=call_id)
                 )

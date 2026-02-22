@@ -41,11 +41,23 @@ export class ColorConverter {
 
   /**
    * Convert from HSL to all other color formats
+   * Preserves the input HSL values instead of recalculating from RGB
    */
   static fromHsl(h: number, s: number, l: number): AllColorFormats {
     const hsl: [number, number, number] = [h, s, l];
     const rgb = convert.hsl.rgb(hsl);
-    return this.fromRgb(rgb[0], rgb[1], rgb[2]);
+    const cmyk = convert.rgb.cmyk(rgb);
+    const hsv = convert.rgb.hsv(rgb);
+    const hex = convert.rgb.hex(rgb);
+    
+    // Preserve input HSL values instead of recalculating from RGB
+    return {
+      rgb,
+      cmyk,
+      hsl: [h, s, l], // Use input values, not recalculated
+      hsv,
+      hex,
+    };
   }
 
   /**

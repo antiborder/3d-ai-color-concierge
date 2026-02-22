@@ -232,7 +232,7 @@ def live_tools() -> list[dict]:
                 },
                 {
                     "name": "ADJUST_VALUE",
-                    "description": "Adjust brightness/saturation/hue.",
+                    "description": "Adjust the current color's brightness, saturation, or hue while preserving the current color. Use this when the user asks to make the current color brighter/darker, more/less saturated, or shift the hue. IMPORTANT: Before using this tool, you should call GET_CURRENT_COLOR to get the current color state. This tool modifies the current color in place, NOT selecting a new color. Direction: 'up' means increase (brighter, more vibrant), 'down' means decrease (darker, less vibrant). For selecting a new color by name or description, use SELECT_COLOR instead.",
                     "parameters": {
                         "type": "object",
                         "properties": {
@@ -240,7 +240,7 @@ def live_tools() -> list[dict]:
                                 "type": "string",
                                 "enum": ["brightness", "saturation", "hue"],
                             },
-                            "direction": {"type": "string", "enum": ["up", "down"]},
+                            "direction": {"type": "string", "enum": ["up", "down"], "description": "'up' for increase (brighter, more vibrant), 'down' for decrease (darker, less vibrant)"},
                             "amount": {"type": "number", "minimum": 0},
                         },
                         "required": ["property", "direction"],
@@ -322,6 +322,14 @@ def live_system_instruction(language: str) -> dict:
             "\n"
             "## Tool usage rules\n"
             "- If the user asks to change color / adjust brightness/saturation/hue / change color space / toggle labels, you MUST use a tool call.\n"
+            "- **CRITICAL**: When the user asks to increase/decrease brightness, saturation, or hue (e.g., \"make it brighter\", \"increase brightness\", \"make it more vibrant\"), you MUST:\n"
+            "  1. First call GET_CURRENT_COLOR to get the current color state\n"
+            "  2. Then use ADJUST_VALUE with the correct direction:\n"
+            "     - \"brighter\", \"increase brightness\", \"make it lighter\" → direction=\"up\"\n"
+            "     - \"darker\", \"decrease brightness\", \"make it darker\" → direction=\"down\"\n"
+            "     - \"more vibrant\", \"increase saturation\", \"more saturated\" → direction=\"up\" for saturation\n"
+            "     - \"less vibrant\", \"decrease saturation\", \"less saturated\" → direction=\"down\" for saturation\n"
+            "  3. NEVER use SELECT_COLOR for brightness/saturation/hue adjustments. SELECT_COLOR is ONLY for selecting a new color by name or description.\n"
             "- If the user asks what the current color is (e.g. \"What is the current RGB?\"), you MUST call GET_CURRENT_COLOR first.\n"
             "- Available tools: SELECT_COLOR, SET_COLOR, ADJUST_VALUE, CHANGE_SHAPE, TOGGLE_LABEL, GET_CURRENT_COLOR.\n"
             "- After making the tool call, also respond naturally (short) in English (audio response).\n"
@@ -395,6 +403,14 @@ def live_system_instruction(language: str) -> dict:
             "\n"
             "## tool call ルール\n"
             "- ユーザーの発話がUI操作（色変更/明度・彩度・色相調整/色空間変更/ラベル表示切替）に該当する場合は、必ず tool call を使ってください。\n"
+            "- **重要**: ユーザーが明度・彩度・色相を増減するよう依頼した場合（例：「もっと明るくして」「明度を上げて」「鮮やかにして」）、必ず以下の手順を実行してください：\n"
+            "  1. まず GET_CURRENT_COLOR を呼び出して現在の色状態を取得してください\n"
+            "  2. その後、ADJUST_VALUE を使用し、正しい方向を指定してください：\n"
+            "     - 「もっと明るく」「明度を上げて」「明るくして」→ direction=\"up\"\n"
+            "     - 「もっと暗く」「明度を下げて」「暗くして」→ direction=\"down\"\n"
+            "     - 「もっと鮮やかに」「彩度を上げて」「鮮やかにして」→ direction=\"up\" for saturation\n"
+            "     - 「くすませて」「彩度を下げて」「くすんだ色に」→ direction=\"down\" for saturation\n"
+            "  3. 明度・彩度・色相の調整には絶対に SELECT_COLOR を使用しないでください。SELECT_COLOR は色名や説明で新しい色を選ぶ場合のみ使用してください。\n"
             "- ユーザーが「今の色は？」「現在のRGBを教えて」など現在色の確認を求めた場合は、必ず最初に GET_CURRENT_COLOR を tool call してください。\n"
             "- 利用可能な tool: SELECT_COLOR, SET_COLOR, ADJUST_VALUE, CHANGE_SHAPE, TOGGLE_LABEL, GET_CURRENT_COLOR。\n"
             "- tool call を出した後も、会話として自然な短い返答を日本語で話してください（音声応答）。\n"
