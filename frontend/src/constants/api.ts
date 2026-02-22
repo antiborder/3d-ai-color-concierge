@@ -7,5 +7,5 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 export const API_ENDPOINTS = {
-  VOICE_PROCESS: `${API_BASE_URL}/api/voice/process`,
+  // WebSocket経由で処理されるため、REST APIエンドポイントは不要
 } as const;

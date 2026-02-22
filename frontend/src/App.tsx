@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toaster } from 'react-hot-toast';
 import ControlPane from './components/ColorPicker/ControlPane';
@@ -8,7 +8,7 @@ import Header from './components/common/Header';
 import VoiceControl from './components/VoiceControl/VoiceControl';
 import ChatHistoryModal from './components/Chatbot/ChatHistoryModal';
 import { useColorState } from './hooks/useColorState';
-import { executeCommand, useVoiceCommand } from './hooks/useVoiceCommand';
+import { executeCommand } from './utils/commandExecutor';
 import type { Command as VoiceCommand } from './types/voice';
 import { useChatbot } from './hooks/useChatbot';
 
@@ -105,13 +105,10 @@ function App() {
 
   // Chatbot hook for conversation history management
   const {
-    conversationHistory,
     displayHistory,
     isModalOpen,
     addMessage,
-    updateHistory,
     clearHistory,
-    openModal,
     closeModal,
   } = useChatbot();
 
@@ -132,57 +129,17 @@ function App() {
   const [materialColorsEnabled, setMaterialColorsEnabled] = useState(true);
   const [japaneseColorsEnabled, setJapaneseColorsEnabled] = useState(false);
 
-  // Use voice command hook with conversation history
-  const { processCommand } = useVoiceCommand(
-    colorState,
-    voiceCommandHandlers,
-    conversationHistory,
-    updateHistory
-  );
-
-  // When a WS tool-call command arrives, we apply it directly and skip the REST
-  // processing for the next short window to avoid double-applying.
-  const skipRestUntilRef = useRef<number>(0);
-  const wsCommandProcessedRef = useRef<boolean>(false);
-
   const handleWsCommand = (command: VoiceCommand) => {
-    // WebSocket経由でコマンドが処理されたことを記録
-    wsCommandProcessedRef.current = true;
-    // より長い時間（5秒）スキップする
-    skipRestUntilRef.current = Date.now() + 5000;
     executeCommand(command, voiceCommandHandlers);
   };
 
   // Handle voice recognition transcript
-  const handleVoiceTranscript = async (transcript: string) => {
+  const handleVoiceTranscript = (transcript: string) => {
     // Always show the user's utterance in the visible chat history immediately.
     if (transcript && transcript.trim()) {
       addMessage({ role: 'user', content: transcript.trim() });
     }
-
-    // WebSocket経由でコマンドが処理された場合は、HTTP APIを完全にスキップ
-    if (Date.now() < skipRestUntilRef.current || wsCommandProcessedRef.current) {
-      // フラグをリセット（次のトランスクリプトのために）
-      wsCommandProcessedRef.current = false;
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      await processCommand(transcript);
-    } catch (error) {
-      // HTTP APIのネットワークエラーは無視（WebSocketで処理されているため）
-      // fetchが失敗した場合、TypeErrorがスローされる
-      if (error instanceof TypeError) {
-        // ネットワークエラーの場合は警告のみ（useVoiceCommandで既に処理済み）
-        console.warn('HTTP API unavailable (likely using WebSocket instead):', error.message);
-      } else {
-        // その他のエラーは再スロー（useVoiceCommandで処理される）
-        throw error;
-      }
-    } finally {
-      setIsLoading(false);
-    }
+    // WebSocket経由で処理されるため、ここでは何もしない
   };
 
   const handleAssistantMessage = (
@@ -202,12 +159,6 @@ function App() {
       return;
     }
 
-    // WebSocket経由でアシスタントメッセージが来た場合もフラグを設定
-    // これにより、HTTP API経由の処理をスキップして重複を防ぐ
-    if (meta?.source === 'output_audio_transcription' || meta?.source === 'output_transcription') {
-      wsCommandProcessedRef.current = true;
-      skipRestUntilRef.current = Date.now() + 5000;
-    }
 
     addMessage({
       role: 'assistant',
@@ -240,7 +191,6 @@ function App() {
   const handleVoiceError = (error: string) => {
     console.error('Voice recognition error:', error);
     setIsLoading(false);
-    // Error is already handled by useVoiceCommand with toast notification
   };
 
   return (

@@ -18,10 +18,9 @@ export type ChatDisplayMessage = ConversationMessage & {
  * 会話履歴を管理（React stateのみ、ページリロードで消える）
  */
 export function useChatbot() {
-  // History coming from the REST API (/api/voice/*). Used as model context.
+  // Conversation history (currently only from WebSocket stream)
   const [conversationHistory, setConversationHistory] = useState<ConversationMessage[]>([]);
   // Extra messages coming from the Live WS stream (e.g. output_audio_transcription).
-  // Kept separate so REST-driven history updates don't wipe them.
   const [liveExtraHistory, setLiveExtraHistory] = useState<ChatDisplayMessage[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 

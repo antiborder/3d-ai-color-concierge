@@ -4,7 +4,6 @@ from urllib.parse import urlparse
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from app.api.routes import voice
 from app.api.routes import live_ws
 from app.api.routes import ws_token
 from app.api.routes import colors
@@ -72,7 +71,6 @@ app.add_middleware(
 )
 
 # ルーター登録
-app.include_router(voice.router, prefix="/api/voice", tags=["voice"])
 app.include_router(ws_token.router, prefix="/api/ws", tags=["ws-token"])
 app.include_router(live_ws.router, prefix="/ws", tags=["live-ws"])
 app.include_router(colors.router, prefix="/api/colors", tags=["colors"])

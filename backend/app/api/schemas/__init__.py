@@ -1,16 +1,4 @@
-from app.api.schemas.voice import (
-    VoiceProcessRequest,
-    VoiceProcessResponse,
-    ColorState,
-    ConversationMessage,
-    Command,
-)
+# REST API用のスキーマは削除されました
+# WebSocket経由で処理されるため、スキーマ定義は不要です
 
-__all__ = [
-    "VoiceProcessRequest",
-    "VoiceProcessResponse",
-    "ColorState",
-    "ConversationMessage",
-    "Command",
-]
-
+__all__ = []

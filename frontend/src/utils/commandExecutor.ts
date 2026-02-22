@@ -1,18 +1,10 @@
 /**
- * 音声コマンド実行エンジン
+ * コマンド実行エンジン
+ * WebSocket経由で受信したコマンドを実行する
  */
-import { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
-import { processVoiceInput } from '@/services/voiceApi';
-import type {
-  ColorState as VoiceColorState,
-  VoiceProcessRequest,
-  Command,
-  ConversationMessage,
-} from '@/types/voice';
+import type { Command } from '@/types/voice';
 import type { ColorSpace } from '@/types/color';
-import type { ColorState } from '@/types/colorState';
 
 /**
  * コマンド実行に必要なハンドラー関数の型定義
@@ -27,104 +19,6 @@ export interface VoiceCommandHandlers {
     direction: 'up' | 'down',
     amount?: number
   ) => void;
-}
-
-/**
- * useVoiceCommand hook
- *
- * @param currentColorState - 現在の色状態
- * @param handlers - コマンド実行用のハンドラー関数
- * @param conversationHistory - 会話履歴
- * @param onHistoryUpdate - 会話履歴更新コールバック
- * @param onSpeak - 音声合成コールバック（テキストを音声で読み上げる）
- * @returns processCommand - 音声トランスクリプトを処理してコマンドを実行する関数
- */
-export function useVoiceCommand(
-  currentColorState: ColorState,
-  handlers: VoiceCommandHandlers,
-  conversationHistory: ConversationMessage[] = [],
-  onHistoryUpdate?: (history: ConversationMessage[]) => void,
-  onSpeak?: (text: string) => void
-) {
-  const { i18n } = useTranslation();
-
-  /**
-   * 音声トランスクリプトを処理してコマンドを実行
-   */
-  const processCommand = useCallback(
-    async (transcript: string) => {
-      try {
-        // 現在の色状態をAPIリクエスト形式に変換
-        const currentColor: VoiceColorState = {
-          r: currentColorState.r,
-          g: currentColorState.g,
-          b: currentColorState.b,
-          c: currentColorState.c,
-          m: currentColorState.m,
-          y: currentColorState.y,
-          k: currentColorState.k,
-          h: currentColorState.h,
-          s: currentColorState.s,
-          l: currentColorState.l,
-          hsvS: currentColorState.hsvS,
-          v: currentColorState.v,
-        };
-
-        // APIリクエストを作成
-        const request: VoiceProcessRequest = {
-          transcript,
-          current_color: currentColor,
-          conversation_history: conversationHistory,
-          language: i18n.language === 'ja' ? 'ja' : 'en',
-        };
-
-        // API呼び出し
-        const response = await processVoiceInput(request);
-
-        // 会話履歴を更新
-        if (onHistoryUpdate && response.updated_history) {
-          onHistoryUpdate(response.updated_history);
-        }
-
-        // レスポンスタイプに応じて処理
-        if (response.type === 'command' && response.command) {
-          executeCommand(response.command, handlers);
-          // コマンド実行時の人間っぽいメッセージを音声合成
-          // 会話履歴の最後のメッセージ（アシスタントの応答）を使用
-          if (onSpeak && response.updated_history.length > 0) {
-            const lastMessage = response.updated_history[response.updated_history.length - 1];
-            if (lastMessage.role === 'assistant' && lastMessage.content) {
-              onSpeak(lastMessage.content);
-            }
-          }
-        } else if (response.type === 'chatbot' && response.response) {
-          // チャットボット応答を音声合成
-          if (onSpeak && response.response) {
-            onSpeak(response.response);
-          }
-        }
-      } catch (error) {
-        // DNS解決エラーやネットワークエラーは無視（WebSocketで処理されているため）
-        // fetchが失敗した場合、TypeErrorがスローされる
-        if (error instanceof TypeError) {
-          // ネットワークエラーの場合は警告のみ（WebSocketで処理されている可能性が高い）
-          console.warn(
-            'HTTP API unavailable (likely using WebSocket instead):',
-            error.message
-          );
-          return;
-        }
-        // その他のエラー（APIからのエラーレスポンスなど）はユーザーに通知
-        const errorMessage =
-          error instanceof Error ? error.message : 'Failed to process voice command';
-        console.error('Voice command error:', error);
-        toast.error(errorMessage);
-      }
-    },
-    [currentColorState, handlers, i18n.language, conversationHistory, onHistoryUpdate, onSpeak]
-  );
-
-  return { processCommand };
 }
 
 /**
