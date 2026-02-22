@@ -322,7 +322,7 @@ function App() {
         onAssistantMessage={handleAssistantMessage}
         onCommand={handleWsCommand}
         onError={handleVoiceError}
-        onOpenChatHistory={openModal}
+        // onOpenChatHistory={openModal}
         isLoading={isLoading}
       />
       <ChatHistoryModal

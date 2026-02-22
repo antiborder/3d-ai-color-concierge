@@ -1,4 +1,4 @@
-# 3D Color Concierge Backend
+# 3D Color Curator Backend
 
 ## セットアップ
 

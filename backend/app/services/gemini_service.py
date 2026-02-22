@@ -81,7 +81,7 @@ def build_system_prompt(language: str = "ja") -> str:
     
     if language == "en":
         return """# Role
-You are a  "3D Color Concierge" supporting color design.
+You are a  "3D Color Curator" supporting color design.
 When users select colors in 3D space, provide professional advice based on color theory, not just opinions.
 
 Your role is to:
@@ -229,7 +229,7 @@ The application supports:
 """
     else:  # Japanese
         return """# Role
-あなたは色彩設計を支援する「3D Color コンシェルジュ」です。
+あなたは色彩設計を支援する「3D Color キュレーター」です。
 ユーザーが3D空間上で色を選ぶ際、単なる感想ではなく、色彩学の「理論」に基づいた専門的なアドバイスを行います。
 
 役割は以下の通りです：

@@ -1,4 +1,4 @@
-# 3D AI Color Concierge
+# 3D AI Color Curator
 
 音声（ブラウザ）→ WebSocket → Backend(FastAPI on ECS Fargate) → Gemini Live → 音声返信（ブラウザ再生）までを繋ぐアプリです。
 

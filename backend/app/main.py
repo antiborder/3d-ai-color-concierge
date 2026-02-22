@@ -18,7 +18,7 @@ if os.getenv("ENVIRONMENT") != "production":
     load_dotenv()
 
 app = FastAPI(
-    title="3D Color Concierge API",
+    title="3D Color Curator API",
     description="API for 3D Color Picker with Voice Control and AI Chatbot",
     version="0.1.0",
 )
@@ -100,7 +100,7 @@ async def _shutdown_tasks():
 @app.get("/")
 async def root():
     """ヘルスチェックエンドポイント"""
-    return {"status": "ok", "message": "3D Color Concierge API is running"}
+    return {"status": "ok", "message": "3D Color Curator API is running"}
 
 
 @app.get("/health")

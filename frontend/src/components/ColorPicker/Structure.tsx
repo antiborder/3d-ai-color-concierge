@@ -175,7 +175,7 @@ const Structure = (props: StructureProps) => {
     // shapeが変更された場合
     if (prevShapeRef.current !== props.shape) {
       // 1. 古い枠が消える（即座にframeVisibleをfalseにする）
-      setFrameVisible(false);
+      // setFrameVisible(false);
 
       // 2. 色空間が変形する（Particlesのアニメーションが開始される、500ms）
       // 3. 新しい枠が表示される（500ms後に新しいshapeで枠を表示）
