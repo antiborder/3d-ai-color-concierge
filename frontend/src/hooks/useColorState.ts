@@ -315,6 +315,30 @@ export const useColorState = () => {
         const currentS = prev.s;
         const currentL = prev.l;
 
+        // Check if already at limit (before adjustment)
+        if (property === 'brightness') {
+          // Brightness (lightness) range: 0-100
+          if (direction === 'up' && currentL >= 100) {
+            // Already at maximum brightness, no adjustment needed
+            return prev;
+          }
+          if (direction === 'down' && currentL <= 0) {
+            // Already at minimum brightness, no adjustment needed
+            return prev;
+          }
+        } else if (property === 'saturation') {
+          // Saturation range: 0-100
+          if (direction === 'up' && currentS >= 100) {
+            // Already at maximum saturation, no adjustment needed
+            return prev;
+          }
+          if (direction === 'down' && currentS <= 0) {
+            // Already at minimum saturation, no adjustment needed
+            return prev;
+          }
+        }
+        // Hue is circular (0-360), so no limit check needed
+
         let newH = currentH;
         let newS = currentS;
         let newL = currentL;
