@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useVoiceStreaming } from '../../hooks/useVoiceStreaming';
 import styled, { keyframes } from 'styled-components';
@@ -35,6 +35,9 @@ const VoiceControl = ({
 }: VoiceControlProps) => {
   const { t } = useTranslation();
   const [textInput, setTextInput] = useState('');
+  const [showSpinner, setShowSpinner] = useState(false);
+  const [isFirstStart, setIsFirstStart] = useState(true);
+  const spinnerTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleResult = useCallback(
     (transcript: string) => {
@@ -59,10 +62,42 @@ const VoiceControl = ({
     onError: handleStreamingError,
   });
 
+  // スピナーを3秒後に非表示にする
+  useEffect(() => {
+    if (showSpinner) {
+      // 既存のタイマーをクリア
+      if (spinnerTimeoutRef.current) {
+        clearTimeout(spinnerTimeoutRef.current);
+      }
+      // 3秒後にスピナーを非表示
+      spinnerTimeoutRef.current = setTimeout(() => {
+        setShowSpinner(false);
+      }, 3000);
+    }
+    // クリーンアップ
+    return () => {
+      if (spinnerTimeoutRef.current) {
+        clearTimeout(spinnerTimeoutRef.current);
+      }
+    };
+  }, [showSpinner]);
+
   const handleMicClick = () => {
     if (isStreaming || isConnecting) {
+      // Listening...ボタンをクリックしたらスピナーを非表示にしてタイマーをクリア
+      setShowSpinner(false);
+      if (spinnerTimeoutRef.current) {
+        clearTimeout(spinnerTimeoutRef.current);
+        spinnerTimeoutRef.current = null;
+      }
       stop();
     } else {
+      // Start Chattingをクリックした時
+      if (isFirstStart) {
+        // 初回のみスピナーを表示
+        setShowSpinner(true);
+        setIsFirstStart(false);
+      }
       start();
     }
   };
@@ -88,10 +123,16 @@ const VoiceControl = ({
           $isListening={isStreaming || isConnecting}
         >
           {isStreaming || isConnecting ? (
-            <>
-              <ListeningIndicator />
-              Listening...
-            </>
+            showSpinner ? (
+              <>
+                <Spinner />
+              </>
+            ) : (
+              <>
+                <ListeningIndicator />
+                Listening...
+              </>
+            )
           ) : (
             'Start Chatting ▶︎'
           )}
@@ -137,6 +178,15 @@ const breathe = keyframes`
   }
   50% {
     transform: scale(1.08);
+  }
+`;
+
+const spin = keyframes`
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 `;
 
@@ -197,6 +247,15 @@ const ListeningIndicator = styled.div`
   border-radius: 50%;
   background-color: white;
   animation: ${pulse} 1.5s ease-in-out infinite;
+`;
+
+const Spinner = styled.div`
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: ${spin} 0.8s linear infinite;
 `;
 
 const TextInputForm = styled.form`
