@@ -26,6 +26,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import time
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from app.services.gemini_live_client import (
@@ -191,6 +192,16 @@ async def live_voice_ws(ws: WebSocket):
     cfg = default_live_config(language=language)
     stop_evt = asyncio.Event()
     color_state_received = asyncio.Event()
+    
+    # パフォーマンス測定用のタイムスタンプ追跡
+    session_id = id(ws)
+    perf_timestamps = {
+        "start": time.time(),
+        "last_audio_received": None,
+        "last_audio_sent_to_gemini": None,
+        "last_gemini_response": None,
+        "last_response_sent": None,
+    }
 
     async def client_to_live(session: GeminiLiveSession):
         try:
@@ -229,7 +240,26 @@ async def live_voice_ws(ws: WebSocket):
                         # 不正テキストは無視（プロトコル簡略化）
                         continue
                 elif "bytes" in incoming and incoming["bytes"] is not None:
+                    now = time.time()
+                    perf_timestamps["last_audio_received"] = now
+                    if perf_timestamps.get("last_audio_sent_to_gemini"):
+                        elapsed = now - perf_timestamps["last_audio_sent_to_gemini"]
+                        logger.info(
+                            "PERF: audio_received_from_client session_id=%s bytes=%s elapsed_since_last_send=%.3fs",
+                            session_id,
+                            len(incoming["bytes"]),
+                            elapsed,
+                        )
+                    send_start = time.time()
                     await session.send_audio(incoming["bytes"])
+                    perf_timestamps["last_audio_sent_to_gemini"] = time.time()
+                    elapsed = perf_timestamps["last_audio_sent_to_gemini"] - send_start
+                    logger.info(
+                        "PERF: audio_sent_to_gemini session_id=%s elapsed=%.3fs bytes=%s",
+                        session_id,
+                        elapsed,
+                        len(incoming["bytes"]),
+                    )
         except WebSocketDisconnect:
             try:
                 await session.end_audio_stream()
@@ -260,10 +290,36 @@ async def live_voice_ws(ws: WebSocket):
         async for ev in session.events():
             if stop_evt.is_set():
                 return
+            now = time.time()
+            
             if isinstance(ev, LiveAudioChunk) and ev.direction == "out":
+                # 最初の音声チャンクのログを常に出力（last_gemini_responseの状態に関わらず）
+                if not perf_timestamps.get("first_audio_chunk_logged"):
+                    perf_timestamps["first_audio_chunk_logged"] = True
+                    if perf_timestamps.get("last_audio_sent_to_gemini"):
+                        elapsed = now - perf_timestamps["last_audio_sent_to_gemini"]
+                        logger.info(
+                            "PERF: first_audio_chunk_from_gemini session_id=%s elapsed_since_send=%.3fs bytes=%s",
+                            session_id,
+                            elapsed,
+                            len(ev.data),
+                        )
+                if not perf_timestamps.get("last_gemini_response"):
+                    perf_timestamps["last_gemini_response"] = now
                 # 音声はbinaryで返す
                 await ws.send_bytes(ev.data)
+                perf_timestamps["last_response_sent"] = time.time()
             elif isinstance(ev, LiveTranscriptEvent):
+                if not perf_timestamps.get("last_gemini_response"):
+                    perf_timestamps["last_gemini_response"] = now
+                    if perf_timestamps.get("last_audio_sent_to_gemini"):
+                        elapsed = now - perf_timestamps["last_audio_sent_to_gemini"]
+                        logger.info(
+                            "PERF: first_transcript_from_gemini session_id=%s elapsed_since_send=%.3fs text_len=%s",
+                            session_id,
+                            elapsed,
+                            len(ev.text) if ev.text else 0,
+                        )
                 if getattr(settings, "GEMINI_LIVE_CHAT_DEBUG", False):
                     try:
                         logger.info(
@@ -286,6 +342,16 @@ async def live_voice_ws(ws: WebSocket):
                     )
                 )
             elif isinstance(ev, LiveAssistantTextEvent):
+                if not perf_timestamps.get("last_gemini_response"):
+                    perf_timestamps["last_gemini_response"] = now
+                    if perf_timestamps.get("last_audio_sent_to_gemini"):
+                        elapsed = now - perf_timestamps["last_audio_sent_to_gemini"]
+                        logger.info(
+                            "PERF: first_assistant_text_from_gemini session_id=%s elapsed_since_send=%.3fs text_len=%s",
+                            session_id,
+                            elapsed,
+                            len(ev.text) if ev.text else 0,
+                        )
                 if getattr(settings, "GEMINI_LIVE_CHAT_DEBUG", False):
                     try:
                         logger.info(
@@ -310,6 +376,17 @@ async def live_voice_ws(ws: WebSocket):
                     )
                 )
             elif isinstance(ev, LiveCommandEvent):
+                if not perf_timestamps.get("last_gemini_response"):
+                    perf_timestamps["last_gemini_response"] = now
+                    if perf_timestamps.get("last_audio_sent_to_gemini"):
+                        elapsed = now - perf_timestamps["last_audio_sent_to_gemini"]
+                        action = ev.command.get("action") if isinstance(ev.command, dict) else None
+                        logger.info(
+                            "PERF: first_command_from_gemini session_id=%s elapsed_since_send=%.3fs action=%s",
+                            session_id,
+                            elapsed,
+                            action,
+                        )
                 await ws.send_text(
                     json.dumps(
                         {
@@ -325,18 +402,8 @@ async def live_voice_ws(ws: WebSocket):
 
     async def send_introduction(session: GeminiLiveSession):
         """
-        色状態が送信されるのを待ってから自己紹介を送信
+        自己紹介を即座に送信（色状態の送信を待たない）
         """
-        # 色状態が送信されるのを待つ（最大1.5秒）
-        try:
-            await asyncio.wait_for(color_state_received.wait(), timeout=1.5)
-        except asyncio.TimeoutError:
-            # タイムアウトしても続行（色状態が送信されなかった場合）
-            pass
-        
-        # 色状態が設定された後に自己紹介を送信
-        await asyncio.sleep(0.2)  # 色状態処理の完了を待つ
-        
         # 自己紹介プロンプト（短く、色に言及し、提案を含める）
         from app.services.prompts.introduction import build_introduction_prompt
         introduction_prompt = build_introduction_prompt(language)

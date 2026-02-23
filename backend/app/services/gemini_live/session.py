@@ -171,6 +171,7 @@ class GeminiLiveSession:
 
 
     async def send_audio(self, pcm_s16le_bytes: bytes) -> None:
+        send_start = time.time()
         if not await self._ensure_live_connected():
             return
         # SDK依存: 入力音声の送信方法はバージョン差が大きいので、複数の形を順に試す。
@@ -186,7 +187,13 @@ class GeminiLiveSession:
         rt_result = await send_audio_via_realtime_input(
             self._live, blob_payload, dict_bytes, allow_reconnect=True
         )
+        send_end = time.time()
         if rt_result is None:
+            logger.info(
+                "PERF: send_audio_to_gemini elapsed=%.3fs bytes=%s",
+                send_end - send_start,
+                len(pcm_s16le_bytes),
+            )
             return
 
         # Reconnect logic if needed
@@ -228,7 +235,13 @@ class GeminiLiveSession:
 
         # 2) send_realtime_input が無いSDK向け: send(input=...) を試す（typedのみ）
         err2 = await send_audio_via_typed_input(self._live, dict_bytes, dict_b64, pcm_s16le_bytes)
+        send_end = time.time()
         if err2 is None:
+            logger.info(
+                "PERF: send_audio_to_gemini elapsed=%.3fs bytes=%s",
+                send_end - send_start,
+                len(pcm_s16le_bytes),
+            )
             return
 
         # typedが無いなら、SDK差分なので無理にdictを投げずに切り分け情報を返す（従来挙動に合わせる）
@@ -309,9 +322,12 @@ class GeminiLiveSession:
         assert self._live is not None
         logger.info("GeminiLiveSession recv_loop started (live_type=%s)", type(self._live).__name__)
         try:
+            msg_count = 0
             async for msg in iter_live_messages(self._live):
                 # msg構造はSDK依存。代表的に audio, text, transcript を拾う。
                 # 可能な限り「落ちない」実装にしてログ/イベントで追えるようにする。
+                msg_start = time.time()
+                msg_count += 1
                 try:
                     (
                         self._out_transcription_buf,
@@ -339,6 +355,12 @@ class GeminiLiveSession:
                         self._text_part_buf,
                         self._text_part_segment_id,
                         self._text_part_seq,
+                    )
+                    msg_end = time.time()
+                    logger.info(
+                        "PERF: process_live_message msg_num=%d elapsed=%.3fs",
+                        msg_count,
+                        msg_end - msg_start,
                     )
                 except Exception as parse_err:
                     await self._event_q.put(

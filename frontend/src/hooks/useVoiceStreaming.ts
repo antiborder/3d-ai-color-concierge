@@ -82,6 +82,20 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   // playback scheduling
   const playTimeRef = useRef<number>(0);
 
+  // パフォーマンス測定用のタイムスタンプ追跡
+  const perfTimestampsRef = useRef<{
+    startCalled?: number;
+    wsOpen?: number;
+    getUserMediaStart?: number;
+    getUserMediaEnd?: number;
+    firstAudioSent?: number;
+    lastAudioSent?: number;
+    lastResponseReceived?: number;
+    lastTranscriptReceived?: number;
+    lastAssistantTextReceived?: number;
+    lastCommandReceived?: number;
+  }>({});
+
   // Keep latest color state in a ref so we can access it from stable WS callbacks.
   const currentColorRef = useRef<UiColorState | null>(null);
   useEffect(() => {
@@ -392,6 +406,12 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   const start = useCallback(async () => {
     if (isConnecting || isStreaming) return;
 
+    // パフォーマンス測定開始
+    const startTime = performance.now();
+    const ts = perfTimestampsRef.current;
+    ts.startCalled = startTime;
+    console.log('[PERF] start() called');
+
     shouldReconnectRef.current = true;
     setError(null);
     setTranscript('');
@@ -415,6 +435,11 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
       silentGainRef.current = silentGain;
 
       ws.onopen = async () => {
+        const wsOpenTime = performance.now();
+        ts.wsOpen = wsOpenTime;
+        const elapsed = wsOpenTime - startTime;
+        console.log(`[PERF] ws.onopen elapsed=${elapsed.toFixed(1)}ms`);
+
         setIsConnected(true);
         reconnectAttemptRef.current = 0;
 
@@ -447,6 +472,8 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
         }
 
         // mic start after WS open
+        const getUserMediaStart = performance.now();
+        ts.getUserMediaStart = getUserMediaStart;
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             echoCancellation: true,
@@ -455,6 +482,13 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           },
           video: false,
         });
+        const getUserMediaEnd = performance.now();
+        ts.getUserMediaEnd = getUserMediaEnd;
+        const getUserMediaElapsed = getUserMediaEnd - getUserMediaStart;
+        const totalElapsed = getUserMediaEnd - startTime;
+        console.log(
+          `[PERF] getUserMedia elapsed=${getUserMediaElapsed.toFixed(1)}ms total=${totalElapsed.toFixed(1)}ms`
+        );
         micStreamRef.current = stream;
 
         const source = ctx.createMediaStreamSource(stream);
@@ -467,6 +501,27 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           const input = e.inputBuffer.getChannelData(0);
           const down = downsample(input, ctx.sampleRate, 16000);
           const pcm16 = floatTo16BitPCM(down);
+
+          const now = performance.now();
+          const ts2 = perfTimestampsRef.current;
+          if (!ts2.firstAudioSent) {
+            ts2.firstAudioSent = now;
+            const firstAudioElapsed = now - startTime;
+            console.log(
+              `[PERF] first_audio_sent elapsed=${firstAudioElapsed.toFixed(1)}ms bytes=${pcm16.buffer.byteLength}`
+            );
+          }
+          if (ts2.lastAudioSent) {
+            const elapsed = now - ts2.lastAudioSent;
+            if (elapsed > 100) {
+              // 100ms以上経過した場合のみログ（頻繁なログを避ける）
+              console.log(
+                `[PERF] audio_sent elapsed=${elapsed.toFixed(1)}ms bytes=${pcm16.buffer.byteLength}`
+              );
+            }
+          }
+          ts2.lastAudioSent = now;
+
           ws2.send(pcm16.buffer);
         };
 
@@ -478,6 +533,9 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
       };
 
       ws.onmessage = (evt) => {
+        const now = performance.now();
+        const ts = perfTimestampsRef.current;
+
         if (typeof evt.data === 'string') {
           let msg: WsInboundText | null = null;
           try {
@@ -488,6 +546,13 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           if (!msg) return;
 
           if (msg.type === 'transcript') {
+            if (!ts.lastTranscriptReceived) {
+              const elapsed = ts.lastAudioSent ? now - ts.lastAudioSent : 0;
+              console.log(
+                `[PERF] first_transcript_received elapsed=${elapsed.toFixed(1)}ms text_len=${msg.text.length}`
+              );
+            }
+            ts.lastTranscriptReceived = now;
             setTranscript(msg.text);
             if (onTranscriptUpdate) {
               onTranscriptUpdate(msg.text, {
@@ -498,6 +563,13 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
             }
             if (msg.final && onFinalTranscript) onFinalTranscript(msg.text);
           } else if (msg.type === 'assistant_text') {
+            if (!ts.lastAssistantTextReceived) {
+              const elapsed = ts.lastAudioSent ? now - ts.lastAudioSent : 0;
+              console.log(
+                `[PERF] first_assistant_text_received elapsed=${elapsed.toFixed(1)}ms text_len=${msg.text.length}`
+              );
+            }
+            ts.lastAssistantTextReceived = now;
             // Prefer "audio-consistent" assistant text (output_audio_transcription) for chat history display.
             if (msg.text && onAssistantMessage) {
               onAssistantMessage(msg.text, {
@@ -507,6 +579,14 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
               });
             }
           } else if (msg.type === 'command') {
+            if (!ts.lastCommandReceived) {
+              const elapsed = ts.lastAudioSent ? now - ts.lastAudioSent : 0;
+              const action = msg.command?.action || 'unknown';
+              console.log(
+                `[PERF] first_command_received elapsed=${elapsed.toFixed(1)}ms action=${action}`
+              );
+            }
+            ts.lastCommandReceived = now;
             if (onCommand) onCommand(msg.command);
           } else if (msg.type === 'error') {
             // エラーコード1008の場合は翻訳メッセージに置き換え
@@ -522,6 +602,13 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           }
           // ready/assistant_text はUI側で必要なら後で拡張
         } else if (evt.data instanceof ArrayBuffer) {
+          if (!ts.lastResponseReceived) {
+            const elapsed = ts.lastAudioSent ? now - ts.lastAudioSent : 0;
+            console.log(
+              `[PERF] first_audio_chunk_received elapsed=${elapsed.toFixed(1)}ms bytes=${evt.data.byteLength}`
+            );
+          }
+          ts.lastResponseReceived = now;
           // server -> binary: PCM S16LE 24kHz
           schedulePcmPlayback(evt.data, 24000);
         }

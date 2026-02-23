@@ -104,5 +104,15 @@ fi
 # デフォルトは IPv6 の :: でバインドし、デュアルスタックで受ける。
 UVICORN_HOST="${UVICORN_HOST:-::}"
 UVICORN_PORT="${UVICORN_PORT:-8000}"
+
+# ログディレクトリの作成
+LOG_DIR="../../.local/logs"
+mkdir -p "$LOG_DIR"
+LOG_FILE="$LOG_DIR/backend-local.log"
+
+# ログファイルに出力（標準出力にも表示）
+echo "Logging to: $LOG_FILE"
+# 標準出力と標準エラーをファイルに追記しつつ、標準出力にも表示
+exec > >(tee -a "$LOG_FILE") 2>&1
 uvicorn app.main:app --reload --host "${UVICORN_HOST}" --port "${UVICORN_PORT}"
 

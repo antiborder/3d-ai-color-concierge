@@ -7,6 +7,7 @@ from __future__ import annotations
 import asyncio
 import inspect
 import logging
+import time
 from typing import AsyncIterator, Optional
 
 from app.services.gemini_live.helpers import (
@@ -322,6 +323,7 @@ async def process_live_message(
     tc = getattr(msg, "tool_call", None) or getattr(msg, "toolCall", None)
     function_calls = tool_call_function_calls(tc)
     if function_calls:
+        tool_call_start = time.time()
         logger.info(
             "TOOL_CALL: Received %d function call(s)", len(function_calls)
         )
@@ -393,6 +395,13 @@ async def process_live_message(
                             await maybe
                 except Exception as e:
                     logger.info("GeminiLiveSession send_tool_response failed: %s", str(e))
+        
+        tool_call_end = time.time()
+        logger.info(
+            "PERF: tool_call_processing elapsed=%.3fs num_calls=%d",
+            tool_call_end - tool_call_start,
+            len(function_calls),
+        )
 
     # 音声出力
     audio = getattr(msg, "audio", None) or msg.get("audio") if isinstance(msg, dict) else None
