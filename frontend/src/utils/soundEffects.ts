@@ -2,7 +2,10 @@
  * 色空間変形時の効果音を生成・再生するユーティリティ
  */
 
+import colorSelectSound from '../assets/sounds/color_select.mp3';
+
 let audioContext: AudioContext | null = null;
+let selectSoundAudio: HTMLAudioElement | null = null;
 
 /**
  * AudioContextを取得（必要に応じて作成）
@@ -89,4 +92,29 @@ export function playTransformSound(): void {
     source.disconnect();
     gainNode.disconnect();
   };
+}
+
+/**
+ * 色選択時の効果音を再生
+ * color_select.mp3ファイルを再生
+ */
+export function playSelectSound(): void {
+  if (typeof window === 'undefined') return;
+
+  // 初回のみAudio要素を作成
+  if (!selectSoundAudio) {
+    selectSoundAudio = new Audio(colorSelectSound);
+    selectSoundAudio.volume = 0.3; // 音量を適切なレベルに調整
+  }
+
+  // 現在再生中の場合は停止してから再生（連続クリック対応）
+  if (!selectSoundAudio.paused) {
+    selectSoundAudio.pause();
+    selectSoundAudio.currentTime = 0;
+  }
+
+  // 音を再生
+  selectSoundAudio.play().catch((error) => {
+    console.warn('Failed to play select sound:', error);
+  });
 }

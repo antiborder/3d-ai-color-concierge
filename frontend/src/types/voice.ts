@@ -8,6 +8,6 @@ export interface ConversationMessage {
 }
 
 export interface Command {
-  action: 'SELECT_COLOR' | 'ADJUST_VALUE' | 'CHANGE_SHAPE' | 'TOGGLE_LABEL' | 'SET_COLOR';
+  action: 'SELECT_COLOR' | 'ADJUST_VALUE' | 'CHANGE_SHAPE' | 'SET_COLOR';
   parameters: Record<string, unknown>;
 }

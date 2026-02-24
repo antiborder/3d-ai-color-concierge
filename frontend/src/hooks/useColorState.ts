@@ -3,7 +3,7 @@ import type { ColorState } from '../types/colorState';
 import { initialColorState } from '../types/colorState';
 import { ColorConverter } from '../utils/colorConverter';
 import type { ColorSpace } from '../types/color';
-import { playTransformSound } from '../utils/soundEffects';
+import { playTransformSound, playSelectSound } from '../utils/soundEffects';
 
 /**
  * Custom hook for managing color state
@@ -17,22 +17,34 @@ export const useColorState = () => {
    */
   const updateFromRgb = useCallback((r: number, g: number, b: number) => {
     const allFormats = ColorConverter.fromRgb(r, g, b);
-    setColorState((prev) => ({
-      ...prev,
-      r,
-      g,
-      b,
-      c: allFormats.cmyk[0],
-      m: allFormats.cmyk[1],
-      y: allFormats.cmyk[2],
-      k: allFormats.cmyk[3],
-      h: allFormats.hsl[0],
-      s: allFormats.hsl[1],
-      l: allFormats.hsl[2],
-      hsvS: allFormats.hsv[1],
-      v: allFormats.hsv[2],
-      hexInput: allFormats.hex.toUpperCase(),
-    }));
+    setColorState((prev) => {
+      // 色が実際に変更された場合のみ効果音を再生
+      const colorChanged = 
+        Math.round(prev.r) !== Math.round(r) ||
+        Math.round(prev.g) !== Math.round(g) ||
+        Math.round(prev.b) !== Math.round(b);
+      
+      if (colorChanged) {
+        playSelectSound();
+      }
+      
+      return {
+        ...prev,
+        r,
+        g,
+        b,
+        c: allFormats.cmyk[0],
+        m: allFormats.cmyk[1],
+        y: allFormats.cmyk[2],
+        k: allFormats.cmyk[3],
+        h: allFormats.hsl[0],
+        s: allFormats.hsl[1],
+        l: allFormats.hsl[2],
+        hsvS: allFormats.hsv[1],
+        v: allFormats.hsv[2],
+        hexInput: allFormats.hex.toUpperCase(),
+      };
+    });
   }, []);
 
   /**

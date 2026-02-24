@@ -187,8 +187,6 @@ def tool_call_to_frontend_command(name: str, args: dict) -> dict:
             cmd["parameters"]["amount"] = args.get("amount")
     elif name == "CHANGE_SHAPE":
         cmd["parameters"] = {"colorSpace": args.get("colorSpace")}
-    elif name == "TOGGLE_LABEL":
-        cmd["parameters"] = {"visible": args.get("visible")}
     else:
         cmd["parameters"] = args
     return cmd
@@ -232,7 +230,7 @@ def live_tools() -> list[dict]:
                 },
                 {
                     "name": "ADJUST_VALUE",
-                    "description": "Adjust the current color's brightness, saturation, or hue while preserving the current color. Use this when the user asks to make the current color brighter/darker, more/less saturated, or shift the hue. IMPORTANT: Before using this tool, you should call GET_CURRENT_COLOR to get the current color state. This tool modifies the current color in place, NOT selecting a new color. Direction: 'up' means increase (brighter, more vibrant), 'down' means decrease (darker, less vibrant). For selecting a new color by name or description, use SELECT_COLOR instead.",
+                    "description": "Adjust the current color's brightness, saturation, or hue while preserving the current color. All adjustments are performed in HSL color space (brightness = lightness 'L', saturation = saturation 'S', hue = hue 'H'). Use this when the user asks to make the current color brighter/darker, more/less saturated, or shift the hue. IMPORTANT: Before using this tool, you should call GET_CURRENT_COLOR to get the current color state. This tool modifies the current color in place, NOT selecting a new color. Direction: 'up' means increase (brighter, more vibrant), 'down' means decrease (darker, less vibrant). For selecting a new color by name or description, use SELECT_COLOR instead.",
                     "parameters": {
                         "type": "object",
                         "properties": {
@@ -258,14 +256,6 @@ def live_tools() -> list[dict]:
                             }
                         },
                         "required": ["colorSpace"],
-                    },
-                },
-                {
-                    "name": "TOGGLE_LABEL",
-                    "description": "Toggle label visibility.",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {"visible": {"type": "boolean"}},
                     },
                 },
                 {

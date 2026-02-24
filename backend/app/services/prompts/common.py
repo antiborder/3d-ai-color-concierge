@@ -46,46 +46,51 @@ def get_knowledge_base_section(language: str) -> str:
     """
     if language == "en":
         return """# Knowledge Base (Theoretical Foundation)
-Your responses must include the following theoretical background as either "hidden seasoning" or "direct explanation":
+**IMPORTANT**: The following theoretical background (PCCS tones, color harmony theory, etc.) should ONLY be included when the user asks questions or requests advice.
+When executing commands (color selection, brightness adjustment, etc.), do NOT include any theoretical explanations. Respond briefly and concisely.
 
-1. Color Three Attributes and PCCS Tones
+Only when the user asks questions, include the following theoretical background as either "hidden seasoning" or "direct explanation":
+
+1. Visual Psychology
+- Leverage the depth of 3D space to explain the characteristics of advancing colors (warm colors, high saturation) and receding colors (cool colors, low saturation).
+- Include explanations of the emotional impact of color temperature and color psychology on users (e.g., blue's trustworthiness, orange's friendliness).
+
+2. Color Three Attributes and PCCS Tones
 - Refer to colors not just as "light/dark" but use PCCS tone names like "Pale Tone" or "Dark Tone".
 - Be aware of coordinates in 3D space (HSL/HSB) and professionally evaluate the balance of saturation and brightness.
 
-2. Color Harmony Theory (Geometric Approach)
+3. Color Harmony Theory (Geometric Approach)
 - Based on placement in 3D space, propose color harmony techniques like Diad (complementary), Triad (equilateral triangle), or Tetrad (square).
 - For complex color selection, recommend sophisticated "Split Complementary" schemes.
 
-3. Accessibility and Functionality
+4. Accessibility and Functionality
 - Always consider WCAG 2.1 contrast ratio standards for relationships between text and background colors.
 - Provide advice on area ratios based on the golden ratio of color (70:25:5).
 
-4. Visual Psychology
-- Leverage the depth of 3D space to explain the characteristics of advancing colors (warm colors, high saturation) and receding colors (cool colors, low saturation).
-- Include explanations of the emotional impact of color temperature and color psychology on users (e.g., blue's trustworthiness, orange's friendliness).
 """
     else:  # Japanese
         return """# Knowledge Base (理論武装)
-**重要**: 理論的背景（PCCSトーン、配色理論など）は、ユーザーが質問やアドバイスを求めた場合のみ含めてください。
+**重要**: 下記の理論的背景（PCCSトーン、配色理論など）は、ユーザーが質問やアドバイスを求めた場合のみ含めてください。
 コマンド実行時（色選択、明度調整など）には、理論的説明は一切含めず、短く簡潔に応答してください。
 
 ユーザーが質問した場合のみ、以下の理論的背景を「隠し味」または「直接的な解説」として含めてください：
 
-1. 色の三属性とPCCSトーン
+1. 視覚心理
+- 3D空間の奥行きを活かし、進出色（暖色・高彩度）と後退色（寒色・低彩度）の特性を解説してください。
+- 色温度や色彩心理がユーザーに与える情動的影響（例：青の信頼感、オレンジの親近感）を説明に含めてください。
+
+2. 色の三属性とPCCSトーン
 - 色を「明るい/暗い」だけでなく「ペールトーン」「ダークトーン」などPCCSトーンの名称で呼ぶこと。
 - 3D空間における座標（HSL/HSB）を意識し、彩度と明度のバランスを専門的に評価してください。
 
-2. 配色理論（幾何学的アプローチ）
+3. 配色理論（幾何学的アプローチ）
 - 3D空間上の配置に基づき、ダイアード（補色）、トライアド（正三角形）、テトラード（正方形）などの配色技法を提案してください。
 - 複雑な色選びには、洗練された「スプリットコンプリメンタリー」を推奨してください。
 
-3. アクセシビリティと機能性
+4. アクセシビリティと機能性
 - 文字色と背景色の関係では、常にWCAG 2.1基準のコントラスト比を意識してください。
 - 配色の黄金比率（70:25:5）に基づき、面積比のアドバイスを行ってください。
 
-4. 視覚心理
-- 3D空間の奥行きを活かし、進出色（暖色・高彩度）と後退色（寒色・低彩度）の特性を解説してください。
-- 色温度や色彩心理がユーザーに与える情動的影響（例：青の信頼感、オレンジの親近感）を説明に含めてください。
 """
 
 
@@ -151,9 +156,11 @@ def get_communication_style_section(language: str, is_tool_call_based: bool = Fa
   * "Would you like to try a different color space view?"
   * "I can help you find complementary colors."
 - Always phrase suggestions as questions ending with "?" to invite user confirmation.
-- After executing a {tool_term_en}, respond naturally with clear direction:
-  * "Made it brighter!" or "Made it darker!" (avoid "Adjusted brightness")
-  * "Made it more vibrant!" or "Made it more muted!" (avoid "Adjusted saturation")
+- **When executing {tool_term_en}s, do NOT include PCCS tones or theoretical explanations. Respond briefly and concisely.**
+- After executing a {tool_term_en}, respond naturally with clear direction, and then always make some suggestion to the user:
+  * "Made it brighter! Would you like to make it even brighter?" or "Made it darker! Is this brightness okay?" (avoid "Adjusted brightness")
+  * "Made it more vibrant! Would you like to make it even more vibrant?" or "Made it more muted! Do you like this color tone?" (avoid "Adjusted saturation")
+  * "Selected red. Would you like to adjust the brightness of this color?" or "Switched to RGB mode. Would you like to try a different color space?"
 - When describing the current color, NEVER mention RGB values directly (e.g., R255, G120, B120) or any numeric values (e.g., 255,79,24). Instead, use ONLY color names or natural expressions:
   * "It's a vibrant orange", "It's a reddish gray", "It's an olive color", "It's a maple leaf color", etc.
   * Use color names that people know or natural expressions that people can understand

@@ -13,7 +13,6 @@ export interface VoiceCommandHandlers {
   updateFromRgb: (r: number, g: number, b: number) => void;
   updateRgbValue: (colorParam: 'R' | 'G' | 'B', value: number) => void;
   setShape: (shape: ColorSpace) => void;
-  toggleLabel: () => void;
   adjustHslValue: (
     property: 'brightness' | 'saturation' | 'hue',
     direction: 'up' | 'down',
@@ -206,11 +205,6 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
       if (colorSpace && ['RGB', 'CMYK', 'HSL', 'HSV'].includes(colorSpace.toUpperCase())) {
         handlers.setShape(colorSpace.toUpperCase() as ColorSpace);
       }
-      break;
-    }
-
-    case 'TOGGLE_LABEL': {
-      handlers.toggleLabel();
       break;
     }
 
