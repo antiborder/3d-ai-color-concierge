@@ -88,11 +88,33 @@ const CameraController = ({
         // カメラを中心から離す距離（初期カメラ位置の距離を参考）
         const cameraDistance = 15;
 
+        // 左右±20°以内でランダムにずらす
+        const maxAngle = (30 * Math.PI) / 180; // 20度をラジアンに変換
+        const randomAngle = (Math.random() * 2 - 1) * maxAngle; // -20°から+20°のランダムな角度
+
+        // 回転軸を見つける（方向ベクトルに垂直なベクトル）
+        // 方向ベクトルと(1,0,0)の外積を取る。もし平行なら(0,1,0)を使う
+        let rotationAxis = new THREE.Vector3(1, 0, 0);
+        const crossProduct = new THREE.Vector3().crossVectors(directionFromOrigin, rotationAxis);
+        if (crossProduct.length() < 0.01) {
+          // 方向ベクトルが(1,0,0)と平行な場合、別のベクトルを使う
+          rotationAxis = new THREE.Vector3(0, 1, 0);
+          crossProduct.crossVectors(directionFromOrigin, rotationAxis);
+        }
+        rotationAxis = crossProduct.normalize();
+
+        // 回転軸を中心にランダムな角度で回転させるクォータニオンを作成
+        const rotationQuaternion = new THREE.Quaternion().setFromAxisAngle(rotationAxis, randomAngle);
+        
+        // 方向ベクトルを回転させる
+        const rotatedDirection = directionFromOrigin.clone().applyQuaternion(rotationQuaternion);
+
         // 原点から色の方向に一定距離離した位置をカメラの位置とする
         // これにより、カメラは色の位置に近く、かつ中心を見る方向を維持する
+        // 左右±20°以内でランダムにずらした位置を使用
         const targetPosition = origin
           .clone()
-          .add(directionFromOrigin.multiplyScalar(cameraDistance));
+          .add(rotatedDirection.multiplyScalar(cameraDistance));
 
         // OrbitControlsのtargetを原点に設定（カメラが中心を見るように）
         controlsRef.current.target.copy(origin);
