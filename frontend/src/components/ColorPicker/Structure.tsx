@@ -63,43 +63,39 @@ const CameraController = ({
 
       // 色の位置をベクトルに変換
       const colorVector = new THREE.Vector3(...colorPosition);
-      const origin = new THREE.Vector3(0, 0, 0);
 
-      // 原点から色への方向ベクトル
-      const direction = colorVector.clone().sub(origin).normalize();
+      // groupの回転を適用（X軸周りに-π/2回転）
+      // group rotation={[-Math.PI / 2, 0, 0]}が適用されているため、
+      // 色の位置をカメラの座標系（groupの外側）に変換する必要がある
+      const groupRotation = new THREE.Euler(-Math.PI / 2, 0, 0, 'XYZ');
+      const groupRotationQuaternion = new THREE.Quaternion().setFromEuler(groupRotation);
+      const worldColorPosition = colorVector.clone().applyQuaternion(groupRotationQuaternion);
 
-      // OrbitControlsを使ってカメラを回転
+      // OrbitControlsを使ってカメラを移動
       if (controlsRef.current && controlsRef.current.object) {
         isAnimatingRef.current = true;
 
         // 現在のカメラ位置を取得
         const currentPosition = camera.position.clone();
-        const currentTarget = controlsRef.current.target.clone();
+        const origin = new THREE.Vector3(0, 0, 0);
 
-        // 色の位置がカメラに最も近くなる角度を計算
-        // 球面座標に変換（OrbitControlsは球面座標系を使用）
-        // azimuth: 水平角度（-πからπ、または0から2π）
-        // polar: 垂直角度（0からπ）
-        const azimuth = Math.atan2(direction.x, direction.z);
-        const polar = Math.acos(Math.max(-1, Math.min(1, direction.y)));
+        // Step 1: カメラの位置を選択された色の位置に移動
+        // Step 2: カメラの方向は色空間の中心（原点）を見るように設定
+        // Step 3: カメラの位置を色空間の中心から離す
+        // 原点から色の位置への方向ベクトルを計算
+        const directionFromOrigin = worldColorPosition.clone().sub(origin).normalize();
 
-        // アニメーションでスムーズに回転
-        let startAzimuth: number;
-        let startPolar: number;
+        // カメラを中心から離す距離（初期カメラ位置の距離を参考）
+        const cameraDistance = 15;
 
-        // OrbitControlsのAPIを確認して使用
-        if (
-          typeof controlsRef.current.getAzimuthalAngle === 'function' &&
-          typeof controlsRef.current.getPolarAngle === 'function'
-        ) {
-          startAzimuth = controlsRef.current.getAzimuthalAngle();
-          startPolar = controlsRef.current.getPolarAngle();
-        } else {
-          // フォールバック: 現在のカメラ位置から角度を計算
-          const toCamera = currentPosition.clone().sub(currentTarget).normalize();
-          startAzimuth = Math.atan2(toCamera.x, toCamera.z);
-          startPolar = Math.acos(Math.max(-1, Math.min(1, toCamera.y)));
-        }
+        // 原点から色の方向に一定距離離した位置をカメラの位置とする
+        // これにより、カメラは色の位置に近く、かつ中心を見る方向を維持する
+        const targetPosition = origin
+          .clone()
+          .add(directionFromOrigin.multiplyScalar(cameraDistance));
+
+        // OrbitControlsのtargetを原点に設定（カメラが中心を見るように）
+        controlsRef.current.target.copy(origin);
 
         const duration = 1000; // 1秒
         const startTime = Date.now();
@@ -113,33 +109,10 @@ const CameraController = ({
               ? 2 * progress * progress
               : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
-          // 角度を補間
-          let newAzimuth = startAzimuth + (azimuth - startAzimuth) * eased;
-          let newPolar = startPolar + (polar - startPolar) * eased;
-
-          // 角度の正規化
-          newAzimuth = ((newAzimuth % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-          newPolar = Math.max(0.1, Math.min(Math.PI - 0.1, newPolar)); // 極端な角度を避ける
-
-          // OrbitControlsのAPIを使用
-          if (
-            typeof controlsRef.current.setAzimuthalAngle === 'function' &&
-            typeof controlsRef.current.setPolarAngle === 'function'
-          ) {
-            controlsRef.current.setAzimuthalAngle(newAzimuth);
-            controlsRef.current.setPolarAngle(newPolar);
-          } else {
-            // フォールバック: カメラ位置を直接計算
-            const distance = currentPosition.length();
-            const newPosition = new THREE.Vector3(
-              distance * Math.sin(newPolar) * Math.sin(newAzimuth),
-              distance * Math.cos(newPolar),
-              distance * Math.sin(newPolar) * Math.cos(newAzimuth)
-            );
-            camera.position.copy(newPosition);
-            camera.lookAt(currentTarget);
-            controlsRef.current.update();
-          }
+          // カメラ位置を補間
+          const newPosition = currentPosition.clone().lerp(targetPosition, eased);
+          camera.position.copy(newPosition);
+          controlsRef.current.update();
 
           if (progress < 1) {
             requestAnimationFrame(animate);
