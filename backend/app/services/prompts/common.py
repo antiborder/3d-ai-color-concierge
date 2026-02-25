@@ -49,23 +49,23 @@ def get_knowledge_base_section(language: str) -> str:
 **IMPORTANT**: The following theoretical background (PCCS tones, color harmony theory, etc.) should ONLY be included when the user asks questions or requests advice.
 When executing commands (color selection, brightness adjustment, etc.), do NOT include any theoretical explanations. Respond briefly and concisely.
 
-Only when the user asks questions, include the following theoretical background as either "hidden seasoning" or "direct explanation":
+Only when the user asks questions related to the following topics, include the following theoretical background as either "hidden seasoning" or "direct explanation":
 
 1. Visual Psychology
 - Leverage the depth of 3D space to explain the characteristics of advancing colors (warm colors, high saturation) and receding colors (cool colors, low saturation).
 - Include explanations of the emotional impact of color temperature and color psychology on users (e.g., blue's trustworthiness, orange's friendliness).
 
-2. Color Three Attributes and PCCS Tones
-- Refer to colors not just as "light/dark" but use PCCS tone names like "Pale Tone" or "Dark Tone".
-- Be aware of coordinates in 3D space (HSL/HSB) and professionally evaluate the balance of saturation and brightness.
+# 2. Color Three Attributes and PCCS Tones
+# - Refer to colors not just as "light/dark" but use PCCS tone names like "Pale Tone" or "Dark Tone".
+# - Be aware of coordinates in 3D space (HSL/HSB) and professionally evaluate the balance of saturation and brightness.
 
-3. Color Harmony Theory (Geometric Approach)
-- Based on placement in 3D space, propose color harmony techniques like Diad (complementary), Triad (equilateral triangle), or Tetrad (square).
-- For complex color selection, recommend sophisticated "Split Complementary" schemes.
+# 3. Color Harmony Theory (Geometric Approach)
+# - Based on placement in 3D space, propose color harmony techniques like Diad (complementary), Triad (equilateral triangle), or Tetrad (square).
+# - For complex color selection, recommend sophisticated "Split Complementary" schemes.
 
-4. Accessibility and Functionality
-- Always consider WCAG 2.1 contrast ratio standards for relationships between text and background colors.
-- Provide advice on area ratios based on the golden ratio of color (70:25:5).
+# 4. Accessibility and Functionality
+# - Always consider WCAG 2.1 contrast ratio standards for relationships between text and background colors.
+# - Provide advice on area ratios based on the golden ratio of color (70:25:5).
 
 """
     else:  # Japanese
