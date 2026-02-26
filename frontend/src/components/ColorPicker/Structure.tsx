@@ -79,18 +79,15 @@ const CameraController = ({
         const currentPosition = camera.position.clone();
         const origin = new THREE.Vector3(0, 0, 0);
 
-        // Step 1: カメラの位置を選択された色の位置に移動
-        // Step 2: カメラの方向は色空間の中心（原点）を見るように設定
-        // Step 3: カメラの位置を色空間の中心から離す
+        // 現在のカメラ位置から原点までの距離を計算（半径を維持）
+        const currentDistance = currentPosition.distanceTo(origin);
+
         // 原点から色の位置への方向ベクトルを計算
         const directionFromOrigin = worldColorPosition.clone().sub(origin).normalize();
 
-        // カメラを中心から離す距離（初期カメラ位置の距離を参考）
-        const cameraDistance = 15;
-
-        // 左右±20°以内でランダムにずらす
-        const maxAngle = (30 * Math.PI) / 180; // 20度をラジアンに変換
-        const randomAngle = (Math.random() * 2 - 1) * maxAngle; // -20°から+20°のランダムな角度
+        // 左右±30°以内でランダムにずらす
+        const maxAngle = (30 * Math.PI) / 180; // 30度をラジアンに変換
+        const randomAngle = (Math.random() * 2 - 1) * maxAngle; // -30°から+30°のランダムな角度
 
         // 回転軸を見つける（方向ベクトルに垂直なベクトル）
         // 方向ベクトルと(1,0,0)の外積を取る。もし平行なら(0,1,0)を使う
@@ -104,17 +101,19 @@ const CameraController = ({
         rotationAxis = crossProduct.normalize();
 
         // 回転軸を中心にランダムな角度で回転させるクォータニオンを作成
-        const rotationQuaternion = new THREE.Quaternion().setFromAxisAngle(rotationAxis, randomAngle);
+        const randomRotationQuaternion = new THREE.Quaternion().setFromAxisAngle(rotationAxis, randomAngle);
         
         // 方向ベクトルを回転させる
-        const rotatedDirection = directionFromOrigin.clone().applyQuaternion(rotationQuaternion);
+        const rotatedDirection = directionFromOrigin.clone().applyQuaternion(randomRotationQuaternion);
 
-        // 原点から色の方向に一定距離離した位置をカメラの位置とする
-        // これにより、カメラは色の位置に近く、かつ中心を見る方向を維持する
-        // 左右±20°以内でランダムにずらした位置を使用
-        const targetPosition = origin
-          .clone()
-          .add(rotatedDirection.multiplyScalar(cameraDistance));
+        // 現在のカメラ位置から原点への方向ベクトル
+        const currentDirection = currentPosition.clone().sub(origin).normalize();
+
+        // 現在の方向から目標の方向への回転をクォータニオンで表現
+        const directionRotationQuaternion = new THREE.Quaternion().setFromUnitVectors(
+          currentDirection,
+          rotatedDirection
+        );
 
         // OrbitControlsのtargetを原点に設定（カメラが中心を見るように）
         controlsRef.current.target.copy(origin);
@@ -131,8 +130,20 @@ const CameraController = ({
               ? 2 * progress * progress
               : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
-          // カメラ位置を補間
-          const newPosition = currentPosition.clone().lerp(targetPosition, eased);
+          // 回転を補間（球面線形補間）
+          const startQuaternion = new THREE.Quaternion(); // 単位クォータニオン（回転なし）
+          const interpolatedQuaternion = startQuaternion.clone().slerp(
+            directionRotationQuaternion,
+            eased
+          );
+          
+          // 補間された回転を現在の方向に適用
+          const interpolatedDirection = currentDirection.clone().applyQuaternion(interpolatedQuaternion);
+          
+          // 補間された方向に現在の距離を適用してカメラ位置を計算
+          // これにより、カメラは球面上を移動し、原点からの距離を一定に保つ
+          const newPosition = origin.clone().add(interpolatedDirection.multiplyScalar(currentDistance));
+          
           camera.position.copy(newPosition);
           controlsRef.current.update();
 
