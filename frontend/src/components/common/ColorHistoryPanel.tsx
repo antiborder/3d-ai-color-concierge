@@ -15,15 +15,19 @@ const ColorHistoryPanel = ({ history, onColorSelect }: ColorHistoryPanelProps) =
     <StyledColorHistoryPanel>
       <HistoryTitle>Color History</HistoryTitle>
       <HistoryList>
-        {history.map((item, index) => (
-          <HistoryItem
-            key={`${item.hex}-${item.timestamp}-${index}`}
-            onClick={() => onColorSelect(item.r, item.g, item.b)}
-          >
-            <ColorSample style={{ backgroundColor: item.hex }} />
-            <ColorCode>{item.hex}</ColorCode>
-          </HistoryItem>
-        ))}
+        {history.map((item, index) => {
+          const number = index + 1;
+          return (
+            <HistoryItem
+              key={`${item.hex}-${item.timestamp}-${index}`}
+              onClick={() => onColorSelect(item.r, item.g, item.b)}
+            >
+              <HistoryNumber>{number}</HistoryNumber>
+              <ColorSample style={{ backgroundColor: item.hex }} />
+              <ColorCode>{item.hex}</ColorCode>
+            </HistoryItem>
+          );
+        })}
       </HistoryList>
     </StyledColorHistoryPanel>
   );
@@ -33,10 +37,10 @@ const StyledColorHistoryPanel = styled.div`
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 6px;
-  padding: 12px;
+  padding: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  min-width: 200px;
-  max-width: 200px;
+  min-width: 237px;
+  max-width: 237px;
 `;
 
 const HistoryTitle = styled.div`
@@ -93,6 +97,16 @@ const HistoryItem = styled.div`
   }
 `;
 
+const HistoryNumber = styled.div`
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+  min-width: 24px;
+  text-align: right;
+  user-select: none;
+  flex-shrink: 0;
+`;
+
 const ColorSample = styled.div`
   width: 120px;
   height: 24px;
@@ -102,7 +116,7 @@ const ColorSample = styled.div`
 `;
 
 const ColorCode = styled.div`
-  font-size: 14px;
+  font-size: 12px;
   color: #333;
   font-family: monospace;
   user-select: none;
