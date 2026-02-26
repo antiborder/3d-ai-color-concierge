@@ -86,8 +86,9 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   // AIが話しているかどうかを追跡
   const isAISpeakingRef = useRef<boolean>(false);
   // VAD用の設定
-  const vadThresholdRef = useRef<number>(0.1); // 音量閾値（調整可能）
-  const vadSilenceFramesRef = useRef<number>(0); // 無音フレーム数
+  const vadThresholdRef = useRef<number>(0.1); // AI音声停止用の閾値（調整可能）
+  const userVoiceRecognitionThresholdRef = useRef<number>(0.0001); // ユーザー音声認識用の閾値（バックエンド送信制御）
+  // const _vadSilenceFramesRef = useRef<number>(0); // 無音フレーム数（将来使用予定）
   // const _vadSilenceThresholdFrames = 10; // 無音と判定するフレーム数（将来使用予定）
 
   // パフォーマンス測定用のタイムスタンプ追跡
@@ -351,40 +352,14 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     return result;
   };
 
-  // VAD（Voice Activity Detection）: ユーザーの音声を検出
-  const detectVoiceActivity = useCallback(
-    (audioData: Float32Array) => {
-      // RMS（Root Mean Square）で音量を計算
-      let sum = 0;
-      for (let i = 0; i < audioData.length; i++) {
-        sum += audioData[i] * audioData[i];
-      }
-      const rms = Math.sqrt(sum / audioData.length);
-      const threshold = vadThresholdRef.current;
-
-      if (rms > threshold) {
-        // 音声が検出された
-        vadSilenceFramesRef.current = 0;
-        // AIが話している最中にユーザーが話し始めた場合、AI音声を停止
-        if (isAISpeakingRef.current) {
-          stopAIAudio();
-          // バックエンドに割り込みを通知（将来の拡張のため）
-          const ws = wsRef.current;
-          if (ws && ws.readyState === WebSocket.OPEN) {
-            try {
-              ws.send(JSON.stringify({ type: 'interrupt' }));
-            } catch {
-              // ignore best-effort
-            }
-          }
-        }
-      } else {
-        // 無音
-        vadSilenceFramesRef.current++;
-      }
-    },
-    [stopAIAudio]
-  );
+  // RMS（Root Mean Square）を計算する関数（共通化）
+  const calculateRMS = useCallback((audioData: Float32Array): number => {
+    let sum = 0;
+    for (let i = 0; i < audioData.length; i++) {
+      sum += audioData[i] * audioData[i];
+    }
+    return Math.sqrt(sum / audioData.length);
+  }, []);
 
   const schedulePcmPlayback = useCallback((pcmS16le: ArrayBuffer, sampleRateHz: number) => {
     const ctx = audioCtxRef.current;
@@ -573,35 +548,53 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           if (!ws2 || ws2.readyState !== WebSocket.OPEN) return;
           const input = e.inputBuffer.getChannelData(0);
 
+          // RMSを計算
+          const rms = calculateRMS(input);
+
           // VAD実行: AIが話している間のみユーザーの音声を検出
           if (isAISpeakingRef.current) {
-            detectVoiceActivity(input);
-          }
-
-          const down = downsample(input, ctx.sampleRate, 16000);
-          const pcm16 = floatTo16BitPCM(down);
-
-          const now = performance.now();
-          const ts2 = perfTimestampsRef.current;
-          if (!ts2.firstAudioSent) {
-            ts2.firstAudioSent = now;
-            const firstAudioElapsed = now - startTime;
-            console.log(
-              `[PERF] first_audio_sent elapsed=${firstAudioElapsed.toFixed(1)}ms bytes=${pcm16.buffer.byteLength}`
-            );
-          }
-          if (ts2.lastAudioSent) {
-            const elapsed = now - ts2.lastAudioSent;
-            if (elapsed > 100) {
-              // 100ms以上経過した場合のみログ（頻繁なログを避ける）
-              console.log(
-                `[PERF] audio_sent elapsed=${elapsed.toFixed(1)}ms bytes=${pcm16.buffer.byteLength}`
-              );
+            if (rms > vadThresholdRef.current) {
+              // ユーザーが話し始めた → AI音声を停止
+              stopAIAudio();
+              // バックエンドに割り込みを通知
+              if (ws2 && ws2.readyState === WebSocket.OPEN) {
+                try {
+                  ws2.send(JSON.stringify({ type: 'interrupt' }));
+                } catch {
+                  // ignore best-effort
+                }
+              }
             }
           }
-          ts2.lastAudioSent = now;
 
-          ws2.send(pcm16.buffer);
+          // ユーザー音声認識用の閾値チェック：一定音量以上の音声のみ送信
+          if (rms > userVoiceRecognitionThresholdRef.current) {
+            const down = downsample(input, ctx.sampleRate, 16000);
+            const pcm16 = floatTo16BitPCM(down);
+
+            const now = performance.now();
+            const ts2 = perfTimestampsRef.current;
+            if (!ts2.firstAudioSent) {
+              ts2.firstAudioSent = now;
+              const firstAudioElapsed = now - startTime;
+              console.log(
+                `[PERF] first_audio_sent elapsed=${firstAudioElapsed.toFixed(1)}ms bytes=${pcm16.buffer.byteLength}`
+              );
+            }
+            if (ts2.lastAudioSent) {
+              const elapsed = now - ts2.lastAudioSent;
+              if (elapsed > 100) {
+                // 100ms以上経過した場合のみログ（頻繁なログを避ける）
+                console.log(
+                  `[PERF] audio_sent elapsed=${elapsed.toFixed(1)}ms bytes=${pcm16.buffer.byteLength}`
+                );
+              }
+            }
+            ts2.lastAudioSent = now;
+
+            ws2.send(pcm16.buffer);
+          }
+          // 閾値以下の場合は送信しない（無音やノイズを送らない）
         };
 
         source.connect(processor);
@@ -759,6 +752,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     }
   }, [
     buildWireColorState,
+    calculateRMS,
     cleanupAudio,
     clearReconnectTimer,
     ensureWsTokenCookie,
@@ -774,8 +768,8 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     sendColorState,
     setErr,
     stop,
+    stopAIAudio,
     t,
-    detectVoiceActivity,
   ]);
 
   // onclose内でstart()を直接参照するとlintが厳しいためref経由で呼ぶ
