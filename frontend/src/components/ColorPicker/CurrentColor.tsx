@@ -25,6 +25,7 @@ const CurrentColor = (props: ControlPaneProps) => {
   return (
     <StyledCurrentColor>
       <div className="controlPanel">
+        <CurrentColorTitle>Current Color</CurrentColorTitle>
         <div className="currentColor">
           <div
             className="color-sample"
@@ -56,6 +57,13 @@ const CurrentColor = (props: ControlPaneProps) => {
 };
 
 const StyledCurrentColor = styled.div`
+  .controlPanel {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 4px;
+  }
+
   .currentColor {
     display: flex; /* 親要素をフレックスコンテナにする */
     align-items: center; /* 要素を縦方向に中央寄せする */
@@ -98,6 +106,14 @@ const StyledCurrentColor = styled.div`
       border-radius: 4px;
     }
   }
+`;
+
+const CurrentColorTitle = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  user-select: none;
 `;
 
 export default CurrentColor;

@@ -5,6 +5,7 @@ import type { ColorSpace } from '../../../types/color';
 import ShapeButton from './ShapeButton';
 import SliderContainer from './SliderContainer';
 import { systemColors } from '../../../constants/systemColors.js';
+import { PlusIcon, MinusIcon } from '../../../assets/Icons.jsx';
 
 interface HslSlidersProps extends ControlPaneProps {
   mainElement: 'H' | 'S' | 'L';
@@ -37,7 +38,7 @@ const HslSliders = (props: HslSlidersProps) => {
             setIsVisible(!isVisible);
           }}
         >
-          {isVisible ? '−' : '＋'}
+          {isVisible ? <MinusIcon /> : <PlusIcon />}
         </button>
       </div>
       {isVisible && (

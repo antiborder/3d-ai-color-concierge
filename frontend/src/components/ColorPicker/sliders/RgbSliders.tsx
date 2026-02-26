@@ -5,6 +5,7 @@ import type { ColorSpace } from '../../../types/color';
 import ShapeButton from './ShapeButton';
 import SliderContainer from './SliderContainer';
 import { systemColors } from '../../../constants/systemColors.js';
+import { PlusIcon, MinusIcon } from '../../../assets/Icons.jsx';
 
 interface RgbSlidersProps extends ControlPaneProps {
   mainElement: 'R' | 'G' | 'B';
@@ -37,7 +38,7 @@ const RgbSliders = (props: RgbSlidersProps) => {
             setIsVisible(!isVisible);
           }}
         >
-          {isVisible ? '−' : '＋'}
+          {isVisible ? <MinusIcon /> : <PlusIcon />}
         </button>
       </div>
 
