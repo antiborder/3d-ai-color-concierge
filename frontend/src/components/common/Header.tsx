@@ -144,12 +144,10 @@ const LanguageButton = styled.button`
   font-size: 14px;
   font-weight: 500;
   color: #333;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s;
 
   &:hover {
     background-color: #f5f5f5;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   }
 
   span:first-child {
@@ -199,7 +197,6 @@ const ColorGroupFilter = styled.div`
   border: 1px solid #ddd;
   border-radius: 6px;
   padding: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   gap: 8px;

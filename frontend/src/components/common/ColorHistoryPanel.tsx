@@ -38,7 +38,6 @@ const StyledColorHistoryPanel = styled.div`
   border: 1px solid #ddd;
   border-radius: 6px;
   padding: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   min-width: 237px;
   max-width: 237px;
 `;
