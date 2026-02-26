@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
+import ColorHistoryPanel from './ColorHistoryPanel';
+import type { ColorHistoryItem } from '../../hooks/useColorHistory';
 
 interface HeaderProps {
   cssColorsEnabled: boolean;
@@ -9,6 +11,8 @@ interface HeaderProps {
   onCssColorsToggle: (enabled: boolean) => void;
   onMaterialColorsToggle: (enabled: boolean) => void;
   onJapaneseColorsToggle: (enabled: boolean) => void;
+  colorHistory: ColorHistoryItem[];
+  onColorSelect: (r: number, g: number, b: number) => void;
 }
 
 const Header = ({
@@ -18,6 +22,8 @@ const Header = ({
   onCssColorsToggle,
   onMaterialColorsToggle,
   onJapaneseColorsToggle,
+  colorHistory,
+  onColorSelect,
 }: HeaderProps) => {
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
@@ -104,6 +110,7 @@ const Header = ({
           <span>Japanese Traditional Colors</span>
         </CheckboxLabel>
       </ColorGroupFilter>
+      <ColorHistoryPanel history={colorHistory} onColorSelect={onColorSelect} />
     </StyledHeader>
   );
 };

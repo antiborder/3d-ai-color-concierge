@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toaster } from 'react-hot-toast';
 import ControlPane from './components/ColorPicker/ControlPane';
@@ -8,6 +8,7 @@ import Header from './components/common/Header';
 import VoiceControl from './components/VoiceControl/VoiceControl';
 import ChatHistoryModal from './components/Chatbot/ChatHistoryModal';
 import { useColorState } from './hooks/useColorState';
+import { useColorHistory } from './hooks/useColorHistory';
 import { executeCommand } from './utils/commandExecutor';
 import type { Command as VoiceCommand } from './types/voice';
 import { useChatbot } from './hooks/useChatbot';
@@ -61,6 +62,26 @@ function App() {
     setHexInput,
     adjustHslValue,
   } = useColorState();
+
+  // Color history hook
+  const { history, addColor } = useColorHistory();
+  const prevColorRef = useRef<{ r: number; g: number; b: number } | null>(null);
+
+  // Add color to history when colorState changes
+  useEffect(() => {
+    // Skip if this is the initial render or color hasn't actually changed
+    if (
+      prevColorRef.current &&
+      Math.round(prevColorRef.current.r) === Math.round(colorState.r) &&
+      Math.round(prevColorRef.current.g) === Math.round(colorState.g) &&
+      Math.round(prevColorRef.current.b) === Math.round(colorState.b)
+    ) {
+      return;
+    }
+
+    addColor(colorState.r, colorState.g, colorState.b);
+    prevColorRef.current = { r: colorState.r, g: colorState.g, b: colorState.b };
+  }, [colorState.r, colorState.g, colorState.b, addColor]);
 
   // Handler functions for color changes
   const handleRgbChange = (
@@ -203,6 +224,8 @@ function App() {
         onCssColorsToggle={setCssColorsEnabled}
         onMaterialColorsToggle={setMaterialColorsEnabled}
         onJapaneseColorsToggle={setJapaneseColorsEnabled}
+        colorHistory={history}
+        onColorSelect={handleClick}
       />
       <Structure
         shape={colorState.shape}
