@@ -81,6 +81,14 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
 
   // playback scheduling
   const playTimeRef = useRef<number>(0);
+  // 再生中のAI音声ノードを追跡（割り込み停止用）
+  const audioSourceNodesRef = useRef<AudioBufferSourceNode[]>([]);
+  // AIが話しているかどうかを追跡
+  const isAISpeakingRef = useRef<boolean>(false);
+  // VAD用の設定
+  const vadThresholdRef = useRef<number>(0.1); // 音量閾値（調整可能）
+  const vadSilenceFramesRef = useRef<number>(0); // 無音フレーム数
+  // const _vadSilenceThresholdFrames = 10; // 無音と判定するフレーム数（将来使用予定）
 
   // パフォーマンス測定用のタイムスタンプ追跡
   const perfTimestampsRef = useRef<{
@@ -137,7 +145,24 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     [buildWireColorState]
   );
 
+  // AI音声を停止する関数（cleanupAudioより前に定義）
+  const stopAIAudio = useCallback(() => {
+    audioSourceNodesRef.current.forEach((node) => {
+      try {
+        node.stop();
+      } catch {
+        // 既に停止済みの場合は無視
+      }
+    });
+    audioSourceNodesRef.current = [];
+    playTimeRef.current = 0; // スケジュールをリセット
+    isAISpeakingRef.current = false;
+  }, []);
+
   const cleanupAudio = useCallback(() => {
+    // AI音声も停止
+    stopAIAudio();
+
     if (processorRef.current) {
       try {
         processorRef.current.disconnect();
@@ -165,7 +190,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
       }
       silentGainRef.current = null;
     }
-  }, []);
+  }, [stopAIAudio]);
 
   const cleanupWs = useCallback((opts?: { code?: number; reason?: string }) => {
     const ws = wsRef.current;
@@ -326,6 +351,41 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     return result;
   };
 
+  // VAD（Voice Activity Detection）: ユーザーの音声を検出
+  const detectVoiceActivity = useCallback(
+    (audioData: Float32Array) => {
+      // RMS（Root Mean Square）で音量を計算
+      let sum = 0;
+      for (let i = 0; i < audioData.length; i++) {
+        sum += audioData[i] * audioData[i];
+      }
+      const rms = Math.sqrt(sum / audioData.length);
+      const threshold = vadThresholdRef.current;
+
+      if (rms > threshold) {
+        // 音声が検出された
+        vadSilenceFramesRef.current = 0;
+        // AIが話している最中にユーザーが話し始めた場合、AI音声を停止
+        if (isAISpeakingRef.current) {
+          stopAIAudio();
+          // バックエンドに割り込みを通知（将来の拡張のため）
+          const ws = wsRef.current;
+          if (ws && ws.readyState === WebSocket.OPEN) {
+            try {
+              ws.send(JSON.stringify({ type: 'interrupt' }));
+            } catch {
+              // ignore best-effort
+            }
+          }
+        }
+      } else {
+        // 無音
+        vadSilenceFramesRef.current++;
+      }
+    },
+    [stopAIAudio]
+  );
+
   const schedulePcmPlayback = useCallback((pcmS16le: ArrayBuffer, sampleRateHz: number) => {
     const ctx = audioCtxRef.current;
     if (!ctx) return;
@@ -340,6 +400,19 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     const src = ctx.createBufferSource();
     src.buffer = buf;
     src.connect(ctx.destination);
+
+    // 再生中のノードを追跡リストに追加
+    audioSourceNodesRef.current.push(src);
+    isAISpeakingRef.current = true;
+
+    // 再生終了時にリストから削除
+    src.onended = () => {
+      audioSourceNodesRef.current = audioSourceNodesRef.current.filter((n) => n !== src);
+      // 全ての音声が終了したらフラグをリセット
+      if (audioSourceNodesRef.current.length === 0) {
+        isAISpeakingRef.current = false;
+      }
+    };
 
     const now = ctx.currentTime;
     if (playTimeRef.current < now) {
@@ -499,6 +572,12 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           const ws2 = wsRef.current;
           if (!ws2 || ws2.readyState !== WebSocket.OPEN) return;
           const input = e.inputBuffer.getChannelData(0);
+
+          // VAD実行: AIが話している間のみユーザーの音声を検出
+          if (isAISpeakingRef.current) {
+            detectVoiceActivity(input);
+          }
+
           const down = downsample(input, ctx.sampleRate, 16000);
           const pcm16 = floatTo16BitPCM(down);
 
@@ -696,6 +775,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     setErr,
     stop,
     t,
+    detectVoiceActivity,
   ]);
 
   // onclose内でstart()を直接参照するとlintが厳しいためref経由で呼ぶ
