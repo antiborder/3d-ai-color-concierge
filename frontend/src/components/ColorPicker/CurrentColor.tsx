@@ -61,9 +61,9 @@ const StyledCurrentColor = styled.div`
     align-items: center; /* 要素を縦方向に中央寄せする */
     font-size: 20px;
     .color-sample {
-      margin: 8px 16px 8px 16px;
+      margin: 8px 8px 8px 8px;
       border: solid 1px #aaaaaa;
-      width: 150px;
+      width: 100px;
       height: 24px;
     }
     .hex {

@@ -466,15 +466,15 @@ const StyledTwoDPicker = styled.div`
   position: relative;
   .systemColorsquare {
     border: 1px solid #000000;
-    width: 320px;
-    height: 320px;
+    width: 217px;
+    height: 217px;
     .colorRow {
       display: flex;
       flex-direction: row;
     }
     .colorElement {
-      height: 5px;
-      width: 5px;
+      height: 3.39px;
+      width: 3.39px;
     }
   }
 `;

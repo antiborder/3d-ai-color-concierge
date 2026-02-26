@@ -66,11 +66,11 @@ const StyledSliderContainer = styled.div`
   align-items: center;
   justify-content: center;
   margin-bottom: 0px;
-  width: 320px;
+  width: 217px;
 
   padding: 0px;
   input {
-    width: 300px;
+    width: 197px;
   }
   .value {
     width: 20px;

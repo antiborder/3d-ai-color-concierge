@@ -45,7 +45,7 @@ const ControlPane = (props: ControlPaneProps) => {
 };
 
 const StyledControlPane = styled.div`
-  width: 340px;
+  width: 237px;
   position: absolute;
   top: 0px;
   left: 30px;
