@@ -85,6 +85,7 @@ const Header = ({
         )}
       </LanguageSelector>
       <ColorGroupFilter>
+        <FilterTitle>Displayed Colors</FilterTitle>
         <CheckboxLabel>
           <input
             type="checkbox"
@@ -203,6 +204,14 @@ const ColorGroupFilter = styled.div`
   flex-direction: column;
   gap: 8px;
   min-width: 200px;
+`;
+
+const FilterTitle = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  user-select: none;
 `;
 
 const CheckboxLabel = styled.label`

@@ -82,7 +82,7 @@ const StyledCurrentColor = styled.div`
       margin-right: 8px;
     }
     .activeUpdateButton {
-      width: 60px;
+      width: 40px;
       height: 24px;
       background-color: #4e8cee;
       color: white;
@@ -91,7 +91,7 @@ const StyledCurrentColor = styled.div`
       cursor: pointer;
     }
     .inactiveUpdateButton {
-      width: 60px;
+      width: 40px;
       height: 24px;
       background-color: #cccccc;
       border: none;
