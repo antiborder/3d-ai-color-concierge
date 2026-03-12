@@ -7,7 +7,10 @@ interface ColorHistoryPanelProps {
 }
 
 const ColorHistoryPanel = ({ history, onColorSelect }: ColorHistoryPanelProps) => {
-  if (history.length === 0) {
+  // 現在の色（最初の要素）を除外し、過去の色のみを表示（最大100色）
+  const pastHistory = history.slice(1, 101);
+
+  if (pastHistory.length === 0) {
     return null;
   }
 
@@ -15,7 +18,7 @@ const ColorHistoryPanel = ({ history, onColorSelect }: ColorHistoryPanelProps) =
     <StyledColorHistoryPanel>
       <HistoryTitle>Color History</HistoryTitle>
       <HistoryList>
-        {history.map((item, index) => {
+        {pastHistory.map((item, index) => {
           const number = index + 1;
           return (
             <HistoryItem
