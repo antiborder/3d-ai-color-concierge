@@ -29,7 +29,7 @@ const ColorCursor = (props: ColorCursorProps) => {
 
   // 球体のワイヤーフレームを生成
   // 半径
-  const radius = 0.123;
+  const radius = 0.124;
   // 経線（meridian）の数
   const meridians = 12;
   // 緯線（parallel）の数
@@ -71,16 +71,15 @@ const ColorCursor = (props: ColorCursorProps) => {
   return (
     <group position={position} rotation={[0, 0, -Math.PI]}>
       <group rotation={[Math.PI / 2, 0, 0]}>
-        {/* 経線（縦の線）- 偶数番目は選択色で回転、奇数番目は白色で固定 */}
         <group ref={meridianRef}>
           {meridianLines.map((points, index) => {
-            if (index % 2 === 0) {
+            if (index % 3 === 0) {
               // 偶数番目：選択色で回転
               return (
                 <Line
                   key={`meridian-${index}`}
                   points={points}
-                  color="#000000"
+                  color="#333333"
                   lineWidth={2}
                 />
               );
@@ -88,20 +87,6 @@ const ColorCursor = (props: ColorCursorProps) => {
             return null;
           })}
         </group>
-        {/* 奇数番目の経線：白色で固定 */}
-        {meridianLines.map((points, index) => {
-          if (index % 2 === 1) {
-            return (
-              <Line
-                key={`meridian-${index}`}
-                points={points}
-                color={selectedColor}
-                lineWidth={1}
-              />
-            );
-          }
-          return null;
-        })}
         {/* 緯線（横の線）- 偶数番目を非表示 */}
         {parallelLines.map((points, index) => {
           if (index % 2 === 1) {
@@ -110,7 +95,7 @@ const ColorCursor = (props: ColorCursorProps) => {
               <Line
                 key={`parallel-${index}`}
                 points={points}
-                color="#FFFFFF"
+                color="#CCCCCC"
                 lineWidth={1}
               />
             );
