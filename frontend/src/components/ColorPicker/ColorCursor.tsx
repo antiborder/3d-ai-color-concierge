@@ -15,7 +15,7 @@ const ColorCursor = (props: ColorCursorProps) => {
 
   useFrame(() => {
     if (meridianRef.current) {
-      meridianRef.current.rotation.y += 0.006;
+      meridianRef.current.rotation.y += 0.02;
     }
   });
 
