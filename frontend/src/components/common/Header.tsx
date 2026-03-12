@@ -65,7 +65,7 @@ const Header = ({
     <StyledHeader>
       <LanguageSelector ref={dropdownRef}>
         <LanguageButton onClick={() => setIsOpen(!isOpen)}>
-          <span>{currentLanguage.flag}</span>
+          {/* <span>{currentLanguage.flag}</span> */}
           <span>{currentLanguage.name}</span>
           <span>{isOpen ? '▲' : '▼'}</span>
         </LanguageButton>
@@ -77,7 +77,7 @@ const Header = ({
                 onClick={() => handleLanguageChange(lang.code)}
                 $isActive={i18n.language === lang.code}
               >
-                <span>{lang.flag}</span>
+                {/* <span>{lang.flag}</span> */}
                 <span>{lang.name}</span>
               </DropdownItem>
             ))}
@@ -111,7 +111,9 @@ const Header = ({
           <span>Japanese Traditional Colors</span>
         </CheckboxLabel>
       </ColorGroupFilter>
-      <ColorHistoryPanel history={colorHistory} onColorSelect={onColorSelect} />
+      <HistoryPanelWrapper>
+        <ColorHistoryPanel history={colorHistory} onColorSelect={onColorSelect} />
+      </HistoryPanelWrapper>
     </StyledHeader>
   );
 };
@@ -136,12 +138,13 @@ const LanguageButton = styled.button`
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 8px 8px;
+  width: 84px;
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 10px;
   font-weight: 500;
   color: #333;
   transition: all 0.2s;
@@ -151,7 +154,7 @@ const LanguageButton = styled.button`
   }
 
   span:first-child {
-    font-size: 18px;
+    font-size: 14px;
   }
 
   span:last-child {
@@ -168,7 +171,7 @@ const DropdownMenu = styled.div`
   border: 1px solid #ddd;
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  min-width: 150px;
+  min-width: 80px;
   overflow: hidden;
 `;
 
@@ -176,9 +179,8 @@ const DropdownItem = styled.div<{ $isActive: boolean }>`
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px;
+  padding: 8px 8px;
   cursor: pointer;
-  font-size: 14px;
   color: #333;
   background-color: ${(props) => (props.$isActive ? '#f0f0f0' : 'white')};
   transition: background-color 0.2s;
@@ -188,7 +190,7 @@ const DropdownItem = styled.div<{ $isActive: boolean }>`
   }
 
   span:first-child {
-    font-size: 18px;
+    font-size: 14px;
   }
 `;
 
@@ -201,6 +203,10 @@ const ColorGroupFilter = styled.div`
   flex-direction: column;
   gap: 8px;
   min-width: 200px;
+
+  @media (max-width: 800px) {
+    display: none;
+  }
 `;
 
 const FilterTitle = styled.div`
@@ -229,6 +235,12 @@ const CheckboxLabel = styled.label`
 
   &:hover {
     color: #000;
+  }
+`;
+
+const HistoryPanelWrapper = styled.div`
+  @media (max-width: 800px) {
+    display: none;
   }
 `;
 

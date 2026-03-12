@@ -14,32 +14,34 @@ const ControlPane = (props: ControlPaneProps) => {
     <StyledControlPane>
       <CurrentColor {...props} />
 
-      <RgbSliders
-        {...props}
-        mainElement={props.rgbMainElement}
-        setMainElement={props.setRgbMainElement}
-        panelShape={'RGB'}
-      />
-      <CmykSliders
-        {...props}
-        mainElement={props.cmykMainElement}
-        setMainElement={props.setCmykMainElement}
-        panelShape={'CMYK'}
-      />
-      <HsvSliders
-        {...props}
-        mainElement={props.hsvMainElement}
-        setMainElement={props.setHsvMainElement}
-        panelShape={'HSV'}
-      />
-      <HslSliders
-        {...props}
-        mainElement={props.hslMainElement}
-        setMainElement={props.setHslMainElement}
-        panelShape={'HSL'}
-      />
+      <SlidersSection>
+        <RgbSliders
+          {...props}
+          mainElement={props.rgbMainElement}
+          setMainElement={props.setRgbMainElement}
+          panelShape={'RGB'}
+        />
+        <CmykSliders
+          {...props}
+          mainElement={props.cmykMainElement}
+          setMainElement={props.setCmykMainElement}
+          panelShape={'CMYK'}
+        />
+        <HsvSliders
+          {...props}
+          mainElement={props.hsvMainElement}
+          setMainElement={props.setHsvMainElement}
+          panelShape={'HSV'}
+        />
+        <HslSliders
+          {...props}
+          mainElement={props.hslMainElement}
+          setMainElement={props.setHslMainElement}
+          panelShape={'HSL'}
+        />
 
-      <TwoDPicker {...props} />
+        <TwoDPicker {...props} />
+      </SlidersSection>
     </StyledControlPane>
   );
 };
@@ -122,6 +124,12 @@ const StyledControlPane = styled.div`
   }
   .labelOff:hover {
     cursor: pointer;
+  }
+`;
+
+const SlidersSection = styled.div`
+  @media (max-width: 800px) {
+    display: none;
   }
 `;
 
