@@ -111,7 +111,7 @@ const Column = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
+  gap: 12px;
   width: fit-content;
   max-width: calc(100vw - 40px);
   box-sizing: border-box;

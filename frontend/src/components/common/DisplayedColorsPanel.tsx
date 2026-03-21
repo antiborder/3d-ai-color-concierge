@@ -55,7 +55,7 @@ const Panel = styled.div`
   padding: 4px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
   min-width: 237px;
   max-width: 237px;
   width: 100%;
@@ -73,15 +73,15 @@ const FilterTitle = styled.div`
 const CheckboxLabel = styled.label`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   font-size: 14px;
   cursor: pointer;
   color: #333;
   user-select: none;
 
   input[type='checkbox'] {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     cursor: pointer;
     accent-color: #4e8cee;
   }

@@ -67,7 +67,7 @@ const StyledControlPane = styled.div`
     border: 1px solid #ddd;
     border-radius: 4px;
     opacity: 1;
-    margin-top: 8px;
+    margin-top: 12px;
     padding: 4px 12px 4px 6px;
     min-height: 28px;
   }

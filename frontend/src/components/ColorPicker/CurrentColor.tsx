@@ -78,28 +78,46 @@ const CurrentColorPanel = styled.div`
     }
 
     .hexInput {
-      width: 64px;
+      width: 80px;
       height: 24px;
-      font-size: 16px;
+      font-size: 18px;
       border: solid 1px #999999;
       color: #000000;
       margin-right: 8px;
     }
     .activeUpdateButton {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 40px;
-      height: 24px;
+      height: 32px;
+      padding: 0;
       background-color: #4e8cee;
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
+      line-height: 0;
+
+      svg {
+        display: block;
+      }
     }
     .inactiveUpdateButton {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 40px;
-      height: 24px;
+      height: 32px;
+      padding: 0;
       background-color: #cccccc;
       border: none;
       border-radius: 4px;
+      line-height: 0;
+
+      svg {
+        display: block;
+      }
     }
   }
 `;
