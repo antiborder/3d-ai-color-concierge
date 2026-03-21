@@ -73,12 +73,15 @@ const StyledControlPane = styled.div`
   }
 
   .showSlidersButton {
+    flex-shrink: 0;
+    margin-left: auto;
     border: none;
     background-color: white;
-    color: #aaaaaa;
+    color: #4e8cee;
     font-weight: bold;
-    font-size: 12px;
-    margin-right: 20px;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
     cursor: pointer;
   }
 

@@ -5,7 +5,6 @@ import type { ColorSpace } from '../../../types/color';
 import ShapeButton from './ShapeButton';
 import SliderContainer from './SliderContainer';
 import { systemColors } from '../../../constants/systemColors.js';
-import { PlusIcon, MinusIcon } from '../../../assets/Icons.jsx';
 
 interface HsvSlidersProps extends ControlPaneProps {
   mainElement: 'H' | 'S' | 'V';
@@ -22,7 +21,9 @@ const HsvSliders = (props: HsvSlidersProps) => {
         style={{
           display: 'flex',
           flexDirection: 'row',
+          alignItems: 'center',
           justifyContent: 'space-between',
+          width: '100%',
           height: '24px',
         }}
       >
@@ -38,7 +39,7 @@ const HsvSliders = (props: HsvSlidersProps) => {
             setIsVisible(!isVisible);
           }}
         >
-          {isVisible ? <MinusIcon /> : <PlusIcon />}
+          {isVisible ? '▲' : '▼'}
         </button>
       </div>
 

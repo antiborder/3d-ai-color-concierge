@@ -47,7 +47,7 @@ const SliderContainer = (props: SliderContainerProps) => {
         </button>
       )}
       {props.symbol === 'K' && <div style={{ width: '22px' }}></div>}
-      {props.symbol}
+      <span className="symbolLabel">{props.symbol}</span>
       <input
         type="range"
         min="0"
@@ -70,6 +70,10 @@ const StyledSliderContainer = styled.div`
   width: 217px;
 
   padding: 0px;
+  .symbolLabel {
+    font-weight: 600;
+    font-size: 18px;
+  }
   input {
     width: 197px;
   }
