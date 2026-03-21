@@ -118,7 +118,7 @@ const ColorSample = styled.div`
 `;
 
 const ColorCode = styled.div`
-  font-size: 12px;
+  font-size: 14px;
   color: #333;
   font-family: monospace;
   user-select: none;
