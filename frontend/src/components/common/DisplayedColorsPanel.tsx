@@ -52,7 +52,7 @@ const Panel = styled.div`
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 4px;
-  padding: 12px;
+  padding: 4px;
   display: flex;
   flex-direction: column;
   gap: 8px;

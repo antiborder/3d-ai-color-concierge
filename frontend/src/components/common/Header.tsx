@@ -54,11 +54,10 @@ const Header = ({
 };
 
 const StyledHeader = styled.header`
-  position: fixed;
-  top: 0;
-  right: 0;
+  position: absolute;
+  top: 12px;
+  right: 20px;
   z-index: 1000;
-  padding: 12px 20px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
