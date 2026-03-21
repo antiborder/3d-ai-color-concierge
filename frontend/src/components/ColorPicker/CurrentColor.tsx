@@ -23,46 +23,42 @@ const CurrentColor = (props: ControlPaneProps) => {
   };
 
   return (
-    <StyledCurrentColor>
-      <div className="controlPanel">
-        <CurrentColorTitle>Current Color</CurrentColorTitle>
-        <div className="currentColor">
-          <div
-            className="color-sample"
-            style={{
-              backgroundColor: '#' + convert.rgb.hex([props.focusR, props.focusG, props.focusB]),
-            }}
-          >
-            &nbsp;{' '}
-          </div>
-          <div className="hex">#</div>
-          <input
-            className="hexInput"
-            type="text"
-            value={props.hexInput}
-            onChange={(event) => handleChange(event.target.value)}
-          />
-          <button
-            className={
-              isUpdatable() && isHexFormat() ? 'activeUpdateButton' : 'inactiveUpdateButton'
-            }
-            onClick={() => handleHexUpdate()}
-          >
-            <SyncIcon />
-          </button>
+    <CurrentColorPanel>
+      <CurrentColorTitle>Current Color</CurrentColorTitle>
+      <div className="currentColor">
+        <div
+          className="color-sample"
+          style={{
+            backgroundColor: '#' + convert.rgb.hex([props.focusR, props.focusG, props.focusB]),
+          }}
+        >
+          &nbsp;{' '}
         </div>
+        <div className="hex">#</div>
+        <input
+          className="hexInput"
+          type="text"
+          value={props.hexInput}
+          onChange={(event) => handleChange(event.target.value)}
+        />
+        <button
+          className={isUpdatable() && isHexFormat() ? 'activeUpdateButton' : 'inactiveUpdateButton'}
+          onClick={() => handleHexUpdate()}
+        >
+          <SyncIcon />
+        </button>
       </div>
-    </StyledCurrentColor>
+    </CurrentColorPanel>
   );
 };
 
-const StyledCurrentColor = styled.div`
-  .controlPanel {
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 4px;
-  }
+const CurrentColorPanel = styled.div`
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  opacity: 1;
+  padding: 4px 12px 4px 6px;
+  min-height: 28px;
 
   .currentColor {
     display: flex; /* 親要素をフレックスコンテナにする */

@@ -142,7 +142,7 @@ const LanguageButton = styled.button`
   width: 84px;
   background-color: white;
   border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   font-size: 10px;
   font-weight: 500;
@@ -169,7 +169,7 @@ const DropdownMenu = styled.div`
   right: 0;
   background-color: white;
   border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 80px;
   overflow: hidden;
@@ -197,12 +197,13 @@ const DropdownItem = styled.div<{ $isActive: boolean }>`
 const ColorGroupFilter = styled.div`
   background-color: white;
   border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 4px;
   padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-width: 200px;
+  min-width: 237px;
+  max-width: 237px;
 
   @media (max-width: 800px) {
     display: none;

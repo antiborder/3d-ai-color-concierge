@@ -11,51 +11,54 @@ import { systemColors } from '../../constants/systemColors.js';
 
 const ControlPane = (props: ControlPaneProps) => {
   return (
-    <StyledControlPane>
+    <ControlPaneRoot>
       <CurrentColor {...props} />
+      <StyledControlPane>
+        <SlidersSection>
+          <RgbSliders
+            {...props}
+            mainElement={props.rgbMainElement}
+            setMainElement={props.setRgbMainElement}
+            panelShape={'RGB'}
+          />
+          <CmykSliders
+            {...props}
+            mainElement={props.cmykMainElement}
+            setMainElement={props.setCmykMainElement}
+            panelShape={'CMYK'}
+          />
+          <HsvSliders
+            {...props}
+            mainElement={props.hsvMainElement}
+            setMainElement={props.setHsvMainElement}
+            panelShape={'HSV'}
+          />
+          <HslSliders
+            {...props}
+            mainElement={props.hslMainElement}
+            setMainElement={props.setHslMainElement}
+            panelShape={'HSL'}
+          />
 
-      <SlidersSection>
-        <RgbSliders
-          {...props}
-          mainElement={props.rgbMainElement}
-          setMainElement={props.setRgbMainElement}
-          panelShape={'RGB'}
-        />
-        <CmykSliders
-          {...props}
-          mainElement={props.cmykMainElement}
-          setMainElement={props.setCmykMainElement}
-          panelShape={'CMYK'}
-        />
-        <HsvSliders
-          {...props}
-          mainElement={props.hsvMainElement}
-          setMainElement={props.setHsvMainElement}
-          panelShape={'HSV'}
-        />
-        <HslSliders
-          {...props}
-          mainElement={props.hslMainElement}
-          setMainElement={props.setHslMainElement}
-          panelShape={'HSL'}
-        />
-
-        <TwoDPicker {...props} />
-      </SlidersSection>
-    </StyledControlPane>
+          <TwoDPicker {...props} />
+        </SlidersSection>
+      </StyledControlPane>
+    </ControlPaneRoot>
   );
 };
 
-const StyledControlPane = styled.div`
+const ControlPaneRoot = styled.div`
   width: 237px;
   position: absolute;
-  top: 0px;
-  left: 30px;
+  top: 12px;
+  left: 20px;
+`;
 
+const StyledControlPane = styled.div`
   .controlPanel {
     background-color: white;
     border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: 4px;
     opacity: 1;
     margin-top: 8px;
     padding: 4px 12px 4px 6px;

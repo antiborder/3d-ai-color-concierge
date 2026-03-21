@@ -39,7 +39,7 @@ const ColorHistoryPanel = ({ history, onColorSelect }: ColorHistoryPanelProps) =
 const StyledColorHistoryPanel = styled.div`
   background-color: white;
   border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 4px;
   padding: 4px;
   min-width: 237px;
   max-width: 237px;
