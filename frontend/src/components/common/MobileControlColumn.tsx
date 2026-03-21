@@ -154,9 +154,17 @@ const IconButton = styled.button<{ $active: boolean }>`
 `;
 
 const SheetBlock = styled.div`
-  max-height: min(50vh, 420px);
+  max-height: min(64vh, 480px);
   overflow-y: auto;
   overflow-x: hidden;
+
+  /*
+   * アイコン行と Column の gap(8px) だけで十分なので、Sliders 列の先頭 RGB パネルだけ .controlPanel の margin-top を打ち消す。
+   * （直下の .controlPanel:first-child だと TwoDPicker 内のパネルも巻き込むため、DOM 階層で限定する）
+   */
+  & > * > * > .controlPanel:first-child {
+    margin-top: 0;
+  }
 `;
 
 const EmptyHistory = styled.div`
