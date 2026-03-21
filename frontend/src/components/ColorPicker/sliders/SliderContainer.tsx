@@ -65,7 +65,7 @@ const StyledSliderContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 4px;
+  margin-top: 8px;
   margin-bottom: 4px;
   width: 217px;
 
