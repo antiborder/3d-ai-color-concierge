@@ -79,7 +79,7 @@ const StyledControlPane = styled.div`
     background-color: white;
     color: #4e8cee;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 18px;
     line-height: 1;
     padding: 0;
     cursor: pointer;
