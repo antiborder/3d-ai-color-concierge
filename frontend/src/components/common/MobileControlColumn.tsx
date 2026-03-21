@@ -135,8 +135,8 @@ const IconButton = styled.button<{ $active: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   padding: 0;
   border: 0px solid ${(p) => (p.$active ? '#4e8cee' : '#ddd')};
   border-radius: 4px;
@@ -172,13 +172,13 @@ const EmptyHistory = styled.div`
   border: 1px solid #ddd;
   border-radius: 4px;
   padding: 12px;
-  font-size: 14px;
+  font-size: 16px;
   color: #666;
 `;
 
 function IconSliders() {
   return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
         d="M4 15h4v2H4v-2zm0-8h8v2H4V7zm0 4h12v2H4v-2zm16 5v2H4v-2h16z"
         fill="currentColor"
@@ -189,7 +189,7 @@ function IconSliders() {
 
 function IconPalette() {
   return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
         d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9s1.5.67 1.5 1.5S7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"
         fill="currentColor"
@@ -200,7 +200,7 @@ function IconPalette() {
 
 function IconHistory() {
   return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
         d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"
         fill="currentColor"

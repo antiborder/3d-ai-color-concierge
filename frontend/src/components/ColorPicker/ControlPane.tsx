@@ -88,7 +88,7 @@ const StyledControlPane = styled.div`
     border: none;
     border-radius: 4px;
     margin-bottom: 8px;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: bold;
     cursor: pointer;
   }
@@ -98,7 +98,7 @@ const StyledControlPane = styled.div`
     border: none;
     border-radius: 4px;
     margin-bottom: 8px;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: bold;
   }
 
