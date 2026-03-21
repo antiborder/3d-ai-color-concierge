@@ -5,6 +5,8 @@ import { Toaster } from 'react-hot-toast';
 import ControlPane from './components/ColorPicker/ControlPane';
 import Structure from './components/ColorPicker/Structure';
 import Header from './components/common/Header';
+import MobileControlColumn from './components/common/MobileControlColumn';
+import { useMatchMedia } from './hooks/useMatchMedia';
 import VoiceControl from './components/VoiceControl/VoiceControl';
 import ChatHistoryModal from './components/Chatbot/ChatHistoryModal';
 import { useColorState } from './hooks/useColorState';
@@ -150,6 +152,8 @@ function App() {
   const [materialColorsEnabled, setMaterialColorsEnabled] = useState(true);
   const [japaneseColorsEnabled, setJapaneseColorsEnabled] = useState(false);
 
+  const isDesktopLayout = useMatchMedia('(min-width: 801px)');
+
   const handleWsCommand = (command: VoiceCommand) => {
     executeCommand(command, voiceCommandHandlers);
   };
@@ -218,6 +222,7 @@ function App() {
     <>
       <Toaster position="top-right" />
       <Header
+        isDesktopLayout={isDesktopLayout}
         cssColorsEnabled={cssColorsEnabled}
         materialColorsEnabled={materialColorsEnabled}
         japaneseColorsEnabled={japaneseColorsEnabled}
@@ -251,43 +256,91 @@ function App() {
         materialColorsEnabled={materialColorsEnabled}
         japaneseColorsEnabled={japaneseColorsEnabled}
       />
-      <ControlPane
-        handleLabel={toggleLabel}
-        handleClick={handleClick}
-        handleHsvElementClick={handleHsvElementClick}
-        onShapeClick={setShape}
-        onRgbChange={handleRgbChange}
-        onCmykChange={handleCmykChange}
-        onHslChange={handleHslChange}
-        onHsvChange={handleHsvChange}
-        setRgbMainElement={setRgbMainElement}
-        setCmykMainElement={setCmykMainElement}
-        setHslMainElement={setHslMainElement}
-        setHsvMainElement={setHsvMainElement}
-        shape={colorState.shape}
-        focusR={colorState.r}
-        focusG={colorState.g}
-        focusB={colorState.b}
-        focusC={colorState.c}
-        focusM={colorState.m}
-        focusY={colorState.y}
-        focusK={colorState.k}
-        focusH={colorState.h}
-        focusS={colorState.s}
-        focusL={colorState.l}
-        focusHsvS={colorState.hsvS}
-        focusV={colorState.v}
-        rgbMainElement={colorState.rgbMainElement}
-        hslMainElement={colorState.hslMainElement}
-        hsvMainElement={colorState.hsvMainElement}
-        cmykMainElement={colorState.cmykMainElement}
-        setFocusR={(value: number) => updateRgbValue('R', value)}
-        setFocusG={(value: number) => updateRgbValue('G', value)}
-        setFocusB={(value: number) => updateRgbValue('B', value)}
-        hexInput={colorState.hexInput}
-        setHexInput={setHexInput}
-        onHexUpdate={handleHexUpdate}
-      />
+      {isDesktopLayout ? (
+        <ControlPane
+          handleLabel={toggleLabel}
+          handleClick={handleClick}
+          handleHsvElementClick={handleHsvElementClick}
+          onShapeClick={setShape}
+          onRgbChange={handleRgbChange}
+          onCmykChange={handleCmykChange}
+          onHslChange={handleHslChange}
+          onHsvChange={handleHsvChange}
+          setRgbMainElement={setRgbMainElement}
+          setCmykMainElement={setCmykMainElement}
+          setHslMainElement={setHslMainElement}
+          setHsvMainElement={setHsvMainElement}
+          shape={colorState.shape}
+          focusR={colorState.r}
+          focusG={colorState.g}
+          focusB={colorState.b}
+          focusC={colorState.c}
+          focusM={colorState.m}
+          focusY={colorState.y}
+          focusK={colorState.k}
+          focusH={colorState.h}
+          focusS={colorState.s}
+          focusL={colorState.l}
+          focusHsvS={colorState.hsvS}
+          focusV={colorState.v}
+          rgbMainElement={colorState.rgbMainElement}
+          hslMainElement={colorState.hslMainElement}
+          hsvMainElement={colorState.hsvMainElement}
+          cmykMainElement={colorState.cmykMainElement}
+          setFocusR={(value: number) => updateRgbValue('R', value)}
+          setFocusG={(value: number) => updateRgbValue('G', value)}
+          setFocusB={(value: number) => updateRgbValue('B', value)}
+          hexInput={colorState.hexInput}
+          setHexInput={setHexInput}
+          onHexUpdate={handleHexUpdate}
+        />
+      ) : (
+        <MobileControlColumn
+          handleLabel={toggleLabel}
+          handleClick={handleClick}
+          handleHsvElementClick={handleHsvElementClick}
+          onShapeClick={setShape}
+          onRgbChange={handleRgbChange}
+          onCmykChange={handleCmykChange}
+          onHslChange={handleHslChange}
+          onHsvChange={handleHsvChange}
+          setRgbMainElement={setRgbMainElement}
+          setCmykMainElement={setCmykMainElement}
+          setHslMainElement={setHslMainElement}
+          setHsvMainElement={setHsvMainElement}
+          shape={colorState.shape}
+          focusR={colorState.r}
+          focusG={colorState.g}
+          focusB={colorState.b}
+          focusC={colorState.c}
+          focusM={colorState.m}
+          focusY={colorState.y}
+          focusK={colorState.k}
+          focusH={colorState.h}
+          focusS={colorState.s}
+          focusL={colorState.l}
+          focusHsvS={colorState.hsvS}
+          focusV={colorState.v}
+          rgbMainElement={colorState.rgbMainElement}
+          hslMainElement={colorState.hslMainElement}
+          hsvMainElement={colorState.hsvMainElement}
+          cmykMainElement={colorState.cmykMainElement}
+          setFocusR={(value: number) => updateRgbValue('R', value)}
+          setFocusG={(value: number) => updateRgbValue('G', value)}
+          setFocusB={(value: number) => updateRgbValue('B', value)}
+          hexInput={colorState.hexInput}
+          setHexInput={setHexInput}
+          onHexUpdate={handleHexUpdate}
+          cssColorsEnabled={cssColorsEnabled}
+          materialColorsEnabled={materialColorsEnabled}
+          japaneseColorsEnabled={japaneseColorsEnabled}
+          onCssColorsToggle={setCssColorsEnabled}
+          onMaterialColorsToggle={setMaterialColorsEnabled}
+          onJapaneseColorsToggle={setJapaneseColorsEnabled}
+          colorHistory={history}
+          onColorSelect={handleClick}
+        />
+      )}
       <VoiceControl
         currentColorState={colorState}
         onTranscript={handleVoiceTranscript}

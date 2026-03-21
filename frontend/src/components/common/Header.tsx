@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import ColorHistoryPanel from './ColorHistoryPanel';
+import LanguageSelector from './LanguageSelector';
+import DisplayedColorsPanel from './DisplayedColorsPanel';
 import type { ColorHistoryItem } from '../../hooks/useColorHistory';
 
 interface HeaderProps {
+  isDesktopLayout?: boolean;
   cssColorsEnabled: boolean;
   materialColorsEnabled: boolean;
   japaneseColorsEnabled: boolean;
@@ -16,6 +17,7 @@ interface HeaderProps {
 }
 
 const Header = ({
+  isDesktopLayout = true,
   cssColorsEnabled,
   materialColorsEnabled,
   japaneseColorsEnabled,
@@ -25,92 +27,25 @@ const Header = ({
   colorHistory,
   onColorSelect,
 }: HeaderProps) => {
-  const { i18n } = useTranslation();
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const languages = [
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'ja', name: '日本語', flag: '🇯🇵' },
-  ];
-
-  const currentLanguage = languages.find((lang) => lang.code === i18n.language) || languages[0];
-
-  const buildTopLangUrl = (langCode: string) => {
-    const base = import.meta.env.BASE_URL || '/';
-    const url = new URL(base, window.location.origin);
-    url.searchParams.set('lang', langCode);
-    return url.toString();
-  };
-
-  const handleLanguageChange = (langCode: string) => {
-    window.location.assign(buildTopLangUrl(langCode));
-  };
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  if (!isDesktopLayout) {
+    return (
+      <StyledHeader>
+        <LanguageSelector />
+      </StyledHeader>
+    );
+  }
 
   return (
     <StyledHeader>
-      <LanguageSelector ref={dropdownRef}>
-        <LanguageButton onClick={() => setIsOpen(!isOpen)}>
-          {/* <span>{currentLanguage.flag}</span> */}
-          <span>{currentLanguage.name}</span>
-          <span>{isOpen ? '▲' : '▼'}</span>
-        </LanguageButton>
-        {isOpen && (
-          <DropdownMenu>
-            {languages.map((lang) => (
-              <DropdownItem
-                key={lang.code}
-                onClick={() => handleLanguageChange(lang.code)}
-                $isActive={i18n.language === lang.code}
-              >
-                {/* <span>{lang.flag}</span> */}
-                <span>{lang.name}</span>
-              </DropdownItem>
-            ))}
-          </DropdownMenu>
-        )}
-      </LanguageSelector>
-      <ColorGroupFilter>
-        <FilterTitle>Displayed Colors</FilterTitle>
-        <CheckboxLabel>
-          <input
-            type="checkbox"
-            checked={cssColorsEnabled}
-            onChange={(e) => onCssColorsToggle(e.target.checked)}
-          />
-          <span>CSS Named Colors</span>
-        </CheckboxLabel>
-        <CheckboxLabel>
-          <input
-            type="checkbox"
-            checked={materialColorsEnabled}
-            onChange={(e) => onMaterialColorsToggle(e.target.checked)}
-          />
-          <span>Material Design Colors</span>
-        </CheckboxLabel>
-        <CheckboxLabel>
-          <input
-            type="checkbox"
-            checked={japaneseColorsEnabled}
-            onChange={(e) => onJapaneseColorsToggle(e.target.checked)}
-          />
-          <span>Japanese Traditional Colors</span>
-        </CheckboxLabel>
-      </ColorGroupFilter>
+      <LanguageSelector />
+      <DisplayedColorsPanel
+        cssColorsEnabled={cssColorsEnabled}
+        materialColorsEnabled={materialColorsEnabled}
+        japaneseColorsEnabled={japaneseColorsEnabled}
+        onCssColorsToggle={onCssColorsToggle}
+        onMaterialColorsToggle={onMaterialColorsToggle}
+        onJapaneseColorsToggle={onJapaneseColorsToggle}
+      />
       <HistoryPanelWrapper>
         <ColorHistoryPanel history={colorHistory} onColorSelect={onColorSelect} />
       </HistoryPanelWrapper>
@@ -130,119 +65,6 @@ const StyledHeader = styled.header`
   gap: 12px;
 `;
 
-const LanguageSelector = styled.div`
-  position: relative;
-`;
-
-const LanguageButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 8px;
-  width: 84px;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 10px;
-  font-weight: 500;
-  color: #333;
-  transition: all 0.2s;
-
-  &:hover {
-    background-color: #f5f5f5;
-  }
-
-  span:first-child {
-    font-size: 14px;
-  }
-
-  span:last-child {
-    font-size: 10px;
-    margin-left: 4px;
-  }
-`;
-
-const DropdownMenu = styled.div`
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  min-width: 80px;
-  overflow: hidden;
-`;
-
-const DropdownItem = styled.div<{ $isActive: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 8px;
-  cursor: pointer;
-  color: #333;
-  background-color: ${(props) => (props.$isActive ? '#f0f0f0' : 'white')};
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: #f5f5f5;
-  }
-
-  span:first-child {
-    font-size: 14px;
-  }
-`;
-
-const ColorGroupFilter = styled.div`
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 237px;
-  max-width: 237px;
-
-  @media (max-width: 800px) {
-    display: none;
-  }
-`;
-
-const FilterTitle = styled.div`
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 8px;
-  user-select: none;
-`;
-
-const CheckboxLabel = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  color: #333;
-  user-select: none;
-
-  input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: #4e8cee;
-  }
-
-  &:hover {
-    color: #000;
-  }
-`;
-
-const HistoryPanelWrapper = styled.div`
-  @media (max-width: 800px) {
-    display: none;
-  }
-`;
+const HistoryPanelWrapper = styled.div``;
 
 export default Header;

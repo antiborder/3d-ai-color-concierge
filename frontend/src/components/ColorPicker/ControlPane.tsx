@@ -13,37 +13,44 @@ const ControlPane = (props: ControlPaneProps) => {
   return (
     <ControlPaneRoot>
       <CurrentColor {...props} />
-      <StyledControlPane>
-        <SlidersSection>
-          <RgbSliders
-            {...props}
-            mainElement={props.rgbMainElement}
-            setMainElement={props.setRgbMainElement}
-            panelShape={'RGB'}
-          />
-          <CmykSliders
-            {...props}
-            mainElement={props.cmykMainElement}
-            setMainElement={props.setCmykMainElement}
-            panelShape={'CMYK'}
-          />
-          <HsvSliders
-            {...props}
-            mainElement={props.hsvMainElement}
-            setMainElement={props.setHsvMainElement}
-            panelShape={'HSV'}
-          />
-          <HslSliders
-            {...props}
-            mainElement={props.hslMainElement}
-            setMainElement={props.setHslMainElement}
-            panelShape={'HSL'}
-          />
-
-          <TwoDPicker {...props} />
-        </SlidersSection>
-      </StyledControlPane>
+      <ControlPaneSliders {...props} />
     </ControlPaneRoot>
+  );
+};
+
+/** Sliders + 2D picker (used on desktop inside ControlPane; on narrow screens inside MobileControlColumn when opened). */
+export const ControlPaneSliders = (props: ControlPaneProps) => {
+  return (
+    <StyledControlPane>
+      <SlidersSection>
+        <RgbSliders
+          {...props}
+          mainElement={props.rgbMainElement}
+          setMainElement={props.setRgbMainElement}
+          panelShape={'RGB'}
+        />
+        <CmykSliders
+          {...props}
+          mainElement={props.cmykMainElement}
+          setMainElement={props.setCmykMainElement}
+          panelShape={'CMYK'}
+        />
+        <HsvSliders
+          {...props}
+          mainElement={props.hsvMainElement}
+          setMainElement={props.setHsvMainElement}
+          panelShape={'HSV'}
+        />
+        <HslSliders
+          {...props}
+          mainElement={props.hslMainElement}
+          setMainElement={props.setHslMainElement}
+          panelShape={'HSL'}
+        />
+
+        <TwoDPicker {...props} />
+      </SlidersSection>
+    </StyledControlPane>
   );
 };
 
@@ -130,10 +137,6 @@ const StyledControlPane = styled.div`
   }
 `;
 
-const SlidersSection = styled.div`
-  @media (max-width: 800px) {
-    display: none;
-  }
-`;
+const SlidersSection = styled.div``;
 
 export default ControlPane;
