@@ -46,7 +46,7 @@ const StyledColorHistoryPanel = styled.div`
 `;
 
 const HistoryTitle = styled.div`
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: #333;
   margin-bottom: 8px;
