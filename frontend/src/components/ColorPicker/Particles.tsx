@@ -193,9 +193,9 @@ const ParticleBubble = (props: ParticleBubbleProps) => {
         style={{ backgroundColor: '#' + convert.rgb.hex([props.r, props.g, props.b]) }}
       />
       {'#' + convert.rgb.hex([props.r, props.g, props.b])}
-      <div onClick={props.onParticleClick}>
+      {/* <div onClick={props.onParticleClick}>
         <span className="modalLink">この色を選ぶ</span>
-      </div>
+      </div> */}
     </StyledNodeBubble>
   );
 };
