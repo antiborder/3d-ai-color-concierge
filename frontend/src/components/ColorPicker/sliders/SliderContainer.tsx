@@ -31,7 +31,7 @@ const SliderContainer = (props: SliderContainerProps) => {
               xmlns="http://www.w3.org/2000/svg"
               aria-hidden
             >
-              <circle cx="5" cy="5" r="4" fill={props.color} />
+              <circle cx="5" cy="5" r="7" fill={props.color} />
               <path
                 d="M2 5L4 7.4L8 2.2"
                 stroke="#ffffff"
@@ -48,7 +48,7 @@ const SliderContainer = (props: SliderContainerProps) => {
               xmlns="http://www.w3.org/2000/svg"
               aria-hidden
             >
-              <circle cx="5" cy="5" r="4" fill={props.color} />
+              <circle cx="5" cy="5" r="7" fill={props.color} />
             </svg>
           )}
         </button>
@@ -82,7 +82,7 @@ const StyledSliderContainer = styled.div`
     font-size: 18px;
   }
   input {
-    width: 180px;
+    width: 150px;
   }
   .value {
     width: 20px;

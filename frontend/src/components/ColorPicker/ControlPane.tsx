@@ -123,8 +123,8 @@ const StyledControlPane = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     padding: 0;
     line-height: 0;
     background-color: white;
