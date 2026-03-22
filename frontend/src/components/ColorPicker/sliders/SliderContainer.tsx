@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import type { SliderContainerProps } from '../../../types/controlPane';
-import { systemColors } from '../../../constants/systemColors.js';
 
 const SliderContainer = (props: SliderContainerProps) => {
   const [, setValue] = useState(props.value);
@@ -24,25 +23,33 @@ const SliderContainer = (props: SliderContainerProps) => {
           className={isActive ? 'mainElement labelOn' : 'mainElement labelOff'}
         >
           {props.mainElement === props.symbol ? (
-            <div
-              style={{
-                marginLeft: '-4px',
-                marginTop: '-3px',
-                color: isActive ? systemColors['INACTIVE'] : props.color,
-              }}
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 10 10"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden
             >
-              ■
-            </div>
+              <circle cx="5" cy="5" r="4" fill={props.color} />
+              <path
+                d="M2 5L4 7.4L8 2.2"
+                stroke="#ffffff"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           ) : (
-            <div
-              style={{
-                marginLeft: '-6px',
-                marginTop: '-3px',
-                color: props.color,
-              }}
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 10 10"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden
             >
-              ・
-            </div>
+              <circle cx="5" cy="5" r="4" fill={props.color} />
+            </svg>
           )}
         </button>
       )}
@@ -75,7 +82,7 @@ const StyledSliderContainer = styled.div`
     font-size: 18px;
   }
   input {
-    width: 197px;
+    width: 180px;
   }
   .value {
     width: 20px;

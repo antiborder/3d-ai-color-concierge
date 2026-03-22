@@ -120,13 +120,22 @@ const StyledControlPane = styled.div`
   }
 
   .mainElement {
-    width: 16px;
-    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    line-height: 0;
     background-color: white;
     font-weight: bold;
     border-radius: 4px;
     margin-right: 4px;
-    padding-right: 0px 0px 0px -8px;
+
+    svg {
+      display: block;
+      flex-shrink: 0;
+    }
   }
 
   .labelOn {
