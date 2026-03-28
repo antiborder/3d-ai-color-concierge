@@ -28,6 +28,7 @@ export interface StructureProps {
   // Color group filters
   cssColorsEnabled: boolean;
   materialColorsEnabled: boolean;
+  spectral12ColorsEnabled: boolean;
   japaneseColorsEnabled: boolean;
 }
 

@@ -275,12 +275,20 @@ const Structure = (props: StructureProps) => {
       if (props.materialColorsEnabled && color.tag.includes('MATERIAL')) {
         return true;
       }
+      if (props.spectral12ColorsEnabled && color.tag.includes('SPECTRAL12')) {
+        return true;
+      }
       if (props.japaneseColorsEnabled && color.tag.includes('JAPANESE')) {
         return true;
       }
       return false;
     });
-  }, [props.cssColorsEnabled, props.materialColorsEnabled, props.japaneseColorsEnabled]);
+  }, [
+    props.cssColorsEnabled,
+    props.materialColorsEnabled,
+    props.spectral12ColorsEnabled,
+    props.japaneseColorsEnabled,
+  ]);
 
   // 選択された色を16進数に変換して背景色として使用
   const backgroundColor = useMemo(() => {
@@ -323,12 +331,12 @@ const Structure = (props: StructureProps) => {
             getHslPosition={getHslPosition}
             getHsvPosition={getHsvPosition}
           />
-          <Focus
+          {/* <Focus
             {...props}
             getRgbPosition={getRgbPosition}
             getHslPosition={getHslPosition}
             getHsvPosition={getHsvPosition}
-          />
+          /> */}
           <ColorCursor
             {...props}
             getRgbPosition={getRgbPosition}

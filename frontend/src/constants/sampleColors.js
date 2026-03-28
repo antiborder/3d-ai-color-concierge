@@ -4470,6 +4470,19 @@ const sampleColors = [
   // Black and White
   { hex: '#000000', name1: 'Black', name2: '', name3: '', tag: ['MATERIAL'] },
   { hex: '#FFFFFF', name1: 'White', name2: '', name3: '', tag: ['MATERIAL'] },
+  // 12-color spectral wheel (HSL hue every 30°, S/L 100%/50%)
+  { hex: '#FF0000', name1: 'Red', name2: '', name3: '', tag: ['SPECTRAL12'] },
+  { hex: '#FF8000', name1: 'Red-orange', name2: '', name3: '', tag: ['SPECTRAL12'] },
+  { hex: '#FFFF00', name1: 'Yellow', name2: '', name3: '', tag: ['SPECTRAL12'] },
+  { hex: '#80FF00', name1: 'Chartreuse', name2: '', name3: '', tag: ['SPECTRAL12'] },
+  { hex: '#00FF00', name1: 'Green', name2: '', name3: '', tag: ['SPECTRAL12'] },
+  { hex: '#00FF80', name1: 'Spring green', name2: '', name3: '', tag: ['SPECTRAL12'] },
+  { hex: '#00FFFF', name1: 'Cyan', name2: '', name3: '', tag: ['SPECTRAL12'] },
+  { hex: '#007FFF', name1: 'Azure', name2: '', name3: '', tag: ['SPECTRAL12'] },
+  { hex: '#0000FF', name1: 'Blue', name2: '', name3: '', tag: ['SPECTRAL12'] },
+  { hex: '#7F00FF', name1: 'Violet', name2: '', name3: '', tag: ['SPECTRAL12'] },
+  { hex: '#FF00FF', name1: 'Magenta', name2: '', name3: '', tag: ['SPECTRAL12'] },
+  { hex: '#FF0080', name1: 'Rose', name2: '', name3: '', tag: ['SPECTRAL12'] },
 ];
 
 export default sampleColors;

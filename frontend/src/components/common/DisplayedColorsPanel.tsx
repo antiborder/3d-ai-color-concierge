@@ -3,18 +3,22 @@ import styled from 'styled-components';
 export interface DisplayedColorsPanelProps {
   cssColorsEnabled: boolean;
   materialColorsEnabled: boolean;
+  spectral12ColorsEnabled: boolean;
   japaneseColorsEnabled: boolean;
   onCssColorsToggle: (enabled: boolean) => void;
   onMaterialColorsToggle: (enabled: boolean) => void;
+  onSpectral12ColorsToggle: (enabled: boolean) => void;
   onJapaneseColorsToggle: (enabled: boolean) => void;
 }
 
 const DisplayedColorsPanel = ({
   cssColorsEnabled,
   materialColorsEnabled,
+  spectral12ColorsEnabled,
   japaneseColorsEnabled,
   onCssColorsToggle,
   onMaterialColorsToggle,
+  onSpectral12ColorsToggle,
   onJapaneseColorsToggle,
 }: DisplayedColorsPanelProps) => {
   return (
@@ -35,6 +39,14 @@ const DisplayedColorsPanel = ({
           onChange={(e) => onMaterialColorsToggle(e.target.checked)}
         />
         <span>Material Design Colors</span>
+      </CheckboxLabel>
+      <CheckboxLabel>
+        <input
+          type="checkbox"
+          checked={spectral12ColorsEnabled}
+          onChange={(e) => onSpectral12ColorsToggle(e.target.checked)}
+        />
+        <span>12-color Spectral Wheel</span>
       </CheckboxLabel>
       <CheckboxLabel>
         <input

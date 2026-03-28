@@ -150,6 +150,7 @@ function App() {
   // Color group filter states
   const [cssColorsEnabled, setCssColorsEnabled] = useState(true);
   const [materialColorsEnabled, setMaterialColorsEnabled] = useState(true);
+  const [spectral12ColorsEnabled, setSpectral12ColorsEnabled] = useState(true);
   const [japaneseColorsEnabled, setJapaneseColorsEnabled] = useState(false);
 
   const isDesktopLayout = useMatchMedia('(min-width: 801px)');
@@ -225,9 +226,11 @@ function App() {
         isDesktopLayout={isDesktopLayout}
         cssColorsEnabled={cssColorsEnabled}
         materialColorsEnabled={materialColorsEnabled}
+        spectral12ColorsEnabled={spectral12ColorsEnabled}
         japaneseColorsEnabled={japaneseColorsEnabled}
         onCssColorsToggle={setCssColorsEnabled}
         onMaterialColorsToggle={setMaterialColorsEnabled}
+        onSpectral12ColorsToggle={setSpectral12ColorsEnabled}
         onJapaneseColorsToggle={setJapaneseColorsEnabled}
         colorHistory={history}
         onColorSelect={handleClick}
@@ -254,6 +257,7 @@ function App() {
         hsvMainElement={colorState.hsvMainElement}
         cssColorsEnabled={cssColorsEnabled}
         materialColorsEnabled={materialColorsEnabled}
+        spectral12ColorsEnabled={spectral12ColorsEnabled}
         japaneseColorsEnabled={japaneseColorsEnabled}
       />
       {isDesktopLayout ? (
@@ -333,9 +337,11 @@ function App() {
           onHexUpdate={handleHexUpdate}
           cssColorsEnabled={cssColorsEnabled}
           materialColorsEnabled={materialColorsEnabled}
+          spectral12ColorsEnabled={spectral12ColorsEnabled}
           japaneseColorsEnabled={japaneseColorsEnabled}
           onCssColorsToggle={setCssColorsEnabled}
           onMaterialColorsToggle={setMaterialColorsEnabled}
+          onSpectral12ColorsToggle={setSpectral12ColorsEnabled}
           onJapaneseColorsToggle={setJapaneseColorsEnabled}
           colorHistory={history}
           onColorSelect={handleClick}

@@ -8,9 +8,11 @@ interface HeaderProps {
   isDesktopLayout?: boolean;
   cssColorsEnabled: boolean;
   materialColorsEnabled: boolean;
+  spectral12ColorsEnabled: boolean;
   japaneseColorsEnabled: boolean;
   onCssColorsToggle: (enabled: boolean) => void;
   onMaterialColorsToggle: (enabled: boolean) => void;
+  onSpectral12ColorsToggle: (enabled: boolean) => void;
   onJapaneseColorsToggle: (enabled: boolean) => void;
   colorHistory: ColorHistoryItem[];
   onColorSelect: (r: number, g: number, b: number) => void;
@@ -20,9 +22,11 @@ const Header = ({
   isDesktopLayout = true,
   cssColorsEnabled,
   materialColorsEnabled,
+  spectral12ColorsEnabled,
   japaneseColorsEnabled,
   onCssColorsToggle,
   onMaterialColorsToggle,
+  onSpectral12ColorsToggle,
   onJapaneseColorsToggle,
   colorHistory,
   onColorSelect,
@@ -41,9 +45,11 @@ const Header = ({
       <DisplayedColorsPanel
         cssColorsEnabled={cssColorsEnabled}
         materialColorsEnabled={materialColorsEnabled}
+        spectral12ColorsEnabled={spectral12ColorsEnabled}
         japaneseColorsEnabled={japaneseColorsEnabled}
         onCssColorsToggle={onCssColorsToggle}
         onMaterialColorsToggle={onMaterialColorsToggle}
+        onSpectral12ColorsToggle={onSpectral12ColorsToggle}
         onJapaneseColorsToggle={onJapaneseColorsToggle}
       />
       <HistoryPanelWrapper>
