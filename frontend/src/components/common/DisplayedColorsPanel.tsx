@@ -23,7 +23,7 @@ const DisplayedColorsPanel = ({
 }: DisplayedColorsPanelProps) => {
   return (
     <Panel>
-      <FilterTitle>Displayed Colors</FilterTitle>
+      <FilterTitle>Color Samples</FilterTitle>
       <CheckboxLabel>
         <input
           type="checkbox"
