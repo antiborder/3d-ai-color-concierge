@@ -1,4 +1,6 @@
+import type { MouseEvent } from 'react';
 import styled from 'styled-components';
+import toast from 'react-hot-toast';
 import type { ColorHistoryItem } from '../../hooks/useColorHistory';
 
 interface ColorHistoryPanelProps {
@@ -14,6 +16,14 @@ const ColorHistoryPanel = ({ history, onColorSelect }: ColorHistoryPanelProps) =
     return null;
   }
 
+  const handleCopyHex = (e: MouseEvent, hex: string) => {
+    e.stopPropagation();
+    const code = hex.replace(/^#/, '');
+    void navigator.clipboard.writeText(hex).then(() => {
+      toast.success(`Color Code "${code}" was copied to the clipboard.`);
+    });
+  };
+
   return (
     <StyledColorHistoryPanel>
       <HistoryTitle>Color History</HistoryTitle>
@@ -27,7 +37,16 @@ const ColorHistoryPanel = ({ history, onColorSelect }: ColorHistoryPanelProps) =
             >
               <HistoryNumber>{number}</HistoryNumber>
               <ColorSample style={{ backgroundColor: item.hex }} />
-              <ColorCode>{item.hex}</ColorCode>
+              <HexRow>
+                <ColorCode>{item.hex}</ColorCode>
+                <CopyIconButton
+                  type="button"
+                  aria-label={`Copy ${item.hex}`}
+                  onClick={(e) => handleCopyHex(e, item.hex)}
+                >
+                  <CopyIconSvg />
+                </CopyIconButton>
+              </HexRow>
             </HistoryItem>
           );
         })}
@@ -36,13 +55,26 @@ const ColorHistoryPanel = ({ history, onColorSelect }: ColorHistoryPanelProps) =
   );
 };
 
+function CopyIconSvg() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
 const StyledColorHistoryPanel = styled.div`
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 4px;
   padding: 4px;
-  min-width: 237px;
-  max-width: 237px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 300px;
 `;
 
 const HistoryTitle = styled.div`
@@ -58,8 +90,9 @@ const HistoryList = styled.div`
   flex-direction: column;
   gap: 4px;
   max-height: 400px;
+  min-width: 0;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
 
   /* スクロールバーのスタイリング */
   &::-webkit-scrollbar {
@@ -89,6 +122,8 @@ const HistoryItem = styled.div`
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s;
+  min-width: min-content;
+  box-sizing: border-box;
 
   &:hover {
     background-color: #f5f5f5;
@@ -110,10 +145,18 @@ const HistoryNumber = styled.div`
 `;
 
 const ColorSample = styled.div`
-  width: 120px;
+  flex: 1 1 48px;
+  min-width: 48px;
+  max-width: 120px;
   height: 24px;
   border: 1px solid #aaaaaa;
   border-radius: 4px;
+`;
+
+const HexRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
   flex-shrink: 0;
 `;
 
@@ -122,7 +165,36 @@ const ColorCode = styled.div`
   color: #333;
   font-family: monospace;
   user-select: none;
+  white-space: nowrap;
+`;
+
+const CopyIconButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #555;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+
+  &:hover {
+    background-color: #eaeaea;
+    color: #222;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #4e8cee;
+    outline-offset: 1px;
+  }
 `;
 
 export default ColorHistoryPanel;
