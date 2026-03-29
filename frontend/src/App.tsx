@@ -150,7 +150,7 @@ function App() {
   // Color group filter states
   const [cssColorsEnabled, setCssColorsEnabled] = useState(true);
   const [materialColorsEnabled, setMaterialColorsEnabled] = useState(true);
-  const [spectral12ColorsEnabled, setSpectral12ColorsEnabled] = useState(true);
+  const [spectral12ColorsEnabled, setSpectral12ColorsEnabled] = useState(false);
   const [japaneseColorsEnabled, setJapaneseColorsEnabled] = useState(false);
 
   const isDesktopLayout = useMatchMedia('(min-width: 801px)');
