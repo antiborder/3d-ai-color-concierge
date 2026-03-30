@@ -18,9 +18,8 @@ const ColorHistoryPanel = ({ history, onColorSelect }: ColorHistoryPanelProps) =
 
   const handleCopyHex = (e: MouseEvent, hex: string) => {
     e.stopPropagation();
-    const code = hex.replace(/^#/, '');
     void navigator.clipboard.writeText(hex).then(() => {
-      toast.success(`Color Code "${code}" was copied to the clipboard.`);
+      toast.success(`Color Code "${hex}" was copied to the clipboard.`);
     });
   };
 
