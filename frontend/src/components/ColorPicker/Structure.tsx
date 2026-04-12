@@ -352,6 +352,7 @@ const Structure = (props: StructureProps) => {
               getRgbPosition={getRgbPosition}
               getHslPosition={getHslPosition}
               getHsvPosition={getHsvPosition}
+              onColorSelect={props.onParticleClick}
             />
           )}
           <FocusPlane

@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import { useRef, useEffect } from 'react';
-import { Line } from '@react-three/drei';
+import { useRef, useEffect, useState } from 'react';
+import { Line, Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
+import styled from 'styled-components';
 import type { PositionFunction } from '../../types/structure';
 import type { HarmonyColor } from '../../utils/colorHarmony';
 
@@ -12,6 +13,7 @@ interface HarmonyMarkersProps {
   getRgbPosition: PositionFunction;
   getHslPosition: PositionFunction;
   getHsvPosition: PositionFunction;
+  onColorSelect: (r: number, g: number, b: number) => void;
 }
 
 function buildSphereLines(radius: number) {
@@ -58,22 +60,35 @@ const { meridianLines, parallelLines } = buildSphereLines(RADIUS);
 interface SingleMarkerProps {
   position: [number, number, number];
   hex: string;
+  r: number;
+  g: number;
+  b: number;
   flashColor: string;
   triggerKey: string;
+  onColorSelect: (r: number, g: number, b: number) => void;
 }
 
-const SingleMarker = ({ position, hex, flashColor, triggerKey }: SingleMarkerProps) => {
+const SingleMarker = ({
+  position,
+  hex,
+  r,
+  g,
+  b,
+  flashColor,
+  triggerKey,
+  onColorSelect,
+}: SingleMarkerProps) => {
   const meridianGroupRef = useRef<THREE.Group>(null);
-  // sphereGroupRef covers all Line children for imperative color traversal
   const sphereGroupRef = useRef<THREE.Group>(null);
   const animStartRef = useRef<number | null>(null);
   const hexRef = useRef(hex);
   const flashColorRef = useRef(flashColor);
+  const [hovered, setHovered] = useState(false);
+  const [bubbleHovered, setBubbleHovered] = useState(false);
 
   useEffect(() => { hexRef.current = hex; }, [hex]);
   useEffect(() => { flashColorRef.current = flashColor; }, [flashColor]);
 
-  // Skip the very first render; start animation on subsequent triggerKey changes
   const isMountedRef = useRef(false);
   useEffect(() => {
     if (!isMountedRef.current) {
@@ -84,12 +99,10 @@ const SingleMarker = ({ position, hex, flashColor, triggerKey }: SingleMarkerPro
   }, [triggerKey]);
 
   useFrame(() => {
-    // Continuous Y-axis rotation
     if (meridianGroupRef.current) {
       meridianGroupRef.current.rotation.y += 0.02;
     }
 
-    // Sine-wave color animation via traverse (no React re-render)
     if (animStartRef.current !== null && sphereGroupRef.current) {
       const elapsed = (Date.now() - animStartRef.current) / 1000;
       let targetHex: string;
@@ -98,7 +111,6 @@ const SingleMarker = ({ position, hex, flashColor, triggerKey }: SingleMarkerPro
         animStartRef.current = null;
         targetHex = hexRef.current;
       } else {
-        // 2 full sine cycles over ANIM_DURATION seconds: 0→1→0→1→0
         const factor = (1 - Math.cos((8 * Math.PI * elapsed) / ANIM_DURATION)) / 2;
         const blended = new THREE.Color(hexRef.current).lerp(
           new THREE.Color(flashColorRef.current),
@@ -118,6 +130,29 @@ const SingleMarker = ({ position, hex, flashColor, triggerKey }: SingleMarkerPro
 
   return (
     <group position={position} rotation={[0, 0, -Math.PI]}>
+      {/* Invisible hit sphere for hover detection */}
+      <mesh
+        onPointerOver={() => setHovered(true)}
+        onPointerOut={() => setHovered(false)}
+        onClick={() => onColorSelect(r, g, b)}
+      >
+        <sphereGeometry args={[RADIUS * 2, 8, 8]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+
+      {/* Popup */}
+      <Html zIndexRange={[100, 5]}>
+        <div
+          onPointerOver={() => setBubbleHovered(true)}
+          onPointerOut={() => setBubbleHovered(false)}
+        >
+          {(hovered || bubbleHovered) && (
+            <HarmonyBubble hex={hex} onColorSelect={() => onColorSelect(r, g, b)} />
+          )}
+        </div>
+      </Html>
+
+      {/* Wireframe sphere */}
       <group ref={sphereGroupRef} rotation={[Math.PI / 2, 0, 0]}>
         <group ref={meridianGroupRef}>
           {meridianLines.map((points, i) =>
@@ -136,6 +171,19 @@ const SingleMarker = ({ position, hex, flashColor, triggerKey }: SingleMarkerPro
   );
 };
 
+interface HarmonyBubbleProps {
+  hex: string;
+  onColorSelect: () => void;
+}
+
+const HarmonyBubble = ({ hex, onColorSelect }: HarmonyBubbleProps) => (
+  <StyledBubble>
+    <BubbleTitle>Harmonic Color</BubbleTitle>
+    <ColorRect style={{ backgroundColor: hex }} onClick={onColorSelect} />
+    <ColorCode>{hex}</ColorCode>
+  </StyledBubble>
+);
+
 const HarmonyMarkers = ({
   harmonyColors,
   shape,
@@ -143,6 +191,7 @@ const HarmonyMarkers = ({
   getRgbPosition,
   getHslPosition,
   getHsvPosition,
+  onColorSelect,
 }: HarmonyMarkersProps) => {
   const flashColor = focusL >= 50 ? '#000000' : '#ffffff';
   const colorKey = harmonyColors.map((c) => `${c.r},${c.g},${c.b}`).join('|');
@@ -164,13 +213,56 @@ const HarmonyMarkers = ({
             key={idx}
             position={position}
             hex={hex}
+            r={color.r}
+            g={color.g}
+            b={color.b}
             flashColor={flashColor}
             triggerKey={colorKey}
+            onColorSelect={onColorSelect}
           />
         );
       })}
     </>
   );
 };
+
+const StyledBubble = styled.div`
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 120px;
+  background: #fff;
+  border-radius: 0px 24px 24px 24px;
+  font-size: 12px;
+  padding: 6px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+`;
+
+const BubbleTitle = styled.div`
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 6px;
+`;
+
+const ColorRect = styled.div`
+  height: 20px;
+  width: 90px;
+  margin: 0 auto 4px;
+  border: 1px solid #bbb;
+  border-radius: 3px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #4e8cee;
+  }
+`;
+
+const ColorCode = styled.div`
+  font-family: monospace;
+  font-size: 12px;
+  color: #333;
+`;
 
 export default HarmonyMarkers;
