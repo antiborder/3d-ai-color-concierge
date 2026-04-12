@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toaster } from 'react-hot-toast';
 import ControlPane from './components/ColorPicker/ControlPane';
@@ -14,6 +14,7 @@ import { useColorHistory } from './hooks/useColorHistory';
 import { executeCommand } from './utils/commandExecutor';
 import type { Command as VoiceCommand } from './types/voice';
 import { useChatbot } from './hooks/useChatbot';
+import { type HarmonyMode, computeHarmonyColors } from './utils/colorHarmony';
 
 function App() {
   const { i18n } = useTranslation();
@@ -155,6 +156,13 @@ function App() {
 
   const isDesktopLayout = useMatchMedia('(min-width: 801px)');
 
+  const [harmonyMode, setHarmonyMode] = useState<HarmonyMode>('none');
+
+  const harmonyColors = useMemo(
+    () => computeHarmonyColors(colorState.h, colorState.s, colorState.l, harmonyMode),
+    [colorState.h, colorState.s, colorState.l, harmonyMode]
+  );
+
   const handleWsCommand = (command: VoiceCommand) => {
     executeCommand(command, voiceCommandHandlers);
   };
@@ -234,6 +242,12 @@ function App() {
         onJapaneseColorsToggle={setJapaneseColorsEnabled}
         colorHistory={history}
         onColorSelect={handleClick}
+        harmonyMode={harmonyMode}
+        onHarmonyModeChange={setHarmonyMode}
+        harmonyColors={harmonyColors}
+        currentR={colorState.r}
+        currentG={colorState.g}
+        currentB={colorState.b}
       />
       <Structure
         shape={colorState.shape}
@@ -259,6 +273,7 @@ function App() {
         materialColorsEnabled={materialColorsEnabled}
         spectral12ColorsEnabled={spectral12ColorsEnabled}
         japaneseColorsEnabled={japaneseColorsEnabled}
+        harmonyColors={harmonyColors}
       />
       {isDesktopLayout ? (
         <ControlPane
@@ -345,6 +360,9 @@ function App() {
           onJapaneseColorsToggle={setJapaneseColorsEnabled}
           colorHistory={history}
           onColorSelect={handleClick}
+          harmonyMode={harmonyMode}
+          onHarmonyModeChange={setHarmonyMode}
+          harmonyColors={harmonyColors}
         />
       )}
       <VoiceControl

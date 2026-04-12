@@ -1,8 +1,10 @@
 import styled from 'styled-components';
 import ColorHistoryPanel from './ColorHistoryPanel';
+import ColorHarmonyPanel from './ColorHarmonyPanel';
 import LanguageSelector from './LanguageSelector';
 import DisplayedColorsPanel from './DisplayedColorsPanel';
 import type { ColorHistoryItem } from '../../hooks/useColorHistory';
+import type { HarmonyMode, HarmonyColor } from '../../utils/colorHarmony';
 
 interface HeaderProps {
   isDesktopLayout?: boolean;
@@ -16,6 +18,12 @@ interface HeaderProps {
   onJapaneseColorsToggle: (enabled: boolean) => void;
   colorHistory: ColorHistoryItem[];
   onColorSelect: (r: number, g: number, b: number) => void;
+  harmonyMode: HarmonyMode;
+  onHarmonyModeChange: (mode: HarmonyMode) => void;
+  harmonyColors: HarmonyColor[];
+  currentR: number;
+  currentG: number;
+  currentB: number;
 }
 
 const Header = ({
@@ -30,6 +38,12 @@ const Header = ({
   onJapaneseColorsToggle,
   colorHistory,
   onColorSelect,
+  harmonyMode,
+  onHarmonyModeChange,
+  harmonyColors,
+  currentR,
+  currentG,
+  currentB,
 }: HeaderProps) => {
   if (!isDesktopLayout) {
     return (
@@ -51,6 +65,15 @@ const Header = ({
         onMaterialColorsToggle={onMaterialColorsToggle}
         onSpectral12ColorsToggle={onSpectral12ColorsToggle}
         onJapaneseColorsToggle={onJapaneseColorsToggle}
+      />
+      <ColorHarmonyPanel
+        mode={harmonyMode}
+        onModeChange={onHarmonyModeChange}
+        harmonyColors={harmonyColors}
+        currentR={currentR}
+        currentG={currentG}
+        currentB={currentB}
+        onColorSelect={onColorSelect}
       />
       <HistoryPanelWrapper>
         <ColorHistoryPanel history={colorHistory} onColorSelect={onColorSelect} />

@@ -11,6 +11,7 @@ import Particles from './Particles';
 import CubeWireframe from './CubeWireframe';
 import CylinderEllipses from './CylinderEllipses';
 import ColorCursor from './ColorCursor';
+import HarmonyMarkers from './HarmonyMarkers';
 import sampleColors from '../../constants/sampleColors';
 import type {
   StructureProps,
@@ -343,6 +344,15 @@ const Structure = (props: StructureProps) => {
             getHslPosition={getHslPosition}
             getHsvPosition={getHsvPosition}
           />
+          {props.harmonyColors && props.harmonyColors.length > 0 && (
+            <HarmonyMarkers
+              harmonyColors={props.harmonyColors}
+              shape={props.shape}
+              getRgbPosition={getRgbPosition}
+              getHslPosition={getHslPosition}
+              getHsvPosition={getHsvPosition}
+            />
+          )}
           <FocusPlane
             {...props}
             getRgbPosition={getRgbPosition}

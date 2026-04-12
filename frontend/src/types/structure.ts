@@ -1,6 +1,8 @@
 import type { ColorSpace } from './color';
+import type { HarmonyColor } from '../utils/colorHarmony';
 
 export interface StructureProps {
+  harmonyColors?: HarmonyColor[];
   shape: ColorSpace;
   isLabelShown: boolean;
   onParticleClick: (r: number, g: number, b: number) => void;

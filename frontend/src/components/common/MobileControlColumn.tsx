@@ -3,11 +3,13 @@ import styled from 'styled-components';
 import CurrentColor from '../ColorPicker/CurrentColor';
 import { ControlPaneSliders } from '../ColorPicker/ControlPane';
 import DisplayedColorsPanel from './DisplayedColorsPanel';
+import ColorHarmonyPanel from './ColorHarmonyPanel';
 import ColorHistoryPanel from './ColorHistoryPanel';
 import type { ControlPaneProps } from '../../types/controlPane';
 import type { ColorHistoryItem } from '../../hooks/useColorHistory';
+import type { HarmonyMode, HarmonyColor } from '../../utils/colorHarmony';
 
-export type MobileSheetId = 'control' | 'displayed' | 'history';
+export type MobileSheetId = 'control' | 'displayed' | 'harmony' | 'history';
 
 interface MobileControlColumnProps extends ControlPaneProps {
   cssColorsEnabled: boolean;
@@ -20,6 +22,9 @@ interface MobileControlColumnProps extends ControlPaneProps {
   onJapaneseColorsToggle: (enabled: boolean) => void;
   colorHistory: ColorHistoryItem[];
   onColorSelect: (r: number, g: number, b: number) => void;
+  harmonyMode: HarmonyMode;
+  onHarmonyModeChange: (mode: HarmonyMode) => void;
+  harmonyColors: HarmonyColor[];
 }
 
 const MobileControlColumn = (props: MobileControlColumnProps) => {
@@ -34,6 +39,9 @@ const MobileControlColumn = (props: MobileControlColumnProps) => {
     onJapaneseColorsToggle,
     colorHistory,
     onColorSelect,
+    harmonyMode,
+    onHarmonyModeChange,
+    harmonyColors,
     ...controlPaneProps
   } = props;
 
@@ -68,6 +76,15 @@ const MobileControlColumn = (props: MobileControlColumnProps) => {
         </IconButton>
         <IconButton
           type="button"
+          aria-label="Color harmony"
+          aria-pressed={activeSheet === 'harmony'}
+          $active={activeSheet === 'harmony'}
+          onClick={() => onIconClick('harmony')}
+        >
+          <IconHarmony />
+        </IconButton>
+        <IconButton
+          type="button"
           aria-label="Color history"
           aria-pressed={activeSheet === 'history'}
           $active={activeSheet === 'history'}
@@ -93,6 +110,19 @@ const MobileControlColumn = (props: MobileControlColumnProps) => {
             onMaterialColorsToggle={onMaterialColorsToggle}
             onSpectral12ColorsToggle={onSpectral12ColorsToggle}
             onJapaneseColorsToggle={onJapaneseColorsToggle}
+          />
+        </SheetBlock>
+      )}
+      {activeSheet === 'harmony' && (
+        <SheetBlock>
+          <ColorHarmonyPanel
+            mode={harmonyMode}
+            onModeChange={onHarmonyModeChange}
+            harmonyColors={harmonyColors}
+            currentR={controlPaneProps.focusR}
+            currentG={controlPaneProps.focusG}
+            currentB={controlPaneProps.focusB}
+            onColorSelect={onColorSelect}
           />
         </SheetBlock>
       )}
@@ -198,6 +228,17 @@ function IconPalette() {
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
         d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9s1.5.67 1.5 1.5S7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+function IconHarmony() {
+  return (
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"
         fill="currentColor"
       />
     </svg>
