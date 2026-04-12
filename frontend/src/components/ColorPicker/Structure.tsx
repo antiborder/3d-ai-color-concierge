@@ -348,6 +348,7 @@ const Structure = (props: StructureProps) => {
             <HarmonyMarkers
               harmonyColors={props.harmonyColors}
               shape={props.shape}
+              focusL={props.focusL}
               getRgbPosition={getRgbPosition}
               getHslPosition={getHslPosition}
               getHsvPosition={getHsvPosition}

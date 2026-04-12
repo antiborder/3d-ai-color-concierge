@@ -19,6 +19,10 @@ const OPTIONS: { value: HarmonyMode; label: string }[] = [
   { value: 'triangle', label: 'Triangle' },
   { value: 'square', label: 'Square' },
   { value: 'pentagon', label: 'Pentagon' },
+  { value: 'hexagon', label: 'Hexagon' },
+  { value: 'heptagon', label: 'Heptagon' },
+  { value: 'octagon', label: 'Octagon' },
+  { value: 'nonagon', label: 'Nonagon' },
 ];
 
 function toHex(r: number, g: number, b: number): string {
