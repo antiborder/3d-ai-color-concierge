@@ -239,7 +239,7 @@ def live_tools() -> list[dict]:
                                 "enum": ["brightness", "saturation", "hue"],
                             },
                             "direction": {"type": "string", "enum": ["up", "down"], "description": "'up' for increase (brighter, more vibrant), 'down' for decrease (darker, less vibrant)"},
-                            "amount": {"type": "number", "minimum": 0},
+                            "amount": {"type": "number", "minimum": 0, "description": "Absolute adjustment amount on a 0-100 scale for brightness/saturation (e.g., 10 means add/subtract 10 points), or 0-360 scale for hue. When user says '10%', use 10 (absolute points), NOT a fraction of the current value. Default is 10 if not specified."},
                         },
                         "required": ["property", "direction"],
                     },
