@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Line } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import type { StructureProps, PositionFunction } from '../../types/structure';
 
 interface ColorCursorProps extends StructureProps {
@@ -10,16 +10,42 @@ interface ColorCursorProps extends StructureProps {
   getHsvPosition: PositionFunction;
 }
 
+const BLINK_HZ = 0.5;
+
 const ColorCursor = (props: ColorCursorProps) => {
   const meridianRef = useRef<THREE.Group>(null);
+  const frameGroupRef = useRef<THREE.Group>(null);
+  const timeRef = useRef(0);
 
-  useFrame(() => {
+  const focusHex = `#${Math.round(props.focusR).toString(16).padStart(2, '0')}${Math.round(props.focusG).toString(16).padStart(2, '0')}${Math.round(props.focusB).toString(16).padStart(2, '0')}`;
+  const contrastHex = props.focusL >= 50 ? '#000000' : '#ffffff';
+
+  const focusColorRef = useRef(focusHex);
+  const contrastColorRef = useRef(contrastHex);
+  useEffect(() => { focusColorRef.current = focusHex; }, [focusHex]);
+  useEffect(() => { contrastColorRef.current = contrastHex; }, [contrastHex]);
+
+  useFrame((_, delta) => {
     if (meridianRef.current) {
       meridianRef.current.rotation.y += 0.02;
     }
+
+    if (frameGroupRef.current) {
+      timeRef.current += delta;
+      const factor = (1 - Math.cos(2 * Math.PI * BLINK_HZ * timeRef.current)) / 2;
+      const blended = new THREE.Color(focusColorRef.current).lerp(
+        new THREE.Color(contrastColorRef.current),
+        factor
+      );
+      frameGroupRef.current.traverse((child) => {
+        const mat = (child as THREE.Mesh).material as THREE.Material & { color?: THREE.Color };
+        if (mat?.color instanceof THREE.Color) {
+          mat.color.copy(blended);
+        }
+      });
+    }
   });
 
-  // 現在選択されている色の位置を取得
   const position =
     props.shape === 'RGB' || props.shape === 'CMYK'
       ? props.getRgbPosition(props.focusR, props.focusG, props.focusB)
@@ -27,15 +53,10 @@ const ColorCursor = (props: ColorCursorProps) => {
         ? props.getHslPosition(props.focusR, props.focusG, props.focusB)
         : props.getHsvPosition(props.focusR, props.focusG, props.focusB);
 
-  // 球体のワイヤーフレームを生成
-  // 半径
   const radius = 0.124;
-  // 経線（meridian）の数
   const meridians = 12;
-  // 緯線（parallel）の数
   const parallels = 8;
 
-  // 経線を生成（縦の線）
   const meridianLines: [number, number, number][][] = [];
   for (let i = 0; i < meridians; i++) {
     const theta = (i / meridians) * Math.PI * 2;
@@ -50,7 +71,6 @@ const ColorCursor = (props: ColorCursorProps) => {
     meridianLines.push(points);
   }
 
-  // 緯線を生成（横の線）
   const parallelLines: [number, number, number][][] = [];
   for (let j = 1; j < parallels; j++) {
     const phi = (j / parallels) * Math.PI;
@@ -65,43 +85,23 @@ const ColorCursor = (props: ColorCursorProps) => {
     parallelLines.push(points);
   }
 
-  // 現在選択されている色を16進数に変換
-  const selectedColor = `#${Math.round(props.focusR).toString(16).padStart(2, '0')}${Math.round(props.focusG).toString(16).padStart(2, '0')}${Math.round(props.focusB).toString(16).padStart(2, '0')}`;
-
   return (
     <group position={position} rotation={[0, 0, -Math.PI]}>
       <group rotation={[Math.PI / 2, 0, 0]}>
-        <group ref={meridianRef}>
-          {meridianLines.map((points, index) => {
-            if (index % 3 === 0) {
-              // 偶数番目：選択色で回転
-              return (
-                <Line
-                  key={`meridian-${index}`}
-                  points={points}
-                  color="#333333"
-                  lineWidth={2}
-                />
-              );
-            }
-            return null;
-          })}
+        <group ref={frameGroupRef}>
+          <group ref={meridianRef}>
+            {meridianLines.map((points, index) =>
+              index % 3 === 0 ? (
+                <Line key={`meridian-${index}`} points={points} color="#333333" lineWidth={2} />
+              ) : null
+            )}
+          </group>
+          {parallelLines.map((points, index) =>
+            index % 2 === 1 ? (
+              <Line key={`parallel-${index}`} points={points} color="#CCCCCC" lineWidth={1} />
+            ) : null
+          )}
         </group>
-        {/* 緯線（横の線）- 偶数番目を非表示 */}
-        {parallelLines.map((points, index) => {
-          if (index % 2 === 1) {
-            // 奇数番目のみ表示
-            return (
-              <Line
-                key={`parallel-${index}`}
-                points={points}
-                color="#CCCCCC"
-                lineWidth={1}
-              />
-            );
-          }
-          return null;
-        })}
       </group>
     </group>
   );
