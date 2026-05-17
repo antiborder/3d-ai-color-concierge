@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Command } from '@/types/voice';
 import type { ColorState as UiColorState } from '@/types/colorState';
+import type { ColorHistoryItem } from '@/hooks/useColorHistory';
 
 type WsInboundText =
   | {
@@ -37,6 +38,7 @@ type WsInboundText =
 
 export interface UseVoiceStreamingOptions {
   currentColorState?: UiColorState | null;
+  colorHistory?: ColorHistoryItem[];
   onFinalTranscript?: (text: string) => void;
   onTranscriptUpdate?: (
     text: string,
@@ -54,12 +56,16 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   const { i18n, t } = useTranslation();
   const {
     currentColorState,
+    colorHistory,
     onFinalTranscript,
     onTranscriptUpdate,
     onAssistantMessage,
     onCommand,
     onError,
   } = options;
+
+  const colorHistoryRef = useRef(colorHistory);
+  colorHistoryRef.current = colorHistory;
 
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
@@ -450,6 +456,24 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
       }
     };
   }, [buildWireColorState, currentColorState, isConnected, sendColorState]);
+
+  // Sync color history to backend whenever it changes while connected.
+  useEffect(() => {
+    if (!isConnected) return;
+    const ws = wsRef.current;
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    const history = (colorHistoryRef.current ?? []).slice(0, 50).map(({ hex, r, g, b }) => ({
+      hex,
+      r: Math.round(r),
+      g: Math.round(g),
+      b: Math.round(b),
+    }));
+    try {
+      ws.send(JSON.stringify({ type: 'color_history', history }));
+    } catch {
+      // best-effort
+    }
+  }, [colorHistory, isConnected]);
 
   const start = useCallback(async () => {
     if (isConnecting || isStreaming) return;

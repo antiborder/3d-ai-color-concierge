@@ -266,6 +266,14 @@ def live_tools() -> list[dict]:
                         "properties": {},
                     },
                 },
+                {
+                    "name": "GET_COLOR_HISTORY",
+                    "description": "Get the list of colors the user has selected during this session, from most recent to oldest. Use this when the user asks about previously chosen colors, wants to return to an earlier color, or asks what colors they have tried. Describe colors using natural expressions or color names, not RGB values.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {},
+                    },
+                },
             ]
         }
     ]

@@ -367,6 +367,7 @@ function App() {
       )}
       <VoiceControl
         currentColorState={colorState}
+        colorHistory={history}
         onTranscript={handleVoiceTranscript}
         onTranscriptUpdate={handleTranscriptUpdate}
         onAssistantMessage={handleAssistantMessage}

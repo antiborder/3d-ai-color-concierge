@@ -86,6 +86,7 @@ async def process_live_message(
     live_session: object,
     current_color_state: Optional[dict],
     current_color_updated_at: float,
+    color_history: list[dict],
     out_transcription_buf: str,
     out_transcription_segment_id: Optional[str],
     out_transcription_seq: int,
@@ -358,6 +359,24 @@ async def process_live_message(
                         "available": bool(current_color_state),
                         "color": current_color_state,
                         "updated_at": current_color_updated_at or 0.0,
+                    }
+                    try:
+                        if callable(send_tool) and FunctionResponse is not None:
+                            fr = FunctionResponse(name=name, response=resp, id=call_id)
+                            maybe = send_tool(function_responses=fr)
+                            if inspect.isawaitable(maybe):
+                                await maybe
+                    except Exception as e:
+                        logger.info(
+                            "GeminiLiveSession send_tool_response failed: %s", str(e)
+                        )
+                    continue
+
+                if name == "GET_COLOR_HISTORY":
+                    resp = {
+                        "available": bool(color_history),
+                        "history": color_history,
+                        "count": len(color_history),
                     }
                     try:
                         if callable(send_tool) and FunctionResponse is not None:

@@ -73,6 +73,7 @@ class GeminiLiveSession:
         # separate from Gemini state and can be used by future tools like GET_CURRENT_COLOR.
         self.current_color_state: Optional[dict] = None
         self.current_color_updated_at: float = 0.0
+        self.color_history: list[dict] = []
 
         # 実装の都合上、SDK依存の受信は内部タスクでqueueに流す
         self._event_q: "asyncio.Queue[LiveEvent]" = asyncio.Queue()
@@ -99,6 +100,10 @@ class GeminiLiveSession:
         """
         self.current_color_state = color
         self.current_color_updated_at = time.time()
+
+    def set_color_history(self, history: list[dict]) -> None:
+        """Update the color selection history provided by the frontend."""
+        self.color_history = history
 
     async def __aenter__(self) -> "GeminiLiveSession":
         client = make_genai_client()
@@ -346,6 +351,7 @@ class GeminiLiveSession:
                         self._live,
                         self.current_color_state,
                         self.current_color_updated_at,
+                        self.color_history,
                         self._out_transcription_buf,
                         self._out_transcription_segment_id,
                         self._out_transcription_seq,

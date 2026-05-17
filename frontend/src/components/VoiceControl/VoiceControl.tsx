@@ -4,9 +4,11 @@ import { useVoiceStreaming } from '../../hooks/useVoiceStreaming';
 import styled, { keyframes } from 'styled-components';
 import type { Command } from '../../types/voice';
 import type { ColorState } from '../../types/colorState';
+import type { ColorHistoryItem } from '../../hooks/useColorHistory';
 
 interface VoiceControlProps {
   currentColorState?: ColorState | null;
+  colorHistory?: ColorHistoryItem[];
   onTranscript: (transcript: string) => void;
   onTranscriptUpdate?: (
     text: string,
@@ -25,6 +27,7 @@ interface VoiceControlProps {
 
 const VoiceControl = ({
   currentColorState,
+  colorHistory,
   onTranscript,
   onTranscriptUpdate,
   onAssistantMessage,
@@ -55,6 +58,7 @@ const VoiceControl = ({
 
   const { isStreaming, isConnecting, error, start, stop } = useVoiceStreaming({
     currentColorState,
+    colorHistory,
     onFinalTranscript: handleResult,
     onTranscriptUpdate,
     onAssistantMessage,

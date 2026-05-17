@@ -219,6 +219,20 @@ async def live_voice_ws(ws: WebSocket):
                             except Exception:
                                 pass
                             return
+                        if msg_type == "color_history" and isinstance(payload, dict):
+                            raw = payload.get("history", [])
+                            if isinstance(raw, list):
+                                history = [
+                                    {
+                                        "hex": str(c.get("hex", "")),
+                                        "r": max(0, min(255, int(c.get("r", 0)))),
+                                        "g": max(0, min(255, int(c.get("g", 0)))),
+                                        "b": max(0, min(255, int(c.get("b", 0)))),
+                                    }
+                                    for c in raw
+                                    if isinstance(c, dict)
+                                ][:50]
+                                session.set_color_history(history)
                         if msg_type == "color_state" and isinstance(payload, dict):
                             color = _normalize_color_state(payload.get("color"))
                             if color:
