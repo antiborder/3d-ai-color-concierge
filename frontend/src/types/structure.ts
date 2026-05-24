@@ -32,7 +32,7 @@ export interface StructureProps {
   materialColorsEnabled: boolean;
   spectral12ColorsEnabled: boolean;
   japaneseColorsEnabled: boolean;
-  munsellColorsEnabled: boolean;
+  rgbGridColorsEnabled: boolean;
 }
 
 export type PositionFunction = (r: number, g: number, b: number) => [number, number, number];

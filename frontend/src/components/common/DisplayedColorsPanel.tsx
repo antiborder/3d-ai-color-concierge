@@ -5,12 +5,12 @@ export interface DisplayedColorsPanelProps {
   materialColorsEnabled: boolean;
   spectral12ColorsEnabled: boolean;
   japaneseColorsEnabled: boolean;
-  munsellColorsEnabled: boolean;
+  rgbGridColorsEnabled: boolean;
   onCssColorsToggle: (enabled: boolean) => void;
   onMaterialColorsToggle: (enabled: boolean) => void;
   onSpectral12ColorsToggle: (enabled: boolean) => void;
   onJapaneseColorsToggle: (enabled: boolean) => void;
-  onMunsellColorsToggle: (enabled: boolean) => void;
+  onRgbGridColorsToggle: (enabled: boolean) => void;
 }
 
 const DisplayedColorsPanel = ({
@@ -18,12 +18,12 @@ const DisplayedColorsPanel = ({
   materialColorsEnabled,
   spectral12ColorsEnabled,
   japaneseColorsEnabled,
-  munsellColorsEnabled,
+  rgbGridColorsEnabled,
   onCssColorsToggle,
   onMaterialColorsToggle,
   onSpectral12ColorsToggle,
   onJapaneseColorsToggle,
-  onMunsellColorsToggle,
+  onRgbGridColorsToggle,
 }: DisplayedColorsPanelProps) => {
   return (
     <Panel>
@@ -63,10 +63,10 @@ const DisplayedColorsPanel = ({
       <CheckboxLabel>
         <input
           type="checkbox"
-          checked={munsellColorsEnabled}
-          onChange={(e) => onMunsellColorsToggle(e.target.checked)}
+          checked={rgbGridColorsEnabled}
+          onChange={(e) => onRgbGridColorsToggle(e.target.checked)}
         />
-        <span>Munsell Colors</span>
+        <span>RGB Cube Grid</span>
       </CheckboxLabel>
     </Panel>
   );

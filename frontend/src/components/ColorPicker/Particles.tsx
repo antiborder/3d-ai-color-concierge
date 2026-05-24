@@ -13,6 +13,7 @@ interface ParticlesProps extends StructureProps {
   getHslPosition: PositionFunction;
   getHsvPosition: PositionFunction;
   getMunsellPosition: PositionFunction;
+  getLabPosition: PositionFunction;
   filteredColors?: typeof sampleColors;
 }
 
@@ -31,6 +32,7 @@ const Particles = (props: ParticlesProps) => {
             getHslPosition={props.getHslPosition}
             getHsvPosition={props.getHsvPosition}
             getMunsellPosition={props.getMunsellPosition}
+            getLabPosition={props.getLabPosition}
             onParticleClick={() => props.onParticleClick(...rgb)}
             r={rgb[0]}
             g={rgb[1]}
@@ -61,13 +63,14 @@ interface ParticleProps {
   name2?: string;
   name3?: string;
   tag?: string[];
-  shape: 'RGB' | 'CMYK' | 'HSL' | 'HSV' | 'LCH';
+  shape: 'RGB' | 'CMYK' | 'HSL' | 'HSV' | 'Lab' | 'LCH';
   emissive: THREE.Color;
   division: number;
   getRgbPosition: PositionFunction;
   getHslPosition: PositionFunction;
   getHsvPosition: PositionFunction;
   getMunsellPosition: PositionFunction;
+  getLabPosition: PositionFunction;
   onParticleClick: () => void;
 }
 
@@ -93,9 +96,11 @@ const Particle = ({
           ? props.getRgbPosition(props.r, props.g, props.b)
           : props.shape === 'HSL'
             ? props.getHslPosition(props.r, props.g, props.b)
-            : props.shape === 'LCH'
-              ? props.getMunsellPosition(props.r, props.g, props.b)
-              : props.getHsvPosition(props.r, props.g, props.b),
+            : props.shape === 'Lab'
+              ? props.getLabPosition(props.r, props.g, props.b)
+              : props.shape === 'LCH'
+                ? props.getMunsellPosition(props.r, props.g, props.b)
+                : props.getHsvPosition(props.r, props.g, props.b),
     },
     config: { duration: 500 },
   });
@@ -164,7 +169,7 @@ interface ParticleBubbleProps {
   name2?: string;
   name3?: string;
   tag?: string[];
-  type: 'RGB' | 'CMYK' | 'HSL' | 'HSV' | 'LCH';
+  type: 'RGB' | 'CMYK' | 'HSL' | 'HSV' | 'Lab' | 'LCH';
   backgroundColor: string;
   textColor: string;
   onClick: () => void;

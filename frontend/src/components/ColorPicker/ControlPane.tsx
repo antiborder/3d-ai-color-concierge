@@ -5,6 +5,7 @@ import RgbSliders from './sliders/RgbSliders';
 import CmykSliders from './sliders/CmykSliders';
 import HslSliders from './sliders/HslSliders';
 import HsvSliders from './sliders/HsvSliders';
+import LabSliders from './sliders/LabSliders';
 import LchSliders from './sliders/LchSliders';
 import type { ControlPaneProps } from '../../types/controlPane';
 import '../../App.css';
@@ -48,6 +49,7 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
           setMainElement={props.setHslMainElement}
           panelShape={'HSL'}
         />
+        <LabSliders {...props} />
         <LchSliders {...props} />
 
         <TwoDPicker {...props} />

@@ -10,7 +10,7 @@ const LchSliders = (props: ControlPaneProps) => {
   // Derive initial LCH from current RGB
   const initial = getMunsellHVC(props.focusR, props.focusG, props.focusB);
 
-  // Local slider state in display units: L* (0-100), C* (0-100), H° (0-359)
+  // Local slider state in display units: L (0-100), C (0-100), H (0-359)
   const [sliderL, setSliderL] = useState(Math.round(initial.value * 10));
   const [sliderC, setSliderC] = useState(Math.round(initial.chroma * 5));
   const [sliderH, setSliderH] = useState(
@@ -89,17 +89,17 @@ const LchSliders = (props: ControlPaneProps) => {
       {isVisible && (
         <>
           <LchSliderRow>
-            <Label>L*</Label>
+            <Label>L</Label>
             <input type="range" min="0" max="100" step="1" value={sliderL} onChange={handleLChange} />
             <Value>{sliderL}</Value>
           </LchSliderRow>
           <LchSliderRow>
-            <Label>C*</Label>
+            <Label>C</Label>
             <input type="range" min="0" max="100" step="1" value={sliderC} onChange={handleCChange} />
             <Value>{sliderC}</Value>
           </LchSliderRow>
           <LchSliderRow>
-            <Label>H°</Label>
+            <Label>H</Label>
             <input type="range" min="0" max="359" step="1" value={sliderH} onChange={handleHChange} />
             <Value>{sliderH}</Value>
           </LchSliderRow>

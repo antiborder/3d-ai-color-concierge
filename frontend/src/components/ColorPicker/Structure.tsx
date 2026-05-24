@@ -280,6 +280,38 @@ const Structure = (props: StructureProps) => {
     return cylindricalToCartesian(theta, radius, z);
   };
 
+  // Lab: a* maps to y (same red direction as LCH), b* maps to x (same yellow direction as LCH)
+  // Scale: ±128 Lab units → ±structureSize/2, matching the RGB cube edge length
+  const getLabPosition: PositionFunction = (
+    r: number,
+    g: number,
+    b: number
+  ): [number, number, number] => {
+    const toLinear = (c: number) => {
+      const s = c / 255;
+      return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    };
+    const rl = toLinear(r), gl = toLinear(g), bl = toLinear(b);
+    const Xn = (rl * 0.4124564 + gl * 0.3575761 + bl * 0.1804375) / 0.95047;
+    const Yn =  rl * 0.2126729 + gl * 0.7151522 + bl * 0.0721750;
+    const Zn = (rl * 0.0193339 + gl * 0.1191920 + bl * 0.9503041) / 1.08883;
+    const f = (t: number) => t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
+    const fx = f(Xn), fy = f(Yn), fz = f(Zn);
+    const L = 116 * fy - 16;
+    const a = 500 * (fx - fy);
+    const bLab = 200 * (fy - fz);
+    // Map each axis so its sRGB gamut boundary aligns with the frame edge.
+    // Ranges measured by exhaustive sRGB sampling:
+    //   a*: [-85.41, +97.36]  center=+5.98  half-range=91.39
+    //   b*: [-106.90, +93.63] center=-6.64  half-range=100.27
+    //   L*: [0, 100]          center=50     half-range=50
+    const half = structureSize / 2;
+    const x = (bLab - (-6.64)) / 100.27 * half;   // b* → x
+    const y = (a    -   5.98)  /  91.39 * half;   // a* → y
+    const z = (L / 100 - 0.5) * structureSize;     // L* → z (unchanged)
+    return [x, y, z];
+  };
+
   // Filter colors based on enabled groups
   const filteredColors = useMemo(() => {
     return sampleColors.filter((color) => {
@@ -295,7 +327,7 @@ const Structure = (props: StructureProps) => {
       if (props.japaneseColorsEnabled && color.tag.includes('JAPANESE')) {
         return true;
       }
-      if (props.munsellColorsEnabled && color.tag.includes('MUNSELL')) {
+      if (props.rgbGridColorsEnabled && color.tag.includes('RGB_GRID')) {
         return true;
       }
       return false;
@@ -305,7 +337,7 @@ const Structure = (props: StructureProps) => {
     props.materialColorsEnabled,
     props.spectral12ColorsEnabled,
     props.japaneseColorsEnabled,
-    props.munsellColorsEnabled,
+    props.rgbGridColorsEnabled,
   ]);
 
   // 選択された色を16進数に変換して背景色として使用
@@ -349,6 +381,7 @@ const Structure = (props: StructureProps) => {
             getHslPosition={getHslPosition}
             getHsvPosition={getHsvPosition}
             getMunsellPosition={getMunsellPosition}
+            getLabPosition={getLabPosition}
           />
           {/* <Focus
             {...props}
@@ -362,6 +395,7 @@ const Structure = (props: StructureProps) => {
             getHslPosition={getHslPosition}
             getHsvPosition={getHsvPosition}
             getMunsellPosition={getMunsellPosition}
+            getLabPosition={getLabPosition}
           />
           {props.harmonyColors && props.harmonyColors.length > 0 && (
             <HarmonyMarkers
@@ -372,6 +406,7 @@ const Structure = (props: StructureProps) => {
               getHslPosition={getHslPosition}
               getHsvPosition={getHsvPosition}
               getMunsellPosition={getMunsellPosition}
+              getLabPosition={getLabPosition}
               onColorSelect={props.onParticleClick}
             />
           )}
@@ -395,11 +430,12 @@ const Structure = (props: StructureProps) => {
             cylinderRadius={cylinderRadius}
             cylinderHeight={cylinderHeight}
           />
-          {/* RGB/CMYK用の立方体の外枠 */}
+          {/* RGB/CMYK/Lab用の外枠 */}
           <CubeWireframe
             shape={displayShape}
             structureSize={structureSize}
             visible={frameVisible}
+            labBoxSize={{ x: structureSize, y: structureSize, z: structureSize }}
           />
           {/* HSL/HSV用の円柱の上面・底面の円 */}
           <CylinderEllipses
