@@ -153,6 +153,7 @@ function App() {
   const [materialColorsEnabled, setMaterialColorsEnabled] = useState(true);
   const [spectral12ColorsEnabled, setSpectral12ColorsEnabled] = useState(false);
   const [japaneseColorsEnabled, setJapaneseColorsEnabled] = useState(false);
+  const [munsellColorsEnabled, setMunsellColorsEnabled] = useState(false);
 
   const isDesktopLayout = useMatchMedia('(min-width: 801px)');
 
@@ -236,10 +237,12 @@ function App() {
         materialColorsEnabled={materialColorsEnabled}
         spectral12ColorsEnabled={spectral12ColorsEnabled}
         japaneseColorsEnabled={japaneseColorsEnabled}
+        munsellColorsEnabled={munsellColorsEnabled}
         onCssColorsToggle={setCssColorsEnabled}
         onMaterialColorsToggle={setMaterialColorsEnabled}
         onSpectral12ColorsToggle={setSpectral12ColorsEnabled}
         onJapaneseColorsToggle={setJapaneseColorsEnabled}
+        onMunsellColorsToggle={setMunsellColorsEnabled}
         colorHistory={history}
         onColorSelect={handleClick}
         harmonyMode={harmonyMode}
@@ -273,6 +276,7 @@ function App() {
         materialColorsEnabled={materialColorsEnabled}
         spectral12ColorsEnabled={spectral12ColorsEnabled}
         japaneseColorsEnabled={japaneseColorsEnabled}
+        munsellColorsEnabled={munsellColorsEnabled}
         harmonyColors={harmonyColors}
       />
       {isDesktopLayout ? (
@@ -354,10 +358,12 @@ function App() {
           materialColorsEnabled={materialColorsEnabled}
           spectral12ColorsEnabled={spectral12ColorsEnabled}
           japaneseColorsEnabled={japaneseColorsEnabled}
+          munsellColorsEnabled={munsellColorsEnabled}
           onCssColorsToggle={setCssColorsEnabled}
           onMaterialColorsToggle={setMaterialColorsEnabled}
           onSpectral12ColorsToggle={setSpectral12ColorsEnabled}
           onJapaneseColorsToggle={setJapaneseColorsEnabled}
+          onMunsellColorsToggle={setMunsellColorsEnabled}
           colorHistory={history}
           onColorSelect={handleClick}
           harmonyMode={harmonyMode}

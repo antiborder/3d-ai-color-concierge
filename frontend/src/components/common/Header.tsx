@@ -12,10 +12,12 @@ interface HeaderProps {
   materialColorsEnabled: boolean;
   spectral12ColorsEnabled: boolean;
   japaneseColorsEnabled: boolean;
+  munsellColorsEnabled: boolean;
   onCssColorsToggle: (enabled: boolean) => void;
   onMaterialColorsToggle: (enabled: boolean) => void;
   onSpectral12ColorsToggle: (enabled: boolean) => void;
   onJapaneseColorsToggle: (enabled: boolean) => void;
+  onMunsellColorsToggle: (enabled: boolean) => void;
   colorHistory: ColorHistoryItem[];
   onColorSelect: (r: number, g: number, b: number) => void;
   harmonyMode: HarmonyMode;
@@ -32,10 +34,12 @@ const Header = ({
   materialColorsEnabled,
   spectral12ColorsEnabled,
   japaneseColorsEnabled,
+  munsellColorsEnabled,
   onCssColorsToggle,
   onMaterialColorsToggle,
   onSpectral12ColorsToggle,
   onJapaneseColorsToggle,
+  onMunsellColorsToggle,
   colorHistory,
   onColorSelect,
   harmonyMode,
@@ -61,10 +65,12 @@ const Header = ({
         materialColorsEnabled={materialColorsEnabled}
         spectral12ColorsEnabled={spectral12ColorsEnabled}
         japaneseColorsEnabled={japaneseColorsEnabled}
+        munsellColorsEnabled={munsellColorsEnabled}
         onCssColorsToggle={onCssColorsToggle}
         onMaterialColorsToggle={onMaterialColorsToggle}
         onSpectral12ColorsToggle={onSpectral12ColorsToggle}
         onJapaneseColorsToggle={onJapaneseColorsToggle}
+        onMunsellColorsToggle={onMunsellColorsToggle}
       />
       <ColorHarmonyPanel
         mode={harmonyMode}

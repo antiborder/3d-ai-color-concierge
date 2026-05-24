@@ -282,6 +282,9 @@ const Structure = (props: StructureProps) => {
       if (props.japaneseColorsEnabled && color.tag.includes('JAPANESE')) {
         return true;
       }
+      if (props.munsellColorsEnabled && color.tag.includes('MUNSELL')) {
+        return true;
+      }
       return false;
     });
   }, [
@@ -289,6 +292,7 @@ const Structure = (props: StructureProps) => {
     props.materialColorsEnabled,
     props.spectral12ColorsEnabled,
     props.japaneseColorsEnabled,
+    props.munsellColorsEnabled,
   ]);
 
   // 選択された色を16進数に変換して背景色として使用

@@ -5,10 +5,12 @@ export interface DisplayedColorsPanelProps {
   materialColorsEnabled: boolean;
   spectral12ColorsEnabled: boolean;
   japaneseColorsEnabled: boolean;
+  munsellColorsEnabled: boolean;
   onCssColorsToggle: (enabled: boolean) => void;
   onMaterialColorsToggle: (enabled: boolean) => void;
   onSpectral12ColorsToggle: (enabled: boolean) => void;
   onJapaneseColorsToggle: (enabled: boolean) => void;
+  onMunsellColorsToggle: (enabled: boolean) => void;
 }
 
 const DisplayedColorsPanel = ({
@@ -16,10 +18,12 @@ const DisplayedColorsPanel = ({
   materialColorsEnabled,
   spectral12ColorsEnabled,
   japaneseColorsEnabled,
+  munsellColorsEnabled,
   onCssColorsToggle,
   onMaterialColorsToggle,
   onSpectral12ColorsToggle,
   onJapaneseColorsToggle,
+  onMunsellColorsToggle,
 }: DisplayedColorsPanelProps) => {
   return (
     <Panel>
@@ -55,6 +59,14 @@ const DisplayedColorsPanel = ({
           onChange={(e) => onJapaneseColorsToggle(e.target.checked)}
         />
         <span>Japanese Traditional Colors</span>
+      </CheckboxLabel>
+      <CheckboxLabel>
+        <input
+          type="checkbox"
+          checked={munsellColorsEnabled}
+          onChange={(e) => onMunsellColorsToggle(e.target.checked)}
+        />
+        <span>Munsell Colors</span>
       </CheckboxLabel>
     </Panel>
   );
