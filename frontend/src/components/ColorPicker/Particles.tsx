@@ -12,6 +12,7 @@ interface ParticlesProps extends StructureProps {
   getRgbPosition: PositionFunction;
   getHslPosition: PositionFunction;
   getHsvPosition: PositionFunction;
+  getMunsellPosition: PositionFunction;
   filteredColors?: typeof sampleColors;
 }
 
@@ -29,6 +30,7 @@ const Particles = (props: ParticlesProps) => {
             getRgbPosition={props.getRgbPosition}
             getHslPosition={props.getHslPosition}
             getHsvPosition={props.getHsvPosition}
+            getMunsellPosition={props.getMunsellPosition}
             onParticleClick={() => props.onParticleClick(...rgb)}
             r={rgb[0]}
             g={rgb[1]}
@@ -59,12 +61,13 @@ interface ParticleProps {
   name2?: string;
   name3?: string;
   tag?: string[];
-  shape: 'RGB' | 'CMYK' | 'HSL' | 'HSV';
+  shape: 'RGB' | 'CMYK' | 'HSL' | 'HSV' | 'MUNSELL';
   emissive: THREE.Color;
   division: number;
   getRgbPosition: PositionFunction;
   getHslPosition: PositionFunction;
   getHsvPosition: PositionFunction;
+  getMunsellPosition: PositionFunction;
   onParticleClick: () => void;
 }
 
@@ -90,7 +93,9 @@ const Particle = ({
           ? props.getRgbPosition(props.r, props.g, props.b)
           : props.shape === 'HSL'
             ? props.getHslPosition(props.r, props.g, props.b)
-            : props.getHsvPosition(props.r, props.g, props.b),
+            : props.shape === 'MUNSELL'
+              ? props.getMunsellPosition(props.r, props.g, props.b)
+              : props.getHsvPosition(props.r, props.g, props.b),
     },
     config: { duration: 500 },
   });
@@ -159,7 +164,7 @@ interface ParticleBubbleProps {
   name2?: string;
   name3?: string;
   tag?: string[];
-  type: 'RGB' | 'CMYK' | 'HSL' | 'HSV';
+  type: 'RGB' | 'CMYK' | 'HSL' | 'HSV' | 'MUNSELL';
   backgroundColor: string;
   textColor: string;
   onClick: () => void;

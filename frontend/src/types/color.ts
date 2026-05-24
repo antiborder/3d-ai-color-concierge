@@ -1,6 +1,6 @@
 // Color type definitions
 
-export type ColorSpace = 'RGB' | 'CMYK' | 'HSL' | 'HSV';
+export type ColorSpace = 'RGB' | 'CMYK' | 'HSL' | 'HSV' | 'MUNSELL';
 
 export type RGB = {
   r: number;

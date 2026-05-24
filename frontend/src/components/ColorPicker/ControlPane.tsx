@@ -5,6 +5,7 @@ import RgbSliders from './sliders/RgbSliders';
 import CmykSliders from './sliders/CmykSliders';
 import HslSliders from './sliders/HslSliders';
 import HsvSliders from './sliders/HsvSliders';
+import MunsellPanel from './sliders/MunsellPanel';
 import type { ControlPaneProps } from '../../types/controlPane';
 import '../../App.css';
 import { systemColors } from '../../constants/systemColors.js';
@@ -47,6 +48,7 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
           setMainElement={props.setHslMainElement}
           panelShape={'HSL'}
         />
+        <MunsellPanel {...props} />
 
         <TwoDPicker {...props} />
       </SlidersSection>

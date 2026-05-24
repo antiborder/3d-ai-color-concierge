@@ -13,6 +13,7 @@ interface HarmonyMarkersProps {
   getRgbPosition: PositionFunction;
   getHslPosition: PositionFunction;
   getHsvPosition: PositionFunction;
+  getMunsellPosition: PositionFunction;
   onColorSelect: (r: number, g: number, b: number) => void;
 }
 
@@ -191,6 +192,7 @@ const HarmonyMarkers = ({
   getRgbPosition,
   getHslPosition,
   getHsvPosition,
+  getMunsellPosition,
   onColorSelect,
 }: HarmonyMarkersProps) => {
   const flashColor = focusL >= 50 ? '#000000' : '#ffffff';
@@ -204,7 +206,9 @@ const HarmonyMarkers = ({
             ? getRgbPosition(color.r, color.g, color.b)
             : shape === 'HSL'
               ? getHslPosition(color.r, color.g, color.b)
-              : getHsvPosition(color.r, color.g, color.b);
+              : shape === 'MUNSELL'
+                ? getMunsellPosition(color.r, color.g, color.b)
+                : getHsvPosition(color.r, color.g, color.b);
 
         const hex = `#${Math.round(color.r).toString(16).padStart(2, '0')}${Math.round(color.g).toString(16).padStart(2, '0')}${Math.round(color.b).toString(16).padStart(2, '0')}`;
 

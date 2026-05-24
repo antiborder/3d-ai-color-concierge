@@ -8,6 +8,7 @@ interface ColorCursorProps extends StructureProps {
   getRgbPosition: PositionFunction;
   getHslPosition: PositionFunction;
   getHsvPosition: PositionFunction;
+  getMunsellPosition: PositionFunction;
 }
 
 const BLINK_HZ = 0.5;
@@ -51,7 +52,9 @@ const ColorCursor = (props: ColorCursorProps) => {
       ? props.getRgbPosition(props.focusR, props.focusG, props.focusB)
       : props.shape === 'HSL'
         ? props.getHslPosition(props.focusR, props.focusG, props.focusB)
-        : props.getHsvPosition(props.focusR, props.focusG, props.focusB);
+        : props.shape === 'MUNSELL'
+          ? props.getMunsellPosition(props.focusR, props.focusG, props.focusB)
+          : props.getHsvPosition(props.focusR, props.focusG, props.focusB);
 
   const radius = 0.124;
   const meridians = 12;

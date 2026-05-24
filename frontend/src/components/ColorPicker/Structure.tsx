@@ -13,6 +13,7 @@ import CylinderEllipses from './CylinderEllipses';
 import ColorCursor from './ColorCursor';
 import HarmonyMarkers from './HarmonyMarkers';
 import sampleColors from '../../constants/sampleColors';
+import { getMunsellHVC } from '../../utils/munsellUtils';
 import type {
   StructureProps,
   PositionFunction,
@@ -267,6 +268,18 @@ const Structure = (props: StructureProps) => {
     return cylindricalToCartesian(theta, radius, z);
   };
 
+  const getMunsellPosition: PositionFunction = (
+    r: number,
+    g: number,
+    b: number
+  ): [number, number, number] => {
+    const { hueNum, value, chroma } = getMunsellHVC(r, g, b);
+    const theta = hueNum !== null ? (hueNum / 100) * 2 * Math.PI : 0;
+    const radius = hueNum !== null ? (chroma / 20) * cylinderRadius : 0;
+    const z = (value / 10 - 0.5) * cylinderHeight;
+    return cylindricalToCartesian(theta, radius, z);
+  };
+
   // Filter colors based on enabled groups
   const filteredColors = useMemo(() => {
     return sampleColors.filter((color) => {
@@ -335,6 +348,7 @@ const Structure = (props: StructureProps) => {
             getRgbPosition={getRgbPosition}
             getHslPosition={getHslPosition}
             getHsvPosition={getHsvPosition}
+            getMunsellPosition={getMunsellPosition}
           />
           {/* <Focus
             {...props}
@@ -347,6 +361,7 @@ const Structure = (props: StructureProps) => {
             getRgbPosition={getRgbPosition}
             getHslPosition={getHslPosition}
             getHsvPosition={getHsvPosition}
+            getMunsellPosition={getMunsellPosition}
           />
           {props.harmonyColors && props.harmonyColors.length > 0 && (
             <HarmonyMarkers
@@ -356,6 +371,7 @@ const Structure = (props: StructureProps) => {
               getRgbPosition={getRgbPosition}
               getHslPosition={getHslPosition}
               getHsvPosition={getHsvPosition}
+              getMunsellPosition={getMunsellPosition}
               onColorSelect={props.onParticleClick}
             />
           )}
