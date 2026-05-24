@@ -52,7 +52,7 @@ const ColorCursor = (props: ColorCursorProps) => {
       ? props.getRgbPosition(props.focusR, props.focusG, props.focusB)
       : props.shape === 'HSL'
         ? props.getHslPosition(props.focusR, props.focusG, props.focusB)
-        : props.shape === 'MUNSELL'
+        : props.shape === 'LCH'
           ? props.getMunsellPosition(props.focusR, props.focusG, props.focusB)
           : props.getHsvPosition(props.focusR, props.focusG, props.focusB);
 

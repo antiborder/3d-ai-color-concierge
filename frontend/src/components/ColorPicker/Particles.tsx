@@ -61,7 +61,7 @@ interface ParticleProps {
   name2?: string;
   name3?: string;
   tag?: string[];
-  shape: 'RGB' | 'CMYK' | 'HSL' | 'HSV' | 'MUNSELL';
+  shape: 'RGB' | 'CMYK' | 'HSL' | 'HSV' | 'LCH';
   emissive: THREE.Color;
   division: number;
   getRgbPosition: PositionFunction;
@@ -93,7 +93,7 @@ const Particle = ({
           ? props.getRgbPosition(props.r, props.g, props.b)
           : props.shape === 'HSL'
             ? props.getHslPosition(props.r, props.g, props.b)
-            : props.shape === 'MUNSELL'
+            : props.shape === 'LCH'
               ? props.getMunsellPosition(props.r, props.g, props.b)
               : props.getHsvPosition(props.r, props.g, props.b),
     },
@@ -164,7 +164,7 @@ interface ParticleBubbleProps {
   name2?: string;
   name3?: string;
   tag?: string[];
-  type: 'RGB' | 'CMYK' | 'HSL' | 'HSV' | 'MUNSELL';
+  type: 'RGB' | 'CMYK' | 'HSL' | 'HSV' | 'LCH';
   backgroundColor: string;
   textColor: string;
   onClick: () => void;

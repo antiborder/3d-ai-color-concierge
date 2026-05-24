@@ -49,10 +49,10 @@ function generateRandomInitialColorState(): ColorState {
   const colorSpaces: ColorSpace[] = ['RGB', 'CMYK', 'HSV', 'HSL'];
   const randomColorSpace = colorSpaces[Math.floor(Math.random() * colorSpaces.length)];
 
-  let r: number, g: number, b: number;
-  let c: number, m: number, y: number, k: number;
-  let h: number, s: number, l: number;
-  let hsvS: number, v: number;
+  let r = 0, g = 0, b = 0;
+  let c = 0, m = 0, y = 0, k = 0;
+  let h = 0, s = 0, l = 0;
+  let hsvS = 0, v = 0;
 
   // 選択された色空間に応じてランダムな色を生成
   switch (randomColorSpace) {

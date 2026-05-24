@@ -16,8 +16,8 @@ const MunsellPanel = (props: ControlPaneProps) => {
         <ShapeButton
           {...props}
           setIsVisible={() => {}}
-          shapeName={'MUNSELL'}
-          content={'Munsell H / V / C coordinate space'}
+          shapeName={'LCH'}
+          content={'CIE LCH (Lightness / Chroma / Hue) coordinate space'}
         />
       </div>
     </div>
