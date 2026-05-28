@@ -28,12 +28,12 @@ class Settings(BaseSettings):
 
     # Gemini Live API設定（音声ストリーミング）
     # SDK/モデル名は変わりやすいので、別ENVで上書き可能にしておく
-    GEMINI_LIVE_MODEL_NAME: str = "gemini-2.5-flash-native-audio-preview-12-2025"  # 実運用では適切なLive対応モデル名に差し替え
+    GEMINI_LIVE_MODEL_NAME: str = "gemini-3.1-flash-live-preview"  # override via .env if needed
 
     # Gemini Live の API version
-    # - output_audio_transcription 等の一部機能が v1alpha 限定の場合があるため、必要なら v1alpha を使う
-    # 例: GEMINI_LIVE_API_VERSION=v1alpha
-    GEMINI_LIVE_API_VERSION: str = "v1alpha"
+    # gemini-3.x Live は v1beta / v1 で提供。v1alpha は 2.x 系の古い機能向け。
+    # 例: GEMINI_LIVE_API_VERSION=v1beta
+    GEMINI_LIVE_API_VERSION: str = "v1beta"
 
     # Gemini Live SDK の詳細 introspection ログを出すか（通常は不要でログが肥大化する）
     # 例: GEMINI_LIVE_SDK_DEBUG=1
