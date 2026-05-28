@@ -1,480 +1,246 @@
-import React from 'react';
-import { useState } from 'react';
+import { useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import convert from 'color-convert';
 import { systemColors } from '../../constants/systemColors';
 import type { ControlPaneProps } from '../../types/controlPane';
 
-interface TwoDPickerProps extends ControlPaneProps {
-  i?: number;
-  j?: number;
-}
+const SIZE = 256;    // canvas pixel resolution
+const CSS_SIZE = 217; // rendered CSS size (px)
 
-const TwoDPicker = (props: TwoDPickerProps) => {
+const SUPPORTED = new Set(['RGB', 'CMYK', 'HSV', 'HSL']);
+
+const TwoDPicker = (props: ControlPaneProps) => {
+  const { shape } = props;
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (!SUPPORTED.has(shape)) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const {
+      rgbMainElement, cmykMainElement, hsvMainElement, hslMainElement,
+      focusR, focusG, focusB, focusH, focusS, focusL, focusHsvS, focusV,
+    } = props;
+
+    // ── Pixel fill ────────────────────────────────────────────────────────────
+    const imageData = ctx.createImageData(SIZE, SIZE);
+    const d = imageData.data;
+
+    for (let py = 0; py < SIZE; py++) {
+      for (let px = 0; px < SIZE; px++) {
+        const xVal = px / (SIZE - 1); // 0→1 left→right
+        const yVal = py / (SIZE - 1); // 0→1 top→bottom
+        let r = 0, g = 0, b = 0;
+
+        if (shape === 'RGB' || shape === 'CMYK') {
+          const el = shape === 'RGB' ? rgbMainElement : cmykMainElement;
+          if (el === 'R' || el === 'C') {
+            r = focusR;
+            g = Math.round((1 - yVal) * 255);
+            b = Math.round(xVal * 255);
+          } else if (el === 'G' || el === 'M') {
+            r = Math.round(xVal * 255);
+            g = shape === 'RGB' ? focusG : focusG;
+            b = Math.round((1 - yVal) * 255);
+          } else if (el === 'B' || el === 'Y') {
+            r = Math.round((1 - yVal) * 255);
+            g = Math.round(xVal * 255);
+            b = focusB;
+          }
+        } else if (shape === 'HSV') {
+          if (hsvMainElement === 'H') {
+            [r, g, b] = convert.hsv.rgb([focusH, xVal * 100, (1 - yVal) * 100]);
+          } else if (hsvMainElement === 'S') {
+            [r, g, b] = convert.hsv.rgb([xVal * 360, focusHsvS, (1 - yVal) * 100]);
+          } else {
+            const cx = px - SIZE / 2, cy = SIZE / 2 - py;
+            const radius = Math.sqrt(cx * cx + cy * cy);
+            if (radius > SIZE / 2) {
+              r = g = b = 255;
+            } else {
+              const angle = ((Math.PI / 2 - Math.atan2(cy, cx)) + 2 * Math.PI) % (2 * Math.PI);
+              [r, g, b] = convert.hsv.rgb([angle * 180 / Math.PI, radius * 100 / (SIZE / 2), focusV]);
+            }
+          }
+        } else if (shape === 'HSL') {
+          if (hslMainElement === 'H') {
+            [r, g, b] = convert.hsl.rgb([focusH, xVal * 100, (1 - yVal) * 100]);
+          } else if (hslMainElement === 'S') {
+            [r, g, b] = convert.hsl.rgb([xVal * 360, focusS, (1 - yVal) * 100]);
+          } else {
+            const cx = px - SIZE / 2, cy = SIZE / 2 - py;
+            const radius = Math.sqrt(cx * cx + cy * cy);
+            if (radius > SIZE / 2) {
+              r = g = b = 255;
+            } else {
+              const angle = ((Math.PI / 2 - Math.atan2(cy, cx)) + 2 * Math.PI) % (2 * Math.PI);
+              [r, g, b] = convert.hsl.rgb([angle * 180 / Math.PI, radius * 100 / (SIZE / 2), focusL]);
+            }
+          }
+        }
+
+        const idx = (py * SIZE + px) * 4;
+        d[idx] = r; d[idx + 1] = g; d[idx + 2] = b; d[idx + 3] = 255;
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+
+    // ── Guide lines ───────────────────────────────────────────────────────────
+    ctx.lineWidth = 1.5;
+
+    const line = (color: string, x1: number, y1: number, x2: number, y2: number) => {
+      ctx.strokeStyle = color;
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    };
+
+    if (shape === 'RGB' || shape === 'CMYK') {
+      const el = shape === 'RGB' ? rgbMainElement : cmykMainElement;
+      let vX: number, hY: number, vCol: string, hCol: string;
+      if (el === 'R' || el === 'C') {
+        vX = focusB / 255 * SIZE;         hY = (1 - focusG / 255) * SIZE;
+        vCol = shape === 'RGB' ? systemColors['B'] : systemColors['Y'];
+        hCol = shape === 'RGB' ? systemColors['G'] : systemColors['M'];
+      } else if (el === 'G' || el === 'M') {
+        vX = focusR / 255 * SIZE;         hY = (1 - focusB / 255) * SIZE;
+        vCol = shape === 'RGB' ? systemColors['R'] : systemColors['C'];
+        hCol = shape === 'RGB' ? systemColors['B'] : systemColors['Y'];
+      } else {
+        vX = focusG / 255 * SIZE;         hY = (1 - focusR / 255) * SIZE;
+        vCol = shape === 'RGB' ? systemColors['G'] : systemColors['M'];
+        hCol = shape === 'RGB' ? systemColors['R'] : systemColors['C'];
+      }
+      line(vCol, vX, 0, vX, SIZE);
+      line(hCol, 0, hY, SIZE, hY);
+
+    } else if (shape === 'HSV') {
+      if (hsvMainElement === 'H') {
+        line(systemColors['K'], focusHsvS / 100 * SIZE, 0, focusHsvS / 100 * SIZE, SIZE);
+        line(systemColors['K'], 0, (1 - focusV / 100) * SIZE, SIZE, (1 - focusV / 100) * SIZE);
+      } else if (hsvMainElement === 'S') {
+        line(systemColors['K'], focusH / 360 * SIZE, 0, focusH / 360 * SIZE, SIZE);
+        line(systemColors['W'], 0, (1 - focusV / 100) * SIZE, SIZE, (1 - focusV / 100) * SIZE);
+      } else {
+        const cx = SIZE / 2, cy = SIZE / 2;
+        line(systemColors['K'], cx, cy,
+          cx + Math.sin(focusH * Math.PI / 180) * SIZE / 2,
+          cy - Math.cos(focusH * Math.PI / 180) * SIZE / 2);
+        ctx.strokeStyle = systemColors['W'];
+        ctx.beginPath();
+        ctx.arc(cx, cy, focusHsvS / 100 * (SIZE / 2), 0, 2 * Math.PI);
+        ctx.stroke();
+      }
+    } else if (shape === 'HSL') {
+      if (hslMainElement === 'H') {
+        line(systemColors['K'], focusS / 100 * SIZE, 0, focusS / 100 * SIZE, SIZE);
+        line(systemColors['K'], 0, (1 - focusL / 100) * SIZE, SIZE, (1 - focusL / 100) * SIZE);
+      } else if (hslMainElement === 'S') {
+        line(systemColors['K'], focusH / 360 * SIZE, 0, focusH / 360 * SIZE, SIZE);
+        line(systemColors['W'], 0, (1 - focusL / 100) * SIZE, SIZE, (1 - focusL / 100) * SIZE);
+      } else {
+        const cx = SIZE / 2, cy = SIZE / 2;
+        line(systemColors['K'], cx, cy,
+          cx + Math.sin(focusH * Math.PI / 180) * SIZE / 2,
+          cy - Math.cos(focusH * Math.PI / 180) * SIZE / 2);
+        ctx.strokeStyle = systemColors['W'];
+        ctx.beginPath();
+        ctx.arc(cx, cy, focusS / 100 * (SIZE / 2), 0, 2 * Math.PI);
+        ctx.stroke();
+      }
+    }
+  }, [
+    props.shape,
+    props.rgbMainElement, props.cmykMainElement, props.hsvMainElement, props.hslMainElement,
+    props.focusR, props.focusG, props.focusB,
+    props.focusH, props.focusS, props.focusL, props.focusHsvS, props.focusV,
+  ]);
+
+  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width * SIZE;
+    const py = (e.clientY - rect.top) / rect.height * SIZE;
+    const xVal = px / SIZE;
+    const yVal = py / SIZE;
+
+    const {
+      rgbMainElement, cmykMainElement, hsvMainElement, hslMainElement,
+      focusR, focusG, focusB, focusH, focusS, focusL, focusHsvS, focusV,
+    } = props;
+
+    if (shape === 'RGB' || shape === 'CMYK') {
+      const el = shape === 'RGB' ? rgbMainElement : cmykMainElement;
+      let r = focusR, g = focusG, b = focusB;
+      if (el === 'R' || el === 'C') {
+        g = Math.round((1 - yVal) * 255); b = Math.round(xVal * 255);
+      } else if (el === 'G' || el === 'M') {
+        r = Math.round(xVal * 255);       b = Math.round((1 - yVal) * 255);
+      } else {
+        r = Math.round((1 - yVal) * 255); g = Math.round(xVal * 255);
+      }
+      props.handleClick(r, g, b);
+    } else if (shape === 'HSV') {
+      let h = focusH, s = focusHsvS, v = focusV;
+      if (hsvMainElement === 'H') {
+        s = xVal * 100; v = (1 - yVal) * 100;
+      } else if (hsvMainElement === 'S') {
+        h = xVal * 360; v = (1 - yVal) * 100;
+      } else {
+        const cx = px - SIZE / 2, cy = SIZE / 2 - py;
+        const radius = Math.sqrt(cx * cx + cy * cy);
+        if (radius > SIZE / 2) return;
+        const angle = ((Math.PI / 2 - Math.atan2(cy, cx)) + 2 * Math.PI) % (2 * Math.PI);
+        h = angle * 180 / Math.PI; s = radius * 100 / (SIZE / 2);
+      }
+      const [r, g, b] = convert.hsv.rgb([h, s, v]);
+      props.handleClick(r, g, b);
+    } else if (shape === 'HSL') {
+      let h = focusH, s = focusS, l = focusL;
+      if (hslMainElement === 'H') {
+        s = xVal * 100; l = (1 - yVal) * 100;
+      } else if (hslMainElement === 'S') {
+        h = xVal * 360; l = (1 - yVal) * 100;
+      } else {
+        const cx = px - SIZE / 2, cy = SIZE / 2 - py;
+        const radius = Math.sqrt(cx * cx + cy * cy);
+        if (radius > SIZE / 2) return;
+        const angle = ((Math.PI / 2 - Math.atan2(cy, cx)) + 2 * Math.PI) % (2 * Math.PI);
+        h = angle * 180 / Math.PI; s = radius * 100 / (SIZE / 2);
+      }
+      const [r, g, b] = convert.hsl.rgb([h, s, l]);
+      props.handleClick(r, g, b);
+    }
+  };
+
+  if (!SUPPORTED.has(shape)) return null;
+
   return (
     <StyledTwoDPicker>
       <div className="controlPanel" style={{ padding: '10px' }}>
-        <div className="systemColorsquare">
-          <>
-            {Array.from({ length: 64 }, (_, index) => index).map((i) => (
-              <React.Fragment key={i}>
-                <div className="colorRow">
-                  {Array.from({ length: 64 }, (_, index) => index).map(
-                    (j) =>
-                      (props.shape === 'RGB' && (
-                        <RgbColorElement {...props} key={`${i}-${j}`} i={i} j={j} />
-                      )) ||
-                      (props.shape === 'CMYK' && (
-                        <CmykColorElement {...props} key={`${i}-${j}`} i={i} j={j} />
-                      )) ||
-                      (props.shape === 'HSV' && (
-                        <HsvColorElement {...props} key={`${i}-${j}`} i={i} j={j} />
-                      )) ||
-                      (props.shape === 'HSL' && (
-                        <HslColorElement {...props} key={`${i}-${j}`} i={i} j={j} />
-                      ))
-                  )}
-                </div>
-              </React.Fragment>
-            ))}
-          </>
-        </div>
+        <canvas
+          ref={canvasRef}
+          width={SIZE}
+          height={SIZE}
+          style={{
+            width: `${CSS_SIZE}px`,
+            height: `${CSS_SIZE}px`,
+            display: 'block',
+            border: '1px solid #000000',
+            cursor: 'crosshair',
+          }}
+          onClick={handleClick}
+        />
       </div>
     </StyledTwoDPicker>
   );
 };
 
-export default TwoDPicker;
-
-interface ColorElementProps extends ControlPaneProps {
-  i: number;
-  j: number;
-  getElementColor?: string;
-  onClick?: () => void;
-}
-
-const RgbColorElement = (props: ColorElementProps) => {
-  const getRgbElementColor = (
-    mainElement: 'R' | 'G' | 'B',
-    i: number,
-    j: number,
-    focusR: number,
-    focusG: number,
-    focusB: number
-  ): string => {
-    let isOnVerticalLine = false;
-    let isOnHorizontalLine = false;
-
-    switch (mainElement) {
-      case 'R':
-        isOnVerticalLine = j * 4 >= focusB - 3 && j * 4 < Math.round(focusB) + 1;
-        isOnHorizontalLine = 255 - i * 4 >= focusG && 255 - i * 4 < Math.round(focusG) + 4;
-        return isOnVerticalLine
-          ? systemColors['B']
-          : isOnHorizontalLine
-            ? systemColors['G']
-            : '#' + convert.rgb.hex([focusR, 255 - i * 4, j * 4]);
-      case 'G':
-        isOnVerticalLine = j * 4 >= focusR - 3 && j * 4 < Math.round(focusR) + 1;
-        isOnHorizontalLine = 255 - i * 4 >= focusB && 255 - i * 4 < Math.round(focusB) + 4;
-        return isOnVerticalLine
-          ? systemColors['R']
-          : isOnHorizontalLine
-            ? systemColors['B']
-            : '#' + convert.rgb.hex([j * 4, focusG, 255 - i * 4]);
-      case 'B':
-        isOnVerticalLine = j * 4 >= focusG - 3 && j * 4 < Math.round(focusG) + 1;
-        isOnHorizontalLine = 255 - i * 4 >= focusR && 255 - i * 4 < Math.round(focusR) + 4;
-        return isOnVerticalLine
-          ? systemColors['G']
-          : isOnHorizontalLine
-            ? systemColors['R']
-            : '#' + convert.rgb.hex([255 - i * 4, j * 4, focusB]);
-      default:
-        return '#000000';
-    }
-  };
-
-  const handleClick = (i: number, j: number) => {
-    let r = props.focusR;
-    let g = props.focusG;
-    let b = props.focusB;
-    switch (props.rgbMainElement) {
-      case 'R':
-        g = 255 - i * 4;
-        b = j * 4;
-        break;
-      case 'G':
-        b = 255 - i * 4;
-        r = j * 4;
-        break;
-      case 'B':
-        r = 255 - i * 4;
-        g = j * 4;
-        break;
-    }
-    props.handleClick(r, g, b);
-  };
-
-  return (
-    <ColorElement
-      {...props}
-      getElementColor={getRgbElementColor(
-        props.rgbMainElement,
-        props.i,
-        props.j,
-        props.focusR,
-        props.focusG,
-        props.focusB
-      )}
-      onClick={() => {
-        handleClick(props.i, props.j);
-      }}
-    />
-  );
-};
-
-const CmykColorElement = (props: ColorElementProps) => {
-  const getCmykElementColor = (
-    mainElement: 'C' | 'M' | 'Y' | 'K',
-    i: number,
-    j: number,
-    focusR: number,
-    focusG: number,
-    focusB: number
-  ): string => {
-    let isOnVerticalLine = false;
-    let isOnHorizontalLine = false;
-
-    switch (mainElement) {
-      case 'C':
-        isOnVerticalLine = j * 4 >= focusB - 3 && j * 4 < Math.round(focusB) + 1;
-        isOnHorizontalLine = 255 - i * 4 >= focusG && 255 - i * 4 < Math.round(focusG) + 4;
-        return isOnVerticalLine
-          ? systemColors['Y']
-          : isOnHorizontalLine
-            ? systemColors['M']
-            : '#' + convert.rgb.hex([focusR, 255 - i * 4, j * 4]);
-      case 'M':
-        isOnVerticalLine = j * 4 >= focusR - 3 && j * 4 < Math.round(focusR) + 1;
-        isOnHorizontalLine = 255 - i * 4 >= focusB && 255 - i * 4 < Math.round(focusB) + 4;
-        return isOnVerticalLine
-          ? systemColors['C']
-          : isOnHorizontalLine
-            ? systemColors['Y']
-            : '#' + convert.rgb.hex([j * 4, focusG, 255 - i * 4]);
-      case 'Y':
-        isOnVerticalLine = j * 4 >= focusG - 3 && j * 4 < Math.round(focusG) + 1;
-        isOnHorizontalLine = 255 - i * 4 >= focusR && 255 - i * 4 < Math.round(focusR) + 4;
-        return isOnVerticalLine
-          ? systemColors['M']
-          : isOnHorizontalLine
-            ? systemColors['C']
-            : '#' + convert.rgb.hex([255 - i * 4, j * 4, focusB]);
-      default:
-        return '#000000';
-    }
-  };
-
-  const handleClick = (i: number, j: number) => {
-    let r = props.focusR;
-    let g = props.focusG;
-    let b = props.focusB;
-    switch (props.cmykMainElement) {
-      case 'C':
-        g = 255 - i * 4;
-        b = j * 4;
-        break;
-      case 'M':
-        b = 255 - i * 4;
-        r = j * 4;
-        break;
-      case 'Y':
-        r = 255 - i * 4;
-        g = j * 4;
-        break;
-    }
-    props.handleClick(r, g, b);
-  };
-
-  return (
-    <ColorElement
-      {...props}
-      getElementColor={getCmykElementColor(
-        props.cmykMainElement,
-        props.i,
-        props.j,
-        props.focusR,
-        props.focusG,
-        props.focusB
-      )}
-      onClick={() => {
-        handleClick(props.i, props.j);
-      }}
-    />
-  );
-};
-
-const HsvColorElement = (props: ColorElementProps) => {
-  const getHsvElementColor = (
-    mainElement: 'H' | 'S' | 'V',
-    i: number,
-    j: number,
-    focusH: number,
-    focusHsvS: number,
-    focusV: number
-  ): string => {
-    let isOnVerticalLine = false;
-    let isOnHorizontalLine = false;
-    switch (mainElement) {
-      case 'H':
-        isOnVerticalLine =
-          (j * 100) / 64 >= focusHsvS - 1.57 && (j * 100) / 64 < Math.round(focusHsvS) + 0.01;
-        isOnHorizontalLine =
-          100 - (i * 100) / 64 >= focusV && 100 - (i * 100) / 64 < Math.round(focusV) + 1.6;
-        return isOnVerticalLine
-          ? systemColors['K']
-          : isOnHorizontalLine
-            ? systemColors['K']
-            : '#' + convert.hsv.hex([focusH, (j * 100) / 64, 100 - (i * 100) / 64]);
-      case 'S':
-        isOnVerticalLine =
-          (j * 360) / 64 >= focusH - 5.7 && (j * 360) / 64 < Math.round(focusH) + 0.1;
-        isOnHorizontalLine =
-          100 - (i * 100) / 64 >= focusV && 100 - (i * 100) / 64 < Math.round(focusV) + 1.6;
-        return isOnVerticalLine
-          ? systemColors['K']
-          : isOnHorizontalLine
-            ? systemColors['W']
-            : '#' + convert.hsv.hex([(j * 360) / 64, focusHsvS, 100 - (i * 100) / 64]);
-      case 'V': {
-        const [x, y] = [j - 32 + 0.5, 32 - i - 0.5];
-        const [radius, angle] = getPolarPosition(x, y);
-        const isOnRadialLine =
-          (angle * 360) / (2 * Math.PI) > focusH - 29 / radius &&
-          (angle * 360) / (2 * Math.PI) < Math.round(focusH) + 29 / radius;
-        const isOnCircleLine =
-          (radius * 100) / 32 >= focusHsvS - 1.8 &&
-          (radius * 100) / 32 < Math.round(focusHsvS) + 1.1;
-        return radius > 32.05
-          ? systemColors['W']
-          : isOnRadialLine && !(x === 0 && y === 0)
-            ? systemColors['K']
-            : isOnCircleLine
-              ? systemColors['W']
-              : '#' + convert.hsv.hex([(angle * 360) / (2 * Math.PI), (radius * 100) / 32, focusV]);
-      }
-      default:
-        return '#000000';
-    }
-  };
-
-  const handleClick = (i: number, j: number) => {
-    let h = props.focusH;
-    let hsvS = props.focusHsvS;
-    let v = props.focusV;
-    switch (props.hsvMainElement) {
-      case 'H':
-        hsvS = Math.round((j * 100) / 64);
-        v = Math.round(((64 - i) * 100) / 64);
-        break;
-      case 'S':
-        h = (j * 360) / 64;
-        v = ((64 - i) * 100) / 64;
-        break;
-      case 'V': {
-        const [x, y] = [j - 32, 32 - i];
-        const [radius, angle] = getPolarPosition(x, y);
-        h = (angle * 360) / (2 * Math.PI);
-        hsvS = (radius * 100) / 32;
-        break;
-      }
-    }
-    const [r, g, b] = convert.hsv.rgb([h, hsvS, v]);
-    props.handleClick(r, g, b);
-  };
-
-  return (
-    <ColorElement
-      {...props}
-      getElementColor={getHsvElementColor(
-        props.hsvMainElement,
-        props.i,
-        props.j,
-        props.focusH,
-        props.focusHsvS,
-        props.focusV
-      )}
-      onClick={() => {
-        handleClick(props.i, props.j);
-      }}
-    />
-  );
-};
-
-const HslColorElement = (props: ColorElementProps) => {
-  const getHslElementColor = (
-    mainElement: 'H' | 'S' | 'L',
-    i: number,
-    j: number,
-    focusH: number,
-    focusS: number,
-    focusL: number
-  ): string => {
-    let isOnVerticalLine = false;
-    let isOnHorizontalLine = false;
-
-    switch (mainElement) {
-      case 'H':
-        isOnVerticalLine =
-          (j * 100) / 64 >= focusS - 1.57 && (j * 100) / 64 < Math.round(focusS) + 0.01;
-        isOnHorizontalLine =
-          100 - (i * 100) / 64 >= focusL && 100 - (i * 100) / 64 < Math.round(focusL) + 1.6;
-        return isOnVerticalLine
-          ? systemColors['K']
-          : isOnHorizontalLine
-            ? systemColors['K']
-            : '#' + convert.hsl.hex([focusH, (j * 100) / 64, 100 - (i * 100) / 64]);
-      case 'S':
-        isOnVerticalLine =
-          (j * 360) / 64 >= focusH - 5.7 && (j * 360) / 64 < Math.round(focusH) + 0.1;
-        isOnHorizontalLine =
-          100 - (i * 100) / 64 >= focusL && 100 - (i * 100) / 64 < Math.round(focusL) + 1.6;
-        return isOnVerticalLine
-          ? systemColors['K']
-          : isOnHorizontalLine
-            ? systemColors['W']
-            : '#' + convert.hsl.hex([(j * 360) / 64, focusS, 100 - (i * 100) / 64]);
-      case 'L': {
-        const [x, y] = [j - 32 + 0.5, 32 - i - 0.5];
-        const [radius, angle] = getPolarPosition(x, y);
-        const isOnRadialLine =
-          (angle * 360) / (2 * Math.PI) > focusH - 29 / radius &&
-          (angle * 360) / (2 * Math.PI) < Math.round(focusH) + 29 / radius;
-        const isOnCircleLine =
-          (radius * 100) / 32 >= focusS - 1.8 && (radius * 100) / 32 < Math.round(focusS) + 1.4;
-        return radius > 32.05
-          ? systemColors['W']
-          : isOnRadialLine && !(x === 0 && y === 0)
-            ? systemColors['K']
-            : isOnCircleLine
-              ? systemColors['W']
-              : '#' + convert.hsl.hex([(angle * 360) / (2 * Math.PI), (radius * 100) / 32, focusL]);
-      }
-      default:
-        return '#000000';
-    }
-  };
-
-  const handleClick = (i: number, j: number) => {
-    let h = props.focusH;
-    let s = props.focusS;
-    let l = props.focusL;
-    switch (props.hslMainElement) {
-      case 'H':
-        s = Math.round((j * 100) / 64);
-        l = Math.round(((64 - i) * 100) / 64);
-        break;
-      case 'S':
-        h = (j * 360) / 64;
-        l = ((64 - i) * 100) / 64;
-        break;
-      case 'L': {
-        const [x, y] = [j - 32, 32 - i];
-        const [radius, angle] = getPolarPosition(x, y);
-        h = (angle * 360) / (2 * Math.PI);
-        s = (radius * 100) / 32;
-        break;
-      }
-    }
-    const [r, g, b] = convert.hsl.rgb([h, s, l]);
-    props.handleClick(r, g, b);
-  };
-
-  return (
-    <ColorElement
-      {...props}
-      getElementColor={getHslElementColor(
-        props.hslMainElement,
-        props.i,
-        props.j,
-        props.focusH,
-        props.focusS,
-        props.focusL
-      )}
-      onClick={() => {
-        handleClick(props.i, props.j);
-      }}
-    />
-  );
-};
-
-const ColorElement = (props: ColorElementProps) => {
-  const [isHovered, setIsHovered] = useState(false);
-  if (!props.getElementColor || !props.onClick) {
-    return null;
-  }
-  return (
-    <div
-      className="colorElement"
-      style={{
-        backgroundColor: props.getElementColor,
-        opacity: isHovered ? 0.3 : 1,
-        cursor: isActive(props.hsvMainElement, props.i, props.j) ? 'pointer' : 'default',
-      }}
-      onClick={props.onClick}
-      onMouseOver={() => {
-        setIsHovered(true);
-      }}
-      onMouseOut={() => {
-        setIsHovered(false);
-      }}
-    />
-  );
-};
-
-const getAngle = (x: number, y: number): number => {
-  if (x > 0) {
-    return Math.PI / 2 - Math.atan(y / Math.abs(x));
-  } else if (x < 0) {
-    return (Math.PI * 3) / 2 + Math.atan(y / Math.abs(x));
-  } else if (x === 0) {
-    return y >= 0 ? 0 : Math.PI;
-  }
-  return 0;
-};
-
-const getRadius = (x: number, y: number): number => {
-  return Math.sqrt(Math.pow(y, 2) + Math.pow(x, 2));
-};
-
-const getPolarPosition = (x: number, y: number): [number, number] => {
-  const radius = getRadius(x, y);
-  const angle = getAngle(x, y);
-  return [radius, angle];
-};
-
-const isActive = (mainElement: 'H' | 'S' | 'V' | 'L', i: number, j: number): boolean => {
-  const [x, y] = [j - 32 + 0.5, 32 - i - 0.5];
-  const radius = getRadius(x, y);
-  if ((mainElement === 'V' || mainElement === 'L') && radius > 32.05) {
-    return false;
-  } else return true;
-};
-
 const StyledTwoDPicker = styled.div`
   position: relative;
-  .systemColorsquare {
-    border: 1px solid #000000;
-    width: 217px;
-    height: 217px;
-    .colorRow {
-      display: flex;
-      flex-direction: row;
-    }
-    .colorElement {
-      height: 3.39px;
-      width: 3.39px;
-    }
-  }
 `;
+
+export default TwoDPicker;
