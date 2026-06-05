@@ -87,6 +87,8 @@ const SingleMarker = ({
   const flashColorRef = useRef(flashColor);
   const [hovered, setHovered] = useState(false);
   const [bubbleHovered, setBubbleHovered] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const animTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => { hexRef.current = hex; }, [hex]);
   useEffect(() => { flashColorRef.current = flashColor; }, [flashColor]);
@@ -98,6 +100,9 @@ const SingleMarker = ({
       return;
     }
     animStartRef.current = Date.now();
+    setIsAnimating(true);
+    if (animTimerRef.current) clearTimeout(animTimerRef.current);
+    animTimerRef.current = setTimeout(() => setIsAnimating(false), ANIM_DURATION * 1000);
   }, [triggerKey]);
 
   useFrame(() => {
@@ -148,7 +153,7 @@ const SingleMarker = ({
           onPointerOver={() => setBubbleHovered(true)}
           onPointerOut={() => setBubbleHovered(false)}
         >
-          {(hovered || bubbleHovered) && (
+          {(hovered || bubbleHovered || isAnimating) && (
             <HarmonyBubble hex={hex} onColorSelect={() => onColorSelect(r, g, b)} />
           )}
         </div>
