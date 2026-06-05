@@ -3,6 +3,7 @@ import ColorHistoryPanel from './ColorHistoryPanel';
 import ColorHarmonyPanel from './ColorHarmonyPanel';
 import LanguageSelector from './LanguageSelector';
 import DisplayedColorsPanel from './DisplayedColorsPanel';
+import ColorSearchPanel from './ColorSearchPanel';
 import type { ColorHistoryItem } from '../../hooks/useColorHistory';
 import type { HarmonyMode, HarmonyColor } from '../../utils/colorHarmony';
 
@@ -60,6 +61,7 @@ const Header = ({
   return (
     <StyledHeader>
       <LanguageSelector />
+      <ColorSearchPanel onColorSelect={onColorSelect} />
       <DisplayedColorsPanel
         cssColorsEnabled={cssColorsEnabled}
         materialColorsEnabled={materialColorsEnabled}

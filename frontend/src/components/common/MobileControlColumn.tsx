@@ -5,11 +5,12 @@ import { ControlPaneSliders } from '../ColorPicker/ControlPane';
 import DisplayedColorsPanel from './DisplayedColorsPanel';
 import ColorHarmonyPanel from './ColorHarmonyPanel';
 import ColorHistoryPanel from './ColorHistoryPanel';
+import ColorSearchPanel from './ColorSearchPanel';
 import type { ControlPaneProps } from '../../types/controlPane';
 import type { ColorHistoryItem } from '../../hooks/useColorHistory';
 import type { HarmonyMode, HarmonyColor } from '../../utils/colorHarmony';
 
-export type MobileSheetId = 'control' | 'displayed' | 'harmony' | 'history';
+export type MobileSheetId = 'control' | 'displayed' | 'harmony' | 'history' | 'search';
 
 interface MobileControlColumnProps extends ControlPaneProps {
   cssColorsEnabled: boolean;
@@ -96,6 +97,15 @@ const MobileControlColumn = (props: MobileControlColumnProps) => {
         >
           <IconHistory />
         </IconButton>
+        <IconButton
+          type="button"
+          aria-label="Search colors"
+          aria-pressed={activeSheet === 'search'}
+          $active={activeSheet === 'search'}
+          onClick={() => onIconClick('search')}
+        >
+          <IconSearch />
+        </IconButton>
       </IconBar>
 
       {activeSheet === 'control' && (
@@ -139,6 +149,11 @@ const MobileControlColumn = (props: MobileControlColumnProps) => {
           ) : (
             <EmptyHistory>No color history yet.</EmptyHistory>
           )}
+        </SheetBlock>
+      )}
+      {activeSheet === 'search' && (
+        <SheetBlock>
+          <ColorSearchPanel onColorSelect={onColorSelect} autoFocus />
         </SheetBlock>
       )}
     </Column>
@@ -256,6 +271,17 @@ function IconHistory() {
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
         d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+function IconSearch() {
+  return (
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
         fill="currentColor"
       />
     </svg>
