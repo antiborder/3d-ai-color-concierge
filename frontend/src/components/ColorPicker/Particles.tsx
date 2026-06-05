@@ -37,6 +37,9 @@ const Particles = (props: ParticlesProps) => {
             r={rgb[0]}
             g={rgb[1]}
             b={rgb[2]}
+            focusR={props.focusR}
+            focusG={props.focusG}
+            focusB={props.focusB}
             name1={c.name1}
             name2={c.name2}
             name3={c.name3}
@@ -59,6 +62,9 @@ interface ParticleProps {
   r: number;
   g: number;
   b: number;
+  focusR: number;
+  focusG: number;
+  focusB: number;
   name1?: string;
   name2?: string;
   name3?: string;
@@ -85,6 +91,9 @@ const Particle = ({
   const [bubbleHovered, setBubbleHovered] = useState(false);
   const particleColor =
     '#' + convert.rgb.hex([Math.round(props.r), Math.round(props.g), Math.round(props.b)]);
+  const currentColorHex =
+    '#' + convert.rgb.hex([Math.round(props.focusR), Math.round(props.focusG), Math.round(props.focusB)]);
+  const isSelected = particleColor.toLowerCase() === currentColorHex.toLowerCase();
 
   const { position } = useSpring({
     from: {
@@ -146,7 +155,7 @@ const Particle = ({
           onPointerOver={() => handleBubblePointerOver()}
           onPointerOut={() => handleBubblePointerOut()}
         >
-          {(hovered || bubbleHovered) && (
+          {(hovered || bubbleHovered || isSelected) && (
             <ParticleBubble
               {...props}
               type={props.shape}
