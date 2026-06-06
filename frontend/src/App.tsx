@@ -136,15 +136,6 @@ function App() {
     closeModal,
   } = useChatbot();
 
-  // Voice command handlers
-  const voiceCommandHandlers = {
-    updateFromRgb,
-    updateRgbValue,
-    setShape,
-    toggleLabel,
-    adjustHslValue,
-  };
-
   // Loading state for API calls
   const [isLoading, setIsLoading] = useState(false);
 
@@ -158,6 +149,25 @@ function App() {
   const isDesktopLayout = useMatchMedia('(min-width: 801px)');
 
   const [harmonyMode, setHarmonyMode] = useState<HarmonyMode>('none');
+
+  // Voice command handlers
+  const voiceCommandHandlers = {
+    updateFromRgb,
+    updateRgbValue,
+    setShape,
+    toggleLabel,
+    adjustHslValue,
+    updateFromHex,
+    getCurrentHex: () => `#${colorState.hexInput}`,
+    setHarmonyMode,
+    setColorSets: (sets: Partial<Record<'css' | 'material' | 'spectral12' | 'japanese' | 'rgbGrid', boolean>>) => {
+      if (sets.css !== undefined) setCssColorsEnabled(sets.css);
+      if (sets.material !== undefined) setMaterialColorsEnabled(sets.material);
+      if (sets.spectral12 !== undefined) setSpectral12ColorsEnabled(sets.spectral12);
+      if (sets.japanese !== undefined) setJapaneseColorsEnabled(sets.japanese);
+      if (sets.rgbGrid !== undefined) setRgbGridColorsEnabled(sets.rgbGrid);
+    },
+  };
 
   const harmonyColors = useMemo(
     () => computeHarmonyColors(colorState.h, colorState.s, colorState.l, harmonyMode),

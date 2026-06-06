@@ -96,6 +96,7 @@ async def process_live_message(
     text_part_buf: str,
     text_part_segment_id: Optional[str],
     text_part_seq: int,
+    color_service=None,
 ) -> tuple[str, Optional[str], int, str, Optional[str], int, str, Optional[str], int]:
     """
     Process a single message from Gemini Live and emit events.
@@ -387,6 +388,43 @@ async def process_live_message(
                     except Exception as e:
                         logger.info(
                             "GeminiLiveSession send_tool_response failed: %s", str(e)
+                        )
+                    continue
+
+                if name == "SEARCH_COLOR":
+                    query = args.get("query", "")
+                    logger.info("SEARCH_COLOR: query=%r color_service=%s", query, type(color_service).__name__)
+                    if color_service is not None and query:
+                        matches = color_service.search_by_name(query)
+                        results = [
+                            {
+                                "name": c.name1,
+                                "name2": c.name2 or "",
+                                "hex": c.hex,
+                                "r": c.rgb["r"],
+                                "g": c.rgb["g"],
+                                "b": c.rgb["b"],
+                                "tags": c.tag,
+                            }
+                            for c in matches[:10]
+                        ]
+                        resp = {"query": query, "count": len(results), "results": results}
+                        logger.info("SEARCH_COLOR: found %d results for %r: %s", len(results), query, [r["name"] for r in results])
+                    else:
+                        resp = {"query": query, "count": 0, "results": [], "error": "Search unavailable"}
+                        logger.info("SEARCH_COLOR: unavailable — color_service=%s query=%r", color_service, query)
+                    try:
+                        if callable(send_tool) and FunctionResponse is not None:
+                            fr = FunctionResponse(name=name, response=resp, id=call_id)
+                            maybe = send_tool(function_responses=fr)
+                            if inspect.isawaitable(maybe):
+                                await maybe
+                            logger.info("SEARCH_COLOR: send_tool_response sent OK")
+                        else:
+                            logger.info("SEARCH_COLOR: send_tool skipped — callable=%s FunctionResponse=%s", callable(send_tool), FunctionResponse)
+                    except Exception as e:
+                        logger.info(
+                            "SEARCH_COLOR send_tool_response failed: %s", str(e)
                         )
                     continue
 

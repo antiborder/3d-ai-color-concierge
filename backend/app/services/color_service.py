@@ -103,13 +103,18 @@ class ColorService:
         return None
     
     def search_by_name(self, name: str) -> List[ColorItem]:
-        """色名で検索（部分一致）"""
-        name_lower = name.lower()
+        """色名で検索（部分一致）。スペース正規化あり"""
+        name_lower = name.lower().strip()
+        name_nospace = name_lower.replace(" ", "").replace("　", "")
         results = []
         for color in self._colors:
-            if (name_lower in color.name1.lower() or
-                (color.name2 and name_lower in color.name2.lower()) or
-                (color.name3 and name_lower in color.name3.lower())):
+            n1 = color.name1.lower()
+            n1_nospace = n1.replace(" ", "")
+            n2 = color.name2.lower() if color.name2 else ""
+            n3 = color.name3.lower() if color.name3 else ""
+            if (name_lower in n1 or name_nospace in n1_nospace or
+                (n2 and (name_lower in n2 or name_nospace in n2.replace(" ", ""))) or
+                (n3 and (name_lower in n3 or name_nospace in n3.replace(" ", "")))):
                 results.append(color)
         return results
     

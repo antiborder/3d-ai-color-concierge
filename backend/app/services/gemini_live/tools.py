@@ -187,6 +187,15 @@ def tool_call_to_frontend_command(name: str, args: dict) -> dict:
             cmd["parameters"]["amount"] = args.get("amount")
     elif name == "CHANGE_SHAPE":
         cmd["parameters"] = {"colorSpace": args.get("colorSpace")}
+    elif name == "SET_HARMONY":
+        cmd["parameters"] = {"mode": args.get("mode")}
+    elif name == "SET_COLOR_SETS":
+        valid_keys = ("css", "material", "spectral12", "japanese", "rgbGrid")
+        cmd["parameters"] = {k: bool(args[k]) for k in valid_keys if k in args}
+    elif name == "COPY_HEX":
+        cmd["parameters"] = {}
+    elif name == "SET_HEX":
+        cmd["parameters"] = {"hex": args.get("hex")}
     else:
         cmd["parameters"] = args
     return cmd
@@ -230,7 +239,7 @@ def live_tools() -> list[dict]:
                 },
                 {
                     "name": "ADJUST_VALUE",
-                    "description": "Adjust the current color's brightness, saturation, or hue while preserving the current color. All adjustments are performed in HSL color space (brightness = lightness 'L', saturation = saturation 'S', hue = hue 'H'). Use this when the user asks to make the current color brighter/darker, more/less saturated, or shift the hue. IMPORTANT: Before using this tool, you should call GET_CURRENT_COLOR to get the current color state. This tool modifies the current color in place, NOT selecting a new color. Direction: 'up' means increase (brighter, more vibrant), 'down' means decrease (darker, less vibrant). For selecting a new color by name or description, use SELECT_COLOR instead.",
+                    "description": "Adjust the current color's brightness, saturation, or hue while preserving the current color. All adjustments are performed in HSL color space (brightness = lightness 'L', saturation = saturation 'S', hue = hue 'H'). HSL ranges: saturation 's' is always 0–100 (100 = fully saturated, NOT 80 or any other value), lightness 'l' is always 0–100, hue 'h' is always 0–360. IMPORTANT: Before using this tool, you should call GET_CURRENT_COLOR to get the current color state. This tool modifies the current color in place, NOT selecting a new color. Direction: 'up' means increase (brighter, more vibrant), 'down' means decrease (darker, less vibrant). For selecting a new color by name or description, use SELECT_COLOR instead.",
                     "parameters": {
                         "type": "object",
                         "properties": {
@@ -267,11 +276,101 @@ def live_tools() -> list[dict]:
                     },
                 },
                 {
+                    "name": "SEARCH_COLOR",
+                    "description": (
+                        "Search the color database by name (partial match). "
+                        "Use this BEFORE SELECT_COLOR when the user mentions a color by name (e.g., 'Pink 800', 'sky blue', '群青色', '青っぽい色'). "
+                        "Returns a list of matching colors with exact RGB values. "
+                        "If multiple results are returned, present the options to the user and ask which one they want, "
+                        "then call SELECT_COLOR with the chosen color's RGB values. "
+                        "If one result is returned, call SELECT_COLOR immediately with that color's RGB values."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "query": {
+                                "type": "string",
+                                "description": "Color name to search for (partial match, e.g. 'Pink 800', 'sky blue', '群青', '青').",
+                            }
+                        },
+                        "required": ["query"],
+                    },
+                },
+                {
                     "name": "GET_COLOR_HISTORY",
                     "description": "Get the list of colors the user has selected during this session, from most recent to oldest. Use this when the user asks about previously chosen colors, wants to return to an earlier color, or asks what colors they have tried. Describe colors using natural expressions or color names, not RGB values.",
                     "parameters": {
                         "type": "object",
                         "properties": {},
+                    },
+                },
+                {
+                    "name": "COPY_HEX",
+                    "description": "Copy the current color's HEX code to the user's clipboard. Use this when the user asks to copy the hex code, share the color code, or save the current color's hex value.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {},
+                    },
+                },
+                {
+                    "name": "SET_HARMONY",
+                    "description": (
+                        "Show or hide color harmony markers in 3D space. "
+                        "PROACTIVELY call this tool whenever you: "
+                        "(1) recommend or mention complementary colors, "
+                        "(2) suggest changing hue dramatically, "
+                        "(3) explain any color harmony theory (triadic, tetradic, etc.), "
+                        "(4) want to visually demonstrate color relationships. "
+                        "Use mode='none' to hide harmony markers when the topic is no longer about harmony. "
+                        "Modes: 'complementary' (2 colors, 180°), 'triangle' (3, 120°), 'square' (4, 90°), "
+                        "'pentagon' (5, 72°), 'hexagon' (6, 60°), 'heptagon' (7), 'octagon' (8, 45°), 'nonagon' (9, 40°)."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "mode": {
+                                "type": "string",
+                                "enum": ["none", "complementary", "triangle", "square", "pentagon", "hexagon", "heptagon", "octagon", "nonagon"],
+                                "description": "Harmony mode to display. Use 'none' to clear harmony markers.",
+                            }
+                        },
+                        "required": ["mode"],
+                    },
+                },
+                {
+                    "name": "SET_COLOR_SETS",
+                    "description": (
+                        "Show or hide color sets displayed in the 3D space. "
+                        "Each key is optional — omit a key to leave that set unchanged. "
+                        "Use this when the user wants to toggle specific color sets or say 'show only X'. "
+                        "Available sets: 'css' (CSS named colors), 'material' (Material Design colors), "
+                        "'spectral12' (spectral 12 colors), 'japanese' (Japanese traditional colors / 日本の伝統色), "
+                        "'rgbGrid' (RGB grid colors). "
+                        "Example — 'show only Japanese colors': set japanese=true and all others to false."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "css":       {"type": "boolean", "description": "CSS named colors"},
+                            "material":  {"type": "boolean", "description": "Material Design colors"},
+                            "spectral12":{"type": "boolean", "description": "Spectral 12 colors"},
+                            "japanese":  {"type": "boolean", "description": "Japanese traditional colors (日本の伝統色)"},
+                            "rgbGrid":   {"type": "boolean", "description": "RGB grid colors"},
+                        },
+                    },
+                },
+                {
+                    "name": "SET_HEX",
+                    "description": "Set the current color directly from a HEX code (e.g. '#FF5733' or 'FF5733'). Use this when the user specifies a color by its hex code.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "hex": {
+                                "type": "string",
+                                "description": "6-digit hex color code, with or without '#' prefix (e.g. '#FF5733' or 'FF5733').",
+                            }
+                        },
+                        "required": ["hex"],
                     },
                 },
             ]

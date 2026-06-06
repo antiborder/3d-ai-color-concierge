@@ -19,7 +19,7 @@
 ## ローカル開発（フロント）
 ```bash
 npm install
-npm start
+npm run dev
 ```
 
 通常は `http://localhost:3000` が開きます。
@@ -38,7 +38,7 @@ cd /Users/mo/Projects/3d-color-picker/3d-ai-color-concierge
 
 初回は `backend/.env` が作られるので、最低限これを設定してください：
 - **`GEMINI_API_KEY`**: 有効な Gemini API Key
-- **`GEMINI_LIVE_MODEL_NAME`**: Live対応モデル名（例: `gemini-2.5-flash-native-audio-preview-12-2025`）
+- **`GEMINI_LIVE_MODEL_NAME`**: Live対応モデル名（例: `gemini-3.1-flash-live-preview`）
 
 メモ:
 - `WS_TOKEN_SECRET` は未設定ならローカル用に自動生成され、`backend/.env` に保存されます。
@@ -86,7 +86,7 @@ npm run dev
 - **`ws_token_secret`**: WS token署名用secret
 - **`duckdns_domain` / `duckdns_token`**: DuckDNS（バックエンドの到達性のため）
 - **`backend_image_tag`**: これからpushするECRイメージタグ
-- **`gemini_live_model_name`**: `gemini-2.5-flash-native-audio-preview-12-2025`
+- **`gemini_live_model_name`**: `gemini-3.1-flash-live-preview`
 
 ### 1. AWS認証（ECR push / Terraform）
 以降は例として `AWS_PROFILE=3d-color-concierge` を使います。

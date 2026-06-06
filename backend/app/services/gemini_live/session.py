@@ -64,10 +64,11 @@ class GeminiLiveSession:
     - events() で出力イベント（音声/ASR/テキスト等）を受ける
     """
 
-    def __init__(self, cfg: GeminiLiveConfig):
+    def __init__(self, cfg: GeminiLiveConfig, color_service=None):
         self._cfg = cfg
         self._closed = False
         self._live_ended = False
+        self._color_service = color_service
 
         # Client-side UI state snapshot (kept by the WS layer). This is intentionally
         # separate from Gemini state and can be used by future tools like GET_CURRENT_COLOR.
@@ -361,6 +362,7 @@ class GeminiLiveSession:
                         self._text_part_buf,
                         self._text_part_segment_id,
                         self._text_part_seq,
+                        self._color_service,
                     )
                     msg_end = time.time()
                     logger.info(

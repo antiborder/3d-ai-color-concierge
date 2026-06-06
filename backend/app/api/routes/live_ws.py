@@ -43,6 +43,7 @@ from app.services.gemini_live_types import (
     LiveTranscriptEvent,
 )
 from app.utils.ws_auth import extract_cookie, verify_ws_token
+from app.services.prompts.common import get_color_service_for_prompt
 from app.utils.origin_check import is_origin_allowed
 from app.utils.rate_limit import FixedWindowRateLimiter
 from app.config.settings import settings
@@ -428,7 +429,7 @@ async def live_voice_ws(ws: WebSocket):
             logger.info("Failed to send introduction prompt: %s", str(e))
 
     try:
-        async with GeminiLiveSession(cfg) as session:
+        async with GeminiLiveSession(cfg, color_service=get_color_service_for_prompt()) as session:
             # 初回の場合のみ自己紹介を送信するタスクを開始
             intro_task = None
             if is_first_time:
