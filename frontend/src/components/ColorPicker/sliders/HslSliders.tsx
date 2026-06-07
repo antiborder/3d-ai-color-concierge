@@ -4,7 +4,6 @@ import type { ControlPaneProps, BridgeProps } from '../../../types/controlPane';
 import type { ColorSpace } from '../../../types/color';
 import ShapeButton from './ShapeButton';
 import SliderContainer from './SliderContainer';
-import ColorBridge from './ColorBridge';
 import { systemColors } from '../../../constants/systemColors.js';
 
 interface HslSlidersProps extends ControlPaneProps, BridgeProps {
@@ -93,17 +92,6 @@ const HslSliders = (props: HslSlidersProps) => {
             shape={props.shape}
             panelShape={props.panelShape}
           />
-          {props.shape === 'HSL' && (
-            <ColorBridge
-              currentColor={{ r: props.focusR, g: props.focusG, b: props.focusB }}
-              colorA={props.bridgeColorA}
-              colorB={props.bridgeColorB}
-              onSetColorA={props.onSetBridgeColorA}
-              onSetColorB={props.onSetBridgeColorB}
-              shape={props.shape}
-              onColorSelect={props.handleClick}
-            />
-          )}
         </>
       )}
     </div>

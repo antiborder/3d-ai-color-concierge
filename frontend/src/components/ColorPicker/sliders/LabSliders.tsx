@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import type { ControlPaneProps, BridgeProps } from '../../../types/controlPane';
 import ShapeButton from './ShapeButton';
-import ColorBridge from './ColorBridge';
 
 function rgbToLab(r: number, g: number, b: number): [number, number, number] {
   const toLinear = (c: number) => {
@@ -126,17 +125,6 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
             <input type="range" min="-128" max="127" step="1" value={sliderB} onChange={handleBChange} />
             <Value>{sliderB}</Value>
           </LabSliderRow>
-          {props.shape === 'Lab' && (
-            <ColorBridge
-              currentColor={{ r: props.focusR, g: props.focusG, b: props.focusB }}
-              colorA={props.bridgeColorA}
-              colorB={props.bridgeColorB}
-              onSetColorA={props.onSetBridgeColorA}
-              onSetColorB={props.onSetBridgeColorB}
-              shape={props.shape}
-              onColorSelect={props.handleClick}
-            />
-          )}
         </>
       )}
     </div>

@@ -7,6 +7,7 @@ import HslSliders from './sliders/HslSliders';
 import HsvSliders from './sliders/HsvSliders';
 import LabSliders from './sliders/LabSliders';
 import LchSliders from './sliders/LchSliders';
+import OneDPicker from './sliders/OneDPicker';
 import type { ControlPaneProps } from '../../types/controlPane';
 import '../../App.css';
 import { systemColors } from '../../constants/systemColors.js';
@@ -51,6 +52,19 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
         />
         <LabSliders {...props} />
         <LchSliders {...props} />
+        <OneDPicker
+          currentColor={{ r: props.focusR, g: props.focusG, b: props.focusB }}
+          shape={props.shape}
+          onColorSelect={props.handleClick}
+          bridgeColorA={props.bridgeColorA}
+          bridgeColorB={props.bridgeColorB}
+          onSetBridgeColorA={props.onSetBridgeColorA}
+          onSetBridgeColorB={props.onSetBridgeColorB}
+          isBridgeOpen={props.isBridgeOpen}
+          onBridgeOpenChange={props.onBridgeOpenChange}
+          isTwoDPickerOpen={props.isTwoDPickerOpen}
+          onTwoDPickerOpenChange={props.onTwoDPickerOpenChange}
+        />
 
         <TwoDPicker {...props} />
       </SlidersSection>

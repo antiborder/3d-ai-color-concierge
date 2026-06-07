@@ -156,6 +156,8 @@ function App() {
     g: Math.round(colorState.g),
     b: Math.round(colorState.b),
   }));
+  const [isBridgeOpen, setIsBridgeOpen] = useState(false);
+  const [isTwoDPickerOpen, setIsTwoDPickerOpen] = useState(false);
 
   // Voice command handlers
   const voiceCommandHandlers = {
@@ -270,6 +272,10 @@ function App() {
         currentB={colorState.b}
       />
       <Structure
+        bridgeColorA={isBridgeOpen ? bridgeColorA : undefined}
+        bridgeColorB={isBridgeOpen ? bridgeColorB : undefined}
+        isBridgeOpen={isBridgeOpen}
+        isTwoDPickerOpen={isTwoDPickerOpen}
         shape={colorState.shape}
         isLabelShown={colorState.isLabelShown}
         onParticleClick={handleClick}
@@ -302,6 +308,10 @@ function App() {
           bridgeColorB={bridgeColorB}
           onSetBridgeColorA={setBridgeColorA}
           onSetBridgeColorB={setBridgeColorB}
+          isBridgeOpen={isBridgeOpen}
+          onBridgeOpenChange={setIsBridgeOpen}
+          isTwoDPickerOpen={isTwoDPickerOpen}
+          onTwoDPickerOpenChange={setIsTwoDPickerOpen}
           handleLabel={toggleLabel}
           handleClick={handleClick}
           handleHsvElementClick={handleHsvElementClick}
@@ -344,6 +354,10 @@ function App() {
           bridgeColorB={bridgeColorB}
           onSetBridgeColorA={setBridgeColorA}
           onSetBridgeColorB={setBridgeColorB}
+          isBridgeOpen={isBridgeOpen}
+          onBridgeOpenChange={setIsBridgeOpen}
+          isTwoDPickerOpen={isTwoDPickerOpen}
+          onTwoDPickerOpenChange={setIsTwoDPickerOpen}
           handleLabel={toggleLabel}
           handleClick={handleClick}
           handleHsvElementClick={handleHsvElementClick}

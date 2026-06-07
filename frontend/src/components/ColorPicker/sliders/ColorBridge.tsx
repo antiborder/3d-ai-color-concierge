@@ -135,8 +135,8 @@ const ColorBridge = ({ currentColor, colorA, colorB, onSetColorA, onSetColorB, s
             onSetColorA({ ...currentColor });
             const hex = toHex(currentColor.r, currentColor.g, currentColor.b);
             toast.success(i18n.language === 'en'
-              ? `Color Bridge left color set to ${hex}`
-              : `Color Bridgeの左端の色が${hex}に設定されました`,
+              ? `1D Picker left color set to ${hex}`
+              : `1D Pickerの左端の色が${hex}に設定されました`,
               { style: { background: '#000', color: '#fff' }, iconTheme: { primary: '#fff', secondary: '#000' } }
             );
           }}
@@ -149,8 +149,8 @@ const ColorBridge = ({ currentColor, colorA, colorB, onSetColorA, onSetColorB, s
             onSetColorB({ ...currentColor });
             const hex = toHex(currentColor.r, currentColor.g, currentColor.b);
             toast.success(i18n.language === 'en'
-              ? `Color Bridge right color set to ${hex}`
-              : `Color Bridgeの右端の色が${hex}に設定されました`,
+              ? `1D Picker right color set to ${hex}`
+              : `1D Pickerの右端の色が${hex}に設定されました`,
               { style: { background: '#000', color: '#fff' }, iconTheme: { primary: '#fff', secondary: '#000' } }
             );
           }}

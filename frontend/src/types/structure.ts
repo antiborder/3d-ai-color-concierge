@@ -2,6 +2,10 @@ import type { ColorSpace } from './color';
 import type { HarmonyColor } from '../utils/colorHarmony';
 
 export interface StructureProps {
+  bridgeColorA?: { r: number; g: number; b: number };
+  bridgeColorB?: { r: number; g: number; b: number };
+  isBridgeOpen?: boolean;
+  isTwoDPickerOpen?: boolean;
   harmonyColors?: HarmonyColor[];
   shape: ColorSpace;
   isLabelShown: boolean;

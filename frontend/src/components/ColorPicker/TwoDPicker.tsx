@@ -156,6 +156,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
     props.rgbMainElement, props.cmykMainElement, props.hsvMainElement, props.hslMainElement,
     props.focusR, props.focusG, props.focusB,
     props.focusH, props.focusS, props.focusL, props.focusHsvS, props.focusV,
+    props.isTwoDPickerOpen,
   ]);
 
   const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -220,20 +221,41 @@ const TwoDPicker = (props: ControlPaneProps) => {
 
   return (
     <StyledTwoDPicker>
-      <div className="controlPanel" style={{ padding: '10px' }}>
-        <canvas
-          ref={canvasRef}
-          width={SIZE}
-          height={SIZE}
+      <div className="controlPanel">
+        <div
           style={{
-            width: `${CSS_SIZE}px`,
-            height: `${CSS_SIZE}px`,
-            display: 'block',
-            border: '1px solid #000000',
-            cursor: 'crosshair',
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            height: '24px',
           }}
-          onClick={handleClick}
-        />
+        >
+          <span style={{ fontWeight: 'bold', fontSize: '18px' }}>2D Picker</span>
+          <button
+            className="showSlidersButton"
+            onClick={() => props.onTwoDPickerOpenChange(!props.isTwoDPickerOpen)}
+          >
+            {props.isTwoDPickerOpen ? '▲' : '▼'}
+          </button>
+        </div>
+        {props.isTwoDPickerOpen && (
+          <canvas
+            ref={canvasRef}
+            width={SIZE}
+            height={SIZE}
+            style={{
+              width: `${CSS_SIZE}px`,
+              height: `${CSS_SIZE}px`,
+              display: 'block',
+              border: '1px solid #000000',
+              cursor: 'crosshair',
+              marginTop: '8px',
+            }}
+            onClick={handleClick}
+          />
+        )}
       </div>
     </StyledTwoDPicker>
   );

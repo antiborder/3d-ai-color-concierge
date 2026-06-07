@@ -57,6 +57,10 @@ export interface BridgeProps {
   bridgeColorB: { r: number; g: number; b: number };
   onSetBridgeColorA: (c: { r: number; g: number; b: number }) => void;
   onSetBridgeColorB: (c: { r: number; g: number; b: number }) => void;
+  isBridgeOpen: boolean;
+  onBridgeOpenChange: (open: boolean) => void;
+  isTwoDPickerOpen: boolean;
+  onTwoDPickerOpenChange: (open: boolean) => void;
 }
 
 export interface SliderContainerProps {

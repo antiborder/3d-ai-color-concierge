@@ -12,6 +12,7 @@ import CubeWireframe from './CubeWireframe';
 import CylinderEllipses from './CylinderEllipses';
 import ColorCursor from './ColorCursor';
 import HarmonyMarkers from './HarmonyMarkers';
+import ColorBridgeLine from './ColorBridgeLine';
 import sampleColors from '../../constants/sampleColors';
 import { getMunsellHVC } from '../../utils/munsellUtils';
 import type {
@@ -410,26 +411,42 @@ const Structure = (props: StructureProps) => {
               onColorSelect={props.onParticleClick}
             />
           )}
-          <FocusPlane
-            {...props}
-            getRgbPosition={getRgbPosition}
-            getHslPosition={getHslPosition}
-            getHsvPosition={getHsvPosition}
-            rescaleHsl={rescaleHsl}
-            cylindricalToCartesian={cylindricalToCartesian}
-            cylinderRadius={cylinderRadius}
-            cylinderHeight={cylinderHeight}
-          />
-          <FocusLine
-            {...props}
-            getRgbPosition={getRgbPosition}
-            getHslPosition={getHslPosition}
-            getHsvPosition={getHsvPosition}
-            rescaleHsl={rescaleHsl}
-            cylindricalToCartesian={cylindricalToCartesian}
-            cylinderRadius={cylinderRadius}
-            cylinderHeight={cylinderHeight}
-          />
+          {props.isTwoDPickerOpen && (
+            <>
+              <FocusPlane
+                {...props}
+                getRgbPosition={getRgbPosition}
+                getHslPosition={getHslPosition}
+                getHsvPosition={getHsvPosition}
+                rescaleHsl={rescaleHsl}
+                cylindricalToCartesian={cylindricalToCartesian}
+                cylinderRadius={cylinderRadius}
+                cylinderHeight={cylinderHeight}
+              />
+              <FocusLine
+                {...props}
+                getRgbPosition={getRgbPosition}
+                getHslPosition={getHslPosition}
+                getHsvPosition={getHsvPosition}
+                rescaleHsl={rescaleHsl}
+                cylindricalToCartesian={cylindricalToCartesian}
+                cylinderRadius={cylinderRadius}
+                cylinderHeight={cylinderHeight}
+              />
+            </>
+          )}
+          {props.isBridgeOpen && props.bridgeColorA && props.bridgeColorB && (
+            <ColorBridgeLine
+              colorA={props.bridgeColorA}
+              colorB={props.bridgeColorB}
+              shape={props.shape}
+              getRgbPosition={getRgbPosition}
+              getHslPosition={getHslPosition}
+              getHsvPosition={getHsvPosition}
+              getMunsellPosition={getMunsellPosition}
+              getLabPosition={getLabPosition}
+            />
+          )}
           {/* RGB/CMYK/Lab用の外枠 */}
           <CubeWireframe
             shape={displayShape}

@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import type { ControlPaneProps, BridgeProps } from '../../../types/controlPane';
 import ShapeButton from './ShapeButton';
-import ColorBridge from './ColorBridge';
 import { getMunsellHVC, munsellHVCtoRgb } from '../../../utils/munsellUtils';
 
 const LchSliders = (props: ControlPaneProps & BridgeProps) => {
@@ -104,17 +103,6 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
             <input type="range" min="0" max="359" step="1" value={sliderH} onChange={handleHChange} />
             <Value>{sliderH}</Value>
           </LchSliderRow>
-          {props.shape === 'LCH' && (
-            <ColorBridge
-              currentColor={{ r: props.focusR, g: props.focusG, b: props.focusB }}
-              colorA={props.bridgeColorA}
-              colorB={props.bridgeColorB}
-              onSetColorA={props.onSetBridgeColorA}
-              onSetColorB={props.onSetBridgeColorB}
-              shape={props.shape}
-              onColorSelect={props.handleClick}
-            />
-          )}
         </>
       )}
     </div>
