@@ -6,6 +6,17 @@ from pathlib import Path
 from typing import List, Optional, Dict
 from app.api.schemas.colors import ColorItem, ColorSearchResponse
 
+try:
+    import pykakasi as _pykakasi
+    _kks = _pykakasi.kakasi()
+    def _to_romaji(text: str) -> str:
+        if not text:
+            return ""
+        return "".join(item["hepburn"] for item in _kks.convert(text))
+except Exception:
+    def _to_romaji(text: str) -> str:
+        return text
+
 class ColorService:
     """色データを管理・検索するサービス"""
     
@@ -130,6 +141,34 @@ class ColorService:
         """すべての色を取得（要約用）"""
         return self._colors
     
+    def find_closest_colors(self, r: int, g: int, b: int, top_n: int = 5, language: str = "ja") -> List[dict]:
+        """現在色に最も近い色をRGB距離で検索"""
+        scored = []
+        for color in self._colors:
+            dr = r - color.rgb["r"]
+            dg = g - color.rgb["g"]
+            db = b - color.rgb["b"]
+            dist = (dr * dr + dg * dg + db * db) ** 0.5
+            scored.append((dist, color))
+        scored.sort(key=lambda x: x[0])
+        def _name2(c: ColorItem) -> str:
+            if not c.name2:
+                return ""
+            return _to_romaji(c.name2) if language == "en" else c.name2
+        return [
+            {
+                "name": c.name1,
+                "name2": _name2(c),
+                "hex": c.hex,
+                "r": c.rgb["r"],
+                "g": c.rgb["g"],
+                "b": c.rgb["b"],
+                "tags": c.tag,
+                "distance": round(dist, 1),
+            }
+            for dist, c in scored[:top_n]
+        ]
+
     def get_summary_for_prompt(self, max_colors_per_category: int = 10) -> str:
         """プロンプト用の要約を生成"""
         categories = self.get_categories()

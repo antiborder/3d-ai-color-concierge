@@ -391,6 +391,27 @@ async def process_live_message(
                         )
                     continue
 
+                if name == "GET_CLOSEST_COLOR":
+                    if color_service is not None and current_color_state:
+                        r = current_color_state.get("r", 0)
+                        g = current_color_state.get("g", 0)
+                        b = current_color_state.get("b", 0)
+                        lang = getattr(cfg, "language", "ja")
+                        closest = color_service.find_closest_colors(r, g, b, top_n=5, language=lang)
+                        resp = {"r": r, "g": g, "b": b, "closest": closest}
+                        logger.info("GET_CLOSEST_COLOR: rgb=(%d,%d,%d) top=%s", r, g, b, [c["name"] for c in closest[:3]])
+                    else:
+                        resp = {"error": "No current color or color service unavailable", "closest": []}
+                    try:
+                        if callable(send_tool) and FunctionResponse is not None:
+                            fr = FunctionResponse(name=name, response=resp, id=call_id)
+                            maybe = send_tool(function_responses=fr)
+                            if inspect.isawaitable(maybe):
+                                await maybe
+                    except Exception as e:
+                        logger.info("GET_CLOSEST_COLOR send_tool_response failed: %s", str(e))
+                    continue
+
                 if name == "SEARCH_COLOR":
                     query = args.get("query", "")
                     logger.info("SEARCH_COLOR: query=%r color_service=%s", query, type(color_service).__name__)

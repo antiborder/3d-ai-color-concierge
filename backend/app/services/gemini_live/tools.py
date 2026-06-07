@@ -276,6 +276,20 @@ def live_tools() -> list[dict]:
                     },
                 },
                 {
+                    "name": "GET_CLOSEST_COLOR",
+                    "description": (
+                        "Find the closest matching color names from the database for the currently selected color. "
+                        "Use this when the user asks 'what color is this?', 'what is this color called?', "
+                        "'what Japanese traditional color is closest to this?', or any question about identifying the current color by name. "
+                        "Returns the top 5 closest colors with their names, hex codes, and RGB distance. "
+                        "Describe the results using the color names — do NOT mention RGB values or distance numbers to the user."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {},
+                    },
+                },
+                {
                     "name": "SEARCH_COLOR",
                     "description": (
                         "Search the color database by name (partial match). "
