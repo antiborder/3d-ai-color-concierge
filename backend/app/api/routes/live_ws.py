@@ -99,6 +99,16 @@ def _normalize_color_state(color) -> dict | None:
             vv = _clamp_int(color.get(k), lo, hi)
             if vv is not None:
                 out[k] = vv
+
+    for bridge_key in ("bridgeColorA", "bridgeColorB"):
+        bc = color.get(bridge_key)
+        if isinstance(bc, dict):
+            br = _clamp_int(bc.get("r"), 0, 255)
+            bg = _clamp_int(bc.get("g"), 0, 255)
+            bb = _clamp_int(bc.get("b"), 0, 255)
+            if br is not None and bg is not None and bb is not None:
+                out[bridge_key] = {"r": br, "g": bg, "b": bb}
+
     return out
 
 
@@ -234,6 +244,10 @@ async def live_voice_ws(ws: WebSocket):
                                     if isinstance(c, dict)
                                 ][:50]
                                 session.set_color_history(history)
+                        if msg_type == "text_message" and isinstance(payload, dict):
+                            text = str(payload.get("text", "")).strip()
+                            if text:
+                                await session.send_text(text)
                         if msg_type == "color_state" and isinstance(payload, dict):
                             color = _normalize_color_state(payload.get("color"))
                             if color:

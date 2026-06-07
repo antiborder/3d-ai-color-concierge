@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import HelpIcon from './HelpIcon';
 
 export interface DisplayedColorsPanelProps {
   cssColorsEnabled: boolean;
@@ -11,6 +12,7 @@ export interface DisplayedColorsPanelProps {
   onSpectral12ColorsToggle: (enabled: boolean) => void;
   onJapaneseColorsToggle: (enabled: boolean) => void;
   onRgbGridColorsToggle: (enabled: boolean) => void;
+  onHelpClick?: (topic: string) => void;
 }
 
 const DisplayedColorsPanel = ({
@@ -24,6 +26,7 @@ const DisplayedColorsPanel = ({
   onSpectral12ColorsToggle,
   onJapaneseColorsToggle,
   onRgbGridColorsToggle,
+  onHelpClick,
 }: DisplayedColorsPanelProps) => {
   return (
     <Panel>
@@ -35,6 +38,7 @@ const DisplayedColorsPanel = ({
           onChange={(e) => onCssColorsToggle(e.target.checked)}
         />
         <span>CSS Named Colors</span>
+        {onHelpClick && <HelpIcon topic="css_colors" onHelpClick={onHelpClick} />}
       </CheckboxLabel>
       <CheckboxLabel>
         <input
@@ -43,6 +47,7 @@ const DisplayedColorsPanel = ({
           onChange={(e) => onMaterialColorsToggle(e.target.checked)}
         />
         <span>Material Design Colors</span>
+        {onHelpClick && <HelpIcon topic="material_colors" onHelpClick={onHelpClick} />}
       </CheckboxLabel>
       <CheckboxLabel>
         <input
@@ -51,6 +56,7 @@ const DisplayedColorsPanel = ({
           onChange={(e) => onSpectral12ColorsToggle(e.target.checked)}
         />
         <span>12-color Spectral Wheel</span>
+        {onHelpClick && <HelpIcon topic="spectral_colors" onHelpClick={onHelpClick} />}
       </CheckboxLabel>
       <CheckboxLabel>
         <input
@@ -59,6 +65,7 @@ const DisplayedColorsPanel = ({
           onChange={(e) => onJapaneseColorsToggle(e.target.checked)}
         />
         <span>Japanese Traditional Colors</span>
+        {onHelpClick && <HelpIcon topic="japanese_colors" onHelpClick={onHelpClick} />}
       </CheckboxLabel>
       <CheckboxLabel>
         <input
@@ -67,6 +74,7 @@ const DisplayedColorsPanel = ({
           onChange={(e) => onRgbGridColorsToggle(e.target.checked)}
         />
         <span>RGB Cube Grid</span>
+        {onHelpClick && <HelpIcon topic="rgb_grid" onHelpClick={onHelpClick} />}
       </CheckboxLabel>
     </Panel>
   );

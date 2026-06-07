@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import convert from 'color-convert';
 import { systemColors } from '../../constants/systemColors';
 import type { ControlPaneProps } from '../../types/controlPane';
+import HelpIcon from '../common/HelpIcon';
 
 const SIZE = 256;    // canvas pixel resolution
 const CSS_SIZE = 217; // rendered CSS size (px)
@@ -233,12 +234,23 @@ const TwoDPicker = (props: ControlPaneProps) => {
           }}
         >
           <span style={{ fontWeight: 'bold', fontSize: '18px' }}>2D Picker</span>
-          <button
-            className="showSlidersButton"
-            onClick={() => props.onTwoDPickerOpenChange(!props.isTwoDPickerOpen)}
-          >
-            {props.isTwoDPickerOpen ? '▲' : '▼'}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+            {props.onHelpClick && (
+              <HelpIcon
+                topic="2d_picker"
+                onHelpClick={(topic) => {
+                  if (!props.isTwoDPickerOpen) props.onTwoDPickerOpenChange(true);
+                  props.onHelpClick!(topic);
+                }}
+              />
+            )}
+            <button
+              className="showSlidersButton"
+              onClick={() => props.onTwoDPickerOpenChange(!props.isTwoDPickerOpen)}
+            >
+              {props.isTwoDPickerOpen ? '▲' : '▼'}
+            </button>
+          </div>
         </div>
         {props.isTwoDPickerOpen && (
           <canvas

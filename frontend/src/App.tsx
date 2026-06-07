@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toaster } from 'react-hot-toast';
 import ControlPane from './components/ColorPicker/ControlPane';
@@ -15,6 +15,7 @@ import { executeCommand } from './utils/commandExecutor';
 import type { Command as VoiceCommand } from './types/voice';
 import { useChatbot } from './hooks/useChatbot';
 import { type HarmonyMode, computeHarmonyColors } from './utils/colorHarmony';
+import { interpolateRgb } from './components/ColorPicker/sliders/ColorBridge';
 
 function App() {
   const { i18n } = useTranslation();
@@ -158,6 +159,48 @@ function App() {
   }));
   const [isBridgeOpen, setIsBridgeOpen] = useState(false);
   const [isTwoDPickerOpen, setIsTwoDPickerOpen] = useState(false);
+  const [helpRequest, setHelpRequest] = useState<{ text: string; id: number } | null>(null);
+
+  const handleHelpClick = useCallback((topic: string) => {
+    const helpTexts: Record<string, string> = {
+      color_harmony: 'Color Harmonyとは？',
+      color_history: 'Color Historyとは？',
+      '1d_picker': '1D Pickerとは？',
+      '2d_picker': '2D Pickerとは？',
+      rgb: 'RGBとは？',
+      cmyk: 'CMYKとは？',
+      hsl: 'HSLとは？',
+      hsv: 'HSVとは？',
+      lab: 'Lab色空間とは？',
+      lch: 'LCH色空間とは？',
+      css_colors: 'CSS Named Colorsとは？',
+      material_colors: 'Material Colorsとは？',
+      spectral_colors: 'Spectral Wheelとは？',
+      japanese_colors: '日本の伝統色とは？',
+      rgb_grid: 'RGB Cube Gridとは？',
+      rgb_r: 'RGBのR（赤）チャンネルとは？',
+      rgb_g: 'RGBのG（緑）チャンネルとは？',
+      rgb_b: 'RGBのB（青）チャンネルとは？',
+      hsl_h: 'HSLのH（色相）とは？',
+      hsl_s: 'HSLのS（彩度）とは？',
+      hsl_l: 'HSLのL（明度）とは？',
+      hsv_h: 'HSVのH（色相）とは？',
+      hsv_s: 'HSVのS（彩度）とは？',
+      hsv_v: 'HSVのV（明度）とは？',
+      cmyk_c: 'CMYKのC（シアン）とは？',
+      cmyk_m: 'CMYKのM（マゼンタ）とは？',
+      cmyk_y: 'CMYKのY（イエロー）とは？',
+      cmyk_k: 'CMYKのK（ブラック）とは？',
+      lab_l: 'LabのL（明度）とは？',
+      lab_a: 'Labのa（赤緑軸）とは？',
+      lab_b: 'Labのb（黄青軸）とは？',
+      lch_l: 'LCHのL（明度）とは？',
+      lch_c: 'LCHのC（彩度）とは？',
+      lch_h: 'LCHのH（色相）とは？',
+    };
+    const text = helpTexts[topic] ?? `${topic}とは？`;
+    setHelpRequest({ text, id: Date.now() });
+  }, []);
 
   // Voice command handlers
   const voiceCommandHandlers = {
@@ -175,6 +218,13 @@ function App() {
       if (sets.spectral12 !== undefined) setSpectral12ColorsEnabled(sets.spectral12);
       if (sets.japanese !== undefined) setJapaneseColorsEnabled(sets.japanese);
       if (sets.rgbGrid !== undefined) setRgbGridColorsEnabled(sets.rgbGrid);
+    },
+    setBridgeColorA,
+    setBridgeColorB,
+    setIsBridgeOpen,
+    selectBridgePosition: (position: number) => {
+      const [r, g, b] = interpolateRgb(bridgeColorA, bridgeColorB, colorState.shape, position);
+      updateFromRgb(r, g, b);
     },
   };
 
@@ -270,6 +320,7 @@ function App() {
         currentR={colorState.r}
         currentG={colorState.g}
         currentB={colorState.b}
+        onHelpClick={handleHelpClick}
       />
       <Structure
         bridgeColorA={isBridgeOpen ? bridgeColorA : undefined}
@@ -312,6 +363,7 @@ function App() {
           onBridgeOpenChange={setIsBridgeOpen}
           isTwoDPickerOpen={isTwoDPickerOpen}
           onTwoDPickerOpenChange={setIsTwoDPickerOpen}
+          onHelpClick={handleHelpClick}
           handleLabel={toggleLabel}
           handleClick={handleClick}
           handleHsvElementClick={handleHsvElementClick}
@@ -358,6 +410,7 @@ function App() {
           onBridgeOpenChange={setIsBridgeOpen}
           isTwoDPickerOpen={isTwoDPickerOpen}
           onTwoDPickerOpenChange={setIsTwoDPickerOpen}
+          onHelpClick={handleHelpClick}
           handleLabel={toggleLabel}
           handleClick={handleClick}
           handleHsvElementClick={handleHsvElementClick}
@@ -412,6 +465,8 @@ function App() {
       )}
       <VoiceControl
         currentColorState={colorState}
+        bridgeColorA={bridgeColorA}
+        bridgeColorB={bridgeColorB}
         colorHistory={history}
         onTranscript={handleVoiceTranscript}
         onTranscriptUpdate={handleTranscriptUpdate}
@@ -420,6 +475,7 @@ function App() {
         onError={handleVoiceError}
         // onOpenChatHistory={openModal}
         isLoading={isLoading}
+        helpRequest={helpRequest}
       />
       <ChatHistoryModal
         isOpen={isModalOpen}

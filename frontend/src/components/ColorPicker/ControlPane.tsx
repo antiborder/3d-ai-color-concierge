@@ -64,6 +64,7 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
           onBridgeOpenChange={props.onBridgeOpenChange}
           isTwoDPickerOpen={props.isTwoDPickerOpen}
           onTwoDPickerOpenChange={props.onTwoDPickerOpenChange}
+          onHelpClick={props.onHelpClick}
         />
 
         <TwoDPicker {...props} />

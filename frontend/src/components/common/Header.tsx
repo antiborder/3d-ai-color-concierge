@@ -27,6 +27,7 @@ interface HeaderProps {
   currentR: number;
   currentG: number;
   currentB: number;
+  onHelpClick?: (topic: string) => void;
 }
 
 const Header = ({
@@ -49,6 +50,7 @@ const Header = ({
   currentR,
   currentG,
   currentB,
+  onHelpClick,
 }: HeaderProps) => {
   if (!isDesktopLayout) {
     return (
@@ -73,6 +75,7 @@ const Header = ({
         onSpectral12ColorsToggle={onSpectral12ColorsToggle}
         onJapaneseColorsToggle={onJapaneseColorsToggle}
         onRgbGridColorsToggle={onRgbGridColorsToggle}
+        onHelpClick={onHelpClick}
       />
       <ColorHarmonyPanel
         mode={harmonyMode}
@@ -82,9 +85,10 @@ const Header = ({
         currentG={currentG}
         currentB={currentB}
         onColorSelect={onColorSelect}
+        onHelpClick={onHelpClick}
       />
       <HistoryPanelWrapper>
-        <ColorHistoryPanel history={colorHistory} onColorSelect={onColorSelect} />
+        <ColorHistoryPanel history={colorHistory} onColorSelect={onColorSelect} onHelpClick={onHelpClick} />
       </HistoryPanelWrapper>
     </StyledHeader>
   );

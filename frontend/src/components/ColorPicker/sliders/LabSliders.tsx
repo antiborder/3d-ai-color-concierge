@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import type { ControlPaneProps, BridgeProps } from '../../../types/controlPane';
 import ShapeButton from './ShapeButton';
+import HelpIcon from '../../common/HelpIcon';
 
 function rgbToLab(r: number, g: number, b: number): [number, number, number] {
   const toLinear = (c: number) => {
@@ -101,12 +102,20 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
           shapeName={'Lab'}
           content={'CIE Lab (Lightness / a red-green / b yellow-blue)'}
         />
-        <button
-          className="showSlidersButton"
-          onClick={() => setIsVisible(!isVisible)}
-        >
-          {isVisible ? '▲' : '▼'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+          {props.onHelpClick && (
+            <HelpIcon
+              topic="lab"
+              onHelpClick={(topic) => { setIsVisible(true); props.onHelpClick!(topic); }}
+            />
+          )}
+          <button
+            className="showSlidersButton"
+            onClick={() => setIsVisible(!isVisible)}
+          >
+            {isVisible ? '▲' : '▼'}
+          </button>
+        </div>
       </div>
       {isVisible && (
         <>
@@ -114,16 +123,25 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
             <Label>L</Label>
             <input type="range" min="0" max="100" step="1" value={sliderL} onChange={handleLChange} />
             <Value>{sliderL}</Value>
+            {props.onHelpClick && (
+              <HelpIcon topic="lab_l" onHelpClick={props.onHelpClick} size={20} />
+            )}
           </LabSliderRow>
           <LabSliderRow>
             <Label>a</Label>
             <input type="range" min="-128" max="127" step="1" value={sliderA} onChange={handleAChange} />
             <Value>{sliderA}</Value>
+            {props.onHelpClick && (
+              <HelpIcon topic="lab_a" onHelpClick={props.onHelpClick} size={20} />
+            )}
           </LabSliderRow>
           <LabSliderRow>
             <Label>b</Label>
             <input type="range" min="-128" max="127" step="1" value={sliderB} onChange={handleBChange} />
             <Value>{sliderB}</Value>
+            {props.onHelpClick && (
+              <HelpIcon topic="lab_b" onHelpClick={props.onHelpClick} size={20} />
+            )}
           </LabSliderRow>
         </>
       )}
@@ -141,7 +159,8 @@ const LabSliderRow = styled.div`
   gap: 4px;
 
   input[type='range'] {
-    width: 150px;
+    flex: 1;
+    min-width: 80px;
   }
 `;
 

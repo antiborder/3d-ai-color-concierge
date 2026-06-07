@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import type { SliderContainerProps } from '../../../types/controlPane';
+import HelpIcon from '../../common/HelpIcon';
 
 const SliderContainer = (props: SliderContainerProps) => {
   const [, setValue] = useState(props.value);
@@ -64,6 +65,9 @@ const SliderContainer = (props: SliderContainerProps) => {
         onChange={handleChange}
       />
       <div className="value">{Math.round(props.value)}</div>
+      {props.onHelpClick && props.helpTopic && (
+        <HelpIcon topic={props.helpTopic} onHelpClick={props.onHelpClick} size={20} />
+      )}
     </StyledSliderContainer>
   );
 };
@@ -82,10 +86,13 @@ const StyledSliderContainer = styled.div`
     font-size: 18px;
   }
   input {
-    width: 150px;
+    flex: 1;
+    min-width: 80px;
   }
   .value {
     width: 20px;
+    text-align: right;
+    flex-shrink: 0;
   }
   .label-on {
     font-size: 20px;

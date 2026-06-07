@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import type { ControlPaneProps, BridgeProps } from '../../../types/controlPane';
 import ShapeButton from './ShapeButton';
+import HelpIcon from '../../common/HelpIcon';
 import { getMunsellHVC, munsellHVCtoRgb } from '../../../utils/munsellUtils';
 
 const LchSliders = (props: ControlPaneProps & BridgeProps) => {
@@ -79,12 +80,20 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
           shapeName={'LCH'}
           content={'CIE LCH (Lightness / Chroma / Hue) coordinate space'}
         />
-        <button
-          className="showSlidersButton"
-          onClick={() => setIsVisible(!isVisible)}
-        >
-          {isVisible ? '▲' : '▼'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+          {props.onHelpClick && (
+            <HelpIcon
+              topic="lch"
+              onHelpClick={(topic) => { setIsVisible(true); props.onHelpClick!(topic); }}
+            />
+          )}
+          <button
+            className="showSlidersButton"
+            onClick={() => setIsVisible(!isVisible)}
+          >
+            {isVisible ? '▲' : '▼'}
+          </button>
+        </div>
       </div>
       {isVisible && (
         <>
@@ -92,16 +101,25 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
             <Label>L</Label>
             <input type="range" min="0" max="100" step="1" value={sliderL} onChange={handleLChange} />
             <Value>{sliderL}</Value>
+            {props.onHelpClick && (
+              <HelpIcon topic="lch_l" onHelpClick={props.onHelpClick} size={20} />
+            )}
           </LchSliderRow>
           <LchSliderRow>
             <Label>C</Label>
             <input type="range" min="0" max="100" step="1" value={sliderC} onChange={handleCChange} />
             <Value>{sliderC}</Value>
+            {props.onHelpClick && (
+              <HelpIcon topic="lch_c" onHelpClick={props.onHelpClick} size={20} />
+            )}
           </LchSliderRow>
           <LchSliderRow>
             <Label>H</Label>
             <input type="range" min="0" max="359" step="1" value={sliderH} onChange={handleHChange} />
             <Value>{sliderH}</Value>
+            {props.onHelpClick && (
+              <HelpIcon topic="lch_h" onHelpClick={props.onHelpClick} size={20} />
+            )}
           </LchSliderRow>
         </>
       )}
@@ -119,7 +137,8 @@ const LchSliderRow = styled.div`
   gap: 4px;
 
   input[type='range'] {
-    width: 150px;
+    flex: 1;
+    min-width: 80px;
   }
 `;
 

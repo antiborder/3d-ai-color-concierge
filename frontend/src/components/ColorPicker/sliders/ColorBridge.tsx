@@ -57,7 +57,7 @@ function labToRgb(L: number, a: number, b: number): [number, number, number] {
   return [toSrgb(rl), toSrgb(gl), toSrgb(bl)];
 }
 
-function interpolateRgb(colorA: RGB, colorB: RGB, shape: ColorSpace, t: number): [number, number, number] {
+export function interpolateRgb(colorA: RGB, colorB: RGB, shape: ColorSpace, t: number): [number, number, number] {
   const { r: r1, g: g1, b: b1 } = colorA;
   const { r: r2, g: g2, b: b2 } = colorB;
 

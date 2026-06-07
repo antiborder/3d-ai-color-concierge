@@ -5,6 +5,7 @@ import type { ColorSpace } from '../../../types/color';
 import ShapeButton from './ShapeButton';
 import SliderContainer from './SliderContainer';
 import { systemColors } from '../../../constants/systemColors.js';
+import HelpIcon from '../../common/HelpIcon';
 
 interface HsvSlidersProps extends ControlPaneProps, BridgeProps {
   mainElement: 'H' | 'S' | 'V';
@@ -33,14 +34,22 @@ const HsvSliders = (props: HsvSlidersProps) => {
           shapeName={'HSV'}
           content={t('colorSpace.hsv.description')}
         />
-        <button
-          className="showSlidersButton"
-          onClick={() => {
-            setIsVisible(!isVisible);
-          }}
-        >
-          {isVisible ? '▲' : '▼'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+          {props.onHelpClick && (
+            <HelpIcon
+              topic="hsv"
+              onHelpClick={(topic) => { setIsVisible(true); props.onHelpClick!(topic); }}
+            />
+          )}
+          <button
+            className="showSlidersButton"
+            onClick={() => {
+              setIsVisible(!isVisible);
+            }}
+          >
+            {isVisible ? '▲' : '▼'}
+          </button>
+        </div>
       </div>
 
       {isVisible && (
@@ -60,6 +69,8 @@ const HsvSliders = (props: HsvSlidersProps) => {
             }
             shape={props.shape}
             panelShape={props.panelShape}
+            onHelpClick={props.onHelpClick}
+            helpTopic="hsv_h"
           />
           <SliderContainer
             {...props}
@@ -76,6 +87,8 @@ const HsvSliders = (props: HsvSlidersProps) => {
             }
             shape={props.shape}
             panelShape={props.panelShape}
+            onHelpClick={props.onHelpClick}
+            helpTopic="hsv_s"
           />
           <SliderContainer
             {...props}
@@ -92,6 +105,8 @@ const HsvSliders = (props: HsvSlidersProps) => {
             }
             shape={props.shape}
             panelShape={props.panelShape}
+            onHelpClick={props.onHelpClick}
+            helpTopic="hsv_v"
           />
         </>
       )}

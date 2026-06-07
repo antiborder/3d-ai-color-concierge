@@ -5,6 +5,7 @@ import type { ColorSpace } from '../../../types/color';
 import ShapeButton from './ShapeButton';
 import SliderContainer from './SliderContainer';
 import { systemColors } from '../../../constants/systemColors.js';
+import HelpIcon from '../../common/HelpIcon';
 
 interface HslSlidersProps extends ControlPaneProps, BridgeProps {
   mainElement: 'H' | 'S' | 'L';
@@ -33,14 +34,22 @@ const HslSliders = (props: HslSlidersProps) => {
           shapeName={'HSL'}
           content={t('colorSpace.hsl.description')}
         />
-        <button
-          className="showSlidersButton"
-          onClick={() => {
-            setIsVisible(!isVisible);
-          }}
-        >
-          {isVisible ? '▲' : '▼'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+          {props.onHelpClick && (
+            <HelpIcon
+              topic="hsl"
+              onHelpClick={(topic) => { setIsVisible(true); props.onHelpClick!(topic); }}
+            />
+          )}
+          <button
+            className="showSlidersButton"
+            onClick={() => {
+              setIsVisible(!isVisible);
+            }}
+          >
+            {isVisible ? '▲' : '▼'}
+          </button>
+        </div>
       </div>
       {isVisible && (
         <>
@@ -59,6 +68,8 @@ const HslSliders = (props: HslSlidersProps) => {
             }
             shape={props.shape}
             panelShape={props.panelShape}
+            onHelpClick={props.onHelpClick}
+            helpTopic="hsl_h"
           />
           <SliderContainer
             {...props}
@@ -75,6 +86,8 @@ const HslSliders = (props: HslSlidersProps) => {
             }
             shape={props.shape}
             panelShape={props.panelShape}
+            onHelpClick={props.onHelpClick}
+            helpTopic="hsl_s"
           />
           <SliderContainer
             {...props}
@@ -91,6 +104,8 @@ const HslSliders = (props: HslSlidersProps) => {
             }
             shape={props.shape}
             panelShape={props.panelShape}
+            onHelpClick={props.onHelpClick}
+            helpTopic="hsl_l"
           />
         </>
       )}

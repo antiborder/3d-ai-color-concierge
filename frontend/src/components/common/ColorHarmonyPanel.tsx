@@ -2,6 +2,7 @@ import type { MouseEvent } from 'react';
 import styled from 'styled-components';
 import toast from 'react-hot-toast';
 import type { HarmonyMode, HarmonyColor } from '../../utils/colorHarmony';
+import HelpIcon from './HelpIcon';
 
 interface ColorHarmonyPanelProps {
   mode: HarmonyMode;
@@ -11,6 +12,7 @@ interface ColorHarmonyPanelProps {
   currentG: number;
   currentB: number;
   onColorSelect: (r: number, g: number, b: number) => void;
+  onHelpClick?: (topic: string) => void;
 }
 
 const OPTIONS: { value: HarmonyMode; label: string }[] = [
@@ -37,6 +39,7 @@ const ColorHarmonyPanel = ({
   currentG,
   currentB,
   onColorSelect,
+  onHelpClick,
 }: ColorHarmonyPanelProps) => {
   const handleCopyHex = (e: MouseEvent, hex: string) => {
     e.stopPropagation();
@@ -61,7 +64,10 @@ const ColorHarmonyPanel = ({
 
   return (
     <Panel>
-      <PanelTitle>Color Harmony</PanelTitle>
+      <TitleRow>
+        <PanelTitle>Color Harmony</PanelTitle>
+        {onHelpClick && <HelpIcon topic="color_harmony" onHelpClick={onHelpClick} />}
+      </TitleRow>
       <Select value={mode} onChange={(e) => onModeChange(e.target.value as HarmonyMode)}>
         {OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -119,11 +125,17 @@ const Panel = styled.div`
   box-sizing: border-box;
 `;
 
+const TitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+`;
+
 const PanelTitle = styled.div`
   font-size: 16px;
   font-weight: 600;
   color: #333;
-  margin-bottom: 4px;
   user-select: none;
 `;
 

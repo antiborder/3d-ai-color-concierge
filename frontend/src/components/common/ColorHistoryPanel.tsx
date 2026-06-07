@@ -2,13 +2,15 @@ import type { MouseEvent } from 'react';
 import styled from 'styled-components';
 import toast from 'react-hot-toast';
 import type { ColorHistoryItem } from '../../hooks/useColorHistory';
+import HelpIcon from './HelpIcon';
 
 interface ColorHistoryPanelProps {
   history: ColorHistoryItem[];
   onColorSelect: (r: number, g: number, b: number) => void;
+  onHelpClick?: (topic: string) => void;
 }
 
-const ColorHistoryPanel = ({ history, onColorSelect }: ColorHistoryPanelProps) => {
+const ColorHistoryPanel = ({ history, onColorSelect, onHelpClick }: ColorHistoryPanelProps) => {
   // 現在の色（最初の要素）を除外し、過去の色のみを表示（最大100色）
   const pastHistory = history.slice(1, 101);
 
@@ -25,7 +27,10 @@ const ColorHistoryPanel = ({ history, onColorSelect }: ColorHistoryPanelProps) =
 
   return (
     <StyledColorHistoryPanel>
-      <HistoryTitle>Color History</HistoryTitle>
+      <TitleRow>
+        <HistoryTitle>Color History</HistoryTitle>
+        {onHelpClick && <HelpIcon topic="color_history" onHelpClick={onHelpClick} />}
+      </TitleRow>
       <HistoryList>
         {pastHistory.map((item, index) => {
           const number = index + 1;
@@ -76,11 +81,17 @@ const StyledColorHistoryPanel = styled.div`
   max-width: 300px;
 `;
 
+const TitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+`;
+
 const HistoryTitle = styled.div`
   font-size: 16px;
   font-weight: 600;
   color: #333;
-  margin-bottom: 8px;
   user-select: none;
 `;
 

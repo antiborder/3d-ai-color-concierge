@@ -8,6 +8,8 @@ import type { ColorHistoryItem } from '../../hooks/useColorHistory';
 
 interface VoiceControlProps {
   currentColorState?: ColorState | null;
+  bridgeColorA?: { r: number; g: number; b: number } | null;
+  bridgeColorB?: { r: number; g: number; b: number } | null;
   colorHistory?: ColorHistoryItem[];
   onTranscript: (transcript: string) => void;
   onTranscriptUpdate?: (
@@ -23,10 +25,13 @@ interface VoiceControlProps {
   // onOpenChatHistory?: () => void;
   isLoading?: boolean;
   onSpeak?: (text: string) => void;
+  helpRequest?: { text: string; id: number } | null;
 }
 
 const VoiceControl = ({
   currentColorState,
+  bridgeColorA,
+  bridgeColorB,
   colorHistory,
   onTranscript,
   onTranscriptUpdate,
@@ -35,12 +40,15 @@ const VoiceControl = ({
   onError,
   // onOpenChatHistory,
   isLoading = false,
+  helpRequest,
 }: VoiceControlProps) => {
   const { t } = useTranslation();
   const [textInput, setTextInput] = useState('');
   const [showSpinner, setShowSpinner] = useState(false);
   const [isFirstStart, setIsFirstStart] = useState(true);
   const spinnerTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pendingHelpRef = useRef<string | null>(null);
+  const lastHelpIdRef = useRef<number>(0);
 
   const handleResult = useCallback(
     (transcript: string) => {
@@ -56,8 +64,10 @@ const VoiceControl = ({
     [onError]
   );
 
-  const { isStreaming, isConnecting, error, start, stop } = useVoiceStreaming({
+  const { isStreaming, isConnecting, isConnected, error, start, stop, sendTextMessage } = useVoiceStreaming({
     currentColorState,
+    bridgeColorA,
+    bridgeColorB,
     colorHistory,
     onFinalTranscript: handleResult,
     onTranscriptUpdate,
@@ -85,6 +95,29 @@ const VoiceControl = ({
       }
     };
   }, [showSpinner]);
+
+  // Send pending help text once WebSocket is connected
+  useEffect(() => {
+    if (isConnected && pendingHelpRef.current) {
+      sendTextMessage(pendingHelpRef.current);
+      pendingHelpRef.current = null;
+    }
+  }, [isConnected, sendTextMessage]);
+
+  // React to new helpRequest
+  useEffect(() => {
+    if (!helpRequest || helpRequest.id === lastHelpIdRef.current) return;
+    lastHelpIdRef.current = helpRequest.id;
+    if (isConnected) {
+      sendTextMessage(helpRequest.text);
+    } else {
+      pendingHelpRef.current = helpRequest.text;
+      if (!isStreaming && !isConnecting) {
+        void start({ skipIntro: true });
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [helpRequest]);
 
   const handleMicClick = () => {
     if (isStreaming || isConnecting) {

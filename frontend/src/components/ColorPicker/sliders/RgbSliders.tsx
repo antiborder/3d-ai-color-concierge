@@ -5,6 +5,7 @@ import type { ColorSpace } from '../../../types/color';
 import ShapeButton from './ShapeButton';
 import SliderContainer from './SliderContainer';
 import { systemColors } from '../../../constants/systemColors.js';
+import HelpIcon from '../../common/HelpIcon';
 
 interface RgbSlidersProps extends ControlPaneProps, BridgeProps {
   mainElement: 'R' | 'G' | 'B';
@@ -33,14 +34,22 @@ const RgbSliders = (props: RgbSlidersProps) => {
           shapeName={'RGB'}
           content={t('colorSpace.rgb.description')}
         />
-        <button
-          className="showSlidersButton"
-          onClick={() => {
-            setIsVisible(!isVisible);
-          }}
-        >
-          {isVisible ? '▲' : '▼'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+          {props.onHelpClick && (
+            <HelpIcon
+              topic="rgb"
+              onHelpClick={(topic) => { setIsVisible(true); props.onHelpClick!(topic); }}
+            />
+          )}
+          <button
+            className="showSlidersButton"
+            onClick={() => {
+              setIsVisible(!isVisible);
+            }}
+          >
+            {isVisible ? '▲' : '▼'}
+          </button>
+        </div>
       </div>
 
       {isVisible && (
@@ -60,6 +69,8 @@ const RgbSliders = (props: RgbSlidersProps) => {
             }
             shape={props.shape}
             panelShape={props.panelShape}
+            onHelpClick={props.onHelpClick}
+            helpTopic="rgb_r"
           />
           <SliderContainer
             {...props}
@@ -76,6 +87,8 @@ const RgbSliders = (props: RgbSlidersProps) => {
             }
             shape={props.shape}
             panelShape={props.panelShape}
+            onHelpClick={props.onHelpClick}
+            helpTopic="rgb_g"
           />
           <SliderContainer
             {...props}
@@ -92,6 +105,8 @@ const RgbSliders = (props: RgbSlidersProps) => {
             }
             shape={props.shape}
             panelShape={props.panelShape}
+            onHelpClick={props.onHelpClick}
+            helpTopic="rgb_b"
           />
         </>
       )}

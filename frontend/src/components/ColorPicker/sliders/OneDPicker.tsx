@@ -1,11 +1,13 @@
 import ColorBridge from './ColorBridge';
 import type { BridgeProps } from '../../../types/controlPane';
 import type { ColorSpace } from '../../../types/color';
+import HelpIcon from '../../common/HelpIcon';
 
 interface OneDPickerProps extends BridgeProps {
   currentColor: { r: number; g: number; b: number };
   shape: ColorSpace;
   onColorSelect: (r: number, g: number, b: number) => void;
+  onHelpClick?: (topic: string) => void;
 }
 
 const OneDPicker = (props: OneDPickerProps) => {
@@ -22,12 +24,23 @@ const OneDPicker = (props: OneDPickerProps) => {
         }}
       >
         <span style={{ fontWeight: 'bold', fontSize: '18px' }}>1D Picker</span>
-        <button
-          className="showSlidersButton"
-          onClick={() => props.onBridgeOpenChange(!props.isBridgeOpen)}
-        >
-          {props.isBridgeOpen ? '▲' : '▼'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+          {props.onHelpClick && (
+            <HelpIcon
+              topic="1d_picker"
+              onHelpClick={(topic) => {
+                if (!props.isBridgeOpen) props.onBridgeOpenChange(true);
+                props.onHelpClick!(topic);
+              }}
+            />
+          )}
+          <button
+            className="showSlidersButton"
+            onClick={() => props.onBridgeOpenChange(!props.isBridgeOpen)}
+          >
+            {props.isBridgeOpen ? '▲' : '▼'}
+          </button>
+        </div>
       </div>
       {props.isBridgeOpen && (
         <ColorBridge

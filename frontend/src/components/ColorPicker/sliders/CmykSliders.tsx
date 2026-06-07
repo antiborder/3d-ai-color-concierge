@@ -5,6 +5,7 @@ import type { ColorSpace } from '../../../types/color';
 import ShapeButton from './ShapeButton';
 import SliderContainer from './SliderContainer';
 import { systemColors } from '../../../constants/systemColors.js';
+import HelpIcon from '../../common/HelpIcon';
 
 interface CmykSlidersProps extends ControlPaneProps, BridgeProps {
   mainElement: 'C' | 'M' | 'Y' | 'K';
@@ -33,14 +34,22 @@ const CmykSliders = (props: CmykSlidersProps) => {
           shapeName={'CMYK'}
           content={t('colorSpace.cmyk.description')}
         />
-        <button
-          className="showSlidersButton"
-          onClick={() => {
-            setIsVisible(!isVisible);
-          }}
-        >
-          {isVisible ? '▲' : '▼'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+          {props.onHelpClick && (
+            <HelpIcon
+              topic="cmyk"
+              onHelpClick={(topic) => { setIsVisible(true); props.onHelpClick!(topic); }}
+            />
+          )}
+          <button
+            className="showSlidersButton"
+            onClick={() => {
+              setIsVisible(!isVisible);
+            }}
+          >
+            {isVisible ? '▲' : '▼'}
+          </button>
+        </div>
       </div>
 
       {isVisible && (
@@ -60,6 +69,8 @@ const CmykSliders = (props: CmykSlidersProps) => {
             }
             shape={props.shape}
             panelShape={props.panelShape}
+            onHelpClick={props.onHelpClick}
+            helpTopic="cmyk_c"
           />
           <SliderContainer
             {...props}
@@ -76,6 +87,8 @@ const CmykSliders = (props: CmykSlidersProps) => {
             }
             shape={props.shape}
             panelShape={props.panelShape}
+            onHelpClick={props.onHelpClick}
+            helpTopic="cmyk_m"
           />
           <SliderContainer
             {...props}
@@ -92,6 +105,8 @@ const CmykSliders = (props: CmykSlidersProps) => {
             }
             shape={props.shape}
             panelShape={props.panelShape}
+            onHelpClick={props.onHelpClick}
+            helpTopic="cmyk_y"
           />
           <SliderContainer
             {...props}
@@ -108,6 +123,8 @@ const CmykSliders = (props: CmykSlidersProps) => {
             }
             shape={props.shape}
             panelShape={props.panelShape}
+            onHelpClick={props.onHelpClick}
+            helpTopic="cmyk_k"
           />
         </>
       )}

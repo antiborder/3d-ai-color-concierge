@@ -23,6 +23,10 @@ export interface VoiceCommandHandlers {
   getCurrentHex: () => string;
   setHarmonyMode: (mode: HarmonyMode) => void;
   setColorSets: (sets: Partial<Record<'css' | 'material' | 'spectral12' | 'japanese' | 'rgbGrid', boolean>>) => void;
+  setBridgeColorA: (c: { r: number; g: number; b: number }) => void;
+  setBridgeColorB: (c: { r: number; g: number; b: number }) => void;
+  setIsBridgeOpen: (open: boolean) => void;
+  selectBridgePosition: (position: number) => void;
 }
 
 /**
@@ -325,6 +329,29 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
       }
       if (Object.keys(sets).length > 0) {
         handlers.setColorSets(sets);
+      }
+      break;
+    }
+
+    case 'SELECT_BRIDGE_POSITION': {
+      const position = command.parameters.position as number;
+      if (typeof position === 'number' && position >= 0 && position <= 1) {
+        handlers.setIsBridgeOpen(true);
+        handlers.selectBridgePosition(position);
+      }
+      break;
+    }
+
+    case 'SET_BRIDGE_COLOR': {
+      const side = command.parameters.side as string;
+      const r = command.parameters.r as number;
+      const g = command.parameters.g as number;
+      const b = command.parameters.b as number;
+      handlers.setIsBridgeOpen(true);
+      if (side === 'left') {
+        handlers.setBridgeColorA({ r, g, b });
+      } else if (side === 'right') {
+        handlers.setBridgeColorB({ r, g, b });
       }
       break;
     }

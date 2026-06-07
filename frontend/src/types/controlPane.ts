@@ -50,6 +50,9 @@ export interface ControlPaneProps extends BridgeProps {
   setFocusR: (value: number) => void;
   setFocusG: (value: number) => void;
   setFocusB: (value: number) => void;
+
+  // Help
+  onHelpClick?: (topic: string) => void;
 }
 
 export interface BridgeProps {
@@ -73,4 +76,6 @@ export interface SliderContainerProps {
   setMainElement: (symbol: 'R' | 'G' | 'B' | 'C' | 'M' | 'Y' | 'K' | 'H' | 'S' | 'L' | 'V') => void;
   shape: ColorSpace;
   panelShape: ColorSpace;
+  onHelpClick?: (topic: string) => void;
+  helpTopic?: string;
 }
