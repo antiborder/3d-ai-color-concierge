@@ -211,9 +211,9 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
 
     case 'CHANGE_SHAPE': {
       const colorSpace = command.parameters.colorSpace as string;
-      if (colorSpace && ['RGB', 'CMYK', 'HSL', 'HSV'].includes(colorSpace.toUpperCase())) {
-        handlers.setShape(colorSpace.toUpperCase() as ColorSpace);
-      }
+      const validShapes: ColorSpace[] = ['RGB', 'CMYK', 'HSL', 'HSV', 'Lab', 'LCH'];
+      const matched = validShapes.find(s => s.toLowerCase() === colorSpace?.toLowerCase());
+      if (matched) handlers.setShape(matched);
       break;
     }
 

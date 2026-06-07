@@ -7,8 +7,30 @@ import HelpIcon from '../common/HelpIcon';
 
 const SIZE = 256;    // canvas pixel resolution
 const CSS_SIZE = 217; // rendered CSS size (px)
+const LCH_MAX_C = 150;
 
-const SUPPORTED = new Set(['RGB', 'CMYK', 'HSV', 'HSL']);
+function rgbToLab(r: number, g: number, b: number): [number, number, number] {
+  const toLinear = (c: number) => { const s = c / 255; return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4); };
+  const rl = toLinear(r), gl = toLinear(g), bl = toLinear(b);
+  const Xn = (rl * 0.4124564 + gl * 0.3575761 + bl * 0.1804375) / 0.95047;
+  const Yn = rl * 0.2126729 + gl * 0.7151522 + bl * 0.0721750;
+  const Zn = (rl * 0.0193339 + gl * 0.1191920 + bl * 0.9503041) / 1.08883;
+  const f = (t: number) => t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
+  return [116 * f(Yn) - 16, 500 * (f(Xn) - f(Yn)), 200 * (f(Yn) - f(Zn))];
+}
+
+function labToRgb(L: number, a: number, b: number): [number, number, number] {
+  const fy = (L + 16) / 116, fx = a / 500 + fy, fz = fy - b / 200;
+  const fInv = (t: number) => t > 0.008856 ? t * t * t : (t - 16 / 116) / 7.787;
+  const X = fInv(fx) * 0.95047, Y = fInv(fy), Z = fInv(fz) * 1.08883;
+  const rl = X * 3.2404542 - Y * 1.5371385 - Z * 0.4985314;
+  const gl = -X * 0.9692660 + Y * 1.8760108 + Z * 0.0415560;
+  const bl2 = X * 0.0556434 - Y * 0.2040259 + Z * 1.0572252;
+  const toS = (c: number) => Math.round(Math.max(0, Math.min(1, c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055)) * 255);
+  return [toS(rl), toS(gl), toS(bl2)];
+}
+
+const SUPPORTED = new Set(['RGB', 'CMYK', 'HSV', 'HSL', 'Lab', 'LCH']);
 
 const TwoDPicker = (props: ControlPaneProps) => {
   const { shape } = props;
@@ -25,6 +47,10 @@ const TwoDPicker = (props: ControlPaneProps) => {
       rgbMainElement, cmykMainElement, hsvMainElement, hslMainElement,
       focusR, focusG, focusB, focusH, focusS, focusL, focusHsvS, focusV,
     } = props;
+
+    // Precompute Lab/LCH values from current RGB
+    const [labFixedL, labCurrentA, labCurrentB] =
+      (shape === 'Lab' || shape === 'LCH') ? rgbToLab(focusR, focusG, focusB) : [0, 0, 0];
 
     // ── Pixel fill ────────────────────────────────────────────────────────────
     const imageData = ctx.createImageData(SIZE, SIZE);
@@ -81,6 +107,17 @@ const TwoDPicker = (props: ControlPaneProps) => {
               [r, g, b] = convert.hsl.rgb([angle * 180 / Math.PI, radius * 100 / (SIZE / 2), focusL]);
             }
           }
+        } else if (shape === 'Lab') {
+          // x: a axis (-128 → 127), y: b axis (127 top → -128 bottom)
+          const aVal = -128 + xVal * 255;
+          const bVal = 127 - yVal * 255;
+          [r, g, b] = labToRgb(labFixedL, aVal, bVal);
+        } else if (shape === 'LCH') {
+          // x: H (0→360), y: C (LCH_MAX_C top → 0 bottom)
+          const H = xVal * 360;
+          const C = (1 - yVal) * LCH_MAX_C;
+          const Hrad = (H * Math.PI) / 180;
+          [r, g, b] = labToRgb(labFixedL, C * Math.cos(Hrad), C * Math.sin(Hrad));
         }
 
         const idx = (py * SIZE + px) * 4;
@@ -151,6 +188,19 @@ const TwoDPicker = (props: ControlPaneProps) => {
         ctx.arc(cx, cy, focusS / 100 * (SIZE / 2), 0, 2 * Math.PI);
         ctx.stroke();
       }
+    } else if (shape === 'Lab') {
+      // Vertical = current a, horizontal = current b
+      const vX = ((labCurrentA + 128) / 255) * SIZE;
+      const hY = ((127 - labCurrentB) / 255) * SIZE;
+      line(systemColors['K'], vX, 0, vX, SIZE);
+      line(systemColors['W'], 0, hY, SIZE, hY);
+    } else if (shape === 'LCH') {
+      const labCurrentC = Math.sqrt(labCurrentA * labCurrentA + labCurrentB * labCurrentB);
+      const labCurrentH = ((Math.atan2(labCurrentB, labCurrentA) * 180 / Math.PI) + 360) % 360;
+      const vX = (labCurrentH / 360) * SIZE;
+      const hY = (1 - Math.min(labCurrentC, LCH_MAX_C) / LCH_MAX_C) * SIZE;
+      line(systemColors['K'], vX, 0, vX, SIZE);
+      line(systemColors['W'], 0, hY, SIZE, hY);
     }
   }, [
     props.shape,
@@ -214,6 +264,19 @@ const TwoDPicker = (props: ControlPaneProps) => {
         h = angle * 180 / Math.PI; s = radius * 100 / (SIZE / 2);
       }
       const [r, g, b] = convert.hsl.rgb([h, s, l]);
+      props.handleClick(r, g, b);
+    } else if (shape === 'Lab') {
+      const [fixedL] = rgbToLab(focusR, focusG, focusB);
+      const aVal = -128 + xVal * 255;
+      const bVal = 127 - yVal * 255;
+      const [r, g, b] = labToRgb(fixedL, aVal, bVal);
+      props.handleClick(r, g, b);
+    } else if (shape === 'LCH') {
+      const [fixedL] = rgbToLab(focusR, focusG, focusB);
+      const H = xVal * 360;
+      const C = (1 - yVal) * LCH_MAX_C;
+      const Hrad = (H * Math.PI) / 180;
+      const [r, g, b] = labToRgb(fixedL, C * Math.cos(Hrad), C * Math.sin(Hrad));
       props.handleClick(r, g, b);
     }
   };
