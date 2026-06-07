@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import type { ControlPaneProps } from '../../../types/controlPane';
+import type { ControlPaneProps, BridgeProps } from '../../../types/controlPane';
 import ShapeButton from './ShapeButton';
+import ColorBridge from './ColorBridge';
 
 function rgbToLab(r: number, g: number, b: number): [number, number, number] {
   const toLinear = (c: number) => {
@@ -34,7 +35,7 @@ function labToRgb(L: number, a: number, b: number): [number, number, number] {
   return [toSrgb(rl), toSrgb(gl), toSrgb(bl)];
 }
 
-const LabSliders = (props: ControlPaneProps) => {
+const LabSliders = (props: ControlPaneProps & BridgeProps) => {
   const [isVisible, setIsVisible] = useState(props.shape === 'Lab');
 
   const [L, a, b_init] = rgbToLab(
@@ -125,6 +126,17 @@ const LabSliders = (props: ControlPaneProps) => {
             <input type="range" min="-128" max="127" step="1" value={sliderB} onChange={handleBChange} />
             <Value>{sliderB}</Value>
           </LabSliderRow>
+          {props.shape === 'Lab' && (
+            <ColorBridge
+              currentColor={{ r: props.focusR, g: props.focusG, b: props.focusB }}
+              colorA={props.bridgeColorA}
+              colorB={props.bridgeColorB}
+              onSetColorA={props.onSetBridgeColorA}
+              onSetColorB={props.onSetBridgeColorB}
+              shape={props.shape}
+              onColorSelect={props.handleClick}
+            />
+          )}
         </>
       )}
     </div>

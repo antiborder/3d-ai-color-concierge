@@ -52,6 +52,13 @@ export interface ControlPaneProps {
   setFocusB: (value: number) => void;
 }
 
+export interface BridgeProps {
+  bridgeColorA: { r: number; g: number; b: number };
+  bridgeColorB: { r: number; g: number; b: number };
+  onSetBridgeColorA: (c: { r: number; g: number; b: number }) => void;
+  onSetBridgeColorB: (c: { r: number; g: number; b: number }) => void;
+}
+
 export interface SliderContainerProps {
   symbol: string;
   value: number;

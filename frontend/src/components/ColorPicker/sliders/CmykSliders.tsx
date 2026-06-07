@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { ControlPaneProps } from '../../../types/controlPane';
+import type { ControlPaneProps, BridgeProps } from '../../../types/controlPane';
 import type { ColorSpace } from '../../../types/color';
 import ShapeButton from './ShapeButton';
 import SliderContainer from './SliderContainer';
+import ColorBridge from './ColorBridge';
 import { systemColors } from '../../../constants/systemColors.js';
 
-interface CmykSlidersProps extends ControlPaneProps {
+interface CmykSlidersProps extends ControlPaneProps, BridgeProps {
   mainElement: 'C' | 'M' | 'Y' | 'K';
   setMainElement: (symbol: 'C' | 'M' | 'Y' | 'K') => void;
   panelShape: ColorSpace;
@@ -109,6 +110,17 @@ const CmykSliders = (props: CmykSlidersProps) => {
             shape={props.shape}
             panelShape={props.panelShape}
           />
+          {props.shape === 'CMYK' && (
+            <ColorBridge
+              currentColor={{ r: props.focusR, g: props.focusG, b: props.focusB }}
+              colorA={props.bridgeColorA}
+              colorB={props.bridgeColorB}
+              onSetColorA={props.onSetBridgeColorA}
+              onSetColorB={props.onSetBridgeColorB}
+              shape={props.shape}
+              onColorSelect={props.handleClick}
+            />
+          )}
         </>
       )}
     </div>
