@@ -1,6 +1,6 @@
 import type { ColorSpace } from './color';
 
-export interface ControlPaneProps {
+export interface ControlPaneProps extends BridgeProps {
   // Color values
   focusR: number;
   focusG: number;

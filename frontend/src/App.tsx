@@ -150,6 +150,13 @@ function App() {
 
   const [harmonyMode, setHarmonyMode] = useState<HarmonyMode>('none');
 
+  const [bridgeColorA, setBridgeColorA] = useState<{ r: number; g: number; b: number }>({ r: 255, g: 255, b: 255 });
+  const [bridgeColorB, setBridgeColorB] = useState<{ r: number; g: number; b: number }>(() => ({
+    r: Math.round(colorState.r),
+    g: Math.round(colorState.g),
+    b: Math.round(colorState.b),
+  }));
+
   // Voice command handlers
   const voiceCommandHandlers = {
     updateFromRgb,
@@ -291,6 +298,10 @@ function App() {
       />
       {isDesktopLayout ? (
         <ControlPane
+          bridgeColorA={bridgeColorA}
+          bridgeColorB={bridgeColorB}
+          onSetBridgeColorA={setBridgeColorA}
+          onSetBridgeColorB={setBridgeColorB}
           handleLabel={toggleLabel}
           handleClick={handleClick}
           handleHsvElementClick={handleHsvElementClick}
@@ -329,6 +340,10 @@ function App() {
         />
       ) : (
         <MobileControlColumn
+          bridgeColorA={bridgeColorA}
+          bridgeColorB={bridgeColorB}
+          onSetBridgeColorA={setBridgeColorA}
+          onSetBridgeColorB={setBridgeColorB}
           handleLabel={toggleLabel}
           handleClick={handleClick}
           handleHsvElementClick={handleHsvElementClick}

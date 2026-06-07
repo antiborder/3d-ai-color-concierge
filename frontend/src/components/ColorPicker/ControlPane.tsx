@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import styled from 'styled-components';
 import TwoDPicker from './TwoDPicker';
 import CurrentColor from './CurrentColor';
@@ -23,53 +22,35 @@ const ControlPane = (props: ControlPaneProps) => {
 
 /** Sliders + 2D picker (used on desktop inside ControlPane; on narrow screens inside MobileControlColumn when opened). */
 export const ControlPaneSliders = (props: ControlPaneProps) => {
-  const [bridgeColorA, setBridgeColorA] = useState({ r: 255, g: 255, b: 255 });
-  const [bridgeColorB, setBridgeColorB] = useState(() => ({
-    r: Math.round(props.focusR),
-    g: Math.round(props.focusG),
-    b: Math.round(props.focusB),
-  }));
-
-  const bridgeProps = {
-    bridgeColorA,
-    bridgeColorB,
-    onSetBridgeColorA: setBridgeColorA,
-    onSetBridgeColorB: setBridgeColorB,
-  };
-
   return (
     <StyledControlPane>
       <SlidersSection>
         <RgbSliders
           {...props}
-          {...bridgeProps}
           mainElement={props.rgbMainElement}
           setMainElement={props.setRgbMainElement}
           panelShape={'RGB'}
         />
         <CmykSliders
           {...props}
-          {...bridgeProps}
           mainElement={props.cmykMainElement}
           setMainElement={props.setCmykMainElement}
           panelShape={'CMYK'}
         />
         <HsvSliders
           {...props}
-          {...bridgeProps}
           mainElement={props.hsvMainElement}
           setMainElement={props.setHsvMainElement}
           panelShape={'HSV'}
         />
         <HslSliders
           {...props}
-          {...bridgeProps}
           mainElement={props.hslMainElement}
           setMainElement={props.setHslMainElement}
           panelShape={'HSL'}
         />
-        <LabSliders {...props} {...bridgeProps} />
-        <LchSliders {...props} {...bridgeProps} />
+        <LabSliders {...props} />
+        <LchSliders {...props} />
 
         <TwoDPicker {...props} />
       </SlidersSection>
