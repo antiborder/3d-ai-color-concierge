@@ -60,8 +60,15 @@ if ! grep -q '^backend_image_tag' terraform.tfvars; then
   echo "Error: terraform.tfvars does not contain backend_image_tag."
     exit 1
 fi
-sed -i.bak "s/^backend_image_tag\\s*=\\s*\\\".*\\\"/backend_image_tag = \\\"$IMAGE_TAG\\\"/g" terraform.tfvars
-rm -f terraform.tfvars.bak
+python3 -c "
+import re, sys
+with open('terraform.tfvars', 'r') as f:
+    content = f.read()
+content = re.sub(r'^backend_image_tag\s*=\s*\"[^\"]*\"', 'backend_image_tag = \"$IMAGE_TAG\"', content, flags=re.MULTILINE)
+with open('terraform.tfvars', 'w') as f:
+    f.write(content)
+print('Updated backend_image_tag to $IMAGE_TAG')
+"
 
 # Terraform初期化
 echo "Initializing Terraform..."

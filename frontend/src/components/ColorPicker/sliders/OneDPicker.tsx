@@ -23,7 +23,7 @@ const OneDPicker = (props: OneDPickerProps) => {
           height: '24px',
         }}
       >
-        <span style={{ fontWeight: 'bold', fontSize: '18px' }}>1D Picker</span>
+        <span style={{ fontWeight: 600, fontSize: '16px' }}>1D Picker</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
           {props.onHelpClick && (
             <HelpIcon

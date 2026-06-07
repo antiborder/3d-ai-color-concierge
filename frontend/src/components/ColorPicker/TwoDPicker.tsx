@@ -296,7 +296,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
             height: '24px',
           }}
         >
-          <span style={{ fontWeight: 'bold', fontSize: '18px' }}>2D Picker</span>
+          <span style={{ fontWeight: 600, fontSize: '16px' }}>2D Picker</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
             {props.onHelpClick && (
               <HelpIcon

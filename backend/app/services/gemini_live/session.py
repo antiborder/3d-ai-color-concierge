@@ -270,25 +270,58 @@ class GeminiLiveSession:
     async def send_text(self, text: str) -> None:
         """
         Send a text message to Gemini Live API, which will be converted to audio response.
+        Uses send_client_content(turn_complete=True) which explicitly signals end-of-turn,
+        guaranteeing that Gemini generates a response. Falls back to send_realtime_input
+        for older SDK versions.
         """
         if not await self._ensure_live_connected():
             return
-        
+
+        # Preferred: send_client_content with turn_complete=True.
+        # This explicitly signals end-of-turn so Gemini always generates a response,
+        # unlike send_realtime_input(text=...) which may leave the turn open.
+        fn_client_content = getattr(self._live, "send_client_content", None)
+        if callable(fn_client_content):
+            try:
+                from google.genai import types as _gtypes  # type: ignore
+                content = _gtypes.Content(
+                    role="user",
+                    parts=[_gtypes.Part(text=text)],
+                )
+                maybe = fn_client_content(turns=content, turn_complete=True)
+                if inspect.isawaitable(maybe):
+                    await maybe
+                return
+            except ImportError:
+                pass
+            except Exception:
+                # Fall through to dict-based call
+                pass
+            try:
+                # Dict fallback for SDK versions where types differ
+                maybe = fn_client_content(
+                    turns={"role": "user", "parts": [{"text": text}]},
+                    turn_complete=True,
+                )
+                if inspect.isawaitable(maybe):
+                    await maybe
+                return
+            except Exception as e_cc:
+                logger.info("send_client_content failed (%s), falling back to send_realtime_input", str(e_cc))
+
+        # Fallback: send_realtime_input (older SDK / may not trigger response in all environments)
         fn = getattr(self._live, "send_realtime_input", None)
         if not callable(fn):
             await self._event_q.put(
-                LiveErrorEvent(message="send_realtime_input is not available for text input")
+                LiveErrorEvent(message="send_client_content and send_realtime_input are both unavailable")
             )
             return
-        
+
         try:
-            # Send text via send_realtime_input
-            # Try text= parameter first, then fallback to other possible parameter names
             maybe = fn(text=text)
             if inspect.isawaitable(maybe):
                 await maybe
         except Exception as e:
-            # Try alternative parameter names if text= fails
             try:
                 maybe = fn(input=text)
                 if inspect.isawaitable(maybe):
