@@ -2,6 +2,8 @@ import { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import CurrentColor from '../ColorPicker/CurrentColor';
 import { ControlPaneSliders } from '../menus/ControlPaneSliders';
+import OneDPickerPanel from '../menus/OneDPickerPanel';
+import CIEPanel from '../menus/CIEPanel';
 import DisplayedColorsPanel from '../menus/DisplayedColorsPanel';
 import ColorHarmonyPanel from '../menus/ColorHarmonyPanel';
 import ColorHistoryPanel from '../menus/ColorHistoryPanel';
@@ -10,7 +12,7 @@ import type { ControlPaneProps } from '../../types/controlPane';
 import type { ColorHistoryItem } from '../../hooks/useColorHistory';
 import type { HarmonyMode, HarmonyColor } from '../../utils/colorHarmony';
 
-export type MobileSheetId = 'control' | 'displayed' | 'harmony' | 'history' | 'search';
+export type MobileSheetId = 'control' | 'oneDPicker' | 'cie' | 'displayed' | 'harmony' | 'history' | 'search';
 
 interface MobileControlColumnProps extends ControlPaneProps {
   cssColorsEnabled: boolean;
@@ -106,11 +108,39 @@ const MobileControlColumn = (props: MobileControlColumnProps) => {
         >
           <IconSearch />
         </IconButton>
+        <IconButton
+          type="button"
+          aria-label="1D picker"
+          aria-pressed={activeSheet === 'oneDPicker'}
+          $active={activeSheet === 'oneDPicker'}
+          onClick={() => onIconClick('oneDPicker')}
+        >
+          <IconOneDPicker />
+        </IconButton>
+        <IconButton
+          type="button"
+          aria-label="CIE xy diagram"
+          aria-pressed={activeSheet === 'cie'}
+          $active={activeSheet === 'cie'}
+          onClick={() => onIconClick('cie')}
+        >
+          <IconCIE />
+        </IconButton>
       </IconBar>
 
       {activeSheet === 'control' && (
         <SheetBlock>
           <ControlPaneSliders {...controlPaneProps} />
+        </SheetBlock>
+      )}
+      {activeSheet === 'oneDPicker' && (
+        <SheetBlock>
+          <OneDPickerPanel {...controlPaneProps} />
+        </SheetBlock>
+      )}
+      {activeSheet === 'cie' && (
+        <SheetBlock>
+          <CIEPanel {...controlPaneProps} />
         </SheetBlock>
       )}
       {activeSheet === 'displayed' && (
@@ -284,6 +314,41 @@ function IconSearch() {
         d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
         fill="currentColor"
       />
+    </svg>
+  );
+}
+
+function IconOneDPicker() {
+  return (
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <defs>
+        <linearGradient id="mobGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#f00" />
+          <stop offset="17%" stopColor="#ff0" />
+          <stop offset="33%" stopColor="#0f0" />
+          <stop offset="50%" stopColor="#0ff" />
+          <stop offset="67%" stopColor="#00f" />
+          <stop offset="83%" stopColor="#f0f" />
+          <stop offset="100%" stopColor="#f00" />
+        </linearGradient>
+      </defs>
+      <rect x="3" y="10" width="18" height="4" rx="2" fill="url(#mobGrad)" />
+      <line x1="12" y1="7" x2="12" y2="17" stroke="white" strokeWidth="2" strokeLinecap="round" />
+      <line x1="12" y1="7" x2="12" y2="17" stroke="rgba(0,0,0,0.4)" strokeWidth="1" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconCIE() {
+  return (
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 4 C7 4 3 7.5 3 12 C3 16 6 19.5 10 20.5 L12 13 L14 20.5 C18 19.5 21 16 21 12 C21 7.5 17 4 12 4 Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        fill="none"
+      />
+      <circle cx="12" cy="13" r="1.5" fill="currentColor" />
     </svg>
   );
 }
