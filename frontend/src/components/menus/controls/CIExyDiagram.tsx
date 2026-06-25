@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
-import type { ControlPaneProps } from '../../types/controlPane';
-import { LOCUS, CMF } from '../../constants/cieLocus';
+import type { ControlPaneProps } from '../../../types/controlPane';
+import { LOCUS, CMF } from '../../../constants/cieLocus';
 
 export { LOCUS, CMF };
 

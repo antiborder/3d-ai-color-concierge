@@ -1,9 +1,9 @@
 import { useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import convert from 'color-convert';
-import { systemColors } from '../../constants/systemColors';
-import type { ControlPaneProps } from '../../types/controlPane';
-import HelpIcon from '../common/HelpIcon';
+import { systemColors } from '../../../constants/systemColors';
+import type { ControlPaneProps } from '../../../types/controlPane';
+import HelpIcon from '../../common/HelpIcon';
 
 const SIZE = 256;    // canvas pixel resolution
 const CSS_SIZE = 217; // rendered CSS size (px)

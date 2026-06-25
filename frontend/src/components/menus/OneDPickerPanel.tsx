@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { PanelShell } from './PanelShell';
-import OneDPicker from './sliders/OneDPicker';
+import OneDPicker from './controls/OneDPicker';
 import type { ControlPaneProps } from '../../types/controlPane';
 
 const OneDPickerPanel = (props: ControlPaneProps) => (

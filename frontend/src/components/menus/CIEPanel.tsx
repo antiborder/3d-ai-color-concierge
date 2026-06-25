@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { PanelShell } from './PanelShell';
-import XyzSliders from './sliders/XyzSliders';
-import CIExyDiagram from './CIExyDiagram';
+import XyzSliders from './controls/XyzSliders';
+import CIExyDiagram from './controls/CIExyDiagram';
 import type { ControlPaneProps } from '../../types/controlPane';
 
 const CIEPanel = (props: ControlPaneProps) => (

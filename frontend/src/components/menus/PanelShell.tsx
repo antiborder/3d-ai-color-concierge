@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import { systemColors } from '../../constants/systemColors.js';
 
 export const PanelShell = styled.div`
+  min-width: 237px;
+
   .controlPanel {
     background-color: white;
     border: 1px solid #ddd;
