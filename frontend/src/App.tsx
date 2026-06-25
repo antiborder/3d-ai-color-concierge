@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toaster } from 'react-hot-toast';
 import ControlPane from './components/ColorPicker/ControlPane';
@@ -11,6 +11,9 @@ import VoiceControl from './components/VoiceControl/VoiceControl';
 import ChatHistoryModal from './components/Chatbot/ChatHistoryModal';
 import { useColorState } from './hooks/useColorState';
 import { useColorHistory } from './hooks/useColorHistory';
+import { useDisplaySettings } from './hooks/useDisplaySettings';
+import { useBridgeState } from './hooks/useBridgeState';
+import { useHelpRequest } from './hooks/useHelpRequest';
 import { executeCommand } from './utils/commandExecutor';
 import type { Command as VoiceCommand } from './types/voice';
 import { useChatbot } from './hooks/useChatbot';
@@ -140,103 +143,27 @@ function App() {
   // Loading state for API calls
   const [isLoading, setIsLoading] = useState(false);
 
-  // Color group filter states
-  const [cssColorsEnabled, setCssColorsEnabled] = useState(true);
-  const [materialColorsEnabled, setMaterialColorsEnabled] = useState(true);
-  const [spectral12ColorsEnabled, setSpectral12ColorsEnabled] = useState(false);
-  const [japaneseColorsEnabled, setJapaneseColorsEnabled] = useState(false);
-  const [rgbGridColorsEnabled, setRgbGridColorsEnabled] = useState(false);
+  const {
+    cssColorsEnabled, setCssColorsEnabled,
+    materialColorsEnabled, setMaterialColorsEnabled,
+    spectral12ColorsEnabled, setSpectral12ColorsEnabled,
+    japaneseColorsEnabled, setJapaneseColorsEnabled,
+    rgbGridColorsEnabled, setRgbGridColorsEnabled,
+    setColorSets,
+  } = useDisplaySettings();
 
   const isDesktopLayout = useMatchMedia('(min-width: 801px)');
 
   const [harmonyMode, setHarmonyMode] = useState<HarmonyMode>('none');
 
-  const [bridgeColorA, setBridgeColorA] = useState<{ r: number; g: number; b: number }>({ r: 255, g: 255, b: 255 });
-  const [bridgeColorB, setBridgeColorB] = useState<{ r: number; g: number; b: number }>(() => ({
-    r: Math.round(colorState.r),
-    g: Math.round(colorState.g),
-    b: Math.round(colorState.b),
-  }));
-  const [isBridgeOpen, setIsBridgeOpen] = useState(false);
-  const [isTwoDPickerOpen, setIsTwoDPickerOpen] = useState(false);
-  const [helpRequest, setHelpRequest] = useState<{ text: string; id: number } | null>(null);
+  const {
+    bridgeColorA, setBridgeColorA,
+    bridgeColorB, setBridgeColorB,
+    isBridgeOpen, setIsBridgeOpen,
+    isTwoDPickerOpen, setIsTwoDPickerOpen,
+  } = useBridgeState({ r: Math.round(colorState.r), g: Math.round(colorState.g), b: Math.round(colorState.b) });
 
-  const handleHelpClick = useCallback((topic: string) => {
-    const isEn = i18n.language === 'en';
-    const helpTexts: Record<string, string> = isEn ? {
-      color_harmony: 'What is Color Harmony?',
-      color_history: 'What is Color History?',
-      '1d_picker': 'What is the 1D Picker?',
-      '2d_picker': 'What is the 2D Picker?',
-      rgb: 'What is RGB?',
-      cmyk: 'What is CMYK?',
-      hsl: 'What is HSL?',
-      hsb: 'What is HSB?',
-      lab: 'What is the Lab color space?',
-      lch: 'What is the LCH color space?',
-      css_colors: 'What are CSS Named Colors?',
-      material_colors: 'What are Material Colors?',
-      spectral_colors: 'What is the Spectral Wheel?',
-      japanese_colors: 'What are Japanese Traditional Colors?',
-      rgb_grid: 'What is the RGB Cube Grid?',
-      rgb_r: 'What is the R (Red) channel in RGB?',
-      rgb_g: 'What is the G (Green) channel in RGB?',
-      rgb_b: 'What is the B (Blue) channel in RGB?',
-      hsl_h: 'What is H (Hue) in HSL?',
-      hsl_s: 'What is S (Saturation) in HSL?',
-      hsl_l: 'What is L (Lightness) in HSL?',
-      hsb_h: 'What is H (Hue) in HSB?',
-      hsb_s: 'What is S (Saturation) in HSB?',
-      hsb_v: 'What is B (Brightness) in HSB?',
-      cmyk_c: 'What is C (Cyan) in CMYK?',
-      cmyk_m: 'What is M (Magenta) in CMYK?',
-      cmyk_y: 'What is Y (Yellow) in CMYK?',
-      cmyk_k: 'What is K (Black) in CMYK?',
-      lab_l: 'What is L (Lightness) in Lab?',
-      lab_a: 'What is the a (red-green) axis in Lab?',
-      lab_b: 'What is the b (yellow-blue) axis in Lab?',
-      lch_l: 'What is L (Lightness) in LCH?',
-      lch_c: 'What is C (Chroma) in LCH?',
-      lch_h: 'What is H (Hue) in LCH?',
-    } : {
-      color_harmony: 'Color Harmonyとは？',
-      color_history: 'Color Historyとは？',
-      '1d_picker': '1D Pickerとは？',
-      '2d_picker': '2D Pickerとは？',
-      rgb: 'RGBとは？',
-      cmyk: 'CMYKとは？',
-      hsl: 'HSLとは？',
-      hsb: 'HSBとは？',
-      lab: 'Lab色空間とは？',
-      lch: 'LCH色空間とは？',
-      css_colors: 'CSS Named Colorsとは？',
-      material_colors: 'Material Colorsとは？',
-      spectral_colors: 'Spectral Wheelとは？',
-      japanese_colors: '日本の伝統色とは？',
-      rgb_grid: 'RGB Cube Gridとは？',
-      rgb_r: 'RGBのR（赤）チャンネルとは？',
-      rgb_g: 'RGBのG（緑）チャンネルとは？',
-      rgb_b: 'RGBのB（青）チャンネルとは？',
-      hsl_h: 'HSLのH（色相）とは？',
-      hsl_s: 'HSLのS（彩度）とは？',
-      hsl_l: 'HSLのL（明度）とは？',
-      hsb_h: 'HSBのH（色相）とは？',
-      hsb_s: 'HSBのS（彩度）とは？',
-      hsb_v: 'HSBのB（明度）とは？',
-      cmyk_c: 'CMYKのC（シアン）とは？',
-      cmyk_m: 'CMYKのM（マゼンタ）とは？',
-      cmyk_y: 'CMYKのY（イエロー）とは？',
-      cmyk_k: 'CMYKのK（ブラック）とは？',
-      lab_l: 'LabのL（明度）とは？',
-      lab_a: 'Labのa（赤緑軸）とは？',
-      lab_b: 'Labのb（黄青軸）とは？',
-      lch_l: 'LCHのL（明度）とは？',
-      lch_c: 'LCHのC（彩度）とは？',
-      lch_h: 'LCHのH（色相）とは？',
-    };
-    const text = helpTexts[topic] ?? (isEn ? `What is ${topic}?` : `${topic}とは？`);
-    setHelpRequest({ text, id: Date.now() });
-  }, [i18n.language]);
+  const { helpRequest, handleHelpClick } = useHelpRequest(i18n.language);
 
   // Voice command handlers
   const voiceCommandHandlers = {
@@ -248,13 +175,7 @@ function App() {
     updateFromHex,
     getCurrentHex: () => `#${colorState.hexInput}`,
     setHarmonyMode,
-    setColorSets: (sets: Partial<Record<'css' | 'material' | 'spectral12' | 'japanese' | 'rgbGrid', boolean>>) => {
-      if (sets.css !== undefined) setCssColorsEnabled(sets.css);
-      if (sets.material !== undefined) setMaterialColorsEnabled(sets.material);
-      if (sets.spectral12 !== undefined) setSpectral12ColorsEnabled(sets.spectral12);
-      if (sets.japanese !== undefined) setJapaneseColorsEnabled(sets.japanese);
-      if (sets.rgbGrid !== undefined) setRgbGridColorsEnabled(sets.rgbGrid);
-    },
+    setColorSets,
     setBridgeColorA,
     setBridgeColorB,
     setIsBridgeOpen,

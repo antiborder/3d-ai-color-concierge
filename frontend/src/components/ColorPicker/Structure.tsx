@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { Canvas, useThree } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import { Canvas } from '@react-three/fiber';
 import convert from 'color-convert';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import '../../App.css';
+import CameraController from './CameraController';
 import Focus from './Focus';
 import FocusPlane from './FocusPlane';
 import FocusLine from './FocusLine';
@@ -21,151 +21,6 @@ import type {
   RescaleHslFunction,
   CylindricalToCartesianFunction,
 } from '../../types/structure';
-
-// OrbitControlsの参照を取得してカメラを回転させるコンポーネント
-const CameraController = ({
-  r,
-  g,
-  b,
-  shape,
-  getRgbPosition,
-  getHslPosition,
-  getHsbPosition,
-}: {
-  r: number;
-  g: number;
-  b: number;
-  shape: string;
-  getRgbPosition: PositionFunction;
-  getHslPosition: PositionFunction;
-  getHsbPosition: PositionFunction;
-}) => {
-  const controlsRef = useRef<any>(null);
-  const { camera } = useThree();
-  const prevColorRef = useRef<{ r: number; g: number; b: number } | null>(null);
-  const isAnimatingRef = useRef(false);
-
-  useEffect(() => {
-    // 色が変更された時のみカメラを回転
-    const colorChanged =
-      !prevColorRef.current ||
-      prevColorRef.current.r !== r ||
-      prevColorRef.current.g !== g ||
-      prevColorRef.current.b !== b;
-
-    if (colorChanged && !isAnimatingRef.current) {
-      // 色の3D位置を取得
-      let colorPosition: [number, number, number];
-      if (shape === 'RGB' || shape === 'CMYK') {
-        colorPosition = getRgbPosition(r, g, b);
-      } else if (shape === 'HSL') {
-        colorPosition = getHslPosition(r, g, b);
-      } else {
-        colorPosition = getHsbPosition(r, g, b);
-      }
-
-      // 色の位置をベクトルに変換
-      const colorVector = new THREE.Vector3(...colorPosition);
-
-      // groupの回転を適用（X軸周りに-π/2回転）
-      // group rotation={[-Math.PI / 2, 0, 0]}が適用されているため、
-      // 色の位置をカメラの座標系（groupの外側）に変換する必要がある
-      const groupRotation = new THREE.Euler(-Math.PI / 2, 0, 0, 'XYZ');
-      const groupRotationQuaternion = new THREE.Quaternion().setFromEuler(groupRotation);
-      const worldColorPosition = colorVector.clone().applyQuaternion(groupRotationQuaternion);
-
-      // OrbitControlsを使ってカメラを移動
-      if (controlsRef.current && controlsRef.current.object) {
-        isAnimatingRef.current = true;
-
-        // 現在のカメラ位置を取得
-        const currentPosition = camera.position.clone();
-        const origin = new THREE.Vector3(0, 0, 0);
-
-        // 現在のカメラ位置から原点までの距離を計算（半径を維持）
-        const currentDistance = currentPosition.distanceTo(origin);
-
-        // 原点から色の位置への方向ベクトルを計算
-        const directionFromOrigin = worldColorPosition.clone().sub(origin).normalize();
-
-        // 左右±30°以内でランダムにずらす
-        const maxAngle = (30 * Math.PI) / 180; // 30度をラジアンに変換
-        const randomAngle = (Math.random() * 2 - 1) * maxAngle; // -30°から+30°のランダムな角度
-
-        // 回転軸を見つける（方向ベクトルに垂直なベクトル）
-        // 方向ベクトルと(1,0,0)の外積を取る。もし平行なら(0,1,0)を使う
-        let rotationAxis = new THREE.Vector3(1, 0, 0);
-        const crossProduct = new THREE.Vector3().crossVectors(directionFromOrigin, rotationAxis);
-        if (crossProduct.length() < 0.01) {
-          // 方向ベクトルが(1,0,0)と平行な場合、別のベクトルを使う
-          rotationAxis = new THREE.Vector3(0, 1, 0);
-          crossProduct.crossVectors(directionFromOrigin, rotationAxis);
-        }
-        rotationAxis = crossProduct.normalize();
-
-        // 回転軸を中心にランダムな角度で回転させるクォータニオンを作成
-        const randomRotationQuaternion = new THREE.Quaternion().setFromAxisAngle(rotationAxis, randomAngle);
-        
-        // 方向ベクトルを回転させる
-        const rotatedDirection = directionFromOrigin.clone().applyQuaternion(randomRotationQuaternion);
-
-        // 現在のカメラ位置から原点への方向ベクトル
-        const currentDirection = currentPosition.clone().sub(origin).normalize();
-
-        // 現在の方向から目標の方向への回転をクォータニオンで表現
-        const directionRotationQuaternion = new THREE.Quaternion().setFromUnitVectors(
-          currentDirection,
-          rotatedDirection
-        );
-
-        // OrbitControlsのtargetを原点に設定（カメラが中心を見るように）
-        controlsRef.current.target.copy(origin);
-
-        const duration = 1000; // 1秒
-        const startTime = Date.now();
-
-        const animate = () => {
-          const elapsed = Date.now() - startTime;
-          const progress = Math.min(elapsed / duration, 1);
-          // イージング関数（ease-in-out）
-          const eased =
-            progress < 0.5
-              ? 2 * progress * progress
-              : 1 - Math.pow(-2 * progress + 2, 2) / 2;
-
-          // 回転を補間（球面線形補間）
-          const startQuaternion = new THREE.Quaternion(); // 単位クォータニオン（回転なし）
-          const interpolatedQuaternion = startQuaternion.clone().slerp(
-            directionRotationQuaternion,
-            eased
-          );
-          
-          // 補間された回転を現在の方向に適用
-          const interpolatedDirection = currentDirection.clone().applyQuaternion(interpolatedQuaternion);
-          
-          // 補間された方向に現在の距離を適用してカメラ位置を計算
-          // これにより、カメラは球面上を移動し、原点からの距離を一定に保つ
-          const newPosition = origin.clone().add(interpolatedDirection.multiplyScalar(currentDistance));
-          
-          camera.position.copy(newPosition);
-          controlsRef.current.update();
-
-          if (progress < 1) {
-            requestAnimationFrame(animate);
-          } else {
-            isAnimatingRef.current = false;
-          }
-        };
-
-        animate();
-      }
-
-      prevColorRef.current = { r, g, b };
-    }
-  }, [r, g, b, shape, getRgbPosition, getHslPosition, getHsbPosition, camera]);
-
-  return <OrbitControls ref={controlsRef} />;
-};
 
 const Structure = (props: StructureProps) => {
   const cameraPosition: [number, number, number] = [0, 15, 0]; // カメラの位置
