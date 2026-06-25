@@ -83,10 +83,10 @@ const MenuIconButton = styled.button<{ $active: boolean }>`
   width: 40px;
   height: 40px;
   padding: 0;
-  border: 0px solid ${(p) => (p.$active ? '#4e8cee' : '#ddd')};
+  border: ${(p) => (p.$active ? '2px solid #4e8cee' : '0px solid transparent')};
   border-radius: 4px;
   background: ${(p) => (p.$active ? '#e8f2fd' : '#fff')};
-  color: ${(p) => (p.$active ? '#999' : '#4e8cee')};
+  color: #4e8cee;
   cursor: pointer;
   transition:
     background 0.15s,
@@ -127,13 +127,18 @@ function IconOneDPicker() {
 function IconCIE() {
   return (
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
+      {/* spectral locus: 380nm (bottom-left) → green peak (upper-left) → 700nm (right) */}
       <path
-        d="M12 4 C7 4 3 7.5 3 12 C3 16 6 19.5 10 20.5 L12 13 L14 20.5 C18 19.5 21 16 21 12 C21 7.5 17 4 12 4 Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        fill="none"
+        d="M6,21 Q2,10 4,4 Q8,2 12,6 Q17,9 20,15"
+        stroke="currentColor" strokeWidth="1.5" fill="none"
+        strokeLinecap="round" strokeLinejoin="round"
       />
-      <circle cx="12" cy="13" r="1.5" fill="currentColor" />
+      {/* purple line (straight bottom closure) */}
+      <line x1="6" y1="21" x2="20" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      {/* sRGB triangle (dashed) */}
+      <polygon points="18,14 10,8 6,20" stroke="currentColor" strokeWidth="0.8" fill="none" strokeDasharray="2,1.5" />
+      {/* white point dot */}
+      <circle cx="11" cy="14" r="1.5" fill="currentColor" />
     </svg>
   );
 }

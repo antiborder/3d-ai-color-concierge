@@ -24,35 +24,19 @@ const OneDPicker = (props: OneDPickerProps) => {
         }}
       >
         <span style={{ fontWeight: 600, fontSize: '16px' }}>1D Picker</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-          {props.onHelpClick && (
-            <HelpIcon
-              topic="1d_picker"
-              onHelpClick={(topic) => {
-                if (!props.isBridgeOpen) props.onBridgeOpenChange(true);
-                props.onHelpClick!(topic);
-              }}
-            />
-          )}
-          <button
-            className="showSlidersButton"
-            onClick={() => props.onBridgeOpenChange(!props.isBridgeOpen)}
-          >
-            {props.isBridgeOpen ? '▲' : '▼'}
-          </button>
-        </div>
+        {props.onHelpClick && (
+          <HelpIcon topic="1d_picker" onHelpClick={props.onHelpClick} />
+        )}
       </div>
-      {props.isBridgeOpen && (
-        <ColorBridge
-          currentColor={props.currentColor}
-          colorA={props.bridgeColorA}
-          colorB={props.bridgeColorB}
-          onSetColorA={props.onSetBridgeColorA}
-          onSetColorB={props.onSetBridgeColorB}
-          shape={props.shape}
-          onColorSelect={props.onColorSelect}
-        />
-      )}
+      <ColorBridge
+        currentColor={props.currentColor}
+        colorA={props.bridgeColorA}
+        colorB={props.bridgeColorB}
+        onSetColorA={props.onSetBridgeColorA}
+        onSetColorB={props.onSetBridgeColorB}
+        shape={props.shape}
+        onColorSelect={props.onColorSelect}
+      />
     </div>
   );
 };

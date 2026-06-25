@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect } from 'react';
 import type { ControlPaneProps } from '../../../types/controlPane';
 import { LOCUS, CMF } from '../../../constants/cieLocus';
 
@@ -57,14 +57,12 @@ function rgbToXY(r: number, g: number, b: number): [number, number] {
 type Props = Pick<ControlPaneProps, 'focusR' | 'focusG' | 'focusB'>;
 
 const CIExyDiagram = ({ focusR, focusG, focusB }: Props) => {
-  const [isOpen, setIsOpen] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const bgRef = useRef<ImageData | null>(null);
 
   const [cx, cy] = rgbToXY(focusR, focusG, focusB);
 
   useEffect(() => {
-    if (!isOpen) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -196,29 +194,24 @@ const CIExyDiagram = ({ focusR, focusG, focusB }: Props) => {
     ctx.strokeStyle = 'rgba(0,0,0,0.4)';
     ctx.lineWidth = 1;
     ctx.stroke();
-  }, [isOpen, focusR, focusG, focusB, cx, cy]);
+  }, [focusR, focusG, focusB, cx, cy]);
 
   return (
     <div className="controlPanel">
-      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', height: '24px' }}>
-        <span style={{ fontWeight: 600, fontSize: '16px' }}>CIE xy</span>
-        <button className="showSlidersButton" onClick={() => setIsOpen(o => !o)}>
-          {isOpen ? '▲' : '▼'}
-        </button>
+      <div style={{ height: '24px', display: 'flex', alignItems: 'center' }}>
+        <span style={{ fontWeight: 600, fontSize: '16px' }}>CIE chromaticity diagram</span>
       </div>
-      {isOpen && (
-        <>
-          <canvas
-            ref={canvasRef}
-            width={CW}
-            height={CH}
-            style={{ display: 'block', margin: '4px auto 0' }}
-          />
-          <div style={{ fontSize: '11px', color: '#555', textAlign: 'center', marginTop: '2px', fontFamily: 'monospace' }}>
-            x&nbsp;=&nbsp;{cx.toFixed(4)}&emsp;y&nbsp;=&nbsp;{cy.toFixed(4)}
-          </div>
-        </>
-      )}
+      <>
+        <canvas
+          ref={canvasRef}
+          width={CW}
+          height={CH}
+          style={{ display: 'block', margin: '4px auto 0' }}
+        />
+        <div style={{ fontSize: '11px', color: '#555', textAlign: 'center', marginTop: '2px', fontFamily: 'monospace' }}>
+          x&nbsp;=&nbsp;{cx.toFixed(4)}&emsp;y&nbsp;=&nbsp;{cy.toFixed(4)}
+        </div>
+      </>
     </div>
   );
 };

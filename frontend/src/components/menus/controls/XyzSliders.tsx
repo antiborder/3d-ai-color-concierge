@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import ShapeButton from './ShapeButton';
 import type { ControlPaneProps } from '../../../types/controlPane';
 
@@ -19,7 +18,6 @@ function rgbToXYZ(r: number, g: number, b: number): [number, number, number] {
 }
 
 const XyzSliders = (props: Props) => {
-  const [isVisible, setIsVisible] = useState(props.shape === 'XYZ');
   const [X, Y, Z] = rgbToXYZ(props.focusR, props.focusG, props.focusB);
 
   const row = (label: string, value: number, max: number, color: string) => (
@@ -36,26 +34,19 @@ const XyzSliders = (props: Props) => {
 
   return (
     <div className="controlPanel">
-      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', height: '24px' }}>
-        <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
-          <ShapeButton {...props} setIsVisible={setIsVisible} shapeName="XYZ" content="" />
-          <ShapeButton {...props} setIsVisible={setIsVisible} shapeName="xyz" content="" />
-          <ShapeButton {...props} setIsVisible={setIsVisible} shapeName="xy" content="" />
-        </div>
-        <button className="showSlidersButton" onClick={() => setIsVisible(!isVisible)}>
-          {isVisible ? '▲' : '▼'}
-        </button>
+      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', height: '24px', gap: '8px' }}>
+        <ShapeButton {...props} setIsVisible={() => {}} shapeName="XYZ" content="" />
+        <ShapeButton {...props} setIsVisible={() => {}} shapeName="xyz" content="" />
+        <ShapeButton {...props} setIsVisible={() => {}} shapeName="xy" content="" />
       </div>
-      {isVisible && (
-        <div style={{ paddingTop: '6px' }}>
-          {row('X', X, 0.95047,  '#cc3333')}
-          {row('Y', Y, 1.0,      '#338833')}
-          {row('Z', Z, 1.08883,  '#3366cc')}
-          <div style={{ fontSize: '10px', color: '#888', marginTop: '4px', lineHeight: 1.4 }}>
-            Y = 輝度（0〜1）　白色点 D65
-          </div>
+      <div style={{ paddingTop: '6px' }}>
+        {row('X', X, 0.95047,  '#cc3333')}
+        {row('Y', Y, 1.0,      '#338833')}
+        {row('Z', Z, 1.08883,  '#3366cc')}
+        <div style={{ fontSize: '10px', color: '#888', marginTop: '4px', lineHeight: 1.4 }}>
+          Y = 輝度（0〜1）　白色点 D65
         </div>
-      )}
+      </div>
     </div>
   );
 };
