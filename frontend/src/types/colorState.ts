@@ -22,7 +22,7 @@ export interface ColorState {
   l: number;
 
   // HSV values
-  hsvS: number;
+  hsbS: number;
   v: number;
 
   // Current color space
@@ -32,7 +32,7 @@ export interface ColorState {
   rgbMainElement: 'R' | 'G' | 'B';
   cmykMainElement: 'C' | 'M' | 'Y' | 'K';
   hslMainElement: 'H' | 'S' | 'L';
-  hsvMainElement: 'H' | 'S' | 'V';
+  hsbMainElement: 'H' | 'S' | 'V';
 
   // Hex input
   hexInput: string;
@@ -46,13 +46,13 @@ export interface ColorState {
  */
 function generateRandomInitialColorState(): ColorState {
   // ランダムに色空間を選択
-  const colorSpaces: ColorSpace[] = ['RGB', 'CMYK', 'HSV', 'HSL'];
+  const colorSpaces: ColorSpace[] = ['RGB', 'CMYK', 'HSB', 'HSL'];
   const randomColorSpace = colorSpaces[Math.floor(Math.random() * colorSpaces.length)];
 
   let r = 0, g = 0, b = 0;
   let c = 0, m = 0, y = 0, k = 0;
   let h = 0, s = 0, l = 0;
-  let hsvS = 0, v = 0;
+  let hsbS = 0, v = 0;
 
   // 選択された色空間に応じてランダムな色を生成
   switch (randomColorSpace) {
@@ -68,8 +68,8 @@ function generateRandomInitialColorState(): ColorState {
       h = allFormats.hsl[0];
       s = allFormats.hsl[1];
       l = allFormats.hsl[2];
-      hsvS = allFormats.hsv[1];
-      v = allFormats.hsv[2];
+      hsbS = allFormats.hsb[1];
+      v = allFormats.hsb[2];
       break;
     }
     case 'CMYK': {
@@ -84,8 +84,8 @@ function generateRandomInitialColorState(): ColorState {
       h = allFormats.hsl[0];
       s = allFormats.hsl[1];
       l = allFormats.hsl[2];
-      hsvS = allFormats.hsv[1];
-      v = allFormats.hsv[2];
+      hsbS = allFormats.hsb[1];
+      v = allFormats.hsb[2];
       break;
     }
     case 'HSL': {
@@ -100,15 +100,15 @@ function generateRandomInitialColorState(): ColorState {
       m = allFormats.cmyk[1];
       y = allFormats.cmyk[2];
       k = allFormats.cmyk[3];
-      hsvS = allFormats.hsv[1];
-      v = allFormats.hsv[2];
+      hsbS = allFormats.hsb[1];
+      v = allFormats.hsb[2];
       break;
     }
-    case 'HSV': {
+    case 'HSB': {
       h = Math.floor(Math.random() * 360);
-      hsvS = Math.floor(Math.random() * 101);
+      hsbS = Math.floor(Math.random() * 101);
       v = Math.floor(Math.random() * 101);
-      const allFormats = ColorConverter.fromHsv(h, hsvS, v);
+      const allFormats = ColorConverter.fromHsb(h, hsbS, v);
       r = allFormats.rgb[0];
       g = allFormats.rgb[1];
       b = allFormats.rgb[2];
@@ -126,7 +126,7 @@ function generateRandomInitialColorState(): ColorState {
   const rgbMainElements: ('R' | 'G' | 'B')[] = ['R', 'G', 'B'];
   const cmykMainElements: ('C' | 'M' | 'Y' | 'K')[] = ['C', 'M', 'Y', 'K'];
   const hslMainElements: ('H' | 'S' | 'L')[] = ['H', 'S', 'L'];
-  const hsvMainElements: ('H' | 'S' | 'V')[] = ['H', 'S', 'V'];
+  const hsbMainElements: ('H' | 'S' | 'V')[] = ['H', 'S', 'V'];
 
   const allFormats = ColorConverter.fromRgb(r, g, b);
 
@@ -141,13 +141,13 @@ function generateRandomInitialColorState(): ColorState {
     h,
     s,
     l,
-    hsvS,
+    hsbS,
     v,
     shape: randomColorSpace,
     rgbMainElement: rgbMainElements[Math.floor(Math.random() * rgbMainElements.length)],
     cmykMainElement: cmykMainElements[Math.floor(Math.random() * cmykMainElements.length)],
     hslMainElement: hslMainElements[Math.floor(Math.random() * hslMainElements.length)],
-    hsvMainElement: hsvMainElements[Math.floor(Math.random() * hsvMainElements.length)],
+    hsbMainElement: hsbMainElements[Math.floor(Math.random() * hsbMainElements.length)],
     hexInput: allFormats.hex.toUpperCase(),
     isLabelShown: false,
   };

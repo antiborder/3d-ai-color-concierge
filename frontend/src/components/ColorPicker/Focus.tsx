@@ -9,7 +9,7 @@ import type { StructureProps, PositionFunction } from '../../types/structure';
 interface FocusProps extends StructureProps {
   getRgbPosition: PositionFunction;
   getHslPosition: PositionFunction;
-  getHsvPosition: PositionFunction;
+  getHsbPosition: PositionFunction;
 }
 
 const Focus = (props: FocusProps) => {
@@ -26,7 +26,7 @@ const Focus = (props: FocusProps) => {
       ? props.getRgbPosition(props.focusR, props.focusG, props.focusB)
       : props.shape === 'HSL'
         ? props.getHslPosition(props.focusR, props.focusG, props.focusB)
-        : props.getHsvPosition(props.focusR, props.focusG, props.focusB);
+        : props.getHsbPosition(props.focusR, props.focusG, props.focusB);
 
   return (
     <>

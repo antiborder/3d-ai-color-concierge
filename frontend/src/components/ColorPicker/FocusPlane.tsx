@@ -39,7 +39,7 @@ function labToThreePosition(L: number, a: number, bLab: number): [number, number
 interface FocusPlaneProps extends StructureProps {
   getRgbPosition: PositionFunction;
   getHslPosition: PositionFunction;
-  getHsvPosition: PositionFunction;
+  getHsbPosition: PositionFunction;
   rescaleHsl: RescaleHslFunction;
   cylindricalToCartesian: CylindricalToCartesianFunction;
   cylinderRadius: number;
@@ -135,9 +135,9 @@ const FocusPlane = (props: FocusPlaneProps) => {
         </>
       )}
 
-      {props.shape === 'HSV' && (
+      {props.shape === 'HSB' && (
         <>
-          {props.hsvMainElement === 'H' && (
+          {props.hsbMainElement === 'H' && (
             <Quadrilateral
               {...props}
               points={[
@@ -157,7 +157,7 @@ const FocusPlane = (props: FocusPlaneProps) => {
             />
           )}
           <group rotation={[Math.PI / 2, 0, 0]}>
-            {props.hsvMainElement === 'S' && (
+            {props.hsbMainElement === 'S' && (
               <Cylinder
                 {...props}
                 radius={rescaledHsvS}
@@ -165,7 +165,7 @@ const FocusPlane = (props: FocusPlaneProps) => {
                 side={THREE.DoubleSide}
               />
             )}
-            {props.hsvMainElement === 'V' && (
+            {props.hsbMainElement === 'V' && (
               <Disc
                 {...props}
                 position={[0, rescaledV, 0]}

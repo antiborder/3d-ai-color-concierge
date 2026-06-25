@@ -7,7 +7,7 @@ export interface AllColorFormats {
   rgb: [number, number, number];
   cmyk: [number, number, number, number];
   hsl: [number, number, number];
-  hsv: [number, number, number];
+  hsb: [number, number, number];
   hex: string;
 }
 
@@ -25,7 +25,7 @@ export class ColorConverter {
       rgb,
       cmyk: convert.rgb.cmyk(rgb),
       hsl: convert.rgb.hsl(rgb),
-      hsv: convert.rgb.hsv(rgb),
+      hsb: convert.rgb.hsv(rgb),
       hex: convert.rgb.hex(rgb),
     };
   }
@@ -47,7 +47,7 @@ export class ColorConverter {
     const hsl: [number, number, number] = [h, s, l];
     const rgb = convert.hsl.rgb(hsl);
     const cmyk = convert.rgb.cmyk(rgb);
-    const hsv = convert.rgb.hsv(rgb);
+    const hsvValues = convert.rgb.hsv(rgb);
     const hex = convert.rgb.hex(rgb);
     
     // Preserve input HSL values instead of recalculating from RGB
@@ -55,7 +55,7 @@ export class ColorConverter {
       rgb,
       cmyk,
       hsl: [h, s, l], // Use input values, not recalculated
-      hsv,
+      hsb: hsvValues,
       hex,
     };
   }
@@ -63,9 +63,9 @@ export class ColorConverter {
   /**
    * Convert from HSV to all other color formats
    */
-  static fromHsv(h: number, s: number, v: number): AllColorFormats {
-    const hsv: [number, number, number] = [h, s, v];
-    const rgb = convert.hsv.rgb(hsv);
+  static fromHsb(h: number, s: number, v: number): AllColorFormats {
+    const hsb: [number, number, number] = [h, s, v];
+    const rgb = convert.hsv.rgb(hsb);
     return this.fromRgb(rgb[0], rgb[1], rgb[2]);
   }
 

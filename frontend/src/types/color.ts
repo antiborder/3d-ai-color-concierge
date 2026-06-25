@@ -1,6 +1,6 @@
 // Color type definitions
 
-export type ColorSpace = 'RGB' | 'CMYK' | 'HSL' | 'HSV' | 'Lab' | 'LCH';
+export type ColorSpace = 'RGB' | 'CMYK' | 'HSL' | 'HSB' | 'Lab' | 'LCH' | 'XYZ' | 'xyz' | 'xy';
 
 export type RGB = {
   r: number;
@@ -21,7 +21,7 @@ export type HSL = {
   l: number;
 };
 
-export type HSV = {
+export type HSB = {
   h: number;
   s: number;
   v: number;

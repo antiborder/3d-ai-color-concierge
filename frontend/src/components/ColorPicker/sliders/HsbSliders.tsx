@@ -7,15 +7,15 @@ import SliderContainer from './SliderContainer';
 import { systemColors } from '../../../constants/systemColors.js';
 import HelpIcon from '../../common/HelpIcon';
 
-interface HsvSlidersProps extends ControlPaneProps, BridgeProps {
+interface HsbSlidersProps extends ControlPaneProps, BridgeProps {
   mainElement: 'H' | 'S' | 'V';
   setMainElement: (symbol: 'H' | 'S' | 'V') => void;
   panelShape: ColorSpace;
 }
 
-const HsvSliders = (props: HsvSlidersProps) => {
+const HsbSliders = (props: HsbSlidersProps) => {
   const { t } = useTranslation();
-  const [isVisible, setIsVisible] = useState(props.shape === 'HSV');
+  const [isVisible, setIsVisible] = useState(props.shape === 'HSB');
   return (
     <div className="controlPanel">
       <div
@@ -31,13 +31,13 @@ const HsvSliders = (props: HsvSlidersProps) => {
         <ShapeButton
           {...props}
           setIsVisible={setIsVisible}
-          shapeName={'HSV'}
-          content={t('colorSpace.hsv.description')}
+          shapeName={'HSB'}
+          content={t('colorSpace.hsb.description')}
         />
         <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
           {props.onHelpClick && (
             <HelpIcon
-              topic="hsv"
+              topic="hsb"
               onHelpClick={(topic) => { setIsVisible(true); props.onHelpClick!(topic); }}
             />
           )}
@@ -70,7 +70,7 @@ const HsvSliders = (props: HsvSlidersProps) => {
             shape={props.shape}
             panelShape={props.panelShape}
             onHelpClick={props.onHelpClick}
-            helpTopic="hsv_h"
+            helpTopic="hsb_h"
           />
           <SliderContainer
             {...props}
@@ -88,7 +88,7 @@ const HsvSliders = (props: HsvSlidersProps) => {
             shape={props.shape}
             panelShape={props.panelShape}
             onHelpClick={props.onHelpClick}
-            helpTopic="hsv_s"
+            helpTopic="hsb_s"
           />
           <SliderContainer
             {...props}
@@ -106,7 +106,7 @@ const HsvSliders = (props: HsvSlidersProps) => {
             shape={props.shape}
             panelShape={props.panelShape}
             onHelpClick={props.onHelpClick}
-            helpTopic="hsv_v"
+            helpTopic="hsb_v"
           />
         </>
       )}
@@ -114,4 +114,4 @@ const HsvSliders = (props: HsvSlidersProps) => {
   );
 };
 
-export default HsvSliders;
+export default HsbSliders;

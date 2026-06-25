@@ -12,7 +12,7 @@ import type {
 interface FocusLineProps extends StructureProps {
   getRgbPosition: PositionFunction;
   getHslPosition: PositionFunction;
-  getHsvPosition: PositionFunction;
+  getHsbPosition: PositionFunction;
   rescaleHsl: RescaleHslFunction;
   cylindricalToCartesian: CylindricalToCartesianFunction;
   cylinderRadius: number;
@@ -122,13 +122,13 @@ const FocusLine = (props: FocusLineProps) => {
           )}
         </>
       )}
-      {props.shape === 'HSV' && (
+      {props.shape === 'HSB' && (
         <>
-          {props.hsvMainElement !== 'H' && (
+          {props.hsbMainElement !== 'H' && (
             <Circle radius={rescaledHsvS} position={[0, 0, rescaledV]} color={systemColors['W']} />
           )}
 
-          {props.hsvMainElement !== 'S' && (
+          {props.hsbMainElement !== 'S' && (
             <StraightLine
               points={[
                 props.cylindricalToCartesian(rescaledH, 0, rescaledV),
@@ -138,7 +138,7 @@ const FocusLine = (props: FocusLineProps) => {
             />
           )}
 
-          {props.hsvMainElement !== 'V' && (
+          {props.hsbMainElement !== 'V' && (
             <StraightLine
               points={[
                 props.cylindricalToCartesian(rescaledH, rescaledHsvS, -props.cylinderHeight / 2),

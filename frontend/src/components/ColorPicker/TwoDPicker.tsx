@@ -30,7 +30,7 @@ function labToRgb(L: number, a: number, b: number): [number, number, number] {
   return [toS(rl), toS(gl), toS(bl2)];
 }
 
-const SUPPORTED = new Set(['RGB', 'CMYK', 'HSV', 'HSL', 'Lab', 'LCH']);
+const SUPPORTED = new Set(['RGB', 'CMYK', 'HSB', 'HSL', 'Lab', 'LCH']);
 
 const TwoDPicker = (props: ControlPaneProps) => {
   const { shape } = props;
@@ -44,7 +44,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
     if (!ctx) return;
 
     const {
-      rgbMainElement, cmykMainElement, hsvMainElement, hslMainElement,
+      rgbMainElement, cmykMainElement, hsbMainElement, hslMainElement,
       focusR, focusG, focusB, focusH, focusS, focusL, focusHsvS, focusV,
     } = props;
 
@@ -77,10 +77,10 @@ const TwoDPicker = (props: ControlPaneProps) => {
             g = Math.round(xVal * 255);
             b = focusB;
           }
-        } else if (shape === 'HSV') {
-          if (hsvMainElement === 'H') {
+        } else if (shape === 'HSB') {
+          if (hsbMainElement === 'H') {
             [r, g, b] = convert.hsv.rgb([focusH, xVal * 100, (1 - yVal) * 100]);
-          } else if (hsvMainElement === 'S') {
+          } else if (hsbMainElement === 'S') {
             [r, g, b] = convert.hsv.rgb([xVal * 360, focusHsvS, (1 - yVal) * 100]);
           } else {
             const cx = px - SIZE / 2, cy = SIZE / 2 - py;
@@ -154,11 +154,11 @@ const TwoDPicker = (props: ControlPaneProps) => {
       line(vCol, vX, 0, vX, SIZE);
       line(hCol, 0, hY, SIZE, hY);
 
-    } else if (shape === 'HSV') {
-      if (hsvMainElement === 'H') {
+    } else if (shape === 'HSB') {
+      if (hsbMainElement === 'H') {
         line(systemColors['K'], focusHsvS / 100 * SIZE, 0, focusHsvS / 100 * SIZE, SIZE);
         line(systemColors['K'], 0, (1 - focusV / 100) * SIZE, SIZE, (1 - focusV / 100) * SIZE);
-      } else if (hsvMainElement === 'S') {
+      } else if (hsbMainElement === 'S') {
         line(systemColors['K'], focusH / 360 * SIZE, 0, focusH / 360 * SIZE, SIZE);
         line(systemColors['W'], 0, (1 - focusV / 100) * SIZE, SIZE, (1 - focusV / 100) * SIZE);
       } else {
@@ -204,7 +204,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
     }
   }, [
     props.shape,
-    props.rgbMainElement, props.cmykMainElement, props.hsvMainElement, props.hslMainElement,
+    props.rgbMainElement, props.cmykMainElement, props.hsbMainElement, props.hslMainElement,
     props.focusR, props.focusG, props.focusB,
     props.focusH, props.focusS, props.focusL, props.focusHsvS, props.focusV,
     props.isTwoDPickerOpen,
@@ -220,7 +220,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
     const yVal = py / SIZE;
 
     const {
-      rgbMainElement, cmykMainElement, hsvMainElement, hslMainElement,
+      rgbMainElement, cmykMainElement, hsbMainElement, hslMainElement,
       focusR, focusG, focusB, focusH, focusS, focusL, focusHsvS, focusV,
     } = props;
 
@@ -235,11 +235,11 @@ const TwoDPicker = (props: ControlPaneProps) => {
         r = Math.round((1 - yVal) * 255); g = Math.round(xVal * 255);
       }
       props.handleClick(r, g, b);
-    } else if (shape === 'HSV') {
+    } else if (shape === 'HSB') {
       let h = focusH, s = focusHsvS, v = focusV;
-      if (hsvMainElement === 'H') {
+      if (hsbMainElement === 'H') {
         s = xVal * 100; v = (1 - yVal) * 100;
-      } else if (hsvMainElement === 'S') {
+      } else if (hsbMainElement === 'S') {
         h = xVal * 360; v = (1 - yVal) * 100;
       } else {
         const cx = px - SIZE / 2, cy = SIZE / 2 - py;

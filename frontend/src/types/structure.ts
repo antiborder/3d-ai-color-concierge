@@ -29,7 +29,7 @@ export interface StructureProps {
   rgbMainElement: 'R' | 'G' | 'B';
   cmykMainElement: 'C' | 'M' | 'Y' | 'K';
   hslMainElement: 'H' | 'S' | 'L';
-  hsvMainElement: 'H' | 'S' | 'V';
+  hsbMainElement: 'H' | 'S' | 'V';
 
   // Color group filters
   cssColorsEnabled: boolean;

@@ -51,7 +51,7 @@ function App() {
   const {
     colorState,
     updateFromRgb,
-    updateFromHsv,
+    updateFromHsb,
     updateFromHex,
     updateRgbValue,
     updateCmykValue,
@@ -121,7 +121,7 @@ function App() {
   };
 
   const handleHsvElementClick = (h: number, s: number, v: number) => {
-    updateFromHsv(h, s, v);
+    updateFromHsb(h, s, v);
   };
 
   const handleHexUpdate = () => {
@@ -162,7 +162,43 @@ function App() {
   const [helpRequest, setHelpRequest] = useState<{ text: string; id: number } | null>(null);
 
   const handleHelpClick = useCallback((topic: string) => {
-    const helpTexts: Record<string, string> = {
+    const isEn = i18n.language === 'en';
+    const helpTexts: Record<string, string> = isEn ? {
+      color_harmony: 'What is Color Harmony?',
+      color_history: 'What is Color History?',
+      '1d_picker': 'What is the 1D Picker?',
+      '2d_picker': 'What is the 2D Picker?',
+      rgb: 'What is RGB?',
+      cmyk: 'What is CMYK?',
+      hsl: 'What is HSL?',
+      hsb: 'What is HSB?',
+      lab: 'What is the Lab color space?',
+      lch: 'What is the LCH color space?',
+      css_colors: 'What are CSS Named Colors?',
+      material_colors: 'What are Material Colors?',
+      spectral_colors: 'What is the Spectral Wheel?',
+      japanese_colors: 'What are Japanese Traditional Colors?',
+      rgb_grid: 'What is the RGB Cube Grid?',
+      rgb_r: 'What is the R (Red) channel in RGB?',
+      rgb_g: 'What is the G (Green) channel in RGB?',
+      rgb_b: 'What is the B (Blue) channel in RGB?',
+      hsl_h: 'What is H (Hue) in HSL?',
+      hsl_s: 'What is S (Saturation) in HSL?',
+      hsl_l: 'What is L (Lightness) in HSL?',
+      hsb_h: 'What is H (Hue) in HSB?',
+      hsb_s: 'What is S (Saturation) in HSB?',
+      hsb_v: 'What is B (Brightness) in HSB?',
+      cmyk_c: 'What is C (Cyan) in CMYK?',
+      cmyk_m: 'What is M (Magenta) in CMYK?',
+      cmyk_y: 'What is Y (Yellow) in CMYK?',
+      cmyk_k: 'What is K (Black) in CMYK?',
+      lab_l: 'What is L (Lightness) in Lab?',
+      lab_a: 'What is the a (red-green) axis in Lab?',
+      lab_b: 'What is the b (yellow-blue) axis in Lab?',
+      lch_l: 'What is L (Lightness) in LCH?',
+      lch_c: 'What is C (Chroma) in LCH?',
+      lch_h: 'What is H (Hue) in LCH?',
+    } : {
       color_harmony: 'Color Harmonyとは？',
       color_history: 'Color Historyとは？',
       '1d_picker': '1D Pickerとは？',
@@ -170,7 +206,7 @@ function App() {
       rgb: 'RGBとは？',
       cmyk: 'CMYKとは？',
       hsl: 'HSLとは？',
-      hsv: 'HSVとは？',
+      hsb: 'HSBとは？',
       lab: 'Lab色空間とは？',
       lch: 'LCH色空間とは？',
       css_colors: 'CSS Named Colorsとは？',
@@ -184,9 +220,9 @@ function App() {
       hsl_h: 'HSLのH（色相）とは？',
       hsl_s: 'HSLのS（彩度）とは？',
       hsl_l: 'HSLのL（明度）とは？',
-      hsv_h: 'HSVのH（色相）とは？',
-      hsv_s: 'HSVのS（彩度）とは？',
-      hsv_v: 'HSVのV（明度）とは？',
+      hsb_h: 'HSBのH（色相）とは？',
+      hsb_s: 'HSBのS（彩度）とは？',
+      hsb_v: 'HSBのB（明度）とは？',
       cmyk_c: 'CMYKのC（シアン）とは？',
       cmyk_m: 'CMYKのM（マゼンタ）とは？',
       cmyk_y: 'CMYKのY（イエロー）とは？',
@@ -198,9 +234,9 @@ function App() {
       lch_c: 'LCHのC（彩度）とは？',
       lch_h: 'LCHのH（色相）とは？',
     };
-    const text = helpTexts[topic] ?? `${topic}とは？`;
+    const text = helpTexts[topic] ?? (isEn ? `What is ${topic}?` : `${topic}とは？`);
     setHelpRequest({ text, id: Date.now() });
-  }, []);
+  }, [i18n.language]);
 
   // Voice command handlers
   const voiceCommandHandlers = {
@@ -340,12 +376,12 @@ function App() {
         focusH={colorState.h}
         focusS={colorState.s}
         focusL={colorState.l}
-        focusHsvS={colorState.hsvS}
+        focusHsvS={colorState.hsbS}
         focusV={colorState.v}
         rgbMainElement={colorState.rgbMainElement}
         cmykMainElement={colorState.cmykMainElement}
         hslMainElement={colorState.hslMainElement}
-        hsvMainElement={colorState.hsvMainElement}
+        hsbMainElement={colorState.hsbMainElement}
         cssColorsEnabled={cssColorsEnabled}
         materialColorsEnabled={materialColorsEnabled}
         spectral12ColorsEnabled={spectral12ColorsEnabled}
@@ -387,11 +423,11 @@ function App() {
           focusH={colorState.h}
           focusS={colorState.s}
           focusL={colorState.l}
-          focusHsvS={colorState.hsvS}
+          focusHsvS={colorState.hsbS}
           focusV={colorState.v}
           rgbMainElement={colorState.rgbMainElement}
           hslMainElement={colorState.hslMainElement}
-          hsvMainElement={colorState.hsvMainElement}
+          hsbMainElement={colorState.hsbMainElement}
           cmykMainElement={colorState.cmykMainElement}
           setFocusR={(value: number) => updateRgbValue('R', value)}
           setFocusG={(value: number) => updateRgbValue('G', value)}
@@ -434,11 +470,11 @@ function App() {
           focusH={colorState.h}
           focusS={colorState.s}
           focusL={colorState.l}
-          focusHsvS={colorState.hsvS}
+          focusHsvS={colorState.hsbS}
           focusV={colorState.v}
           rgbMainElement={colorState.rgbMainElement}
           hslMainElement={colorState.hslMainElement}
-          hsvMainElement={colorState.hsvMainElement}
+          hsbMainElement={colorState.hsbMainElement}
           cmykMainElement={colorState.cmykMainElement}
           setFocusR={(value: number) => updateRgbValue('R', value)}
           setFocusG={(value: number) => updateRgbValue('G', value)}

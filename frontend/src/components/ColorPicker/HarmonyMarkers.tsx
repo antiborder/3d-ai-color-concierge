@@ -12,9 +12,12 @@ interface HarmonyMarkersProps {
   focusL: number;
   getRgbPosition: PositionFunction;
   getHslPosition: PositionFunction;
-  getHsvPosition: PositionFunction;
+  getHsbPosition: PositionFunction;
   getMunsellPosition: PositionFunction;
   getLabPosition: PositionFunction;
+  getXyzPosition: PositionFunction;
+  getXyzChromaticityPosition: PositionFunction;
+  getXyChromaticityPosition: PositionFunction;
   onColorSelect: (r: number, g: number, b: number) => void;
 }
 
@@ -197,9 +200,12 @@ const HarmonyMarkers = ({
   focusL,
   getRgbPosition,
   getHslPosition,
-  getHsvPosition,
+  getHsbPosition,
   getMunsellPosition,
   getLabPosition,
+  getXyzPosition,
+  getXyzChromaticityPosition,
+  getXyChromaticityPosition,
   onColorSelect,
 }: HarmonyMarkersProps) => {
   const flashColor = focusL >= 50 ? '#000000' : '#ffffff';
@@ -217,7 +223,13 @@ const HarmonyMarkers = ({
                 ? getLabPosition(color.r, color.g, color.b)
                 : shape === 'LCH'
                   ? getMunsellPosition(color.r, color.g, color.b)
-                  : getHsvPosition(color.r, color.g, color.b);
+                  : shape === 'XYZ'
+                    ? getXyzPosition(color.r, color.g, color.b)
+                    : shape === 'xyz'
+                      ? getXyzChromaticityPosition(color.r, color.g, color.b)
+                      : shape === 'xy'
+                        ? getXyChromaticityPosition(color.r, color.g, color.b)
+                        : getHsbPosition(color.r, color.g, color.b);
 
         const hex = `#${Math.round(color.r).toString(16).padStart(2, '0')}${Math.round(color.g).toString(16).padStart(2, '0')}${Math.round(color.b).toString(16).padStart(2, '0')}`;
 

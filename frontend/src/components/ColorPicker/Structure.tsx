@@ -30,7 +30,7 @@ const CameraController = ({
   shape,
   getRgbPosition,
   getHslPosition,
-  getHsvPosition,
+  getHsbPosition,
 }: {
   r: number;
   g: number;
@@ -38,7 +38,7 @@ const CameraController = ({
   shape: string;
   getRgbPosition: PositionFunction;
   getHslPosition: PositionFunction;
-  getHsvPosition: PositionFunction;
+  getHsbPosition: PositionFunction;
 }) => {
   const controlsRef = useRef<any>(null);
   const { camera } = useThree();
@@ -61,7 +61,7 @@ const CameraController = ({
       } else if (shape === 'HSL') {
         colorPosition = getHslPosition(r, g, b);
       } else {
-        colorPosition = getHsvPosition(r, g, b);
+        colorPosition = getHsbPosition(r, g, b);
       }
 
       // 色の位置をベクトルに変換
@@ -162,7 +162,7 @@ const CameraController = ({
 
       prevColorRef.current = { r, g, b };
     }
-  }, [r, g, b, shape, getRgbPosition, getHslPosition, getHsvPosition, camera]);
+  }, [r, g, b, shape, getRgbPosition, getHslPosition, getHsbPosition, camera]);
 
   return <OrbitControls ref={controlsRef} />;
 };
@@ -203,7 +203,7 @@ const Structure = (props: StructureProps) => {
 
   const rescaleRgb = (r: number, g: number, b: number): [number, number, number] => {
     return [
-      (r / 255 - 0.5) * structureSize,
+      -(r / 255 - 0.5) * structureSize,
       (-g / 255 + 0.5) * structureSize,
       (b / 255 - 0.5) * structureSize,
     ];
@@ -215,7 +215,7 @@ const Structure = (props: StructureProps) => {
     b: number
   ): [number, number, number] => {
     const tiltRotationQuaternion = new THREE.Quaternion().setFromUnitVectors(
-      new THREE.Vector3(1, -1, 1).normalize(),
+      new THREE.Vector3(-1, -1, 1).normalize(),
       new THREE.Vector3(0, 0, 1)
     );
     const zRotationQuaternion = new THREE.Quaternion().setFromUnitVectors(
@@ -235,7 +235,7 @@ const Structure = (props: StructureProps) => {
     l: number
   ): [number, number, number] => {
     return [
-      (h / 360) * (2 * Math.PI),
+      (h / 360) * (2 * Math.PI) - Math.PI / 12,
       (s / 100) * cylinderRadius,
       ((l - 50) / 100) * cylinderHeight,
     ];
@@ -246,7 +246,7 @@ const Structure = (props: StructureProps) => {
     radius: number,
     z: number
   ): [number, number, number] => {
-    return [radius * Math.sin(theta), radius * Math.cos(theta), z];
+    return [radius * Math.sin(theta), -radius * Math.cos(theta), z];
   };
 
   const getHslPosition: PositionFunction = (
@@ -259,7 +259,7 @@ const Structure = (props: StructureProps) => {
     return cylindricalToCartesian(theta, radius, z);
   };
 
-  const getHsvPosition: PositionFunction = (
+  const getHsbPosition: PositionFunction = (
     r: number,
     g: number,
     b: number
@@ -307,10 +307,72 @@ const Structure = (props: StructureProps) => {
     //   b*: [-106.90, +93.63] center=-6.64  half-range=100.27
     //   L*: [0, 100]          center=50     half-range=50
     const half = structureSize / 2;
-    const x = (bLab - (-6.64)) / 100.27 * half;   // b* → x
-    const y = (a    -   5.98)  /  91.39 * half;   // a* → y
+    const x = (bLab - (-6.64)) / 100.27 * half;     // b* → x
+    const y = -((a  -   5.98)  /  91.39 * half);   // a* → y (negated to match RGB orientation)
     const z = (L / 100 - 0.5) * structureSize;     // L* → z (unchanged)
     return [x, y, z];
+  };
+
+  const getXyzPosition: PositionFunction = (r: number, g: number, b: number): [number, number, number] => {
+    const toLinear = (c: number) => {
+      const s = c / 255;
+      return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    };
+    const rl = toLinear(r), gl = toLinear(g), bl = toLinear(b);
+    const X = 0.4124564 * rl + 0.3575761 * gl + 0.1804375 * bl;
+    const Y = 0.2126729 * rl + 0.7151522 * gl + 0.0721750 * bl;
+    const Z = 0.0193339 * rl + 0.1191920 * gl + 0.9503041 * bl;
+    const tilt = new THREE.Quaternion().setFromUnitVectors(
+      new THREE.Vector3(-1, -1, 1).normalize(),
+      new THREE.Vector3(0, 0, 1)
+    );
+    const zRot = new THREE.Quaternion().setFromUnitVectors(
+      new THREE.Vector3(1, 0, 0).normalize(),
+      new THREE.Vector3(0, 0.77, 0)
+    );
+    return new THREE.Vector3(
+      -(X / 0.95047  - 0.5) * structureSize,
+      -(Y / 1.0      - 0.5) * structureSize,
+      (Z / 1.08883  - 0.5) * structureSize,
+    ).applyQuaternion(zRot.multiply(tilt)).toArray() as [number, number, number];
+  };
+
+  const getXyzChromaticityPosition: PositionFunction = (r: number, g: number, b: number): [number, number, number] => {
+    const toLinear = (c: number) => { const s = c/255; return s<=0.04045 ? s/12.92 : Math.pow((s+0.055)/1.055, 2.4); };
+    const rl=toLinear(r), gl=toLinear(g), bl=toLinear(b);
+    const X=0.4124564*rl+0.3575761*gl+0.1804375*bl;
+    const Y=0.2126729*rl+0.7151522*gl+0.0721750*bl;
+    const Z=0.0193339*rl+0.1191920*gl+0.9503041*bl;
+    const sum = X+Y+Z;
+    if (sum < 1e-10) return [0,0,0];
+    // Center at 0.5 and use structureSize — same reference frame as XYZ bounding cube
+    const xc = X/sum - 0.5, yc = Y/sum - 0.5, zc = Z/sum - 0.5;
+    const tilt = new THREE.Quaternion().setFromUnitVectors(
+      new THREE.Vector3(-1,-1,1).normalize(), new THREE.Vector3(0,0,1)
+    );
+    const zRot = new THREE.Quaternion().setFromUnitVectors(
+      new THREE.Vector3(1,0,0).normalize(), new THREE.Vector3(0,0.77,0)
+    );
+    return new THREE.Vector3(-xc*structureSize, -yc*structureSize, zc*structureSize).applyQuaternion(zRot.multiply(tilt)).toArray() as [number,number,number];
+  };
+
+  const getXyChromaticityPosition: PositionFunction = (r: number, g: number, b: number): [number, number, number] => {
+    const toLinear = (c: number) => { const s = c/255; return s<=0.04045 ? s/12.92 : Math.pow((s+0.055)/1.055, 2.4); };
+    const rl=toLinear(r), gl=toLinear(g), bl=toLinear(b);
+    const X=0.4124564*rl+0.3575761*gl+0.1804375*bl;
+    const Y=0.2126729*rl+0.7151522*gl+0.0721750*bl;
+    const Z=0.0193339*rl+0.1191920*gl+0.9503041*bl;
+    const sum = X+Y+Z;
+    if (sum < 1e-10) return [0,0,0];
+    const xc = X/sum - 0.5, yc = Y/sum - 0.5;
+    const tilt = new THREE.Quaternion().setFromUnitVectors(
+      new THREE.Vector3(-1,-1,1).normalize(), new THREE.Vector3(0,0,1)
+    );
+    const zRot = new THREE.Quaternion().setFromUnitVectors(
+      new THREE.Vector3(1,0,0).normalize(), new THREE.Vector3(0,0.77,0)
+    );
+    // z_c=0 face of the xyz cube: zc_centered = 0 - 0.5 = -0.5
+    return new THREE.Vector3(-xc*structureSize, -yc*structureSize, -0.5*structureSize).applyQuaternion(zRot.multiply(tilt)).toArray() as [number,number,number];
   };
 
   // Filter colors based on enabled groups
@@ -372,7 +434,7 @@ const Structure = (props: StructureProps) => {
           shape={props.shape}
           getRgbPosition={getRgbPosition}
           getHslPosition={getHslPosition}
-          getHsvPosition={getHsvPosition}
+          getHsbPosition={getHsbPosition}
         />
         <group rotation={[-Math.PI / 2, 0, 0]}>
           <Particles
@@ -380,23 +442,29 @@ const Structure = (props: StructureProps) => {
             filteredColors={filteredColors}
             getRgbPosition={getRgbPosition}
             getHslPosition={getHslPosition}
-            getHsvPosition={getHsvPosition}
+            getHsbPosition={getHsbPosition}
             getMunsellPosition={getMunsellPosition}
             getLabPosition={getLabPosition}
+            getXyzPosition={getXyzPosition}
+            getXyzChromaticityPosition={getXyzChromaticityPosition}
+            getXyChromaticityPosition={getXyChromaticityPosition}
           />
           {/* <Focus
             {...props}
             getRgbPosition={getRgbPosition}
             getHslPosition={getHslPosition}
-            getHsvPosition={getHsvPosition}
+            getHsbPosition={getHsbPosition}
           /> */}
           <ColorCursor
             {...props}
             getRgbPosition={getRgbPosition}
             getHslPosition={getHslPosition}
-            getHsvPosition={getHsvPosition}
+            getHsbPosition={getHsbPosition}
             getMunsellPosition={getMunsellPosition}
             getLabPosition={getLabPosition}
+            getXyzPosition={getXyzPosition}
+            getXyzChromaticityPosition={getXyzChromaticityPosition}
+            getXyChromaticityPosition={getXyChromaticityPosition}
           />
           {props.harmonyColors && props.harmonyColors.length > 0 && (
             <HarmonyMarkers
@@ -405,9 +473,12 @@ const Structure = (props: StructureProps) => {
               focusL={props.focusL}
               getRgbPosition={getRgbPosition}
               getHslPosition={getHslPosition}
-              getHsvPosition={getHsvPosition}
+              getHsbPosition={getHsbPosition}
               getMunsellPosition={getMunsellPosition}
               getLabPosition={getLabPosition}
+              getXyzPosition={getXyzPosition}
+              getXyzChromaticityPosition={getXyzChromaticityPosition}
+              getXyChromaticityPosition={getXyChromaticityPosition}
               onColorSelect={props.onParticleClick}
             />
           )}
@@ -417,7 +488,7 @@ const Structure = (props: StructureProps) => {
                 {...props}
                 getRgbPosition={getRgbPosition}
                 getHslPosition={getHslPosition}
-                getHsvPosition={getHsvPosition}
+                getHsbPosition={getHsbPosition}
                 rescaleHsl={rescaleHsl}
                 cylindricalToCartesian={cylindricalToCartesian}
                 cylinderRadius={cylinderRadius}
@@ -427,7 +498,7 @@ const Structure = (props: StructureProps) => {
                 {...props}
                 getRgbPosition={getRgbPosition}
                 getHslPosition={getHslPosition}
-                getHsvPosition={getHsvPosition}
+                getHsbPosition={getHsbPosition}
                 rescaleHsl={rescaleHsl}
                 cylindricalToCartesian={cylindricalToCartesian}
                 cylinderRadius={cylinderRadius}
@@ -442,9 +513,12 @@ const Structure = (props: StructureProps) => {
               shape={props.shape}
               getRgbPosition={getRgbPosition}
               getHslPosition={getHslPosition}
-              getHsvPosition={getHsvPosition}
+              getHsbPosition={getHsbPosition}
               getMunsellPosition={getMunsellPosition}
               getLabPosition={getLabPosition}
+              getXyzPosition={getXyzPosition}
+              getXyzChromaticityPosition={getXyzChromaticityPosition}
+              getXyChromaticityPosition={getXyChromaticityPosition}
             />
           )}
           {/* RGB/CMYK/Lab用の外枠 */}

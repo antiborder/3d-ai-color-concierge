@@ -10,9 +10,12 @@ interface ColorBridgeLineProps {
   shape: ColorSpace;
   getRgbPosition: PositionFunction;
   getHslPosition: PositionFunction;
-  getHsvPosition: PositionFunction;
+  getHsbPosition: PositionFunction;
   getMunsellPosition: PositionFunction;
   getLabPosition: PositionFunction;
+  getXyzPosition: PositionFunction;
+  getXyzChromaticityPosition: PositionFunction;
+  getXyChromaticityPosition: PositionFunction;
 }
 
 function resolvePosition(
@@ -20,15 +23,21 @@ function resolvePosition(
   shape: ColorSpace,
   getRgbPosition: PositionFunction,
   getHslPosition: PositionFunction,
-  getHsvPosition: PositionFunction,
+  getHsbPosition: PositionFunction,
   getMunsellPosition: PositionFunction,
-  getLabPosition: PositionFunction
+  getLabPosition: PositionFunction,
+  getXyzPosition: PositionFunction,
+  getXyzChromaticityPosition: PositionFunction,
+  getXyChromaticityPosition: PositionFunction,
 ): [number, number, number] {
   const { r, g, b } = color;
   if (shape === 'HSL') return getHslPosition(r, g, b);
-  if (shape === 'HSV') return getHsvPosition(r, g, b);
+  if (shape === 'HSB') return getHsbPosition(r, g, b);
   if (shape === 'LCH') return getMunsellPosition(r, g, b);
   if (shape === 'Lab') return getLabPosition(r, g, b);
+  if (shape === 'XYZ') return getXyzPosition(r, g, b);
+  if (shape === 'xyz') return getXyzChromaticityPosition(r, g, b);
+  if (shape === 'xy') return getXyChromaticityPosition(r, g, b);
   return getRgbPosition(r, g, b);
 }
 
@@ -38,10 +47,10 @@ function toHex(r: number, g: number, b: number): string {
 
 const ColorBridgeLine = ({
   colorA, colorB, shape,
-  getRgbPosition, getHslPosition, getHsvPosition, getMunsellPosition, getLabPosition,
+  getRgbPosition, getHslPosition, getHsbPosition, getMunsellPosition, getLabPosition, getXyzPosition, getXyzChromaticityPosition, getXyChromaticityPosition,
 }: ColorBridgeLineProps) => {
-  const posA = resolvePosition(colorA, shape, getRgbPosition, getHslPosition, getHsvPosition, getMunsellPosition, getLabPosition);
-  const posB = resolvePosition(colorB, shape, getRgbPosition, getHslPosition, getHsvPosition, getMunsellPosition, getLabPosition);
+  const posA = resolvePosition(colorA, shape, getRgbPosition, getHslPosition, getHsbPosition, getMunsellPosition, getLabPosition, getXyzPosition, getXyzChromaticityPosition, getXyChromaticityPosition);
+  const posB = resolvePosition(colorB, shape, getRgbPosition, getHslPosition, getHsbPosition, getMunsellPosition, getLabPosition, getXyzPosition, getXyzChromaticityPosition, getXyChromaticityPosition);
 
   return (
     <>

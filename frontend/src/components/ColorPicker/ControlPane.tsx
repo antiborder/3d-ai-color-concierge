@@ -4,10 +4,12 @@ import CurrentColor from './CurrentColor';
 import RgbSliders from './sliders/RgbSliders';
 import CmykSliders from './sliders/CmykSliders';
 import HslSliders from './sliders/HslSliders';
-import HsvSliders from './sliders/HsvSliders';
+import HsbSliders from './sliders/HsbSliders';
 import LabSliders from './sliders/LabSliders';
 import LchSliders from './sliders/LchSliders';
 import OneDPicker from './sliders/OneDPicker';
+import CIExyDiagram from './CIExyDiagram';
+import XyzSliders from './sliders/XyzSliders';
 import type { ControlPaneProps } from '../../types/controlPane';
 import '../../App.css';
 import { systemColors } from '../../constants/systemColors.js';
@@ -38,11 +40,11 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
           setMainElement={props.setCmykMainElement}
           panelShape={'CMYK'}
         />
-        <HsvSliders
+        <HsbSliders
           {...props}
-          mainElement={props.hsvMainElement}
+          mainElement={props.hsbMainElement}
           setMainElement={props.setHsvMainElement}
-          panelShape={'HSV'}
+          panelShape={'HSB'}
         />
         <HslSliders
           {...props}
@@ -52,6 +54,7 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
         />
         <LabSliders {...props} />
         <LchSliders {...props} />
+        <XyzSliders {...props} />
         <OneDPicker
           currentColor={{ r: props.focusR, g: props.focusG, b: props.focusB }}
           shape={props.shape}
@@ -68,6 +71,7 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
         />
 
         <TwoDPicker {...props} />
+        <CIExyDiagram focusR={props.focusR} focusG={props.focusG} focusB={props.focusB} />
       </SlidersSection>
     </StyledControlPane>
   );
@@ -87,7 +91,7 @@ const StyledControlPane = styled.div`
     border-radius: 4px;
     opacity: 1;
     margin-top: 12px;
-    padding: 4px 12px 4px 6px;
+    padding: 6px 12px 4px 6px;
     min-height: 28px;
   }
 
@@ -104,7 +108,7 @@ const StyledControlPane = styled.div`
     cursor: pointer;
   }
 
-  .activeShapeButton {
+  .shapeButton {
     background-color: #4e8cee;
     color: white;
     border: none;
@@ -114,14 +118,16 @@ const StyledControlPane = styled.div`
     font-weight: bold;
     cursor: pointer;
   }
-  .inactiveShapeButton {
-    background-color: light-gray;
-    color: gray;
+  .selectedShapeButton {
+    background-color: #4e8cee;
+    color: white;
     border: none;
     border-radius: 4px;
     margin-bottom: 8px;
     font-size: 18px;
     font-weight: bold;
+    outline: 2px solid #4e8cee;
+    outline-offset: 2px;
   }
 
   .shapeBubble {

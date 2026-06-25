@@ -11,9 +11,12 @@ import type { StructureProps, PositionFunction } from '../../types/structure';
 interface ParticlesProps extends StructureProps {
   getRgbPosition: PositionFunction;
   getHslPosition: PositionFunction;
-  getHsvPosition: PositionFunction;
+  getHsbPosition: PositionFunction;
   getMunsellPosition: PositionFunction;
   getLabPosition: PositionFunction;
+  getXyzPosition: PositionFunction;
+  getXyzChromaticityPosition: PositionFunction;
+  getXyChromaticityPosition: PositionFunction;
   filteredColors?: typeof sampleColors;
 }
 
@@ -30,9 +33,12 @@ const Particles = (props: ParticlesProps) => {
             key={i}
             getRgbPosition={props.getRgbPosition}
             getHslPosition={props.getHslPosition}
-            getHsvPosition={props.getHsvPosition}
+            getHsbPosition={props.getHsbPosition}
             getMunsellPosition={props.getMunsellPosition}
             getLabPosition={props.getLabPosition}
+            getXyzPosition={props.getXyzPosition}
+            getXyzChromaticityPosition={props.getXyzChromaticityPosition}
+            getXyChromaticityPosition={props.getXyChromaticityPosition}
             onParticleClick={() => props.onParticleClick(...rgb)}
             r={rgb[0]}
             g={rgb[1]}
@@ -69,14 +75,17 @@ interface ParticleProps {
   name2?: string;
   name3?: string;
   tag?: string[];
-  shape: 'RGB' | 'CMYK' | 'HSL' | 'HSV' | 'Lab' | 'LCH';
+  shape: 'RGB' | 'CMYK' | 'HSL' | 'HSB' | 'Lab' | 'LCH' | 'XYZ' | 'xyz' | 'xy';
   emissive: THREE.Color;
   division: number;
   getRgbPosition: PositionFunction;
   getHslPosition: PositionFunction;
-  getHsvPosition: PositionFunction;
+  getHsbPosition: PositionFunction;
   getMunsellPosition: PositionFunction;
   getLabPosition: PositionFunction;
+  getXyzPosition: PositionFunction;
+  getXyzChromaticityPosition: PositionFunction;
+  getXyChromaticityPosition: PositionFunction;
   onParticleClick: () => void;
 }
 
@@ -109,7 +118,13 @@ const Particle = ({
               ? props.getLabPosition(props.r, props.g, props.b)
               : props.shape === 'LCH'
                 ? props.getMunsellPosition(props.r, props.g, props.b)
-                : props.getHsvPosition(props.r, props.g, props.b),
+                : props.shape === 'XYZ'
+                  ? props.getXyzPosition(props.r, props.g, props.b)
+                  : props.shape === 'xyz'
+                    ? props.getXyzChromaticityPosition(props.r, props.g, props.b)
+                    : props.shape === 'xy'
+                      ? props.getXyChromaticityPosition(props.r, props.g, props.b)
+                      : props.getHsbPosition(props.r, props.g, props.b),
     },
     config: { duration: 500 },
   });
@@ -178,7 +193,7 @@ interface ParticleBubbleProps {
   name2?: string;
   name3?: string;
   tag?: string[];
-  type: 'RGB' | 'CMYK' | 'HSL' | 'HSV' | 'Lab' | 'LCH';
+  type: 'RGB' | 'CMYK' | 'HSL' | 'HSB' | 'Lab' | 'LCH' | 'XYZ' | 'xyz' | 'xy';
   backgroundColor: string;
   textColor: string;
   onClick: () => void;

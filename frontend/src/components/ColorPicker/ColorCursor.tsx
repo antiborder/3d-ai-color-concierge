@@ -7,9 +7,12 @@ import type { StructureProps, PositionFunction } from '../../types/structure';
 interface ColorCursorProps extends StructureProps {
   getRgbPosition: PositionFunction;
   getHslPosition: PositionFunction;
-  getHsvPosition: PositionFunction;
+  getHsbPosition: PositionFunction;
   getMunsellPosition: PositionFunction;
   getLabPosition: PositionFunction;
+  getXyzPosition: PositionFunction;
+  getXyzChromaticityPosition: PositionFunction;
+  getXyChromaticityPosition: PositionFunction;
 }
 
 const BLINK_HZ = 0.5;
@@ -57,7 +60,13 @@ const ColorCursor = (props: ColorCursorProps) => {
           ? props.getLabPosition(props.focusR, props.focusG, props.focusB)
           : props.shape === 'LCH'
             ? props.getMunsellPosition(props.focusR, props.focusG, props.focusB)
-            : props.getHsvPosition(props.focusR, props.focusG, props.focusB);
+            : props.shape === 'XYZ'
+              ? props.getXyzPosition(props.focusR, props.focusG, props.focusB)
+              : props.shape === 'xyz'
+                ? props.getXyzChromaticityPosition(props.focusR, props.focusG, props.focusB)
+                : props.shape === 'xy'
+                  ? props.getXyChromaticityPosition(props.focusR, props.focusG, props.focusB)
+                  : props.getHsbPosition(props.focusR, props.focusG, props.focusB);
 
   const radius = 0.124;
   const meridians = 12;

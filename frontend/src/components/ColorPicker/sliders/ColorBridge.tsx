@@ -66,7 +66,7 @@ export function interpolateRgb(colorA: RGB, colorB: RGB, shape: ColorSpace, t: n
     const [h2, s2, l2] = convert.rgb.hsl([r2, g2, b2]);
     return convert.hsl.rgb([lerpAngle(h1, h2, t), lerp(s1, s2, t), lerp(l1, l2, t)]);
   }
-  if (shape === 'HSV') {
+  if (shape === 'HSB') {
     const [h1, s1, v1] = convert.rgb.hsv([r1, g1, b1]);
     const [h2, s2, v2] = convert.rgb.hsv([r2, g2, b2]);
     return convert.hsv.rgb([lerpAngle(h1, h2, t), lerp(s1, s2, t), lerp(v1, v2, t)]);

@@ -170,7 +170,7 @@ function determineOptimalColorSpace(
   }
 
   // それ以外の場合はHSVに変形
-  return 'HSV';
+  return 'HSB';
 }
 
 /**
@@ -211,7 +211,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
 
     case 'CHANGE_SHAPE': {
       const colorSpace = command.parameters.colorSpace as string;
-      const validShapes: ColorSpace[] = ['RGB', 'CMYK', 'HSL', 'HSV', 'Lab', 'LCH'];
+      const validShapes: ColorSpace[] = ['RGB', 'CMYK', 'HSL', 'HSB', 'Lab', 'LCH'];
       const matched = validShapes.find(s => s.toLowerCase() === colorSpace?.toLowerCase());
       if (matched) handlers.setShape(matched);
       break;

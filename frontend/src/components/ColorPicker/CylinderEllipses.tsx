@@ -14,7 +14,7 @@ const CylinderEllipses = ({
   visible,
 }: CylinderEllipsesProps) => {
   // HSL/HSVの時のみ表示
-  const shouldShow = shape === 'HSL' || shape === 'HSV' || shape === 'LCH';
+  const shouldShow = shape === 'HSL' || shape === 'HSB' || shape === 'LCH';
 
   // 表示するかどうか
   const isVisible = shouldShow && visible;

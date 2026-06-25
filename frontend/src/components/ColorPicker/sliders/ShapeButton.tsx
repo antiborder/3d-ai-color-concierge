@@ -20,7 +20,7 @@ const ShapeButton = (props: ShapeButtonProps) => {
     <>
       <div style={{ height: '24px' }}>
         <button
-          className={props.shape === props.shapeName ? 'inactiveShapeButton' : 'activeShapeButton'}
+          className={props.shape === props.shapeName ? 'selectedShapeButton' : 'shapeButton'}
           onClick={() => {
             props.setIsVisible(true);
             props.onShapeClick(props.shapeName);
@@ -30,7 +30,7 @@ const ShapeButton = (props: ShapeButtonProps) => {
         >
           {props.shapeName}
         </button>
-        {isHovered && <div className="shapeBubble">{props.content}</div>}
+        {isHovered && props.content && <div className="shapeBubble">{props.content}</div>}
       </div>
     </>
   );

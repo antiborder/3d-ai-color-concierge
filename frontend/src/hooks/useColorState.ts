@@ -40,8 +40,8 @@ export const useColorState = () => {
         h: allFormats.hsl[0],
         s: allFormats.hsl[1],
         l: allFormats.hsl[2],
-        hsvS: allFormats.hsv[1],
-        v: allFormats.hsv[2],
+        hsbS: allFormats.hsb[1],
+        v: allFormats.hsb[2],
         hexInput: allFormats.hex.toUpperCase(),
       };
     });
@@ -64,8 +64,8 @@ export const useColorState = () => {
       h: allFormats.hsl[0],
       s: allFormats.hsl[1],
       l: allFormats.hsl[2],
-      hsvS: allFormats.hsv[1],
-      v: allFormats.hsv[2],
+      hsbS: allFormats.hsb[1],
+      v: allFormats.hsb[2],
       hexInput: allFormats.hex.toUpperCase(),
     }));
   }, []);
@@ -87,8 +87,8 @@ export const useColorState = () => {
       h,
       s,
       l,
-      hsvS: allFormats.hsv[1],
-      v: allFormats.hsv[2],
+      hsbS: allFormats.hsb[1],
+      v: allFormats.hsb[2],
       hexInput: allFormats.hex.toUpperCase(),
     }));
   }, []);
@@ -96,8 +96,8 @@ export const useColorState = () => {
   /**
    * Update all color values from HSV
    */
-  const updateFromHsv = useCallback((h: number, s: number, v: number) => {
-    const allFormats = ColorConverter.fromHsv(h, s, v);
+  const updateFromHsb = useCallback((h: number, s: number, v: number) => {
+    const allFormats = ColorConverter.fromHsb(h, s, v);
     setColorState((prev) => ({
       ...prev,
       r: allFormats.rgb[0],
@@ -110,7 +110,7 @@ export const useColorState = () => {
       h: allFormats.hsl[0],
       s: allFormats.hsl[1],
       l: allFormats.hsl[2],
-      hsvS: s,
+      hsbS: s,
       v,
       hexInput: allFormats.hex.toUpperCase(),
     }));
@@ -133,8 +133,8 @@ export const useColorState = () => {
       h: allFormats.hsl[0],
       s: allFormats.hsl[1],
       l: allFormats.hsl[2],
-      hsvS: allFormats.hsv[1],
-      v: allFormats.hsv[2],
+      hsbS: allFormats.hsb[1],
+      v: allFormats.hsb[2],
       hexInput: hex.toUpperCase(),
     }));
   }, []);
@@ -203,20 +203,20 @@ export const useColorState = () => {
       } else if (param === 'H') {
         newHsv = {
           h: value,
-          s: colorState.hsvS,
+          s: colorState.hsbS,
           v: colorState.v,
         };
       } else {
         // param === 'V'
         newHsv = {
           h: colorState.h,
-          s: colorState.hsvS,
+          s: colorState.hsbS,
           v: value,
         };
       }
-      updateFromHsv(newHsv.h, newHsv.s, newHsv.v);
+      updateFromHsb(newHsv.h, newHsv.s, newHsv.v);
     },
-    [colorState.h, colorState.hsvS, colorState.v, updateFromHsv]
+    [colorState.h, colorState.hsbS, colorState.v, updateFromHsb]
   );
 
   /**
@@ -289,13 +289,13 @@ export const useColorState = () => {
   const setHsvMainElement = useCallback((element: 'H' | 'S' | 'V') => {
     setColorState((prev) => {
       // 色空間が変更された場合のみ効果音を再生
-      if (prev.shape !== 'HSV') {
+      if (prev.shape !== 'HSB') {
         playTransformSound();
       }
       return {
         ...prev,
-        shape: 'HSV',
-        hsvMainElement: element,
+        shape: 'HSB',
+        hsbMainElement: element,
       };
     });
   }, []);
@@ -402,8 +402,8 @@ export const useColorState = () => {
           h: newH,
           s: newS,
           l: newL,
-          hsvS: allFormats.hsv[1],
-          v: allFormats.hsv[2],
+          hsbS: allFormats.hsb[1],
+          v: allFormats.hsb[2],
           hexInput: allFormats.hex.toUpperCase(),
         };
       });
@@ -416,7 +416,7 @@ export const useColorState = () => {
     updateFromRgb,
     updateFromCmyk,
     updateFromHsl,
-    updateFromHsv,
+    updateFromHsb,
     updateFromHex,
     updateRgbValue,
     updateCmykValue,

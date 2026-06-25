@@ -266,7 +266,7 @@ def live_tools() -> list[dict]:
                 },
                 {
                     "name": "CHANGE_SHAPE",
-                    "description": "Switch color space / UI shape. Available: RGB, CMYK, HSL, HSV, Lab (CIE Lab), LCH (Munsell-based LCH).",
+                    "description": "Switch color space / UI shape. Available: RGB, CMYK, HSL, HSV, Lab (CIE Lab), LCH.",
                     "parameters": {
                         "type": "object",
                         "properties": {

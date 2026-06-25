@@ -142,7 +142,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
       h: cs.h,
       s: cs.s,
       l: cs.l,
-      hsvS: cs.hsvS,
+      hsbS: cs.hsbS,
       v: cs.v,
     };
   }, []);
