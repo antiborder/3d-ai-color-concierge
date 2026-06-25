@@ -1,11 +1,11 @@
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import CurrentColor from '../ColorPicker/CurrentColor';
-import { ControlPaneSliders } from '../ColorPicker/ControlPane';
-import DisplayedColorsPanel from './DisplayedColorsPanel';
-import ColorHarmonyPanel from './ColorHarmonyPanel';
-import ColorHistoryPanel from './ColorHistoryPanel';
-import ColorSearchPanel from './ColorSearchPanel';
+import { ControlPaneSliders } from '../menus/ControlPaneSliders';
+import DisplayedColorsPanel from '../menus/DisplayedColorsPanel';
+import ColorHarmonyPanel from '../menus/ColorHarmonyPanel';
+import ColorHistoryPanel from '../menus/ColorHistoryPanel';
+import ColorSearchPanel from '../menus/ColorSearchPanel';
 import type { ControlPaneProps } from '../../types/controlPane';
 import type { ColorHistoryItem } from '../../hooks/useColorHistory';
 import type { HarmonyMode, HarmonyColor } from '../../utils/colorHarmony';

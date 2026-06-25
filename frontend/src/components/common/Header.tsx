@@ -1,9 +1,9 @@
 import styled from 'styled-components';
-import ColorHistoryPanel from './ColorHistoryPanel';
-import ColorHarmonyPanel from './ColorHarmonyPanel';
+import ColorHistoryPanel from '../menus/ColorHistoryPanel';
+import ColorHarmonyPanel from '../menus/ColorHarmonyPanel';
 import LanguageSelector from './LanguageSelector';
-import DisplayedColorsPanel from './DisplayedColorsPanel';
-import ColorSearchPanel from './ColorSearchPanel';
+import DisplayedColorsPanel from '../menus/DisplayedColorsPanel';
+import ColorSearchPanel from '../menus/ColorSearchPanel';
 import type { ColorHistoryItem } from '../../hooks/useColorHistory';
 import type { HarmonyMode, HarmonyColor } from '../../utils/colorHarmony';
 

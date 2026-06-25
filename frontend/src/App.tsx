@@ -15,7 +15,7 @@ import { executeCommand } from './utils/commandExecutor';
 import type { Command as VoiceCommand } from './types/voice';
 import { useChatbot } from './hooks/useChatbot';
 import { type HarmonyMode, computeHarmonyColors } from './utils/colorHarmony';
-import { interpolateRgb } from './components/ColorPicker/sliders/ColorBridge';
+import { interpolateRgb } from './components/menus/sliders/ColorBridge';
 
 function App() {
   const { i18n } = useTranslation();

@@ -6,6 +6,16 @@ import type { Command } from '../../types/voice';
 import type { ColorState } from '../../types/colorState';
 import type { ColorHistoryItem } from '../../hooks/useColorHistory';
 
+function toDisplayText(text: string): string {
+  if (!text) return '';
+  // Take text after the last sentence boundary (period/!/?  followed by whitespace)
+  const afterLastBoundary = text.replace(/[\s\S]*[.!?。！？]\s+/, '').trim();
+  const display = afterLastBoundary || text.trim();
+  // Cap at 10 words
+  const words = display.split(/\s+/).filter(Boolean);
+  return words.length > 10 ? words.slice(-10).join(' ') : display;
+}
+
 interface VoiceControlProps {
   currentColorState?: ColorState | null;
   bridgeColorA?: { r: number; g: number; b: number } | null;
@@ -46,7 +56,10 @@ const VoiceControl = ({
   const [textInput, setTextInput] = useState('');
   const [showSpinner, setShowSpinner] = useState(false);
   const [isFirstStart, setIsFirstStart] = useState(true);
+  const [liveSubtitle, setLiveSubtitle] = useState('');
   const spinnerTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const subtitleClearTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const subtitleBufRef = useRef('');
   const pendingHelpRef = useRef<string | null>(null);
   const lastHelpIdRef = useRef<number>(0);
 
@@ -64,17 +77,74 @@ const VoiceControl = ({
     [onError]
   );
 
-  const { isStreaming, isConnecting, isConnected, error, start, stop, sendTextMessage } = useVoiceStreaming({
+  const handleAssistantMessage = useCallback(
+    (text: string, meta?: { source?: string | null; segmentId?: string | null; final?: boolean | null }) => {
+      if (meta?.source === 'output_audio_transcription' || meta?.source === 'output_transcription') {
+        // Accumulate across segments so full sentences stay visible.
+        // Within a segment the server sends cumulative text; between segments we append.
+        const prev = subtitleBufRef.current;
+        let next: string;
+        if (!prev) {
+          next = text;
+        } else if (text.startsWith(prev)) {
+          next = text; // same segment growing
+        } else if (prev.endsWith(text)) {
+          next = prev; // duplicate, ignore
+        } else {
+          next = prev + ' ' + text; // new segment, append
+        }
+        subtitleBufRef.current = next;
+        setLiveSubtitle(next);
+        // Clearing is handled by the isAISpeaking effect — no timer here.
+      }
+      onAssistantMessage?.(text, meta);
+    },
+    [onAssistantMessage]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (subtitleClearTimerRef.current) clearTimeout(subtitleClearTimerRef.current);
+    };
+  }, []);
+
+  const { isStreaming, isConnecting, isConnected, isAISpeaking, error, start, stop, sendTextMessage } = useVoiceStreaming({
     currentColorState,
     bridgeColorA,
     bridgeColorB,
     colorHistory,
     onFinalTranscript: handleResult,
     onTranscriptUpdate,
-    onAssistantMessage,
+    onAssistantMessage: handleAssistantMessage,
     onCommand,
     onError: handleStreamingError,
   });
+
+  // Clear subtitle 1.5s after audio playback ends; cancel if AI starts speaking again.
+  useEffect(() => {
+    if (isAISpeaking) {
+      if (subtitleClearTimerRef.current) {
+        clearTimeout(subtitleClearTimerRef.current);
+        subtitleClearTimerRef.current = null;
+      }
+    } else {
+      subtitleClearTimerRef.current = setTimeout(() => {
+        setLiveSubtitle('');
+        subtitleBufRef.current = '';
+      }, 1500);
+    }
+    return () => {
+      if (subtitleClearTimerRef.current) clearTimeout(subtitleClearTimerRef.current);
+    };
+  }, [isAISpeaking]);
+
+  useEffect(() => {
+    if (!isConnected) {
+      if (subtitleClearTimerRef.current) clearTimeout(subtitleClearTimerRef.current);
+      setLiveSubtitle('');
+      subtitleBufRef.current = '';
+    }
+  }, [isConnected]);
 
   // スピナーを3秒後に非表示にする
   useEffect(() => {
@@ -152,7 +222,13 @@ const VoiceControl = ({
   };
 
   return (
-    <StyledVoiceControl>
+    <VoiceControlRoot>
+      {liveSubtitle && (
+        <TranscriptionPanel $textColor={(currentColorState?.l ?? 50) >= 50 ? '#000000' : '#ffffff'}>
+          {toDisplayText(liveSubtitle)}
+        </TranscriptionPanel>
+      )}
+      <StyledVoiceControl>
       <VoiceInputContainer>
         <ChatButton
           onClick={handleMicClick}
@@ -194,7 +270,8 @@ const VoiceControl = ({
       </VoiceInputContainer>
       {isLoading && <LoadingMessage>{t('chatbot.loading')}</LoadingMessage>}
       {error && <ErrorMessage>{error}</ErrorMessage>}
-    </StyledVoiceControl>
+      </StyledVoiceControl>
+    </VoiceControlRoot>
   );
 };
 
@@ -227,18 +304,34 @@ const spin = keyframes`
   }
 `;
 
-const StyledVoiceControl = styled.div`
+const VoiceControlRoot = styled.div`
   position: fixed;
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: 420px;
+`;
+
+const TranscriptionPanel = styled.div<{ $textColor: string }>`
+  background: transparent;
+  padding: 0 4px 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: ${(p) => p.$textColor};
+  line-height: 1.6;
+  text-align: center;
+`;
+
+const StyledVoiceControl = styled.div`
   background-color: white;
   border-radius: 12px;
   padding: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  min-width: 300px;
-  max-width: 500px;
 `;
 
 const VoiceInputContainer = styled.div`

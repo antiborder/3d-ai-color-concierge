@@ -2,7 +2,7 @@ import type { MouseEvent } from 'react';
 import styled from 'styled-components';
 import toast from 'react-hot-toast';
 import type { HarmonyMode, HarmonyColor } from '../../utils/colorHarmony';
-import HelpIcon from './HelpIcon';
+import HelpIcon from '../common/HelpIcon';
 
 interface ColorHarmonyPanelProps {
   mode: HarmonyMode;

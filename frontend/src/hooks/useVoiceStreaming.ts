@@ -79,6 +79,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isAISpeaking, setIsAISpeaking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [transcript, setTranscript] = useState<string>('');
 
@@ -176,6 +177,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     audioSourceNodesRef.current = [];
     playTimeRef.current = 0; // スケジュールをリセット
     isAISpeakingRef.current = false;
+    setIsAISpeaking(false);
   }, []);
 
   const cleanupAudio = useCallback(() => {
@@ -397,6 +399,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     // 再生中のノードを追跡リストに追加
     audioSourceNodesRef.current.push(src);
     isAISpeakingRef.current = true;
+    setIsAISpeaking(true);
 
     // 再生終了時にリストから削除
     src.onended = () => {
@@ -404,6 +407,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
       // 全ての音声が終了したらフラグをリセット
       if (audioSourceNodesRef.current.length === 0) {
         isAISpeakingRef.current = false;
+        setIsAISpeaking(false);
       }
     };
 
@@ -849,6 +853,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     isConnecting,
     isConnected,
     isStreaming,
+    isAISpeaking,
     error,
     transcript,
     start,

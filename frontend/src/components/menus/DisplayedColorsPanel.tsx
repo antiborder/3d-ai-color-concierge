@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import HelpIcon from './HelpIcon';
+import HelpIcon from '../common/HelpIcon';
 
 export interface DisplayedColorsPanelProps {
   cssColorsEnabled: boolean;

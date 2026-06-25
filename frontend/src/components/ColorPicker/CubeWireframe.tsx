@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Line } from '@react-three/drei';
 import type { StructureProps } from '../../types/structure';
-import { LOCUS } from './CIExyDiagram';
+import { LOCUS } from '../../constants/cieLocus';
 
 function wavelengthToHex(nm: number): string {
   let r = 0, g = 0, b = 0;
