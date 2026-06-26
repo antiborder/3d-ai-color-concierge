@@ -112,13 +112,9 @@ function IconSliders() {
 function IconOneDPicker() {
   return (
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
-      {/* left half: white */}
       <path d="M5,10 L12,10 L12,14 L5,14 Q3,14 3,12 Q3,10 5,10 Z" fill="white" />
-      {/* right half: currentColor */}
       <path d="M12,10 L19,10 Q21,10 21,12 Q21,14 19,14 L12,14 Z" fill="currentColor" />
-      {/* outline */}
       <rect x="3" y="10" width="18" height="4" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none" />
-      {/* cursor */}
       <line x1="12" y1="7" x2="12" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
@@ -127,17 +123,13 @@ function IconOneDPicker() {
 function IconCIE() {
   return (
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
-      {/* spectral locus: 380nm (bottom-left) → green peak (upper-left) → 700nm (right) */}
       <path
         d="M6,21 Q2,10 4,4 Q8,2 12,6 Q17,9 20,15"
         stroke="currentColor" strokeWidth="1.5" fill="none"
         strokeLinecap="round" strokeLinejoin="round"
       />
-      {/* purple line (straight bottom closure) */}
       <line x1="6" y1="21" x2="20" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      {/* sRGB triangle (dashed) */}
       <polygon points="18,14 10,8 6,20" stroke="currentColor" strokeWidth="0.8" fill="none" strokeDasharray="2,1.5" />
-      {/* white point dot */}
       <circle cx="11" cy="14" r="1.5" fill="currentColor" />
     </svg>
   );

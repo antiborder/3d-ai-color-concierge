@@ -3,6 +3,11 @@ import { useTranslation } from 'react-i18next';
 import type { Command } from '@/types/voice';
 import type { ColorState as UiColorState } from '@/types/colorState';
 import type { ColorHistoryItem } from '@/hooks/useColorHistory';
+import { floatTo16BitPCM, downsample } from '../utils/audioUtils';
+import { getWsUrl, fetchWsToken } from '../utils/wsEndpoint';
+import { usePcmPlayer } from './usePcmPlayer';
+
+// ─── WebSocket message types ─────────────────────────────────────────────────
 
 type WsInboundText =
   | {
@@ -68,6 +73,8 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     onError,
   } = options;
 
+  // ─── Refs ───────────────────────────────────────────────────────────────────
+
   const bridgeColorARef = useRef(bridgeColorA);
   bridgeColorARef.current = bridgeColorA;
   const bridgeColorBRef = useRef(bridgeColorB);
@@ -76,38 +83,21 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   const colorHistoryRef = useRef(colorHistory);
   colorHistoryRef.current = colorHistory;
 
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [isAISpeaking, setIsAISpeaking] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [transcript, setTranscript] = useState<string>('');
-
   const wsRef = useRef<WebSocket | null>(null);
-  const wsTokenRef = useRef<string | null>(null);
   const startRef = useRef<(() => void) | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
   const processorRef = useRef<ScriptProcessorNode | null>(null);
   const silentGainRef = useRef<GainNode | null>(null);
   const shouldReconnectRef = useRef<boolean>(false);
   const reconnectAttemptRef = useRef<number>(0);
   const reconnectTimerRef = useRef<number | null>(null);
-  const isFirstTimeRef = useRef<boolean>(true); // ページロードごとにリセットされる
+  const isFirstTimeRef = useRef<boolean>(true);
 
-  // playback scheduling
-  const playTimeRef = useRef<number>(0);
-  // 再生中のAI音声ノードを追跡（割り込み停止用）
-  const audioSourceNodesRef = useRef<AudioBufferSourceNode[]>([]);
-  // AIが話しているかどうかを追跡
-  const isAISpeakingRef = useRef<boolean>(false);
-  // VAD用の設定
-  const vadThresholdRef = useRef<number>(0.1); // AI音声停止用の閾値（調整可能）
-  const userVoiceRecognitionThresholdRef = useRef<number>(0.0001); // ユーザー音声認識用の閾値（バックエンド送信制御）
-  // const _vadSilenceFramesRef = useRef<number>(0); // 無音フレーム数（将来使用予定）
-  // const _vadSilenceThresholdFrames = 10; // 無音と判定するフレーム数（将来使用予定）
+  // VAD thresholds
+  const vadThresholdRef = useRef<number>(0.1);
+  const userVoiceRecognitionThresholdRef = useRef<number>(0.0001);
 
-  // パフォーマンス測定用のタイムスタンプ追跡
+  // パフォーマンス測定用タイムスタンプ
   const perfTimestampsRef = useRef<{
     startCalled?: number;
     wsOpen?: number;
@@ -121,30 +111,41 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     lastCommandReceived?: number;
   }>({});
 
-  // Keep latest color state in a ref so we can access it from stable WS callbacks.
   const currentColorRef = useRef<UiColorState | null>(null);
+  const lastSentColorJsonRef = useRef<string | null>(null);
+  const colorDebounceTimerRef = useRef<number | null>(null);
+
+  // ─── State ──────────────────────────────────────────────────────────────────
+
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [transcript, setTranscript] = useState<string>('');
+
+  // ─── Audio playback (usePcmPlayer) ──────────────────────────────────────────
+
+  const {
+    audioCtxRef,
+    isAISpeaking,
+    isAISpeakingRef,
+    stopAIAudio,
+    schedulePcmPlayback,
+    calculateRMS,
+  } = usePcmPlayer();
+
+  // ─── Color sync ─────────────────────────────────────────────────────────────
+
   useEffect(() => {
     currentColorRef.current = currentColorState ?? null;
   }, [currentColorState]);
 
-  const lastSentColorJsonRef = useRef<string | null>(null);
-  const colorDebounceTimerRef = useRef<number | null>(null);
-
   const buildWireColorState = useCallback((cs: UiColorState) => {
-    // Keep schema aligned with backend voice ColorState (r/g/b required; others optional).
     return {
-      r: cs.r,
-      g: cs.g,
-      b: cs.b,
-      c: cs.c,
-      m: cs.m,
-      y: cs.y,
-      k: cs.k,
-      h: cs.h,
-      s: cs.s,
-      l: cs.l,
-      hsbS: cs.hsbS,
-      v: cs.v,
+      r: cs.r, g: cs.g, b: cs.b,
+      c: cs.c, m: cs.m, y: cs.y, k: cs.k,
+      h: cs.h, s: cs.s, l: cs.l,
+      hsbS: cs.hsbS, v: cs.v,
     };
   }, []);
 
@@ -155,77 +156,43 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
       const color: Record<string, unknown> = { ...buildWireColorState(cs) };
       if (bridgeColorARef.current) color.bridgeColorA = bridgeColorARef.current;
       if (bridgeColorBRef.current) color.bridgeColorB = bridgeColorBRef.current;
-      const payload = { type: 'color_state', color };
       try {
-        ws.send(JSON.stringify(payload));
-      } catch {
-        // ignore best-effort
-      }
+        ws.send(JSON.stringify({ type: 'color_state', color }));
+      } catch { /* ignore best-effort */ }
     },
     [buildWireColorState]
   );
 
-  // AI音声を停止する関数（cleanupAudioより前に定義）
-  const stopAIAudio = useCallback(() => {
-    audioSourceNodesRef.current.forEach((node) => {
-      try {
-        node.stop();
-      } catch {
-        // 既に停止済みの場合は無視
-      }
-    });
-    audioSourceNodesRef.current = [];
-    playTimeRef.current = 0; // スケジュールをリセット
-    isAISpeakingRef.current = false;
-    setIsAISpeaking(false);
-  }, []);
+  // ─── Mic / session cleanup ───────────────────────────────────────────────────
 
   const cleanupAudio = useCallback(() => {
-    // AI音声も停止
     stopAIAudio();
 
     if (processorRef.current) {
-      try {
-        processorRef.current.disconnect();
-      } catch {
-        // ignore
-      }
+      try { processorRef.current.disconnect(); } catch { /* ignore */ }
       processorRef.current.onaudioprocess = null;
       processorRef.current = null;
     }
-
     if (micStreamRef.current) {
       micStreamRef.current.getTracks().forEach((t) => t.stop());
       micStreamRef.current = null;
     }
-
-    if (audioCtxRef.current) {
-      // keep AudioContext for playback; close only if you want a hard reset
-    }
-
     if (silentGainRef.current) {
-      try {
-        silentGainRef.current.disconnect();
-      } catch {
-        // ignore
-      }
+      try { silentGainRef.current.disconnect(); } catch { /* ignore */ }
       silentGainRef.current = null;
     }
   }, [stopAIAudio]);
+
+  // ─── WebSocket lifecycle ─────────────────────────────────────────────────────
 
   const cleanupWs = useCallback((opts?: { code?: number; reason?: string }) => {
     const ws = wsRef.current;
     wsRef.current = null;
     if (ws) {
       try {
-        if (opts?.code != null) {
-          ws.close(opts.code, opts.reason);
-        } else {
-          ws.close();
-        }
-      } catch {
-        // ignore
-      }
+        if (opts?.code != null) ws.close(opts.code, opts.reason);
+        else ws.close();
+      } catch { /* ignore */ }
     }
   }, []);
 
@@ -244,181 +211,70 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     [onError]
   );
 
-  const getEnvBase = useCallback((): string | undefined => {
-    const env = import.meta.env as unknown as Record<string, string | undefined>;
-    return env.VITE_WS_BASE_URL;
-  }, []);
+  // ─── Session: message routing ────────────────────────────────────────────────
 
-  const getWsUrl = useCallback(() => {
-    // Same-origin by default (CloudFront配下で動かす想定)
-    const envBase = getEnvBase();
-    if (envBase) {
-      // allow ws(s)://host[:port] or http(s)://host[:port]
-      if (envBase.startsWith('ws://') || envBase.startsWith('wss://')) {
-        return `${envBase}/ws/live`;
-      }
-      if (envBase.startsWith('http://')) {
-        return `ws://${envBase.slice('http://'.length)}/ws/live`;
-      }
-      if (envBase.startsWith('https://')) {
-        return `wss://${envBase.slice('https://'.length)}/ws/live`;
-      }
-      return `${envBase.replace(/\/+$/, '')}/ws/live`;
-    }
+  const handleWsMessage = useCallback((evt: MessageEvent) => {
+    const now = performance.now();
+    const ts = perfTimestampsRef.current;
 
-    const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    return `${proto}//${window.location.host}/ws/live`;
-  }, [getEnvBase]);
-
-  const getHttpBase = useCallback(() => {
-    const envBase = getEnvBase();
-    if (envBase) {
-      // token は http(s) で叩く必要があるのでws(s)を変換する
-      if (envBase.startsWith('ws://')) return `http://${envBase.slice('ws://'.length)}`;
-      if (envBase.startsWith('wss://')) return `https://${envBase.slice('wss://'.length)}`;
-      if (envBase.startsWith('http://') || envBase.startsWith('https://')) {
-        return envBase.replace(/\/+$/, '');
-      }
-      return envBase.replace(/\/+$/, '');
-    }
-    return `${window.location.protocol}//${window.location.host}`;
-  }, [getEnvBase]);
-
-  const ensureWsTokenCookie = useCallback(async () => {
-    // WSと同じオリジンにcookieをmintする（ローカル開発でもCloudFront/ECSに向けられるようにする）
-    const url = `${getHttpBase()}/api/ws/token?return_token=1`;
-    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-    // CloudFront->origin が瞬間的に 504/タイムアウトすることがあるので、短いリトライで吸収する
-    const maxAttempts = 4;
-    const timeoutMs = 7000;
-
-    let lastErr: unknown = null;
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const controller = new AbortController();
-      const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+    if (typeof evt.data === 'string') {
+      let msg: WsInboundText | null = null;
       try {
-        const res = await fetch(url, {
-          method: 'GET',
-          credentials: 'include',
-          signal: controller.signal,
-        });
+        msg = JSON.parse(evt.data) as WsInboundText;
+      } catch {
+        return;
+      }
+      if (!msg) return;
 
-        if (!res.ok) {
-          // 504など: 次のattemptへ
-          lastErr = new Error(`ws token fetch failed (status=${res.status})`);
-        } else {
-          // 3rd-party cookieがブロックされてもWSが張れるように、トークンも保持しておく
-          try {
-            const json = (await res.json()) as { token?: string };
-            wsTokenRef.current = json?.token || null;
-          } catch {
-            wsTokenRef.current = null;
-          }
-          return;
+      if (msg.type === 'transcript') {
+        if (!ts.lastTranscriptReceived) {
+          const elapsed = ts.lastAudioSent ? now - ts.lastAudioSent : 0;
+          console.log(`[PERF] first_transcript_received elapsed=${elapsed.toFixed(1)}ms text_len=${msg.text.length}`);
         }
-      } catch (e) {
-        lastErr = e;
-      } finally {
-        window.clearTimeout(timer);
+        ts.lastTranscriptReceived = now;
+        setTranscript(msg.text);
+        if (onTranscriptUpdate) {
+          onTranscriptUpdate(msg.text, { final: msg.final, segmentId: msg.segmentId, language: msg.language ?? null });
+        }
+        if (msg.final && onFinalTranscript) onFinalTranscript(msg.text);
+
+      } else if (msg.type === 'assistant_text') {
+        if (!ts.lastAssistantTextReceived) {
+          const elapsed = ts.lastAudioSent ? now - ts.lastAudioSent : 0;
+          console.log(`[PERF] first_assistant_text_received elapsed=${elapsed.toFixed(1)}ms text_len=${msg.text.length}`);
+        }
+        ts.lastAssistantTextReceived = now;
+        if (msg.text && onAssistantMessage) {
+          onAssistantMessage(msg.text, { source: msg.source, segmentId: msg.segmentId, final: msg.final });
+        }
+
+      } else if (msg.type === 'command') {
+        if (!ts.lastCommandReceived) {
+          const elapsed = ts.lastAudioSent ? now - ts.lastAudioSent : 0;
+          console.log(`[PERF] first_command_received elapsed=${elapsed.toFixed(1)}ms action=${msg.command?.action || 'unknown'}`);
+        }
+        ts.lastCommandReceived = now;
+        if (onCommand) onCommand(msg.command);
+
+      } else if (msg.type === 'error') {
+        if (msg.code === '1008' || msg.message?.includes('1008') || msg.message?.includes('Operation is not implemented')) {
+          setErr(t('errors.serviceBusy'));
+        } else {
+          setErr(msg.message);
+        }
       }
 
-      // 最後のattemptは即throw
-      if (attempt < maxAttempts) {
-        // 小さめのバックオフ + ジッタ
-        const backoff = 250 * Math.pow(2, attempt - 1) + Math.floor(Math.random() * 150);
-        await sleep(backoff);
+    } else if (evt.data instanceof ArrayBuffer) {
+      if (!ts.lastResponseReceived) {
+        const elapsed = ts.lastAudioSent ? now - ts.lastAudioSent : 0;
+        console.log(`[PERF] first_audio_chunk_received elapsed=${elapsed.toFixed(1)}ms bytes=${evt.data.byteLength}`);
       }
+      ts.lastResponseReceived = now;
+      schedulePcmPlayback(evt.data, 24000);
     }
+  }, [onTranscriptUpdate, onFinalTranscript, onAssistantMessage, onCommand, setErr, t, schedulePcmPlayback]);
 
-    const msg =
-      lastErr instanceof Error
-        ? lastErr.message
-        : typeof lastErr === 'string'
-          ? lastErr
-          : 'Failed to obtain WebSocket token';
-    throw new Error(msg);
-  }, [getHttpBase]);
-
-  const floatTo16BitPCM = (input: Float32Array) => {
-    const output = new Int16Array(input.length);
-    for (let i = 0; i < input.length; i++) {
-      const s = Math.max(-1, Math.min(1, input[i]));
-      output[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
-    }
-    return output;
-  };
-
-  const downsample = (buffer: Float32Array, inputRate: number, outputRate: number) => {
-    if (outputRate === inputRate) return buffer;
-    const ratio = inputRate / outputRate;
-    const newLength = Math.round(buffer.length / ratio);
-    const result = new Float32Array(newLength);
-    let offsetResult = 0;
-    let offsetBuffer = 0;
-    while (offsetResult < result.length) {
-      const nextOffsetBuffer = Math.round((offsetResult + 1) * ratio);
-      // simple average to reduce aliasing a bit
-      let acc = 0;
-      let count = 0;
-      for (let i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
-        acc += buffer[i];
-        count++;
-      }
-      result[offsetResult] = count > 0 ? acc / count : 0;
-      offsetResult++;
-      offsetBuffer = nextOffsetBuffer;
-    }
-    return result;
-  };
-
-  // RMS（Root Mean Square）を計算する関数（共通化）
-  const calculateRMS = useCallback((audioData: Float32Array): number => {
-    let sum = 0;
-    for (let i = 0; i < audioData.length; i++) {
-      sum += audioData[i] * audioData[i];
-    }
-    return Math.sqrt(sum / audioData.length);
-  }, []);
-
-  const schedulePcmPlayback = useCallback((pcmS16le: ArrayBuffer, sampleRateHz: number) => {
-    const ctx = audioCtxRef.current;
-    if (!ctx) return;
-
-    const i16 = new Int16Array(pcmS16le);
-    const f32 = new Float32Array(i16.length);
-    for (let i = 0; i < i16.length; i++) f32[i] = i16[i] / 0x8000;
-
-    const buf = ctx.createBuffer(1, f32.length, sampleRateHz);
-    buf.copyToChannel(f32, 0);
-
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    src.connect(ctx.destination);
-
-    // 再生中のノードを追跡リストに追加
-    audioSourceNodesRef.current.push(src);
-    isAISpeakingRef.current = true;
-    setIsAISpeaking(true);
-
-    // 再生終了時にリストから削除
-    src.onended = () => {
-      audioSourceNodesRef.current = audioSourceNodesRef.current.filter((n) => n !== src);
-      // 全ての音声が終了したらフラグをリセット
-      if (audioSourceNodesRef.current.length === 0) {
-        isAISpeakingRef.current = false;
-        setIsAISpeaking(false);
-      }
-    };
-
-    const now = ctx.currentTime;
-    if (playTimeRef.current < now) {
-      // small jitter buffer
-      playTimeRef.current = now + 0.05;
-    }
-    src.start(playTimeRef.current);
-    playTimeRef.current += buf.duration;
-  }, []);
+  // ─── Session: start / stop ───────────────────────────────────────────────────
 
   const stop = useCallback(async () => {
     shouldReconnectRef.current = false;
@@ -429,11 +285,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     setIsConnecting(false);
     setIsConnected(false);
 
-    try {
-      wsRef.current?.send(JSON.stringify({ type: 'stop' }));
-    } catch {
-      // ignore
-    }
+    try { wsRef.current?.send(JSON.stringify({ type: 'stop' })); } catch { /* ignore */ }
 
     if (colorDebounceTimerRef.current != null) {
       window.clearTimeout(colorDebounceTimerRef.current);
@@ -441,70 +293,12 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     }
 
     cleanupAudio();
-    // Close with a normal-close code so the browser doesn't surface a pseudo "1005".
     cleanupWs({ code: 1000, reason: 'client stop' });
   }, [cleanupAudio, cleanupWs, clearReconnectTimer]);
-
-  // Debounced "current color" sync while WS is connected.
-  useEffect(() => {
-    if (!isConnected) return;
-    if (!currentColorState) return;
-
-    const json = JSON.stringify(buildWireColorState(currentColorState));
-    if (lastSentColorJsonRef.current === json) return;
-
-    if (colorDebounceTimerRef.current != null) {
-      window.clearTimeout(colorDebounceTimerRef.current);
-      colorDebounceTimerRef.current = null;
-    }
-
-    // Small debounce to avoid spamming while sliders are dragged.
-    colorDebounceTimerRef.current = window.setTimeout(() => {
-      sendColorState(currentColorState);
-      lastSentColorJsonRef.current = json;
-      colorDebounceTimerRef.current = null;
-    }, 150);
-
-    return () => {
-      if (colorDebounceTimerRef.current != null) {
-        window.clearTimeout(colorDebounceTimerRef.current);
-        colorDebounceTimerRef.current = null;
-      }
-    };
-  }, [buildWireColorState, currentColorState, isConnected, sendColorState]);
-
-  // Re-send color_state when bridge colors change while connected.
-  useEffect(() => {
-    if (!isConnected) return;
-    const cs = currentColorRef.current;
-    if (!cs) return;
-    sendColorState(cs);
-    lastSentColorJsonRef.current = null; // force next main-color send too
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bridgeColorA, bridgeColorB, isConnected]);
-
-  // Sync color history to backend whenever it changes while connected.
-  useEffect(() => {
-    if (!isConnected) return;
-    const ws = wsRef.current;
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    const history = (colorHistoryRef.current ?? []).slice(0, 50).map(({ hex, r, g, b }) => ({
-      hex,
-      r: Math.round(r),
-      g: Math.round(g),
-      b: Math.round(b),
-    }));
-    try {
-      ws.send(JSON.stringify({ type: 'color_history', history }));
-    } catch {
-      // best-effort
-    }
-  }, [colorHistory, isConnected]);
 
   const start = useCallback(async (opts?: { skipIntro?: boolean }) => {
     if (isConnecting || isStreaming) return;
 
-    // パフォーマンス測定開始
     const startTime = performance.now();
     const ts = perfTimestampsRef.current;
     ts.startCalled = startTime;
@@ -516,9 +310,8 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     setIsConnecting(true);
 
     try {
-      await ensureWsTokenCookie();
+      const token = await fetchWsToken();
       const baseWsUrl = getWsUrl();
-      const token = wsTokenRef.current;
       const wsUrl = token ? `${baseWsUrl}?ws_token=${encodeURIComponent(token)}` : baseWsUrl;
       const ws = new WebSocket(wsUrl);
       ws.binaryType = 'arraybuffer';
@@ -535,57 +328,40 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
       ws.onopen = async () => {
         const wsOpenTime = performance.now();
         ts.wsOpen = wsOpenTime;
-        const elapsed = wsOpenTime - startTime;
-        console.log(`[PERF] ws.onopen elapsed=${elapsed.toFixed(1)}ms`);
+        console.log(`[PERF] ws.onopen elapsed=${(wsOpenTime - startTime).toFixed(1)}ms`);
 
         setIsConnected(true);
         reconnectAttemptRef.current = 0;
 
-        // 初回フラグをチェック（useRefを使用、ページロードごとにリセット）
         const isFirstTime = isFirstTimeRef.current;
+        ws.send(JSON.stringify({
+          type: 'start',
+          language: i18n.language === 'ja' ? 'ja' : 'en',
+          isFirstTime: opts?.skipIntro ? false : isFirstTime,
+        }));
+        if (isFirstTime) isFirstTimeRef.current = false;
 
-        ws.send(
-          JSON.stringify({
-            type: 'start',
-            language: i18n.language === 'ja' ? 'ja' : 'en',
-            isFirstTime: opts?.skipIntro ? false : isFirstTime,
-          })
-        );
-
-        // 初回の場合はフラグを設定（次回以降は初回でないことを示す）
-        if (isFirstTime) {
-          isFirstTimeRef.current = false;
-        }
-
-        // Best-effort: immediately sync current color state after start.
         if (currentColorRef.current) {
           sendColorState(currentColorRef.current);
           try {
-            lastSentColorJsonRef.current = JSON.stringify(
-              buildWireColorState(currentColorRef.current)
-            );
+            lastSentColorJsonRef.current = JSON.stringify(buildWireColorState(currentColorRef.current));
           } catch {
             lastSentColorJsonRef.current = null;
           }
         }
 
-        // mic start after WS open
+        // mic setup
         const getUserMediaStart = performance.now();
         ts.getUserMediaStart = getUserMediaStart;
         const stream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true,
-          },
+          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
           video: false,
         });
         const getUserMediaEnd = performance.now();
         ts.getUserMediaEnd = getUserMediaEnd;
-        const getUserMediaElapsed = getUserMediaEnd - getUserMediaStart;
-        const totalElapsed = getUserMediaEnd - startTime;
         console.log(
-          `[PERF] getUserMedia elapsed=${getUserMediaElapsed.toFixed(1)}ms total=${totalElapsed.toFixed(1)}ms`
+          `[PERF] getUserMedia elapsed=${(getUserMediaEnd - getUserMediaStart).toFixed(1)}ms` +
+          ` total=${(getUserMediaEnd - startTime).toFixed(1)}ms`
         );
         micStreamRef.current = stream;
 
@@ -597,162 +373,46 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           const ws2 = wsRef.current;
           if (!ws2 || ws2.readyState !== WebSocket.OPEN) return;
           const input = e.inputBuffer.getChannelData(0);
-
-          // RMSを計算
           const rms = calculateRMS(input);
 
-          // VAD実行: AIが話している間のみユーザーの音声を検出
-          if (isAISpeakingRef.current) {
-            if (rms > vadThresholdRef.current) {
-              // ユーザーが話し始めた → AI音声を停止
-              stopAIAudio();
-              // バックエンドに割り込みを通知
-              if (ws2 && ws2.readyState === WebSocket.OPEN) {
-                try {
-                  ws2.send(JSON.stringify({ type: 'interrupt' }));
-                } catch {
-                  // ignore best-effort
-                }
-              }
-            }
+          if (isAISpeakingRef.current && rms > vadThresholdRef.current) {
+            stopAIAudio();
+            try { ws2.send(JSON.stringify({ type: 'interrupt' })); } catch { /* best-effort */ }
           }
 
-          // ユーザー音声認識用の閾値チェック：一定音量以上の音声のみ送信
           if (rms > userVoiceRecognitionThresholdRef.current) {
-            const down = downsample(input, ctx.sampleRate, 16000);
-            const pcm16 = floatTo16BitPCM(down);
-
+            const pcm16 = floatTo16BitPCM(downsample(input, ctx.sampleRate, 16000));
             const now = performance.now();
             const ts2 = perfTimestampsRef.current;
             if (!ts2.firstAudioSent) {
               ts2.firstAudioSent = now;
-              const firstAudioElapsed = now - startTime;
-              console.log(
-                `[PERF] first_audio_sent elapsed=${firstAudioElapsed.toFixed(1)}ms bytes=${pcm16.buffer.byteLength}`
-              );
+              console.log(`[PERF] first_audio_sent elapsed=${(now - startTime).toFixed(1)}ms bytes=${pcm16.buffer.byteLength}`);
             }
-            if (ts2.lastAudioSent) {
-              const elapsed = now - ts2.lastAudioSent;
-              if (elapsed > 100) {
-                // 100ms以上経過した場合のみログ（頻繁なログを避ける）
-                console.log(
-                  `[PERF] audio_sent elapsed=${elapsed.toFixed(1)}ms bytes=${pcm16.buffer.byteLength}`
-                );
-              }
+            if (ts2.lastAudioSent && now - ts2.lastAudioSent > 100) {
+              console.log(`[PERF] audio_sent elapsed=${(now - ts2.lastAudioSent).toFixed(1)}ms bytes=${pcm16.buffer.byteLength}`);
             }
             ts2.lastAudioSent = now;
-
             ws2.send(pcm16.buffer);
           }
-          // 閾値以下の場合は送信しない（無音やノイズを送らない）
         };
 
         source.connect(processor);
-        processor.connect(silentGain); // some browsers require it connected
+        processor.connect(silentGain);
 
         setIsStreaming(true);
         setIsConnecting(false);
       };
 
-      ws.onmessage = (evt) => {
-        const now = performance.now();
-        const ts = perfTimestampsRef.current;
-
-        if (typeof evt.data === 'string') {
-          let msg: WsInboundText | null = null;
-          try {
-            msg = JSON.parse(evt.data) as WsInboundText;
-          } catch {
-            return;
-          }
-          if (!msg) return;
-
-          if (msg.type === 'transcript') {
-            if (!ts.lastTranscriptReceived) {
-              const elapsed = ts.lastAudioSent ? now - ts.lastAudioSent : 0;
-              console.log(
-                `[PERF] first_transcript_received elapsed=${elapsed.toFixed(1)}ms text_len=${msg.text.length}`
-              );
-            }
-            ts.lastTranscriptReceived = now;
-            setTranscript(msg.text);
-            if (onTranscriptUpdate) {
-              onTranscriptUpdate(msg.text, {
-                final: msg.final,
-                segmentId: msg.segmentId,
-                language: msg.language ?? null,
-              });
-            }
-            if (msg.final && onFinalTranscript) onFinalTranscript(msg.text);
-          } else if (msg.type === 'assistant_text') {
-            if (!ts.lastAssistantTextReceived) {
-              const elapsed = ts.lastAudioSent ? now - ts.lastAudioSent : 0;
-              console.log(
-                `[PERF] first_assistant_text_received elapsed=${elapsed.toFixed(1)}ms text_len=${msg.text.length}`
-              );
-            }
-            ts.lastAssistantTextReceived = now;
-            // Prefer "audio-consistent" assistant text (output_audio_transcription) for chat history display.
-            if (msg.text && onAssistantMessage) {
-              onAssistantMessage(msg.text, {
-                source: msg.source,
-                segmentId: msg.segmentId,
-                final: msg.final,
-              });
-            }
-          } else if (msg.type === 'command') {
-            if (!ts.lastCommandReceived) {
-              const elapsed = ts.lastAudioSent ? now - ts.lastAudioSent : 0;
-              const action = msg.command?.action || 'unknown';
-              console.log(
-                `[PERF] first_command_received elapsed=${elapsed.toFixed(1)}ms action=${action}`
-              );
-            }
-            ts.lastCommandReceived = now;
-            if (onCommand) onCommand(msg.command);
-          } else if (msg.type === 'error') {
-            // エラーコード1008の場合は翻訳メッセージに置き換え
-            if (
-              msg.code === '1008' ||
-              msg.message?.includes('1008') ||
-              msg.message?.includes('Operation is not implemented')
-            ) {
-              setErr(t('errors.serviceBusy'));
-            } else {
-              setErr(msg.message);
-            }
-          }
-          // ready/assistant_text はUI側で必要なら後で拡張
-        } else if (evt.data instanceof ArrayBuffer) {
-          if (!ts.lastResponseReceived) {
-            const elapsed = ts.lastAudioSent ? now - ts.lastAudioSent : 0;
-            console.log(
-              `[PERF] first_audio_chunk_received elapsed=${elapsed.toFixed(1)}ms bytes=${evt.data.byteLength}`
-            );
-          }
-          ts.lastResponseReceived = now;
-          // server -> binary: PCM S16LE 24kHz
-          schedulePcmPlayback(evt.data, 24000);
-        }
-      };
+      ws.onmessage = handleWsMessage;
 
       ws.onerror = (evt) => {
-        // ブラウザのWSエラーは情報が少ないので、URLだけでもログに残す
-        // eslint-disable-next-line no-console
-        console.warn('[useVoiceStreaming] WebSocket error', {
-          url: getWsUrl(),
-          event: evt,
-        });
+        console.warn('[useVoiceStreaming] WebSocket error', { url: getWsUrl(), event: evt });
         setErr('WebSocket error');
       };
 
       ws.onclose = (evt) => {
-        // eslint-disable-next-line no-console
         console.warn('[useVoiceStreaming] WebSocket closed', {
-          url: getWsUrl(),
-          code: evt.code,
-          reason: evt.reason,
-          wasClean: evt.wasClean,
+          url: getWsUrl(), code: evt.code, reason: evt.reason, wasClean: evt.wasClean,
         });
 
         setIsConnected(false);
@@ -765,17 +425,9 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           colorDebounceTimerRef.current = null;
         }
 
-        // stop() などの「意図的な切断」はエラー表示しない。
-        // close event の 1005 は「close code なし」を表す擬似コードで、正常系でも出やすい。
-        const isExpectedClose =
-          !shouldReconnectRef.current || evt.code === 1000 || evt.code === 1005;
+        const isExpectedClose = !shouldReconnectRef.current || evt.code === 1000 || evt.code === 1005;
         if (!isExpectedClose) {
-          // エラーコード1008の場合は翻訳メッセージに置き換え
-          if (
-            evt.code === 1008 ||
-            evt.reason?.includes('1008') ||
-            evt.reason?.includes('Operation is not implemented')
-          ) {
+          if (evt.code === 1008 || evt.reason?.includes('1008') || evt.reason?.includes('Operation is not implemented')) {
             setErr(t('errors.serviceBusy'));
           } else {
             setErr(`WebSocket closed (code=${evt.code}) ${evt.reason || ''}`.trim());
@@ -783,14 +435,11 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
         }
 
         if (shouldReconnectRef.current) {
-          // exponential backoff with jitter (max 10s)
           reconnectAttemptRef.current += 1;
           const base = Math.min(1000 * 2 ** (reconnectAttemptRef.current - 1), 10000);
-          const jitter = Math.floor(Math.random() * 250);
-          const delay = base + jitter;
+          const delay = base + Math.floor(Math.random() * 250);
           clearReconnectTimer();
           reconnectTimerRef.current = window.setTimeout(() => {
-            // avoid throwing if component unmounted / user stopped
             if (shouldReconnectRef.current) startRef.current?.();
           }, delay);
         }
@@ -805,48 +454,90 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     calculateRMS,
     cleanupAudio,
     clearReconnectTimer,
-    ensureWsTokenCookie,
-    getWsUrl,
+    handleWsMessage,
     i18n.language,
+    isAISpeakingRef,
     isConnecting,
     isStreaming,
-    onCommand,
-    onAssistantMessage,
-    onFinalTranscript,
-    onTranscriptUpdate,
-    schedulePcmPlayback,
     sendColorState,
     setErr,
     stop,
     stopAIAudio,
     t,
+    audioCtxRef,
   ]);
 
-  // onclose内でstart()を直接参照するとlintが厳しいためref経由で呼ぶ
+  // ─── Effects ─────────────────────────────────────────────────────────────────
+
+  // onclose 内で start() を直接参照するとlintが厳しいためref経由で呼ぶ
   useEffect(() => {
-    startRef.current = () => {
-      void start();
-    };
-    return () => {
-      startRef.current = null;
-    };
+    startRef.current = () => { void start(); };
+    return () => { startRef.current = null; };
   }, [start]);
 
   // cleanup on unmount
   useEffect(() => {
-    return () => {
-      stop();
-    };
+    return () => { stop(); };
   }, [stop]);
+
+  // Debounced color sync while connected
+  useEffect(() => {
+    if (!isConnected) return;
+    if (!currentColorState) return;
+
+    const json = JSON.stringify(buildWireColorState(currentColorState));
+    if (lastSentColorJsonRef.current === json) return;
+
+    if (colorDebounceTimerRef.current != null) {
+      window.clearTimeout(colorDebounceTimerRef.current);
+      colorDebounceTimerRef.current = null;
+    }
+
+    colorDebounceTimerRef.current = window.setTimeout(() => {
+      sendColorState(currentColorState);
+      lastSentColorJsonRef.current = json;
+      colorDebounceTimerRef.current = null;
+    }, 150);
+
+    return () => {
+      if (colorDebounceTimerRef.current != null) {
+        window.clearTimeout(colorDebounceTimerRef.current);
+        colorDebounceTimerRef.current = null;
+      }
+    };
+  }, [buildWireColorState, currentColorState, isConnected, sendColorState]);
+
+  // Re-send color_state when bridge colors change while connected
+  useEffect(() => {
+    if (!isConnected) return;
+    const cs = currentColorRef.current;
+    if (!cs) return;
+    sendColorState(cs);
+    lastSentColorJsonRef.current = null;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bridgeColorA, bridgeColorB, isConnected]);
+
+  // Sync color history to backend whenever it changes while connected
+  useEffect(() => {
+    if (!isConnected) return;
+    const ws = wsRef.current;
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    const history = (colorHistoryRef.current ?? []).slice(0, 50).map(({ hex, r, g, b }) => ({
+      hex, r: Math.round(r), g: Math.round(g), b: Math.round(b),
+    }));
+    try {
+      ws.send(JSON.stringify({ type: 'color_history', history }));
+    } catch { /* best-effort */ }
+  }, [colorHistory, isConnected]);
+
+  // ─── Public API ──────────────────────────────────────────────────────────────
 
   const sendTextMessage = useCallback((text: string) => {
     const ws = wsRef.current;
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
     try {
       ws.send(JSON.stringify({ type: 'text_message', text }));
-    } catch {
-      // best-effort
-    }
+    } catch { /* best-effort */ }
   }, []);
 
   return {
