@@ -2,7 +2,7 @@ import './App.css';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toaster } from 'react-hot-toast';
-import ControlPane from './components/ColorPicker/ControlPane';
+import ControlPane from './components/common/ControlPane';
 import Structure from './components/ColorPicker/Structure';
 import Header from './components/common/Header';
 import MobileControlColumn from './components/common/MobileControlColumn';

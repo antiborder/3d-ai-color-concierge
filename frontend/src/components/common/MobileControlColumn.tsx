@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import CurrentColor from '../ColorPicker/CurrentColor';
+import CurrentColor from './CurrentColor';
 import { ControlPaneSliders } from '../menus/ControlPaneSliders';
 import OneDPickerPanel from '../menus/OneDPickerPanel';
 import CIEPanel from '../menus/CIEPanel';
