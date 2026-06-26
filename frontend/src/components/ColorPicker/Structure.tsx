@@ -47,20 +47,24 @@ const Structure = (props: StructureProps) => {
     }
   }, [props.shape]);
 
-  const filteredColors = useMemo(() => sampleColors.filter((color) => {
-    if (props.cssColorsEnabled && color.tag.includes('CSS')) return true;
-    if (props.materialColorsEnabled && color.tag.includes('MATERIAL')) return true;
-    if (props.spectral12ColorsEnabled && color.tag.includes('SPECTRAL12')) return true;
-    if (props.japaneseColorsEnabled && color.tag.includes('JAPANESE')) return true;
-    if (props.rgbGridColorsEnabled && color.tag.includes('RGB_GRID')) return true;
-    return false;
-  }), [
-    props.cssColorsEnabled,
-    props.materialColorsEnabled,
-    props.spectral12ColorsEnabled,
-    props.japaneseColorsEnabled,
-    props.rgbGridColorsEnabled,
-  ]);
+  const filteredColors = useMemo(
+    () =>
+      sampleColors.filter((color) => {
+        if (props.cssColorsEnabled && color.tag.includes('CSS')) return true;
+        if (props.materialColorsEnabled && color.tag.includes('MATERIAL')) return true;
+        if (props.spectral12ColorsEnabled && color.tag.includes('SPECTRAL12')) return true;
+        if (props.japaneseColorsEnabled && color.tag.includes('JAPANESE')) return true;
+        if (props.rgbGridColorsEnabled && color.tag.includes('RGB_GRID')) return true;
+        return false;
+      }),
+    [
+      props.cssColorsEnabled,
+      props.materialColorsEnabled,
+      props.spectral12ColorsEnabled,
+      props.japaneseColorsEnabled,
+      props.rgbGridColorsEnabled,
+    ]
+  );
 
   const backgroundColor = useMemo(() => {
     const r = Math.round(props.focusR).toString(16).padStart(2, '0');
