@@ -27,8 +27,12 @@ const ColorCursor = (props: ColorCursorProps) => {
 
   const focusColorRef = useRef(focusHex);
   const contrastColorRef = useRef(contrastHex);
-  useEffect(() => { focusColorRef.current = focusHex; }, [focusHex]);
-  useEffect(() => { contrastColorRef.current = contrastHex; }, [contrastHex]);
+  useEffect(() => {
+    focusColorRef.current = focusHex;
+  }, [focusHex]);
+  useEffect(() => {
+    contrastColorRef.current = contrastHex;
+  }, [contrastHex]);
 
   useFrame((_, delta) => {
     if (meridianRef.current) {

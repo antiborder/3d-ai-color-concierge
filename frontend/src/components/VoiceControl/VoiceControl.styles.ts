@@ -204,4 +204,3 @@ export const LoadingMessage = styled.div`
   font-size: 12px;
   text-align: center;
 `;
-

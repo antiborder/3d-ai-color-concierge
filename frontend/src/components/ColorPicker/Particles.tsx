@@ -101,7 +101,8 @@ const Particle = ({
   const particleColor =
     '#' + convert.rgb.hex([Math.round(props.r), Math.round(props.g), Math.round(props.b)]);
   const currentColorHex =
-    '#' + convert.rgb.hex([Math.round(props.focusR), Math.round(props.focusG), Math.round(props.focusB)]);
+    '#' +
+    convert.rgb.hex([Math.round(props.focusR), Math.round(props.focusG), Math.round(props.focusB)]);
   const isSelected = particleColor.toLowerCase() === currentColorHex.toLowerCase();
 
   const { position } = useSpring({

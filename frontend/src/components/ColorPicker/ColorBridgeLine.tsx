@@ -2,7 +2,11 @@ import { Line } from '@react-three/drei';
 import type { PositionFunction } from '../../types/structure';
 import type { ColorSpace } from '../../types/color';
 
-interface RGB { r: number; g: number; b: number }
+interface RGB {
+  r: number;
+  g: number;
+  b: number;
+}
 
 interface ColorBridgeLineProps {
   colorA: RGB;
@@ -28,7 +32,7 @@ function resolvePosition(
   getLabPosition: PositionFunction,
   getXyzPosition: PositionFunction,
   getXyzChromaticityPosition: PositionFunction,
-  getXyChromaticityPosition: PositionFunction,
+  getXyChromaticityPosition: PositionFunction
 ): [number, number, number] {
   const { r, g, b } = color;
   if (shape === 'HSL') return getHslPosition(r, g, b);
@@ -42,15 +46,46 @@ function resolvePosition(
 }
 
 function toHex(r: number, g: number, b: number): string {
-  return '#' + [r, g, b].map(v => Math.round(v).toString(16).padStart(2, '0')).join('');
+  return '#' + [r, g, b].map((v) => Math.round(v).toString(16).padStart(2, '0')).join('');
 }
 
 const ColorBridgeLine = ({
-  colorA, colorB, shape,
-  getRgbPosition, getHslPosition, getHsbPosition, getMunsellPosition, getLabPosition, getXyzPosition, getXyzChromaticityPosition, getXyChromaticityPosition,
+  colorA,
+  colorB,
+  shape,
+  getRgbPosition,
+  getHslPosition,
+  getHsbPosition,
+  getMunsellPosition,
+  getLabPosition,
+  getXyzPosition,
+  getXyzChromaticityPosition,
+  getXyChromaticityPosition,
 }: ColorBridgeLineProps) => {
-  const posA = resolvePosition(colorA, shape, getRgbPosition, getHslPosition, getHsbPosition, getMunsellPosition, getLabPosition, getXyzPosition, getXyzChromaticityPosition, getXyChromaticityPosition);
-  const posB = resolvePosition(colorB, shape, getRgbPosition, getHslPosition, getHsbPosition, getMunsellPosition, getLabPosition, getXyzPosition, getXyzChromaticityPosition, getXyChromaticityPosition);
+  const posA = resolvePosition(
+    colorA,
+    shape,
+    getRgbPosition,
+    getHslPosition,
+    getHsbPosition,
+    getMunsellPosition,
+    getLabPosition,
+    getXyzPosition,
+    getXyzChromaticityPosition,
+    getXyChromaticityPosition
+  );
+  const posB = resolvePosition(
+    colorB,
+    shape,
+    getRgbPosition,
+    getHslPosition,
+    getHsbPosition,
+    getMunsellPosition,
+    getLabPosition,
+    getXyzPosition,
+    getXyzChromaticityPosition,
+    getXyChromaticityPosition
+  );
 
   return (
     <>

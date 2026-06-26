@@ -12,7 +12,7 @@ let selectSoundAudio: HTMLAudioElement | null = null;
  */
 function getAudioContext(): AudioContext | null {
   if (typeof window === 'undefined') return null;
-  
+
   if (!audioContext) {
     try {
       audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -21,12 +21,12 @@ function getAudioContext(): AudioContext | null {
       return null;
     }
   }
-  
+
   // サスペンド状態の場合は再開
   if (audioContext.state === 'suspended') {
     audioContext.resume();
   }
-  
+
   return audioContext;
 }
 
@@ -55,38 +55,36 @@ export function playTransformSound(): void {
 
     // スイープ音（周波数が変化）
     const sweepPhase = 2 * Math.PI * (baseFreq + (sweepFreq - baseFreq) * progress) * t;
-    
+
     // 倍音成分
     const harmonicPhase = 2 * Math.PI * harmonicFreq * t;
-    
+
     // エンベロープ（フェードイン・フェードアウト）
     const envelope = Math.sin(Math.PI * progress) * 0.3; // 音量を抑える
-    
+
     // 複数の周波数を組み合わせ
-    const wave = 
-      Math.sin(sweepPhase) * 0.6 + 
-      Math.sin(harmonicPhase) * 0.3 +
-      Math.sin(sweepPhase * 2) * 0.1; // オーバートーン
-    
+    const wave =
+      Math.sin(sweepPhase) * 0.6 + Math.sin(harmonicPhase) * 0.3 + Math.sin(sweepPhase * 2) * 0.1; // オーバートーン
+
     // 変形感を出すために、少し歪みを加える
     const distorted = Math.tanh(wave * 1.5);
-    
+
     data[i] = distorted * envelope;
   }
 
   // 音を再生
   const source = ctx.createBufferSource();
   source.buffer = buffer;
-  
+
   // ゲインノードで音量調整
   const gainNode = ctx.createGain();
   gainNode.gain.value = 0.15; // 音量を適切なレベルに調整
-  
+
   source.connect(gainNode);
   gainNode.connect(ctx.destination);
-  
+
   source.start(0);
-  
+
   // 再生終了後にクリーンアップ
   source.onended = () => {
     source.disconnect();

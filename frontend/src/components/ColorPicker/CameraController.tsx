@@ -72,8 +72,13 @@ const CameraController = ({
         }
         rotationAxis = crossProduct.normalize();
 
-        const randomRotationQuaternion = new THREE.Quaternion().setFromAxisAngle(rotationAxis, randomAngle);
-        const rotatedDirection = directionFromOrigin.clone().applyQuaternion(randomRotationQuaternion);
+        const randomRotationQuaternion = new THREE.Quaternion().setFromAxisAngle(
+          rotationAxis,
+          randomAngle
+        );
+        const rotatedDirection = directionFromOrigin
+          .clone()
+          .applyQuaternion(randomRotationQuaternion);
 
         const currentDirection = currentPosition.clone().sub(origin).normalize();
 
@@ -91,18 +96,19 @@ const CameraController = ({
           const elapsed = Date.now() - startTime;
           const progress = Math.min(elapsed / duration, 1);
           const eased =
-            progress < 0.5
-              ? 2 * progress * progress
-              : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+            progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
           const startQuaternion = new THREE.Quaternion();
-          const interpolatedQuaternion = startQuaternion.clone().slerp(
-            directionRotationQuaternion,
-            eased
-          );
+          const interpolatedQuaternion = startQuaternion
+            .clone()
+            .slerp(directionRotationQuaternion, eased);
 
-          const interpolatedDirection = currentDirection.clone().applyQuaternion(interpolatedQuaternion);
-          const newPosition = origin.clone().add(interpolatedDirection.multiplyScalar(currentDistance));
+          const interpolatedDirection = currentDirection
+            .clone()
+            .applyQuaternion(interpolatedQuaternion);
+          const newPosition = origin
+            .clone()
+            .add(interpolatedDirection.multiplyScalar(currentDistance));
 
           camera.position.copy(newPosition);
           controlsRef.current.update();

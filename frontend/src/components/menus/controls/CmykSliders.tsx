@@ -38,7 +38,10 @@ const CmykSliders = (props: CmykSlidersProps) => {
           {props.onHelpClick && (
             <HelpIcon
               topic="cmyk"
-              onHelpClick={(topic) => { setIsVisible(true); props.onHelpClick!(topic); }}
+              onHelpClick={(topic) => {
+                setIsVisible(true);
+                props.onHelpClick!(topic);
+              }}
             />
           )}
           <button

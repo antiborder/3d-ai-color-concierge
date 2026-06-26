@@ -1,9 +1,13 @@
-import { useRef } from 'react';
+import { useRef, type MouseEvent } from 'react';
 import styled from 'styled-components';
 import convert from 'color-convert';
 import type { ColorSpace } from '../../../types/color';
 
-interface RGB { r: number; g: number; b: number }
+interface RGB {
+  r: number;
+  g: number;
+  b: number;
+}
 
 interface GradientBarProps {
   colorA: RGB;
@@ -28,10 +32,12 @@ function rgbToLab(r: number, g: number, b: number): [number, number, number] {
     const s = c / 255;
     return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
   };
-  const rl = toLinear(r), gl = toLinear(g), bl = toLinear(b);
+  const rl = toLinear(r),
+    gl = toLinear(g),
+    bl = toLinear(b);
   const Xn = (rl * 0.4124564 + gl * 0.3575761 + bl * 0.1804375) / 0.95047;
-  const Yn = rl * 0.2126729 + gl * 0.7151522 + bl * 0.0721750;
-  const Zn = (rl * 0.0193339 + gl * 0.1191920 + bl * 0.9503041) / 1.08883;
+  const Yn = rl * 0.2126729 + gl * 0.7151522 + bl * 0.072175;
+  const Zn = (rl * 0.0193339 + gl * 0.119192 + bl * 0.9503041) / 1.08883;
   const f = (t: number) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116);
   return [116 * f(Yn) - 16, 500 * (f(Xn) - f(Yn)), 200 * (f(Yn) - f(Zn))];
 }
@@ -45,14 +51,22 @@ function labToRgb(L: number, a: number, b: number): [number, number, number] {
   const Y = fInv(fy);
   const Z = fInv(fz) * 1.08883;
   const rl = X * 3.2404542 - Y * 1.5371385 - Z * 0.4985314;
-  const gl = -X * 0.9692660 + Y * 1.8760108 + Z * 0.0415560;
+  const gl = -X * 0.969266 + Y * 1.8760108 + Z * 0.041556;
   const bl = X * 0.0556434 - Y * 0.2040259 + Z * 1.0572252;
   const toSrgb = (c: number) =>
-    Math.round(Math.max(0, Math.min(1, c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055)) * 255);
+    Math.round(
+      Math.max(0, Math.min(1, c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055)) *
+        255
+    );
   return [toSrgb(rl), toSrgb(gl), toSrgb(bl)];
 }
 
-function interpolateRgb(colorA: RGB, colorB: RGB, shape: ColorSpace, t: number): [number, number, number] {
+function interpolateRgb(
+  colorA: RGB,
+  colorB: RGB,
+  shape: ColorSpace,
+  t: number
+): [number, number, number] {
   const { r: r1, g: g1, b: b1 } = colorA;
   const { r: r2, g: g2, b: b2 } = colorB;
 
@@ -106,7 +120,7 @@ function buildGradientStops(colorA: RGB, colorB: RGB, shape: ColorSpace, steps =
 const GradientBar = ({ colorA, colorB, shape, onColorSelect }: GradientBarProps) => {
   const barRef = useRef<HTMLDivElement>(null);
 
-  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleClick = (e: MouseEvent<HTMLDivElement>) => {
     const bar = barRef.current;
     if (!bar) return;
     const rect = bar.getBoundingClientRect();

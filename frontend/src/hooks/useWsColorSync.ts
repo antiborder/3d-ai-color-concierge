@@ -35,12 +35,23 @@ export function useWsColorSync({
     currentColorRef.current = currentColorState ?? null;
   }, [currentColorState]);
 
-  const buildWireColorState = useCallback((cs: UiColorState) => ({
-    r: cs.r, g: cs.g, b: cs.b,
-    c: cs.c, m: cs.m, y: cs.y, k: cs.k,
-    h: cs.h, s: cs.s, l: cs.l,
-    hsbS: cs.hsbS, v: cs.v,
-  }), []);
+  const buildWireColorState = useCallback(
+    (cs: UiColorState) => ({
+      r: cs.r,
+      g: cs.g,
+      b: cs.b,
+      c: cs.c,
+      m: cs.m,
+      y: cs.y,
+      k: cs.k,
+      h: cs.h,
+      s: cs.s,
+      l: cs.l,
+      hsbS: cs.hsbS,
+      v: cs.v,
+    }),
+    []
+  );
 
   const sendColorState = useCallback(
     (cs: UiColorState) => {
@@ -51,7 +62,9 @@ export function useWsColorSync({
       if (bridgeColorBRef.current) color.bridgeColorB = bridgeColorBRef.current;
       try {
         ws.send(JSON.stringify({ type: 'color_state', color }));
-      } catch { /* best-effort */ }
+      } catch {
+        /* best-effort */
+      }
     },
     [wsRef, buildWireColorState]
   );
@@ -84,7 +97,7 @@ export function useWsColorSync({
     if (!cs) return;
     sendColorState(cs);
     lastSentColorJsonRef.current = null;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bridgeColorA, bridgeColorB, isConnected]);
 
   // Sync color history to backend whenever it changes while connected
@@ -93,12 +106,23 @@ export function useWsColorSync({
     const ws = wsRef.current;
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
     const history = (colorHistoryRef.current ?? []).slice(0, 50).map(({ hex, r, g, b }) => ({
-      hex, r: Math.round(r), g: Math.round(g), b: Math.round(b),
+      hex,
+      r: Math.round(r),
+      g: Math.round(g),
+      b: Math.round(b),
     }));
     try {
       ws.send(JSON.stringify({ type: 'color_history', history }));
-    } catch { /* best-effort */ }
+    } catch {
+      /* best-effort */
+    }
   }, [colorHistory, isConnected, wsRef]);
 
-  return { buildWireColorState, sendColorState, cancelPendingSync, currentColorRef, lastSentColorJsonRef };
+  return {
+    buildWireColorState,
+    sendColorState,
+    cancelPendingSync,
+    currentColorRef,
+    lastSentColorJsonRef,
+  };
 }

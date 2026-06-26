@@ -9,7 +9,11 @@ export function usePcmPlayer() {
 
   const stopAIAudio = useCallback(() => {
     audioSourceNodesRef.current.forEach((node) => {
-      try { node.stop(); } catch { /* already stopped */ }
+      try {
+        node.stop();
+      } catch {
+        /* already stopped */
+      }
     });
     audioSourceNodesRef.current = [];
     playTimeRef.current = 0;

@@ -28,11 +28,7 @@ const CylinderEllipses = ({
   const topPoints: [number, number, number][] = [];
   for (let i = 0; i <= segments; i++) {
     const theta = (i / segments) * Math.PI * 2;
-    topPoints.push([
-      cylinderRadius * Math.sin(theta),
-      cylinderRadius * Math.cos(theta),
-      topZ,
-    ]);
+    topPoints.push([cylinderRadius * Math.sin(theta), cylinderRadius * Math.cos(theta), topZ]);
   }
 
   // 底面の円の頂点を生成

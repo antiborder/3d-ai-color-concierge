@@ -43,26 +43,30 @@ export function useLiveSubtitle({
     }
   }, [isConnected]);
 
-  const handleAssistantChunk = useCallback((
-    text: string,
-    meta?: { source?: string | null; segmentId?: string | null; final?: boolean | null }
-  ) => {
-    if (meta?.source !== 'output_audio_transcription' && meta?.source !== 'output_transcription') return;
+  const handleAssistantChunk = useCallback(
+    (
+      text: string,
+      meta?: { source?: string | null; segmentId?: string | null; final?: boolean | null }
+    ) => {
+      if (meta?.source !== 'output_audio_transcription' && meta?.source !== 'output_transcription')
+        return;
 
-    const prev = subtitleBufRef.current;
-    let next: string;
-    if (!prev) {
-      next = text;
-    } else if (text.startsWith(prev)) {
-      next = text; // same segment growing
-    } else if (prev.endsWith(text)) {
-      next = prev; // duplicate, ignore
-    } else {
-      next = prev + ' ' + text; // new segment, append
-    }
-    subtitleBufRef.current = next;
-    setLiveSubtitle(next);
-  }, []);
+      const prev = subtitleBufRef.current;
+      let next: string;
+      if (!prev) {
+        next = text;
+      } else if (text.startsWith(prev)) {
+        next = text; // same segment growing
+      } else if (prev.endsWith(text)) {
+        next = prev; // duplicate, ignore
+      } else {
+        next = prev + ' ' + text; // new segment, append
+      }
+      subtitleBufRef.current = next;
+      setLiveSubtitle(next);
+    },
+    []
+  );
 
   return { liveSubtitle, handleAssistantChunk };
 }

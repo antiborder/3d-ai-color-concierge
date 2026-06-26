@@ -38,7 +38,10 @@ const HslSliders = (props: HslSlidersProps) => {
           {props.onHelpClick && (
             <HelpIcon
               topic="hsl"
-              onHelpClick={(topic) => { setIsVisible(true); props.onHelpClick!(topic); }}
+              onHelpClick={(topic) => {
+                setIsVisible(true);
+                props.onHelpClick!(topic);
+              }}
             />
           )}
           <button

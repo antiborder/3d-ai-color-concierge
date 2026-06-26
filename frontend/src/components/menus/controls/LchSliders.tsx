@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type ChangeEvent } from 'react';
 import styled from 'styled-components';
 import type { ControlPaneProps, BridgeProps } from '../../../types/controlPane';
 import ShapeButton from './ShapeButton';
@@ -33,7 +33,7 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
     setSliderH(hueNum !== null ? Math.round((hueNum / 100) * 360) : 0);
   }, [props.focusR, props.focusG, props.focusB]);
 
-  const handleLChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newL = Number(e.target.value);
     setSliderL(newL);
     sliderDrivenRef.current = true;
@@ -42,7 +42,7 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
     props.handleClick(r, g, b);
   };
 
-  const handleCChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newC = Number(e.target.value);
     setSliderC(newC);
     sliderDrivenRef.current = true;
@@ -51,7 +51,7 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
     props.handleClick(r, g, b);
   };
 
-  const handleHChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleHChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newH = Number(e.target.value);
     setSliderH(newH);
     sliderDrivenRef.current = true;
@@ -84,13 +84,13 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
           {props.onHelpClick && (
             <HelpIcon
               topic="lch"
-              onHelpClick={(topic) => { setIsVisible(true); props.onHelpClick!(topic); }}
+              onHelpClick={(topic) => {
+                setIsVisible(true);
+                props.onHelpClick!(topic);
+              }}
             />
           )}
-          <button
-            className="showSlidersButton"
-            onClick={() => setIsVisible(!isVisible)}
-          >
+          <button className="showSlidersButton" onClick={() => setIsVisible(!isVisible)}>
             {isVisible ? '▲' : '▼'}
           </button>
         </div>
@@ -99,7 +99,14 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
         <>
           <LchSliderRow>
             <Label>L</Label>
-            <input type="range" min="0" max="100" step="1" value={sliderL} onChange={handleLChange} />
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value={sliderL}
+              onChange={handleLChange}
+            />
             <Value>{sliderL}</Value>
             {props.onHelpClick && (
               <HelpIcon topic="lch_l" onHelpClick={props.onHelpClick} size={20} />
@@ -107,7 +114,14 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
           </LchSliderRow>
           <LchSliderRow>
             <Label>C</Label>
-            <input type="range" min="0" max="100" step="1" value={sliderC} onChange={handleCChange} />
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value={sliderC}
+              onChange={handleCChange}
+            />
             <Value>{sliderC}</Value>
             {props.onHelpClick && (
               <HelpIcon topic="lch_c" onHelpClick={props.onHelpClick} size={20} />
@@ -115,7 +129,14 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
           </LchSliderRow>
           <LchSliderRow>
             <Label>H</Label>
-            <input type="range" min="0" max="359" step="1" value={sliderH} onChange={handleHChange} />
+            <input
+              type="range"
+              min="0"
+              max="359"
+              step="1"
+              value={sliderH}
+              onChange={handleHChange}
+            />
             <Value>{sliderH}</Value>
             {props.onHelpClick && (
               <HelpIcon topic="lch_h" onHelpClick={props.onHelpClick} size={20} />

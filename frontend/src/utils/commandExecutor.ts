@@ -22,7 +22,9 @@ export interface VoiceCommandHandlers {
   updateFromHex: (hex: string) => void;
   getCurrentHex: () => string;
   setHarmonyMode: (mode: HarmonyMode) => void;
-  setColorSets: (sets: Partial<Record<'css' | 'material' | 'spectral12' | 'japanese' | 'rgbGrid', boolean>>) => void;
+  setColorSets: (
+    sets: Partial<Record<'css' | 'material' | 'spectral12' | 'japanese' | 'rgbGrid', boolean>>
+  ) => void;
   setBridgeColorA: (c: { r: number; g: number; b: number }) => void;
   setBridgeColorB: (c: { r: number; g: number; b: number }) => void;
   setIsBridgeOpen: (open: boolean) => void;
@@ -187,9 +189,9 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
         typeof color.b === 'number'
       ) {
         handlers.updateFromRgb(color.r, color.g, color.b);
-        
+
         // 最適な色空間を自動決定して変更
-        const optimalColorSpace = 
+        const optimalColorSpace =
           (command.parameters.optimalColorSpace as ColorSpace) ||
           determineOptimalColorSpace(color.r, color.g, color.b);
         handlers.setShape(optimalColorSpace);
@@ -212,7 +214,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
     case 'CHANGE_SHAPE': {
       const colorSpace = command.parameters.colorSpace as string;
       const validShapes: ColorSpace[] = ['RGB', 'CMYK', 'HSL', 'HSB', 'Lab', 'LCH'];
-      const matched = validShapes.find(s => s.toLowerCase() === colorSpace?.toLowerCase());
+      const matched = validShapes.find((s) => s.toLowerCase() === colorSpace?.toLowerCase());
       if (matched) handlers.setShape(matched);
       break;
     }
@@ -281,11 +283,14 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
         }
       };
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(hex).then(() => {
-          toast.success(`Color Code "${hex}" was copied to the clipboard.`);
-        }).catch(() => {
-          copyViaTextarea();
-        });
+        navigator.clipboard
+          .writeText(hex)
+          .then(() => {
+            toast.success(`Color Code "${hex}" was copied to the clipboard.`);
+          })
+          .catch(() => {
+            copyViaTextarea();
+          });
       } else {
         copyViaTextarea();
       }
@@ -309,7 +314,17 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
 
     case 'SET_HARMONY': {
       const mode = command.parameters.mode as string;
-      const validModes: HarmonyMode[] = ['none', 'complementary', 'triangle', 'square', 'pentagon', 'hexagon', 'heptagon', 'octagon', 'nonagon'];
+      const validModes: HarmonyMode[] = [
+        'none',
+        'complementary',
+        'triangle',
+        'square',
+        'pentagon',
+        'hexagon',
+        'heptagon',
+        'octagon',
+        'nonagon',
+      ];
       if (validModes.includes(mode as HarmonyMode)) {
         handlers.setHarmonyMode(mode as HarmonyMode);
       } else {
@@ -320,7 +335,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
 
     case 'SET_COLOR_SETS': {
       const validKeys = ['css', 'material', 'spectral12', 'japanese', 'rgbGrid'] as const;
-      const sets: Partial<Record<typeof validKeys[number], boolean>> = {};
+      const sets: Partial<Record<(typeof validKeys)[number], boolean>> = {};
       for (const key of validKeys) {
         const val = command.parameters[key];
         if (typeof val === 'boolean') {

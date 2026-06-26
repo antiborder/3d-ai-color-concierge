@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useVoiceStreaming } from '../../hooks/useVoiceStreaming';
 import { useLiveSubtitle } from '../../hooks/useLiveSubtitle';
@@ -30,7 +30,14 @@ function toDisplayText(text: string): string {
 
 // ChatIcon kept for future use with the commented-out chat history button
 const ChatIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
   </svg>
 );
@@ -81,24 +88,40 @@ const VoiceControl = ({
   const lastHelpIdRef = useRef<number>(0);
 
   // Streaming session
-  const { isStreaming, isConnecting, isConnected, isAISpeaking, error, start, stop, sendTextMessage } =
-    useVoiceStreaming({
-      currentColorState,
-      bridgeColorA,
-      bridgeColorB,
-      colorHistory,
-      onFinalTranscript: onTranscript,
-      onTranscriptUpdate,
-      onAssistantMessage: useCallback(
-        (text: string, meta?: { source?: string | null; segmentId?: string | null; final?: boolean | null }) => {
-          handleAssistantChunkRef.current?.(text, meta);
-          onAssistantMessage?.(text, meta);
-        },
-        [onAssistantMessage] // eslint-disable-line react-hooks/exhaustive-deps
-      ),
-      onCommand,
-      onError: useCallback((msg: string) => { if (onError) onError(msg); }, [onError]),
-    });
+  const {
+    isStreaming,
+    isConnecting,
+    isConnected,
+    isAISpeaking,
+    error,
+    start,
+    stop,
+    sendTextMessage,
+  } = useVoiceStreaming({
+    currentColorState,
+    bridgeColorA,
+    bridgeColorB,
+    colorHistory,
+    onFinalTranscript: onTranscript,
+    onTranscriptUpdate,
+    onAssistantMessage: useCallback(
+      (
+        text: string,
+        meta?: { source?: string | null; segmentId?: string | null; final?: boolean | null }
+      ) => {
+        handleAssistantChunkRef.current?.(text, meta);
+        onAssistantMessage?.(text, meta);
+      },
+      [onAssistantMessage] // eslint-disable-line react-hooks/exhaustive-deps
+    ),
+    onCommand,
+    onError: useCallback(
+      (msg: string) => {
+        if (onError) onError(msg);
+      },
+      [onError]
+    ),
+  });
 
   // Live subtitle accumulation
   const { liveSubtitle, handleAssistantChunk } = useLiveSubtitle({ isAISpeaking, isConnected });
@@ -112,7 +135,9 @@ const VoiceControl = ({
   useEffect(() => {
     if (!showSpinner) return;
     spinnerTimeoutRef.current = setTimeout(() => setShowSpinner(false), 3000);
-    return () => { if (spinnerTimeoutRef.current) clearTimeout(spinnerTimeoutRef.current); };
+    return () => {
+      if (spinnerTimeoutRef.current) clearTimeout(spinnerTimeoutRef.current);
+    };
   }, [showSpinner]);
 
   // Send pending help text once WebSocket is connected
@@ -133,7 +158,7 @@ const VoiceControl = ({
       pendingHelpRef.current = helpRequest.text;
       if (!isStreaming && !isConnecting) void start({ skipIntro: true });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [helpRequest]);
 
   const handleMicClick = () => {
@@ -153,7 +178,7 @@ const VoiceControl = ({
     }
   };
 
-  const handleTextSubmit = (e: React.FormEvent) => {
+  const handleTextSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (textInput.trim()) {
       onTranscript(textInput.trim());
@@ -176,7 +201,14 @@ const VoiceControl = ({
             $isListening={isStreaming || isConnecting}
           >
             {isStreaming || isConnecting ? (
-              showSpinner ? <Spinner /> : <><ListeningIndicator />Listening...</>
+              showSpinner ? (
+                <Spinner />
+              ) : (
+                <>
+                  <ListeningIndicator />
+                  Listening...
+                </>
+              )
             ) : (
               'Start Chatting ▶︎'
             )}

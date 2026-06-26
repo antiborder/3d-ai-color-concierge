@@ -7,7 +7,9 @@ export function useDisplaySettings() {
   const [japaneseColorsEnabled, setJapaneseColorsEnabled] = useState(false);
   const [rgbGridColorsEnabled, setRgbGridColorsEnabled] = useState(false);
 
-  const setColorSets = (sets: Partial<Record<'css' | 'material' | 'spectral12' | 'japanese' | 'rgbGrid', boolean>>) => {
+  const setColorSets = (
+    sets: Partial<Record<'css' | 'material' | 'spectral12' | 'japanese' | 'rgbGrid', boolean>>
+  ) => {
     if (sets.css !== undefined) setCssColorsEnabled(sets.css);
     if (sets.material !== undefined) setMaterialColorsEnabled(sets.material);
     if (sets.spectral12 !== undefined) setSpectral12ColorsEnabled(sets.spectral12);

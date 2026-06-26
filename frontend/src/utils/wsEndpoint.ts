@@ -20,7 +20,8 @@ export function getHttpBase(): string {
   if (envBase) {
     if (envBase.startsWith('ws://')) return `http://${envBase.slice('ws://'.length)}`;
     if (envBase.startsWith('wss://')) return `https://${envBase.slice('wss://'.length)}`;
-    if (envBase.startsWith('http://') || envBase.startsWith('https://')) return envBase.replace(/\/+$/, '');
+    if (envBase.startsWith('http://') || envBase.startsWith('https://'))
+      return envBase.replace(/\/+$/, '');
     return envBase.replace(/\/+$/, '');
   }
   return `${window.location.protocol}//${window.location.host}`;
@@ -37,7 +38,11 @@ export async function fetchWsToken(): Promise<string | null> {
     const controller = new AbortController();
     const timer = window.setTimeout(() => controller.abort(), timeoutMs);
     try {
-      const res = await fetch(url, { method: 'GET', credentials: 'include', signal: controller.signal });
+      const res = await fetch(url, {
+        method: 'GET',
+        credentials: 'include',
+        signal: controller.signal,
+      });
       if (!res.ok) {
         lastErr = new Error(`ws token fetch failed (status=${res.status})`);
       } else {
@@ -60,8 +65,10 @@ export async function fetchWsToken(): Promise<string | null> {
   }
 
   const msg =
-    lastErr instanceof Error ? lastErr.message
-    : typeof lastErr === 'string' ? lastErr
-    : 'Failed to obtain WebSocket token';
+    lastErr instanceof Error
+      ? lastErr.message
+      : typeof lastErr === 'string'
+        ? lastErr
+        : 'Failed to obtain WebSocket token';
   throw new Error(msg);
 }

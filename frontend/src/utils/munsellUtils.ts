@@ -1,12 +1,20 @@
 const HUE_FAMILY_OFFSETS: Record<string, number> = {
-  R: 0, YR: 10, Y: 20, GY: 30, G: 40,
-  BG: 50, B: 60, PB: 70, P: 80, RP: 90,
+  R: 0,
+  YR: 10,
+  Y: 20,
+  GY: 30,
+  G: 40,
+  BG: 50,
+  B: 60,
+  PB: 70,
+  P: 80,
+  RP: 90,
 };
 
 export interface MunsellHVC {
   hueNum: number | null; // null for achromatics (C* < threshold)
-  value: number;         // 0–10  (= L* / 10)
-  chroma: number;        // 0–20  (= C*_ab / 5)
+  value: number; // 0–10  (= L* / 10)
+  chroma: number; // 0–20  (= C*_ab / 5)
 }
 
 export function parseMunsellNotation(name1: string): MunsellHVC | null {
@@ -34,12 +42,16 @@ function rgbToLab(r: number, g: number, b: number): [number, number, number] {
     const s = c / 255;
     return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
   };
-  const rl = toLinear(r), gl = toLinear(g), bl = toLinear(b);
+  const rl = toLinear(r),
+    gl = toLinear(g),
+    bl = toLinear(b);
   const Xn = (rl * 0.4124564 + gl * 0.3575761 + bl * 0.1804375) / 0.95047;
-  const Yn =  rl * 0.2126729 + gl * 0.7151522 + bl * 0.0721750;
-  const Zn = (rl * 0.0193339 + gl * 0.1191920 + bl * 0.9503041) / 1.08883;
-  const f = (t: number) => t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
-  const fx = f(Xn), fy = f(Yn), fz = f(Zn);
+  const Yn = rl * 0.2126729 + gl * 0.7151522 + bl * 0.072175;
+  const Zn = (rl * 0.0193339 + gl * 0.119192 + bl * 0.9503041) / 1.08883;
+  const f = (t: number) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116);
+  const fx = f(Xn),
+    fy = f(Yn),
+    fz = f(Zn);
   return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
 }
 
@@ -67,7 +79,8 @@ export function munsellHVCtoRgb(
   chroma: number
 ): [number, number, number] {
   const L = value * 10;
-  let a = 0, bLab = 0;
+  let a = 0,
+    bLab = 0;
   if (hueNum !== null && chroma > 0) {
     const C_star = chroma * 5;
     const theta = (hueNum / 100) * 2 * Math.PI;
@@ -83,9 +96,9 @@ export function munsellHVCtoRgb(
   const Y = fInv(fy);
   const Z = fInv(fz) * 1.08883;
   // XYZ → linear sRGB
-  const rl =  X *  3.2404542 - Y * 1.5371385 - Z * 0.4985314;
-  const gl = -X *  0.9692660 + Y * 1.8760108 + Z * 0.0415560;
-  const bl =  X *  0.0556434 - Y * 0.2040259 + Z * 1.0572252;
+  const rl = X * 3.2404542 - Y * 1.5371385 - Z * 0.4985314;
+  const gl = -X * 0.969266 + Y * 1.8760108 + Z * 0.041556;
+  const bl = X * 0.0556434 - Y * 0.2040259 + Z * 1.0572252;
   // Linear → gamma-corrected sRGB, clamped to 0–255
   const toSrgb = (c: number) => {
     const v = Math.max(0, Math.min(1, c));

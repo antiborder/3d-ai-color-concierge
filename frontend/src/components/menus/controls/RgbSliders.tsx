@@ -38,7 +38,10 @@ const RgbSliders = (props: RgbSlidersProps) => {
           {props.onHelpClick && (
             <HelpIcon
               topic="rgb"
-              onHelpClick={(topic) => { setIsVisible(true); props.onHelpClick!(topic); }}
+              onHelpClick={(topic) => {
+                setIsVisible(true);
+                props.onHelpClick!(topic);
+              }}
             />
           )}
           <button

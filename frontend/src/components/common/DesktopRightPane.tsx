@@ -61,7 +61,11 @@ const DesktopRightPane = ({
         onHelpClick={onHelpClick}
       />
       <HistoryPanelWrapper>
-        <ColorHistoryPanel history={colorHistory} onColorSelect={onColorSelect} onHelpClick={onHelpClick} />
+        <ColorHistoryPanel
+          history={colorHistory}
+          onColorSelect={onColorSelect}
+          onHelpClick={onHelpClick}
+        />
       </HistoryPanelWrapper>
     </StyledHeader>
   );

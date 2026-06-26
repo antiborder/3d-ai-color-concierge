@@ -93,8 +93,12 @@ const SingleMarker = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const animTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => { hexRef.current = hex; }, [hex]);
-  useEffect(() => { flashColorRef.current = flashColor; }, [flashColor]);
+  useEffect(() => {
+    hexRef.current = hex;
+  }, [hex]);
+  useEffect(() => {
+    flashColorRef.current = flashColor;
+  }, [flashColor]);
 
   const isMountedRef = useRef(false);
   useEffect(() => {
@@ -166,15 +170,11 @@ const SingleMarker = ({
       <group ref={sphereGroupRef} rotation={[Math.PI / 2, 0, 0]}>
         <group ref={meridianGroupRef}>
           {meridianLines.map((points, i) =>
-            i % 3 === 0 ? (
-              <Line key={`m-${i}`} points={points} color={hex} lineWidth={2} />
-            ) : null
+            i % 3 === 0 ? <Line key={`m-${i}`} points={points} color={hex} lineWidth={2} /> : null
           )}
         </group>
         {parallelLines.map((points, i) =>
-          i % 2 === 1 ? (
-            <Line key={`p-${i}`} points={points} color={hex} lineWidth={1} />
-          ) : null
+          i % 2 === 1 ? <Line key={`p-${i}`} points={points} color={hex} lineWidth={1} /> : null
         )}
       </group>
     </group>

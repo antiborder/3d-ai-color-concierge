@@ -21,15 +21,27 @@ export const useColorState = () => {
   const updateFromRgb = useCallback((r: number, g: number, b: number) => {
     const allFormats = ColorConverter.fromRgb(r, g, b);
     setColorState((prev) => {
-      if (Math.round(prev.r) !== Math.round(r) || Math.round(prev.g) !== Math.round(g) || Math.round(prev.b) !== Math.round(b)) {
+      if (
+        Math.round(prev.r) !== Math.round(r) ||
+        Math.round(prev.g) !== Math.round(g) ||
+        Math.round(prev.b) !== Math.round(b)
+      ) {
         playSelectSound();
       }
       return {
         ...prev,
-        r, g, b,
-        c: allFormats.cmyk[0], m: allFormats.cmyk[1], y: allFormats.cmyk[2], k: allFormats.cmyk[3],
-        h: allFormats.hsl[0], s: allFormats.hsl[1], l: allFormats.hsl[2],
-        hsbS: allFormats.hsb[1], v: allFormats.hsb[2],
+        r,
+        g,
+        b,
+        c: allFormats.cmyk[0],
+        m: allFormats.cmyk[1],
+        y: allFormats.cmyk[2],
+        k: allFormats.cmyk[3],
+        h: allFormats.hsl[0],
+        s: allFormats.hsl[1],
+        l: allFormats.hsl[2],
+        hsbS: allFormats.hsb[1],
+        v: allFormats.hsb[2],
         hexInput: allFormats.hex.toUpperCase(),
       };
     });
@@ -39,10 +51,18 @@ export const useColorState = () => {
     const allFormats = ColorConverter.fromCmyk(c, m, y, k);
     setColorState((prev) => ({
       ...prev,
-      r: allFormats.rgb[0], g: allFormats.rgb[1], b: allFormats.rgb[2],
-      c, m, y, k,
-      h: allFormats.hsl[0], s: allFormats.hsl[1], l: allFormats.hsl[2],
-      hsbS: allFormats.hsb[1], v: allFormats.hsb[2],
+      r: allFormats.rgb[0],
+      g: allFormats.rgb[1],
+      b: allFormats.rgb[2],
+      c,
+      m,
+      y,
+      k,
+      h: allFormats.hsl[0],
+      s: allFormats.hsl[1],
+      l: allFormats.hsl[2],
+      hsbS: allFormats.hsb[1],
+      v: allFormats.hsb[2],
       hexInput: allFormats.hex.toUpperCase(),
     }));
   }, []);
@@ -51,10 +71,18 @@ export const useColorState = () => {
     const allFormats = ColorConverter.fromHsl(h, s, l);
     setColorState((prev) => ({
       ...prev,
-      r: allFormats.rgb[0], g: allFormats.rgb[1], b: allFormats.rgb[2],
-      c: allFormats.cmyk[0], m: allFormats.cmyk[1], y: allFormats.cmyk[2], k: allFormats.cmyk[3],
-      h, s, l,
-      hsbS: allFormats.hsb[1], v: allFormats.hsb[2],
+      r: allFormats.rgb[0],
+      g: allFormats.rgb[1],
+      b: allFormats.rgb[2],
+      c: allFormats.cmyk[0],
+      m: allFormats.cmyk[1],
+      y: allFormats.cmyk[2],
+      k: allFormats.cmyk[3],
+      h,
+      s,
+      l,
+      hsbS: allFormats.hsb[1],
+      v: allFormats.hsb[2],
       hexInput: allFormats.hex.toUpperCase(),
     }));
   }, []);
@@ -63,10 +91,18 @@ export const useColorState = () => {
     const allFormats = ColorConverter.fromHsb(h, s, v);
     setColorState((prev) => ({
       ...prev,
-      r: allFormats.rgb[0], g: allFormats.rgb[1], b: allFormats.rgb[2],
-      c: allFormats.cmyk[0], m: allFormats.cmyk[1], y: allFormats.cmyk[2], k: allFormats.cmyk[3],
-      h: allFormats.hsl[0], s: allFormats.hsl[1], l: allFormats.hsl[2],
-      hsbS: s, v,
+      r: allFormats.rgb[0],
+      g: allFormats.rgb[1],
+      b: allFormats.rgb[2],
+      c: allFormats.cmyk[0],
+      m: allFormats.cmyk[1],
+      y: allFormats.cmyk[2],
+      k: allFormats.cmyk[3],
+      h: allFormats.hsl[0],
+      s: allFormats.hsl[1],
+      l: allFormats.hsl[2],
+      hsbS: s,
+      v,
       hexInput: allFormats.hex.toUpperCase(),
     }));
   }, []);
@@ -75,10 +111,18 @@ export const useColorState = () => {
     const allFormats = ColorConverter.fromHex(hex);
     setColorState((prev) => ({
       ...prev,
-      r: allFormats.rgb[0], g: allFormats.rgb[1], b: allFormats.rgb[2],
-      c: allFormats.cmyk[0], m: allFormats.cmyk[1], y: allFormats.cmyk[2], k: allFormats.cmyk[3],
-      h: allFormats.hsl[0], s: allFormats.hsl[1], l: allFormats.hsl[2],
-      hsbS: allFormats.hsb[1], v: allFormats.hsb[2],
+      r: allFormats.rgb[0],
+      g: allFormats.rgb[1],
+      b: allFormats.rgb[2],
+      c: allFormats.cmyk[0],
+      m: allFormats.cmyk[1],
+      y: allFormats.cmyk[2],
+      k: allFormats.cmyk[3],
+      h: allFormats.hsl[0],
+      s: allFormats.hsl[1],
+      l: allFormats.hsl[2],
+      hsbS: allFormats.hsb[1],
+      v: allFormats.hsb[2],
       hexInput: hex.toUpperCase(),
     }));
   }, []);
@@ -132,22 +176,26 @@ export const useColorState = () => {
   }, []);
 
   const setRgbMainElement = useCallback(
-    (element: 'R' | 'G' | 'B') => setColorState((p) => applyShapeAndElement(p, 'RGB', 'rgbMainElement', element)),
+    (element: 'R' | 'G' | 'B') =>
+      setColorState((p) => applyShapeAndElement(p, 'RGB', 'rgbMainElement', element)),
     []
   );
 
   const setCmykMainElement = useCallback(
-    (element: 'C' | 'M' | 'Y' | 'K') => setColorState((p) => applyShapeAndElement(p, 'CMYK', 'cmykMainElement', element)),
+    (element: 'C' | 'M' | 'Y' | 'K') =>
+      setColorState((p) => applyShapeAndElement(p, 'CMYK', 'cmykMainElement', element)),
     []
   );
 
   const setHslMainElement = useCallback(
-    (element: 'H' | 'S' | 'L') => setColorState((p) => applyShapeAndElement(p, 'HSL', 'hslMainElement', element)),
+    (element: 'H' | 'S' | 'L') =>
+      setColorState((p) => applyShapeAndElement(p, 'HSL', 'hslMainElement', element)),
     []
   );
 
   const setHsvMainElement = useCallback(
-    (element: 'H' | 'S' | 'V') => setColorState((p) => applyShapeAndElement(p, 'HSB', 'hsbMainElement', element)),
+    (element: 'H' | 'S' | 'V') =>
+      setColorState((p) => applyShapeAndElement(p, 'HSB', 'hsbMainElement', element)),
     []
   );
 
@@ -174,22 +222,32 @@ export const useColorState = () => {
           if (direction === 'down' && currentS <= 0) return prev;
         }
 
-        let newH = currentH, newS = currentS, newL = currentL;
+        let newH = currentH,
+          newS = currentS,
+          newL = currentL;
         if (property === 'brightness') {
           newL = Math.max(0, Math.min(100, currentL + delta));
         } else if (property === 'saturation') {
           newS = Math.max(0, Math.min(100, currentS + delta));
         } else {
-          newH = ((currentH + delta) % 360 + 360) % 360;
+          newH = (((currentH + delta) % 360) + 360) % 360;
         }
 
         const allFormats = ColorConverter.fromHsl(newH, newS, newL);
         return {
           ...prev,
-          r: allFormats.rgb[0], g: allFormats.rgb[1], b: allFormats.rgb[2],
-          c: allFormats.cmyk[0], m: allFormats.cmyk[1], y: allFormats.cmyk[2], k: allFormats.cmyk[3],
-          h: newH, s: newS, l: newL,
-          hsbS: allFormats.hsb[1], v: allFormats.hsb[2],
+          r: allFormats.rgb[0],
+          g: allFormats.rgb[1],
+          b: allFormats.rgb[2],
+          c: allFormats.cmyk[0],
+          m: allFormats.cmyk[1],
+          y: allFormats.cmyk[2],
+          k: allFormats.cmyk[3],
+          h: newH,
+          s: newS,
+          l: newL,
+          hsbS: allFormats.hsb[1],
+          v: allFormats.hsb[2],
           hexInput: allFormats.hex.toUpperCase(),
         };
       });

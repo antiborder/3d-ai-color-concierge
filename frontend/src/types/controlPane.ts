@@ -1,3 +1,4 @@
+import type { ChangeEvent } from 'react';
 import type { ColorSpace } from './color';
 import type { ColorHistoryItem } from '../hooks/useColorHistory';
 import type { HarmonyMode, HarmonyColor } from '../utils/colorHarmony';
@@ -35,13 +36,13 @@ export interface ControlPaneProps extends BridgeProps {
   handleClick: (r: number, g: number, b: number) => void;
   handleHsvElementClick: (h: number, s: number, v: number) => void;
   onShapeClick: (shape: ColorSpace) => void;
-  onRgbChange: (event: React.ChangeEvent<HTMLInputElement>, colorParam: 'R' | 'G' | 'B') => void;
+  onRgbChange: (event: ChangeEvent<HTMLInputElement>, colorParam: 'R' | 'G' | 'B') => void;
   onCmykChange: (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HTMLInputElement>,
     colorParam: 'C' | 'M' | 'Y' | 'K'
   ) => void;
-  onHslChange: (event: React.ChangeEvent<HTMLInputElement>, colorParam: 'H' | 'S' | 'L') => void;
-  onHsvChange: (event: React.ChangeEvent<HTMLInputElement>, colorParam: 'H' | 'HsvS' | 'V') => void;
+  onHslChange: (event: ChangeEvent<HTMLInputElement>, colorParam: 'H' | 'S' | 'L') => void;
+  onHsvChange: (event: ChangeEvent<HTMLInputElement>, colorParam: 'H' | 'HsvS' | 'V') => void;
   onHexUpdate: () => void;
 
   // Setters
@@ -90,7 +91,7 @@ export interface SliderContainerProps {
   value: number;
   max: number;
   color: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   mainElement: string;
   setMainElement: (symbol: 'R' | 'G' | 'B' | 'C' | 'M' | 'Y' | 'K' | 'H' | 'S' | 'L' | 'V') => void;
   shape: ColorSpace;

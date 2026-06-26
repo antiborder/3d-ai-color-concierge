@@ -99,7 +99,7 @@ function App() {
     handleHsvElementClick,
     handleHexUpdate,
   } = useColorHandlers({
-    hexInput:       colorState.hexInput,
+    hexInput: colorState.hexInput,
     updateFromRgb,
     updateFromHsb,
     updateFromHex,
@@ -110,23 +110,22 @@ function App() {
   });
 
   // Chatbot hook for conversation history management
-  const {
-    displayHistory,
-    isModalOpen,
-    addMessage,
-    clearHistory,
-    closeModal,
-  } = useChatbot();
+  const { displayHistory, isModalOpen, addMessage, clearHistory, closeModal } = useChatbot();
 
   // Loading state for API calls
   const [isLoading, setIsLoading] = useState(false);
 
   const {
-    cssColorsEnabled, setCssColorsEnabled,
-    materialColorsEnabled, setMaterialColorsEnabled,
-    spectral12ColorsEnabled, setSpectral12ColorsEnabled,
-    japaneseColorsEnabled, setJapaneseColorsEnabled,
-    rgbGridColorsEnabled, setRgbGridColorsEnabled,
+    cssColorsEnabled,
+    setCssColorsEnabled,
+    materialColorsEnabled,
+    setMaterialColorsEnabled,
+    spectral12ColorsEnabled,
+    setSpectral12ColorsEnabled,
+    japaneseColorsEnabled,
+    setJapaneseColorsEnabled,
+    rgbGridColorsEnabled,
+    setRgbGridColorsEnabled,
     setColorSets,
   } = useDisplaySettings();
 
@@ -135,11 +134,19 @@ function App() {
   const [harmonyMode, setHarmonyMode] = useState<HarmonyMode>('none');
 
   const {
-    bridgeColorA, setBridgeColorA,
-    bridgeColorB, setBridgeColorB,
-    isBridgeOpen, setIsBridgeOpen,
-    isTwoDPickerOpen, setIsTwoDPickerOpen,
-  } = useBridgeState({ r: Math.round(colorState.r), g: Math.round(colorState.g), b: Math.round(colorState.b) });
+    bridgeColorA,
+    setBridgeColorA,
+    bridgeColorB,
+    setBridgeColorB,
+    isBridgeOpen,
+    setIsBridgeOpen,
+    isTwoDPickerOpen,
+    setIsTwoDPickerOpen,
+  } = useBridgeState({
+    r: Math.round(colorState.r),
+    g: Math.round(colorState.g),
+    b: Math.round(colorState.b),
+  });
 
   const { helpRequest, handleHelpClick } = useHelpRequest(i18n.language);
 
@@ -198,7 +205,6 @@ function App() {
       return;
     }
 
-
     addMessage({
       role: 'assistant',
       content: text,
@@ -235,27 +241,34 @@ function App() {
   // ── Prop groups ────────────────────────────────────────────────────────────
 
   const colorValues = {
-    shape:           colorState.shape,
-    focusR: colorState.r,    focusG: colorState.g,    focusB: colorState.b,
-    focusC: colorState.c,    focusM: colorState.m,    focusY: colorState.y,    focusK: colorState.k,
-    focusH: colorState.h,    focusS: colorState.s,    focusL: colorState.l,
-    focusHsvS:       colorState.hsbS,
-    focusV:          colorState.v,
-    rgbMainElement:  colorState.rgbMainElement,
+    shape: colorState.shape,
+    focusR: colorState.r,
+    focusG: colorState.g,
+    focusB: colorState.b,
+    focusC: colorState.c,
+    focusM: colorState.m,
+    focusY: colorState.y,
+    focusK: colorState.k,
+    focusH: colorState.h,
+    focusS: colorState.s,
+    focusL: colorState.l,
+    focusHsvS: colorState.hsbS,
+    focusV: colorState.v,
+    rgbMainElement: colorState.rgbMainElement,
     cmykMainElement: colorState.cmykMainElement,
-    hslMainElement:  colorState.hslMainElement,
-    hsbMainElement:  colorState.hsbMainElement,
+    hslMainElement: colorState.hslMainElement,
+    hsbMainElement: colorState.hsbMainElement,
   };
 
   const colorHandlers = {
-    handleLabel:           toggleLabel,
+    handleLabel: toggleLabel,
     handleClick,
     handleHsvElementClick,
-    onShapeClick:          setShape,
-    onRgbChange:           handleRgbChange,
-    onCmykChange:          handleCmykChange,
-    onHslChange:           handleHslChange,
-    onHsvChange:           handleHsvChange,
+    onShapeClick: setShape,
+    onRgbChange: handleRgbChange,
+    onCmykChange: handleCmykChange,
+    onHslChange: handleHslChange,
+    onHsvChange: handleHsvChange,
     setRgbMainElement,
     setCmykMainElement,
     setHslMainElement,
@@ -268,8 +281,8 @@ function App() {
   };
 
   const bridgeForStructure = {
-    bridgeColorA:    isBridgeOpen ? bridgeColorA : undefined,
-    bridgeColorB:    isBridgeOpen ? bridgeColorB : undefined,
+    bridgeColorA: isBridgeOpen ? bridgeColorA : undefined,
+    bridgeColorB: isBridgeOpen ? bridgeColorB : undefined,
     isBridgeOpen,
     isTwoDPickerOpen,
   };
@@ -277,10 +290,10 @@ function App() {
   const bridgeForControlPane = {
     bridgeColorA,
     bridgeColorB,
-    onSetBridgeColorA:      setBridgeColorA,
-    onSetBridgeColorB:      setBridgeColorB,
+    onSetBridgeColorA: setBridgeColorA,
+    onSetBridgeColorB: setBridgeColorB,
     isBridgeOpen,
-    onBridgeOpenChange:     setIsBridgeOpen,
+    onBridgeOpenChange: setIsBridgeOpen,
     isTwoDPickerOpen,
     onTwoDPickerOpenChange: setIsTwoDPickerOpen,
   };
@@ -294,11 +307,11 @@ function App() {
   };
 
   const displaySettingsHandlers = {
-    onCssColorsToggle:        setCssColorsEnabled,
-    onMaterialColorsToggle:   setMaterialColorsEnabled,
+    onCssColorsToggle: setCssColorsEnabled,
+    onMaterialColorsToggle: setMaterialColorsEnabled,
     onSpectral12ColorsToggle: setSpectral12ColorsEnabled,
-    onJapaneseColorsToggle:   setJapaneseColorsEnabled,
-    onRgbGridColorsToggle:    setRgbGridColorsEnabled,
+    onJapaneseColorsToggle: setJapaneseColorsEnabled,
+    onRgbGridColorsToggle: setRgbGridColorsEnabled,
   };
 
   const harmonyState = {

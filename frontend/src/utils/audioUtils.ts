@@ -7,7 +7,11 @@ export function floatTo16BitPCM(input: Float32Array): Int16Array {
   return output;
 }
 
-export function downsample(buffer: Float32Array, inputRate: number, outputRate: number): Float32Array {
+export function downsample(
+  buffer: Float32Array,
+  inputRate: number,
+  outputRate: number
+): Float32Array {
   if (outputRate === inputRate) return buffer;
   const ratio = inputRate / outputRate;
   const newLength = Math.round(buffer.length / ratio);

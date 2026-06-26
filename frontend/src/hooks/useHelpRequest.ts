@@ -77,12 +77,15 @@ const HELP_TEXTS_JA: Record<string, string> = {
 export function useHelpRequest(language: string) {
   const [helpRequest, setHelpRequest] = useState<{ text: string; id: number } | null>(null);
 
-  const handleHelpClick = useCallback((topic: string) => {
-    const isEn = language === 'en';
-    const helpTexts = isEn ? HELP_TEXTS_EN : HELP_TEXTS_JA;
-    const text = helpTexts[topic] ?? (isEn ? `What is ${topic}?` : `${topic}とは？`);
-    setHelpRequest({ text, id: Date.now() });
-  }, [language]);
+  const handleHelpClick = useCallback(
+    (topic: string) => {
+      const isEn = language === 'en';
+      const helpTexts = isEn ? HELP_TEXTS_EN : HELP_TEXTS_JA;
+      const text = helpTexts[topic] ?? (isEn ? `What is ${topic}?` : `${topic}とは？`);
+      setHelpRequest({ text, id: Date.now() });
+    },
+    [language]
+  );
 
   return { helpRequest, handleHelpClick };
 }

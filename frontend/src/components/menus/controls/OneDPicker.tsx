@@ -24,9 +24,7 @@ const OneDPicker = (props: OneDPickerProps) => {
         }}
       >
         <span style={{ fontWeight: 600, fontSize: '16px' }}>1D Picker</span>
-        {props.onHelpClick && (
-          <HelpIcon topic="1d_picker" onHelpClick={props.onHelpClick} />
-        )}
+        {props.onHelpClick && <HelpIcon topic="1d_picker" onHelpClick={props.onHelpClick} />}
       </div>
       <ColorBridge
         currentColor={props.currentColor}

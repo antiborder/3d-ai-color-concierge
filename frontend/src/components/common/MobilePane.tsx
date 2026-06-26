@@ -8,9 +8,24 @@ import ColorHarmonyPanel from '../menus/ColorHarmonyPanel';
 import ColorHistoryPanel from '../menus/ColorHistoryPanel';
 import ColorSearchPanel from '../menus/ColorSearchPanel';
 import type { ControlPaneProps, ColorPanelProps } from '../../types/controlPane';
-import { IconSliders, IconOneDPicker, IconCIE, IconPalette, IconHarmony, IconHistory, IconSearch } from './MenuIcons';
+import {
+  IconSliders,
+  IconOneDPicker,
+  IconCIE,
+  IconPalette,
+  IconHarmony,
+  IconHistory,
+  IconSearch,
+} from './MenuIcons';
 
-export type MobileSheetId = 'control' | 'oneDPicker' | 'cie' | 'displayed' | 'harmony' | 'history' | 'search';
+export type MobileSheetId =
+  | 'control'
+  | 'oneDPicker'
+  | 'cie'
+  | 'displayed'
+  | 'harmony'
+  | 'history'
+  | 'search';
 
 interface MobilePaneProps extends ControlPaneProps, ColorPanelProps {}
 
@@ -67,31 +82,46 @@ const MobilePane = (props: MobilePaneProps) => {
       <MobileMenuBar activeSheet={activeSheet} onIconClick={onIconClick} />
 
       {activeSheet === 'control' && (
-        <SheetBlock><ControlPaneSliders {...controlPaneProps} /></SheetBlock>
+        <SheetBlock>
+          <ControlPaneSliders {...controlPaneProps} />
+        </SheetBlock>
       )}
       {activeSheet === 'oneDPicker' && (
-        <SheetBlock><OneDPickerPanel {...controlPaneProps} /></SheetBlock>
+        <SheetBlock>
+          <OneDPickerPanel {...controlPaneProps} />
+        </SheetBlock>
       )}
       {activeSheet === 'cie' && (
-        <SheetBlock><CIEPanel {...controlPaneProps} /></SheetBlock>
+        <SheetBlock>
+          <CIEPanel {...controlPaneProps} />
+        </SheetBlock>
       )}
       {activeSheet === 'displayed' && (
-        <SheetBlock><DisplayedColorsPanel {...displaySettingsProps} /></SheetBlock>
+        <SheetBlock>
+          <DisplayedColorsPanel {...displaySettingsProps} />
+        </SheetBlock>
       )}
       {activeSheet === 'harmony' && (
-        <SheetBlock><ColorHarmonyPanel {...harmonyPanelProps} /></SheetBlock>
+        <SheetBlock>
+          <ColorHarmonyPanel {...harmonyPanelProps} />
+        </SheetBlock>
       )}
       {activeSheet === 'history' && (
         <SheetBlock>
           {colorHistory.length > 1 ? (
-            <ColorHistoryPanel history={colorHistory} onColorSelect={controlPaneProps.handleClick} />
+            <ColorHistoryPanel
+              history={colorHistory}
+              onColorSelect={controlPaneProps.handleClick}
+            />
           ) : (
             <EmptyHistory>No color history yet.</EmptyHistory>
           )}
         </SheetBlock>
       )}
       {activeSheet === 'search' && (
-        <SheetBlock><ColorSearchPanel onColorSelect={controlPaneProps.handleClick} autoFocus /></SheetBlock>
+        <SheetBlock>
+          <ColorSearchPanel onColorSelect={controlPaneProps.handleClick} autoFocus />
+        </SheetBlock>
       )}
     </>
   );

@@ -49,7 +49,7 @@ export class ColorConverter {
     const cmyk = convert.rgb.cmyk(rgb);
     const hsvValues = convert.rgb.hsv(rgb);
     const hex = convert.rgb.hex(rgb);
-    
+
     // Preserve input HSL values instead of recalculating from RGB
     return {
       rgb,

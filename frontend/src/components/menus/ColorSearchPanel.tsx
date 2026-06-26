@@ -17,9 +17,7 @@ interface ColorSearchPanelProps {
 
 function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   const m = /^#([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return m
-    ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) }
-    : null;
+  return m ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) } : null;
 }
 
 const ColorSearchPanel = ({ onColorSelect, autoFocus = false }: ColorSearchPanelProps) => {
@@ -29,11 +27,7 @@ const ColorSearchPanel = ({ onColorSelect, autoFocus = false }: ColorSearchPanel
     if (!query.trim()) return [];
     const lower = query.toLowerCase();
     return (sampleColors as ColorItem[])
-      .filter(
-        (c) =>
-          c.name1.toLowerCase().includes(lower) ||
-          c.name2.toLowerCase().includes(lower)
-      )
+      .filter((c) => c.name1.toLowerCase().includes(lower) || c.name2.toLowerCase().includes(lower))
       .slice(0, 50);
   }, [query]);
 

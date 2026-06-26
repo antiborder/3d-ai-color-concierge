@@ -7,13 +7,20 @@ export { LOCUS, CMF };
 const LOCUS_POLY: Array<[number, number]> = LOCUS.map(([, x, y]) => [x, y]);
 
 // Canvas layout constants
-const CW = 206, LM = 26, RM = 4, TM = 6, BM = 20;
+const CW = 206,
+  LM = 26,
+  RM = 4,
+  TM = 6,
+  BM = 20;
 const DW = CW - LM - RM; // diagram width in pixels
-const X0 = 0, XN = 0.80, Y0 = 0, YN = 0.88;
-const DH = Math.round(DW * (YN - Y0) / (XN - X0));
+const X0 = 0,
+  XN = 0.8,
+  Y0 = 0,
+  YN = 0.88;
+const DH = Math.round((DW * (YN - Y0)) / (XN - X0));
 const CH = DH + TM + BM;
 
-const tx = (x: number) => LM + (x - X0) / (XN - X0) * DW;
+const tx = (x: number) => LM + ((x - X0) / (XN - X0)) * DW;
 const ty = (y: number) => TM + (1 - (y - Y0) / (YN - Y0)) * DH;
 
 function inPoly(px: number, py: number, p: Array<[number, number]>): boolean {
@@ -21,8 +28,9 @@ function inPoly(px: number, py: number, p: Array<[number, number]>): boolean {
   const n = p.length;
   let j = n - 1;
   for (let i = 0; i < n; i++) {
-    const [xi, yi] = p[i], [xj, yj] = p[j];
-    if ((yi > py) !== (yj > py) && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) {
+    const [xi, yi] = p[i],
+      [xj, yj] = p[j];
+    if (yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) {
       inside = !inside;
     }
     j = i;
@@ -33,25 +41,36 @@ function inPoly(px: number, py: number, p: Array<[number, number]>): boolean {
 // xy chromaticity → sRGB [0,255] (normalized by max component so the gamut always shows color)
 function xyToRGB(x: number, y: number): [number, number, number] {
   if (y <= 0) return [0, 0, 0];
-  const X = x / y, Y = 1, Z = (1 - x - y) / y;
-  let r =  3.2406 * X - 1.5372 * Y - 0.4986 * Z;
+  const X = x / y,
+    Y = 1,
+    Z = (1 - x - y) / y;
+  let r = 3.2406 * X - 1.5372 * Y - 0.4986 * Z;
   let g = -0.9689 * X + 1.8758 * Y + 0.0415 * Z;
-  let b =  0.0557 * X - 0.2040 * Y + 1.0570 * Z;
-  r = Math.max(0, r); g = Math.max(0, g); b = Math.max(0, b);
+  let b = 0.0557 * X - 0.204 * Y + 1.057 * Z;
+  r = Math.max(0, r);
+  g = Math.max(0, g);
+  b = Math.max(0, b);
   const m = Math.max(r, g, b, 1e-9);
-  r /= m; g /= m; b /= m;
-  const gc = (c: number) => c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055;
+  r /= m;
+  g /= m;
+  b /= m;
+  const gc = (c: number) => (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);
   return [Math.round(gc(r) * 255), Math.round(gc(g) * 255), Math.round(gc(b) * 255)];
 }
 
 function rgbToXY(r: number, g: number, b: number): [number, number] {
-  const lin = (c: number) => { const s = c / 255; return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; };
-  const rl = lin(r), gl = lin(g), bl = lin(b);
+  const lin = (c: number) => {
+    const s = c / 255;
+    return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  };
+  const rl = lin(r),
+    gl = lin(g),
+    bl = lin(b);
   const X = 0.4124564 * rl + 0.3575761 * gl + 0.1804375 * bl;
-  const Yv = 0.2126729 * rl + 0.7151522 * gl + 0.0721750 * bl;
-  const Z = 0.0193339 * rl + 0.1191920 * gl + 0.9503041 * bl;
+  const Yv = 0.2126729 * rl + 0.7151522 * gl + 0.072175 * bl;
+  const Z = 0.0193339 * rl + 0.119192 * gl + 0.9503041 * bl;
   const s = X + Yv + Z;
-  return s < 1e-10 ? [0.3127, 0.3290] : [X / s, Yv / s];
+  return s < 1e-10 ? [0.3127, 0.329] : [X / s, Yv / s];
 }
 
 type Props = Pick<ControlPaneProps, 'focusR' | 'focusG' | 'focusB'>;
@@ -74,12 +93,15 @@ const CIExyDiagram = ({ focusR, focusG, focusB }: Props) => {
       const d = img.data;
       for (let py = TM; py < TM + DH; py++) {
         for (let px = LM; px < LM + DW; px++) {
-          const x = X0 + (px - LM) / DW * (XN - X0);
+          const x = X0 + ((px - LM) / DW) * (XN - X0);
           const y = Y0 + (1 - (py - TM) / DH) * (YN - Y0);
           if (inPoly(x, y, LOCUS_POLY)) {
             const [rr, gg, bb] = xyToRGB(x, y);
             const i = (py * CW + px) * 4;
-            d[i] = rr; d[i + 1] = gg; d[i + 2] = bb; d[i + 3] = 255;
+            d[i] = rr;
+            d[i + 1] = gg;
+            d[i + 2] = bb;
+            d[i + 3] = 255;
           }
         }
       }
@@ -101,16 +123,18 @@ const CIExyDiagram = ({ focusR, focusG, focusB }: Props) => {
     ctx.strokeStyle = '#aaa';
     ctx.lineWidth = 0.5;
     ctx.beginPath();
-    ctx.moveTo(LM, TM + DH); ctx.lineTo(LM + DW, TM + DH);
-    ctx.moveTo(LM, TM); ctx.lineTo(LM, TM + DH);
+    ctx.moveTo(LM, TM + DH);
+    ctx.lineTo(LM + DW, TM + DH);
+    ctx.moveTo(LM, TM);
+    ctx.lineTo(LM, TM + DH);
     ctx.stroke();
 
     ctx.fillStyle = '#666';
     ctx.font = '9px sans-serif';
     ctx.textAlign = 'center';
-    [0.0, 0.2, 0.4, 0.6, 0.8].forEach(v => ctx.fillText(v.toFixed(1), tx(v), CH - 5));
+    [0.0, 0.2, 0.4, 0.6, 0.8].forEach((v) => ctx.fillText(v.toFixed(1), tx(v), CH - 5));
     ctx.textAlign = 'right';
-    [0.0, 0.2, 0.4, 0.6, 0.8].forEach(v => ctx.fillText(v.toFixed(1), LM - 3, ty(v) + 3));
+    [0.0, 0.2, 0.4, 0.6, 0.8].forEach((v) => ctx.fillText(v.toFixed(1), LM - 3, ty(v) + 3));
     ctx.textAlign = 'center';
     ctx.fillText('x', LM + DW / 2, CH);
     ctx.save();
@@ -120,17 +144,20 @@ const CIExyDiagram = ({ focusR, focusG, focusB }: Props) => {
     ctx.restore();
 
     // Wavelength tick marks with radial labels
-    const centX = tx(0.33), centY = ty(0.33);
+    const centX = tx(0.33),
+      centY = ty(0.33);
     [460, 490, 510, 530, 560, 600, 650].forEach((wl) => {
       const pt = LOCUS.find(([nm]) => nm === wl);
       if (!pt) return;
       const [, lx, ly] = pt;
-      const px = tx(lx), py = ty(ly);
+      const px = tx(lx),
+        py = ty(ly);
       ctx.beginPath();
       ctx.arc(px, py, 2, 0, Math.PI * 2);
       ctx.fillStyle = '#111';
       ctx.fill();
-      const dx = px - centX, dy = py - centY;
+      const dx = px - centX,
+        dy = py - centY;
       const len = Math.sqrt(dx * dx + dy * dy);
       ctx.font = '8px sans-serif';
       ctx.fillStyle = '#111';
@@ -140,12 +167,14 @@ const CIExyDiagram = ({ focusR, focusG, focusB }: Props) => {
 
     // sRGB gamut triangle
     const srgbVerts: Array<[number, number, string, number, number]> = [
-      [0.6400, 0.3300, 'R', 10, 3],
-      [0.3000, 0.6000, 'G', -4, -8],
-      [0.1500, 0.0600, 'B', -10, 4],
+      [0.64, 0.33, 'R', 10, 3],
+      [0.3, 0.6, 'G', -4, -8],
+      [0.15, 0.06, 'B', -10, 4],
     ];
     ctx.beginPath();
-    srgbVerts.forEach(([x, y], i) => (i === 0 ? ctx.moveTo(tx(x), ty(y)) : ctx.lineTo(tx(x), ty(y))));
+    srgbVerts.forEach(([x, y], i) =>
+      i === 0 ? ctx.moveTo(tx(x), ty(y)) : ctx.lineTo(tx(x), ty(y))
+    );
     ctx.closePath();
     ctx.strokeStyle = 'rgba(255,255,255,0.9)';
     ctx.lineWidth = 1.5;
@@ -153,7 +182,8 @@ const CIExyDiagram = ({ focusR, focusG, focusB }: Props) => {
     ctx.stroke();
     ctx.setLineDash([]);
     srgbVerts.forEach(([x, y, label, ox, oy]) => {
-      const px = tx(x), py = ty(y);
+      const px = tx(x),
+        py = ty(y);
       ctx.beginPath();
       ctx.arc(px, py, 3, 0, Math.PI * 2);
       ctx.fillStyle = 'white';
@@ -173,7 +203,7 @@ const CIExyDiagram = ({ focusR, focusG, focusB }: Props) => {
 
     // D65 white point
     ctx.beginPath();
-    ctx.arc(tx(0.3127), ty(0.3290), 3, 0, Math.PI * 2);
+    ctx.arc(tx(0.3127), ty(0.329), 3, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(255,255,255,0.9)';
     ctx.fill();
     ctx.strokeStyle = '#888';
@@ -181,7 +211,8 @@ const CIExyDiagram = ({ focusR, focusG, focusB }: Props) => {
     ctx.stroke();
 
     // Current color marker
-    const mx = tx(cx), my = ty(cy);
+    const mx = tx(cx),
+      my = ty(cy);
     ctx.beginPath();
     ctx.arc(mx, my, 5, 0, Math.PI * 2);
     ctx.fillStyle = `rgb(${focusR},${focusG},${focusB})`;
@@ -208,7 +239,15 @@ const CIExyDiagram = ({ focusR, focusG, focusB }: Props) => {
           height={CH}
           style={{ display: 'block', margin: '4px auto 0' }}
         />
-        <div style={{ fontSize: '11px', color: '#555', textAlign: 'center', marginTop: '2px', fontFamily: 'monospace' }}>
+        <div
+          style={{
+            fontSize: '11px',
+            color: '#555',
+            textAlign: 'center',
+            marginTop: '2px',
+            fontFamily: 'monospace',
+          }}
+        >
           x&nbsp;=&nbsp;{cx.toFixed(4)}&emsp;y&nbsp;=&nbsp;{cy.toFixed(4)}
         </div>
       </>

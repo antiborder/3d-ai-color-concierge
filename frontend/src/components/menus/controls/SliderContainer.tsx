@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import styled from 'styled-components';
 import type { SliderContainerProps } from '../../../types/controlPane';
 import HelpIcon from '../../common/HelpIcon';
@@ -7,7 +7,7 @@ const SliderContainer = (props: SliderContainerProps) => {
   const [, setValue] = useState(props.value);
   const isActive = props.mainElement === props.symbol && props.shape === props.panelShape;
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setValue(Number(event.target.value));
     props.onChange(event);
   };

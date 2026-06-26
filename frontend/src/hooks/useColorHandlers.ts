@@ -1,3 +1,5 @@
+import type { ChangeEvent } from 'react';
+
 interface UseColorHandlersParams {
   hexInput: string;
   updateFromRgb: (r: number, g: number, b: number) => void;
@@ -20,22 +22,22 @@ export function useColorHandlers({
   updateHsvValue,
 }: UseColorHandlersParams) {
   const handleRgbChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HTMLInputElement>,
     colorParam: 'R' | 'G' | 'B'
   ) => updateRgbValue(colorParam, Number(event.target.value));
 
   const handleCmykChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HTMLInputElement>,
     colorParam: 'C' | 'M' | 'Y' | 'K'
   ) => updateCmykValue(colorParam, Number(event.target.value));
 
   const handleHslChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HTMLInputElement>,
     colorParam: 'H' | 'S' | 'L'
   ) => updateHslValue(colorParam, Number(event.target.value));
 
   const handleHsvChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HTMLInputElement>,
     colorParam: 'H' | 'HsvS' | 'V'
   ) => updateHsvValue(colorParam, Number(event.target.value));
 

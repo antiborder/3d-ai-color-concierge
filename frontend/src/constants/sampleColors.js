@@ -5122,7 +5122,6 @@ const sampleColors = [
   { hex: '#FFFFAA', name1: 'R255 G255 B170', name2: '', name3: '', tag: ['RGB_GRID'] },
   { hex: '#FFFFD5', name1: 'R255 G255 B213', name2: '', name3: '', tag: ['RGB_GRID'] },
   { hex: '#FFFFFF', name1: 'R255 G255 B255', name2: '', name3: '', tag: ['RGB_GRID'] },
-
 ];
 
 export default sampleColors;
