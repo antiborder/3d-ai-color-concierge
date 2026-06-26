@@ -6,7 +6,6 @@ import hmac
 import os
 import secrets
 import time
-from typing import Optional
 
 
 def _b64u(b: bytes) -> str:
@@ -29,7 +28,7 @@ def mint_ws_token(ttl_seconds: int = 60) -> str:
 
     exp = int(time.time()) + ttl_seconds
     nonce = secrets.token_urlsafe(16)
-    msg = f"{exp}.{nonce}".encode("utf-8")
+    msg = f"{exp}.{nonce}".encode()
     sig = hmac.new(secret.encode("utf-8"), msg, hashlib.sha256).digest()
     return f"{exp}.{nonce}.{_b64u(sig)}"
 
@@ -48,7 +47,7 @@ def verify_ws_token(token: str) -> bool:
     if exp < int(time.time()):
         return False
 
-    msg = f"{exp}.{nonce}".encode("utf-8")
+    msg = f"{exp}.{nonce}".encode()
     expected = hmac.new(secret.encode("utf-8"), msg, hashlib.sha256).digest()
     try:
         got = _b64u_decode(sig_s)
@@ -57,7 +56,7 @@ def verify_ws_token(token: str) -> bool:
     return hmac.compare_digest(expected, got)
 
 
-def extract_cookie(cookie_header: Optional[str], name: str) -> Optional[str]:
+def extract_cookie(cookie_header: str | None, name: str) -> str | None:
     if not cookie_header:
         return None
     # naive cookie parse (good enough here)
@@ -72,4 +71,3 @@ def extract_cookie(cookie_header: Optional[str], name: str) -> Optional[str]:
         if k.strip() == name:
             return v.strip()
     return None
-

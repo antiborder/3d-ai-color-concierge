@@ -116,7 +116,10 @@ async def log_sdk_debug_info(live_session: object) -> None:
                         pass
                 except Exception:
                     pass
-            logger.info("google-genai types debug %s", json.dumps(types_debug, ensure_ascii=False))
+            logger.info(
+                "google-genai types debug %s",
+                json.dumps(types_debug, ensure_ascii=False),
+            )
         except Exception as e:
             logger.info("google-genai types debug failed %s", str(e))
     except Exception as e:

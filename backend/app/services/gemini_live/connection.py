@@ -23,13 +23,7 @@ def build_live_connect_config(cfg: GeminiLiveConfig) -> dict[str, Any]:
         "response_modalities": ["AUDIO"],
         "system_instruction": live_system_instruction(cfg.language),
         "tools": live_tools(),
-        "speech_config": {
-            "voice_config": {
-                "prebuilt_voice_config": {
-                    "voice_name": "Zephyr"
-                }
-            }
-        },
+        "speech_config": {"voice_config": {"prebuilt_voice_config": {"voice_name": "Zephyr"}}},
         # Ask the server to generate an automatic transcript for the model's output audio.
         # This gives "audio-consistent" text without requiring response_modalities=["TEXT"].
         "output_audio_transcription": {},

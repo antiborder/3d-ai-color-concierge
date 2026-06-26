@@ -35,3 +35,27 @@ jobs:
 
       - name: Format check
         run: npm run format:check
+
+  backend-lint-format:
+    name: Backend Lint / Format
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install ruff
+        run: pip install -r requirements-dev.txt
+
+      - name: Lint
+        run: ruff check app/
+
+      - name: Format check
+        run: ruff format --check app/

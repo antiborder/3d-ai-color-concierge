@@ -4,10 +4,8 @@ Gemini Live 転写/テキスト抽出関連のヘルパー関数。
 
 from __future__ import annotations
 
-from typing import Optional
 
-
-def extract_text_from_transcription_obj(x) -> Optional[str]:
+def extract_text_from_transcription_obj(x) -> str | None:
     """
     受信メッセージ内の「書き起こし」オブジェクトからテキストを取り出すためのbest-effort。
     `output_audio_transcription` 由来の構造は SDK/モデルで変わり得るため、落ちない抽出を優先する。
@@ -47,7 +45,7 @@ def extract_text_from_transcription_obj(x) -> Optional[str]:
     return None
 
 
-def extract_finished_from_transcription_obj(x) -> Optional[bool]:
+def extract_finished_from_transcription_obj(x) -> bool | None:
     """
     output_transcription / output_audio_transcription オブジェクトから finished フラグを取り出す best-effort。
     """

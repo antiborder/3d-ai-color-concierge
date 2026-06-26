@@ -27,8 +27,10 @@ import asyncio
 import json
 import logging
 import time
+
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
+from app.config.settings import settings
 from app.services.gemini_live_client import (
     DEFAULT_INPUT_SAMPLE_RATE_HZ,
     DEFAULT_OUTPUT_SAMPLE_RATE_HZ,
@@ -42,18 +44,17 @@ from app.services.gemini_live_types import (
     LiveErrorEvent,
     LiveTranscriptEvent,
 )
-from app.utils.ws_auth import extract_cookie, verify_ws_token
 from app.services.prompts.common import get_color_service_for_prompt
 from app.utils.origin_check import is_origin_allowed
 from app.utils.rate_limit import FixedWindowRateLimiter
-from app.config.settings import settings
-
+from app.utils.ws_auth import extract_cookie, verify_ws_token
 
 router = APIRouter()
 
 _conn_limiter = FixedWindowRateLimiter(limit=20, window_seconds=60)
 # Use uvicorn logger so it ends up in backend-local.log consistently.
 logger = logging.getLogger("uvicorn.error")
+
 
 def _clamp_int(v, lo: int, hi: int):
     try:
@@ -132,7 +133,9 @@ async def live_voice_ws(ws: WebSocket):
 
     # crude rate limit by client ip (x-forwarded-for first)
     xff = ws.headers.get("x-forwarded-for", "")
-    client_ip = (xff.split(",")[0].strip() if xff else None) or (ws.client.host if ws.client else "unknown")
+    client_ip = (xff.split(",")[0].strip() if xff else None) or (
+        ws.client.host if ws.client else "unknown"
+    )
     if not _conn_limiter.allow(client_ip):
         logger.info("WS reject: rate limited", {"client_ip": client_ip})
         try:
@@ -145,7 +148,11 @@ async def live_voice_ws(ws: WebSocket):
 
     # Auth token via HttpOnly cookie or query param (dev fallback for 3P-cookie blocked browsers)
     cookie = ws.headers.get("cookie")
-    token = extract_cookie(cookie, "ws_token") or ws.query_params.get("ws_token") or ws.query_params.get("token")
+    token = (
+        extract_cookie(cookie, "ws_token")
+        or ws.query_params.get("ws_token")
+        or ws.query_params.get("token")
+    )
     if not token or not verify_ws_token(token):
         logger.info(
             "WS reject: missing/invalid ws_token cookie",
@@ -158,7 +165,9 @@ async def live_voice_ws(ws: WebSocket):
         )
         try:
             await ws.accept()
-            await ws.send_text(json.dumps({"type": "error", "message": "Auth token missing or invalid"}))
+            await ws.send_text(
+                json.dumps({"type": "error", "message": "Auth token missing or invalid"})
+            )
         except Exception:
             pass
         await ws.close(code=1008)
@@ -171,7 +180,9 @@ async def live_voice_ws(ws: WebSocket):
         first = await ws.receive_text()
         msg = json.loads(first)
         if msg.get("type") != "start":
-            await ws.send_text(json.dumps({"type": "error", "message": "First message must be {type:'start'}"}))
+            await ws.send_text(
+                json.dumps({"type": "error", "message": "First message must be {type:'start'}"})
+            )
             await ws.close(code=1002)
             return
         language = msg.get("language", "ja")
@@ -203,7 +214,7 @@ async def live_voice_ws(ws: WebSocket):
     cfg = default_live_config(language=language)
     stop_evt = asyncio.Event()
     color_state_received = asyncio.Event()
-    
+
     # パフォーマンス測定用のタイムスタンプ追跡
     session_id = id(ws)
     perf_timestamps = {
@@ -264,7 +275,9 @@ async def live_voice_ws(ws: WebSocket):
                                             sorted(list(color.keys())),
                                         )
                                     except Exception:
-                                        logger.info("LIVE_CHAT_DEBUG recv color_state (failed to log details)")
+                                        logger.info(
+                                            "LIVE_CHAT_DEBUG recv color_state (failed to log details)"
+                                        )
                     except Exception:
                         # 不正テキストは無視（プロトコル簡略化）
                         continue
@@ -306,7 +319,9 @@ async def live_voice_ws(ws: WebSocket):
         except Exception as e:
             # 接続が既に閉じられている可能性があるため、送信はbest-effort
             try:
-                await ws.send_text(json.dumps({"type": "error", "message": f"client receive error: {e}"}))
+                await ws.send_text(
+                    json.dumps({"type": "error", "message": f"client receive error: {e}"})
+                )
             except Exception:
                 pass
             try:
@@ -320,7 +335,7 @@ async def live_voice_ws(ws: WebSocket):
             if stop_evt.is_set():
                 return
             now = time.time()
-            
+
             if isinstance(ev, LiveAudioChunk) and ev.direction == "out":
                 # 最初の音声チャンクのログを常に出力（last_gemini_responseの状態に関わらず）
                 if not perf_timestamps.get("first_audio_chunk_logged"):
@@ -427,7 +442,9 @@ async def live_voice_ws(ws: WebSocket):
                     )
                 )
             elif isinstance(ev, LiveErrorEvent):
-                await ws.send_text(json.dumps({"type": "error", "message": ev.message, "code": ev.code}))
+                await ws.send_text(
+                    json.dumps({"type": "error", "message": ev.message, "code": ev.code})
+                )
 
     async def send_introduction(session: GeminiLiveSession):
         """
@@ -435,6 +452,7 @@ async def live_voice_ws(ws: WebSocket):
         """
         # 自己紹介プロンプト（短く、色に言及し、提案を含める）
         from app.services.prompts.introduction import build_introduction_prompt
+
         introduction_prompt = build_introduction_prompt(language)
         try:
             await session.send_text(introduction_prompt)
@@ -448,7 +466,7 @@ async def live_voice_ws(ws: WebSocket):
             intro_task = None
             if is_first_time:
                 intro_task = asyncio.create_task(send_introduction(session))
-            
+
             t1 = asyncio.create_task(client_to_live(session))
             t2 = asyncio.create_task(live_to_client(session))
 
@@ -479,4 +497,3 @@ async def live_voice_ws(ws: WebSocket):
         await ws.close()
     except Exception:
         pass
-

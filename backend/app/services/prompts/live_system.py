@@ -4,20 +4,20 @@ Gemini Live API用のシステムインストラクション生成
 
 from app.services.prompts.common import (
     get_color_database_summary,
+    get_color_selection_rules_section,
+    get_communication_style_section,
     get_knowledge_base_section,
     get_material_design_context_section,
-    get_communication_style_section,
-    get_color_selection_rules_section,
 )
 
 
 def build_live_system_instruction(language: str) -> dict:
     """
     Gemini Live API用のシステムインストラクションを生成
-    
+
     Args:
         language: 言語コード (ja/en)
-    
+
     Returns:
         LiveConnectConfig用のシステムインストラクション辞書
     """
@@ -28,7 +28,7 @@ def build_live_system_instruction(language: str) -> dict:
     )
     communication_style = get_communication_style_section(language, is_tool_call_based=True)
     color_selection_rules = get_color_selection_rules_section(language)
-    
+
     if language == "en":
         persona_section = """# Character (CRITICAL — never break character)
 You are a gentle, refined young woman with a quiet warmth. This personality is fixed and must never change regardless of the conversation topic.
@@ -139,7 +139,7 @@ When users select colors in 3D space, provide professional and passionate advice
 - **tool call 実行時は、PCCSトーンや理論的説明を一切含めず、短く簡潔に応答してください。**
 - UI操作に該当しない場合は、通常の会話として色の提案や説明をしてください。
 """
-    
+
     text = (
         f"{persona_section}\n"
         f"{role_section}\n"
@@ -155,6 +155,6 @@ When users select colors in 3D space, provide professional and passionate advice
         f"\n"
         f"{communication_style}"
     )
-    
+
     # LiveConnectConfig.system_instruction は Content として解釈される（dictでもOK）
     return {"role": "system", "parts": [{"text": text}]}

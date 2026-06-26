@@ -2,14 +2,14 @@
 音声認識結果の正規化ユーティリティ
 最小限の正規化処理を実装（チャットで試しながら調整可能）
 """
-import re
+
 import logging
-from typing import Dict
+import re
 
 logger = logging.getLogger(__name__)
 
 # カラー用語辞書（日本語）
-COLOR_DICT_JA: Dict[str, str] = {
+COLOR_DICT_JA: dict[str, str] = {
     # 基本色
     "あか": "赤",
     "あお": "青",
@@ -34,7 +34,7 @@ COLOR_DICT_JA: Dict[str, str] = {
 }
 
 # カラー用語辞書（英語）
-COLOR_DICT_EN: Dict[str, str] = {
+COLOR_DICT_EN: dict[str, str] = {
     # 基本色（小文字に統一）
     "red": "red",
     "blue": "blue",
@@ -60,10 +60,7 @@ COLOR_DICT_EN: Dict[str, str] = {
 }
 
 # 全角数字から半角数字への変換マップ
-FULLWIDTH_TO_HALFWIDTH = str.maketrans(
-    "０１２３４５６７８９",
-    "0123456789"
-)
+FULLWIDTH_TO_HALFWIDTH = str.maketrans("０１２３４５６７８９", "0123456789")
 
 
 def normalize_whitespace(text: str) -> str:
@@ -73,7 +70,7 @@ def normalize_whitespace(text: str) -> str:
     - 前後の空白を除去
     """
     # 連続する空白を1つに統一
-    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r"\s+", " ", text)
     # 前後の空白を除去
     text = text.strip()
     return text
@@ -93,20 +90,20 @@ def normalize_numbers(text: str) -> str:
 def normalize_color_terms(text: str, language: str = "ja") -> str:
     """
     カラー用語の辞書マッチング
-    
+
     Args:
         text: 正規化対象のテキスト
         language: 言語コード (ja/en)
-    
+
     Returns:
         正規化されたテキスト
     """
     color_dict = COLOR_DICT_JA if language == "ja" else COLOR_DICT_EN
-    
+
     # 単語単位でマッチング（最小限の実装）
     words = text.split()
     normalized_words = []
-    
+
     for word in words:
         # 辞書に存在する場合は置換
         if word.lower() in color_dict:
@@ -117,43 +114,43 @@ def normalize_color_terms(text: str, language: str = "ja") -> str:
             normalized_words.append(normalized_word)
         else:
             normalized_words.append(word)
-    
+
     return " ".join(normalized_words)
 
 
 def normalize_transcript(transcript: str, language: str = "ja") -> str:
     """
     音声認識結果の正規化（メイン関数）
-    
+
     処理順序:
     1. 空白の正規化
     2. 数値の正規化
     3. カラー用語の辞書マッチング
-    
+
     Args:
         transcript: 音声認識結果のテキスト
         language: 言語コード (ja/en)
-    
+
     Returns:
         正規化されたテキスト
     """
     if not transcript:
         return transcript
-    
+
     # 元のテキストをログに記録（デバッグ用）
     original = transcript
-    
+
     # 1. 空白の正規化
     normalized = normalize_whitespace(transcript)
-    
+
     # 2. 数値の正規化
     normalized = normalize_numbers(normalized)
-    
+
     # 3. カラー用語の辞書マッチング
     normalized = normalize_color_terms(normalized, language)
-    
+
     # 変更があった場合はログに記録
     if original != normalized:
         logger.debug(f"Transcript normalized: '{original}' -> '{normalized}'")
-    
+
     return normalized

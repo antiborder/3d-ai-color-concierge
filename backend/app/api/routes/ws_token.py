@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import os
 import urllib.parse
-from fastapi import APIRouter, Response, Request
+
+from fastapi import APIRouter, Request, Response
 from fastapi.responses import JSONResponse
 
-from app.utils.ws_auth import mint_ws_token
-from app.utils.origin_check import is_origin_allowed
 from app.config.settings import settings
-
+from app.utils.origin_check import is_origin_allowed
+from app.utils.ws_auth import mint_ws_token
 
 router = APIRouter()
 
@@ -60,4 +60,3 @@ async def issue_ws_token(request: Request):
         max_age=60,
     )
     return resp
-

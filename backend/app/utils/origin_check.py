@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable
+from collections.abc import Iterable
 from urllib.parse import urlparse
 
 
@@ -40,4 +40,3 @@ def is_origin_allowed(origin: str, allowed: Iterable[str]) -> bool:
             if origin_scheme == a_scheme and origin_host.endswith(suffix):
                 return True
     return False
-

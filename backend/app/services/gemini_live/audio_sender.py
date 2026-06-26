@@ -7,7 +7,6 @@ from __future__ import annotations
 import base64
 import inspect
 import logging
-from typing import Optional
 
 from app.services.gemini_live.helpers import await_if_needed, err_str
 
@@ -31,7 +30,10 @@ def build_audio_payloads(pcm_s16le_bytes: bytes) -> tuple[str, object, dict, dic
         blob_payload = None
 
     dict_bytes = {"mime_type": mime, "data": pcm_s16le_bytes}
-    dict_b64 = {"mime_type": mime, "data": base64.b64encode(pcm_s16le_bytes).decode("ascii")}
+    dict_b64 = {
+        "mime_type": mime,
+        "data": base64.b64encode(pcm_s16le_bytes).decode("ascii"),
+    }
     return mime, blob_payload, dict_bytes, dict_b64
 
 
@@ -40,7 +42,7 @@ async def send_audio_via_realtime_input(
     blob_payload: object,
     dict_bytes: dict,
     allow_reconnect: bool = True,
-) -> Optional[object]:
+) -> object | None:
     """
     Try send_realtime_input(audio=...) then media=... as fallback.
     Returns:
@@ -74,7 +76,7 @@ async def send_audio_via_typed_input(
     dict_bytes: dict,
     dict_b64: dict,
     pcm_s16le_bytes: bytes,
-) -> Optional[Exception]:
+) -> Exception | None:
     """
     Legacy fallback: try session.send(input=LiveClientRealtimeInput(...)).
     Returns None on success, otherwise the last exception.
@@ -83,7 +85,7 @@ async def send_audio_via_typed_input(
     send_fn = send_attr
     if not callable(send_fn):
         return Exception("send unavailable")
-    last_err: Optional[Exception] = None
+    last_err: Exception | None = None
     try:
         from google.genai import types  # type: ignore
 
@@ -96,7 +98,7 @@ async def send_audio_via_typed_input(
         fields = getattr(rt, "model_fields", None)
         field_keys = set(fields.keys()) if isinstance(fields, dict) else set()
         rt_obj = None
-        rt_err: Optional[Exception] = None
+        rt_err: Exception | None = None
 
         # google-genai==0.8.0 のログでは LiveClientRealtimeInput_fields=["media_chunks"] が確定。
         # その場合は media_chunks=[chunk] の形で送る（chunk は型or dict）。

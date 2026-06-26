@@ -3,7 +3,6 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass
 from threading import Lock
-from typing import Dict
 
 
 @dataclass
@@ -22,7 +21,7 @@ class FixedWindowRateLimiter:
         self._limit = limit
         self._window = window_seconds
         self._lock = Lock()
-        self._buckets: Dict[str, _Bucket] = {}
+        self._buckets: dict[str, _Bucket] = {}
 
     def allow(self, key: str) -> bool:
         now = time.time()
@@ -35,4 +34,3 @@ class FixedWindowRateLimiter:
                 return False
             b.count += 1
             return True
-

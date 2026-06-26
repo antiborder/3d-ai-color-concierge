@@ -4,6 +4,7 @@
 """
 
 import logging
+
 from app.services.color_service import ColorService
 
 logger = logging.getLogger(__name__)
@@ -37,10 +38,10 @@ def get_color_database_summary() -> str:
 def get_knowledge_base_section(language: str) -> str:
     """
     知識ベースセクションを生成
-    
+
     Args:
         language: 言語コード (ja/en)
-    
+
     Returns:
         知識ベースセクションのテキスト
     """
@@ -97,10 +98,10 @@ Only when the user asks questions related to the following topics, include the f
 def get_material_design_context_section(language: str) -> str:
     """
     Material Design & CSS Colors コンテキストセクションを生成
-    
+
     Args:
         language: 言語コード (ja/en)
-    
+
     Returns:
         Material Design & CSS Colors セクションのテキスト
     """
@@ -133,17 +134,17 @@ When suggesting colors or answering questions about colors, you can mention spec
 def get_communication_style_section(language: str, is_tool_call_based: bool = False) -> str:
     """
     コミュニケーションスタイルセクションを生成
-    
+
     Args:
         language: 言語コード (ja/en)
         is_tool_call_based: tool callベースのAPIかどうか（Live API用）
-    
+
     Returns:
         コミュニケーションスタイルセクションのテキスト
     """
     tool_term = "tool call" if is_tool_call_based else "コマンド"
     tool_term_en = "tool call" if is_tool_call_based else "command"
-    
+
     if language == "en":
         return f"""## Communication Style (CRITICAL)
 - NEVER mention tool names (ADJUST_VALUE, SELECT_COLOR, etc.) or the word "tool" to users. These are internal implementation details.
@@ -197,10 +198,10 @@ def get_communication_style_section(language: str, is_tool_call_based: bool = Fa
 def get_color_selection_rules_section(language: str) -> str:
     """
     色選択ルールセクションを生成
-    
+
     Args:
         language: 言語コード (ja/en)
-    
+
     Returns:
         色選択ルールセクションのテキスト
     """

@@ -13,21 +13,16 @@ from __future__ import annotations
 
 import asyncio
 import inspect
-import time
 import logging
-from typing import AsyncIterator, Optional
+import time
+from collections.abc import AsyncIterator
 
-from app.services.gemini_live_types import (
-    LiveAssistantTextEvent,
-    LiveAudioChunk,
-    LiveCommandEvent,
-    LiveErrorEvent,
-    LiveEvent,
-    LiveTranscriptEvent,
+from app.services.gemini_live.audio_sender import (
+    build_audio_payloads,
+    send_audio_via_realtime_input,
+    send_audio_via_typed_input,
 )
 from app.services.gemini_live.config import (
-    DEFAULT_INPUT_SAMPLE_RATE_HZ,
-    DEFAULT_OUTPUT_SAMPLE_RATE_HZ,
     GeminiLiveConfig,
 )
 from app.services.gemini_live.connection import (
@@ -35,19 +30,18 @@ from app.services.gemini_live.connection import (
     close_live_session,
     connect_live_session,
 )
+from app.services.gemini_live.debug import log_sdk_debug_info
 from app.services.gemini_live.helpers import (
     err_str,
     make_genai_client,
 )
-from app.services.gemini_live.debug import log_sdk_debug_info
-from app.services.gemini_live.audio_sender import (
-    build_audio_payloads,
-    send_audio_via_realtime_input,
-    send_audio_via_typed_input,
-)
 from app.services.gemini_live.message_receiver import (
     iter_live_messages,
     process_live_message,
+)
+from app.services.gemini_live_types import (
+    LiveErrorEvent,
+    LiveEvent,
 )
 
 # NOTE: uvicorn のデフォルトlog_configでは root logger がINFOを出さないことがあるため、
@@ -72,26 +66,26 @@ class GeminiLiveSession:
 
         # Client-side UI state snapshot (kept by the WS layer). This is intentionally
         # separate from Gemini state and can be used by future tools like GET_CURRENT_COLOR.
-        self.current_color_state: Optional[dict] = None
+        self.current_color_state: dict | None = None
         self.current_color_updated_at: float = 0.0
         self.color_history: list[dict] = []
 
         # 実装の都合上、SDK依存の受信は内部タスクでqueueに流す
-        self._event_q: "asyncio.Queue[LiveEvent]" = asyncio.Queue()
-        self._recv_task: Optional[asyncio.Task[None]] = None
+        self._event_q: asyncio.Queue[LiveEvent] = asyncio.Queue()
+        self._recv_task: asyncio.Task[None] | None = None
 
         # google-genai の live 接続オブジェクト（型はSDKに依存するためAny相当）
         self._live = None
         self._live_cm = None  # async context manager (SDKによってはconnectがこちらを返す)
         self._did_log_sdk_debug = False
         self._out_transcription_buf: str = ""
-        self._out_transcription_segment_id: Optional[str] = None
+        self._out_transcription_segment_id: str | None = None
         self._out_transcription_seq: int = 0
         self._in_transcription_buf: str = ""
-        self._in_transcription_segment_id: Optional[str] = None
+        self._in_transcription_segment_id: str | None = None
         self._in_transcription_seq: int = 0
         self._text_part_buf: str = ""
-        self._text_part_segment_id: Optional[str] = None
+        self._text_part_segment_id: str | None = None
         self._text_part_seq: int = 0
 
     def set_current_color_state(self, color: dict) -> None:
@@ -106,7 +100,7 @@ class GeminiLiveSession:
         """Update the color selection history provided by the frontend."""
         self.color_history = history
 
-    async def __aenter__(self) -> "GeminiLiveSession":
+    async def __aenter__(self) -> GeminiLiveSession:
         client = make_genai_client()
         await self._open_live(client)
 
@@ -175,7 +169,6 @@ class GeminiLiveSession:
             )
             return False
 
-
     async def send_audio(self, pcm_s16le_bytes: bytes) -> None:
         send_start = time.time()
         if not await self._ensure_live_connected():
@@ -232,10 +225,7 @@ class GeminiLiveSession:
                 e, e2 = rt_result  # type: ignore[misc]
             except Exception:
                 e, e2 = rt_result, rt_result
-            msg = (
-                f"Failed to send audio: audio=... -> {err_str(e)}; "
-                f"media=... -> {err_str(e2)}"
-            )
+            msg = f"Failed to send audio: audio=... -> {err_str(e)}; media=... -> {err_str(e2)}"
             await self._event_q.put(LiveErrorEvent(message=msg))
             return
 
@@ -251,7 +241,9 @@ class GeminiLiveSession:
             return
 
         # typedが無いなら、SDK差分なので無理にdictを投げずに切り分け情報を返す（従来挙動に合わせる）
-        if "LiveClientRealtimeInput is missing" in str(err2) or "missing in this google-genai version" in str(err2):
+        if "LiveClientRealtimeInput is missing" in str(
+            err2
+        ) or "missing in this google-genai version" in str(err2):
             await self._event_q.put(
                 LiveErrorEvent(
                     message=(
@@ -284,6 +276,7 @@ class GeminiLiveSession:
         if callable(fn_client_content):
             try:
                 from google.genai import types as _gtypes  # type: ignore
+
                 content = _gtypes.Content(
                     role="user",
                     parts=[_gtypes.Part(text=text)],
@@ -307,13 +300,18 @@ class GeminiLiveSession:
                     await maybe
                 return
             except Exception as e_cc:
-                logger.info("send_client_content failed (%s), falling back to send_realtime_input", str(e_cc))
+                logger.info(
+                    "send_client_content failed (%s), falling back to send_realtime_input",
+                    str(e_cc),
+                )
 
         # Fallback: send_realtime_input (older SDK / may not trigger response in all environments)
         fn = getattr(self._live, "send_realtime_input", None)
         if not callable(fn):
             await self._event_q.put(
-                LiveErrorEvent(message="send_client_content and send_realtime_input are both unavailable")
+                LiveErrorEvent(
+                    message="send_client_content and send_realtime_input are both unavailable"
+                )
             )
             return
 
@@ -327,10 +325,12 @@ class GeminiLiveSession:
                 if inspect.isawaitable(maybe):
                     await maybe
             except Exception as e2:
-                logger.info("GeminiLiveSession send_text error: %s (fallback also failed: %s)", str(e), str(e2))
-                await self._event_q.put(
-                    LiveErrorEvent(message=f"Failed to send text: {e}")
+                logger.info(
+                    "GeminiLiveSession send_text error: %s (fallback also failed: %s)",
+                    str(e),
+                    str(e2),
                 )
+                await self._event_q.put(LiveErrorEvent(message=f"Failed to send text: {e}"))
 
     async def end_audio_stream(self) -> None:
         """
@@ -359,7 +359,10 @@ class GeminiLiveSession:
         SDKからのイベントを受け取り、アプリ内のLiveEventへ変換する。
         """
         assert self._live is not None
-        logger.info("GeminiLiveSession recv_loop started (live_type=%s)", type(self._live).__name__)
+        logger.info(
+            "GeminiLiveSession recv_loop started (live_type=%s)",
+            type(self._live).__name__,
+        )
         try:
             msg_count = 0
             async for msg in iter_live_messages(self._live):
@@ -417,6 +420,3 @@ class GeminiLiveSession:
             await self._event_q.put(LiveErrorEvent(message=f"Live session error: {e}"))
         finally:
             logger.info("GeminiLiveSession recv_loop ended")
-
-
-

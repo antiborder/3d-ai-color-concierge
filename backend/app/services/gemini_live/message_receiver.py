@@ -8,26 +8,28 @@ import asyncio
 import inspect
 import logging
 import time
-from typing import AsyncIterator, Optional
+from collections.abc import AsyncIterator
 
+from app.services.gemini_live.config import GeminiLiveConfig
 from app.services.gemini_live.helpers import (
     chat_debug_enabled,
     deep_find_keys,
     extract_blob_bytes,
     extract_mime,
 )
-from app.services.gemini_live.tools import tool_call_function_calls, tool_call_to_frontend_command
+from app.services.gemini_live.tools import (
+    tool_call_function_calls,
+    tool_call_to_frontend_command,
+)
 from app.services.gemini_live.transcription import (
     extract_finished_from_transcription_obj,
     extract_text_from_transcription_obj,
     merge_streaming_text,
 )
-from app.services.gemini_live.config import GeminiLiveConfig
 from app.services.gemini_live_types import (
     LiveAssistantTextEvent,
     LiveAudioChunk,
     LiveCommandEvent,
-    LiveErrorEvent,
     LiveTranscriptEvent,
 )
 
@@ -81,23 +83,23 @@ async def iter_live_messages(live_session: object) -> AsyncIterator[object]:
 
 async def process_live_message(
     msg: object,
-    event_q: "asyncio.Queue",
+    event_q: asyncio.Queue,
     cfg: GeminiLiveConfig,
     live_session: object,
-    current_color_state: Optional[dict],
+    current_color_state: dict | None,
     current_color_updated_at: float,
     color_history: list[dict],
     out_transcription_buf: str,
-    out_transcription_segment_id: Optional[str],
+    out_transcription_segment_id: str | None,
     out_transcription_seq: int,
     in_transcription_buf: str,
-    in_transcription_segment_id: Optional[str],
+    in_transcription_segment_id: str | None,
     in_transcription_seq: int,
     text_part_buf: str,
-    text_part_segment_id: Optional[str],
+    text_part_segment_id: str | None,
     text_part_seq: int,
     color_service=None,
-) -> tuple[str, Optional[str], int, str, Optional[str], int, str, Optional[str], int]:
+) -> tuple[str, str | None, int, str, str | None, int, str, str | None, int]:
     """
     Process a single message from Gemini Live and emit events.
     Returns updated transcription state:
@@ -141,14 +143,13 @@ async def process_live_message(
 
     # 0) google-genai>=1.x: LiveServerMessage.server_content.model_turn.parts[].inline_data に音声が入る
     sc = getattr(msg, "server_content", None)
-    output_txt: Optional[str] = None  # Store for later use in input transcription finalization
+    output_txt: str | None = None  # Store for later use in input transcription finalization
     if sc is not None:
         # 0-a) output audio transcription (server-generated)
         # NOTE: server field names differ by SDK/API version.
         # We've observed `server_content.output_transcription` in v1alpha.
-        oat = (
-            getattr(sc, "output_audio_transcription", None)
-            or getattr(sc, "outputAudioTranscription", None)
+        oat = getattr(sc, "output_audio_transcription", None) or getattr(
+            sc, "outputAudioTranscription", None
         )
         ot = getattr(sc, "output_transcription", None) or getattr(sc, "outputTranscription", None)
         if isinstance(sc, dict):
@@ -157,7 +158,9 @@ async def process_live_message(
 
         transcription_obj = oat if oat is not None else ot
         transcription_source = (
-            "output_audio_transcription" if oat is not None else ("output_transcription" if ot is not None else None)
+            "output_audio_transcription"
+            if oat is not None
+            else ("output_transcription" if ot is not None else None)
         )
         txt = extract_text_from_transcription_obj(transcription_obj)
         finished = extract_finished_from_transcription_obj(transcription_obj)
@@ -177,15 +180,19 @@ async def process_live_message(
                 logger.info("LIVE_CHAT_DEBUG oat (failed to log details)")
         if txt:
             # output transcription can arrive in multiple small chunks; merge for stable chat display.
-            if transcription_source in ("output_transcription", "output_audio_transcription"):
+            if transcription_source in (
+                "output_transcription",
+                "output_audio_transcription",
+            ):
                 # If user started speaking again, treat it as a boundary and start a new assistant segment.
                 # This compensates for SDK/API variants where `finished` never becomes True.
-                if out_transcription_segment_id is not None and in_transcription_segment_id is not None:
+                if (
+                    out_transcription_segment_id is not None
+                    and in_transcription_segment_id is not None
+                ):
                     out_transcription_buf = ""
                     out_transcription_segment_id = None
-                out_transcription_buf = merge_streaming_text(
-                    out_transcription_buf, txt
-                )
+                out_transcription_buf = merge_streaming_text(out_transcription_buf, txt)
                 txt_to_emit = out_transcription_buf
                 if out_transcription_segment_id is None:
                     out_transcription_seq += 1
@@ -208,7 +215,10 @@ async def process_live_message(
                 out_transcription_buf = ""
                 out_transcription_segment_id = None
             # output_audio_transcriptionが来たときは、text_partのバッファをリセット（同じ発話として扱う）
-            if transcription_source in ("output_transcription", "output_audio_transcription"):
+            if transcription_source in (
+                "output_transcription",
+                "output_audio_transcription",
+            ):
                 text_part_buf = ""
                 text_part_segment_id = None
 
@@ -242,9 +252,7 @@ async def process_live_message(
                 in_transcription_seq += 1
                 in_transcription_segment_id = f"user_in_{in_transcription_seq}"
                 in_transcription_buf = ""
-            in_transcription_buf = merge_streaming_text(
-                in_transcription_buf, it_txt.strip()
-            )
+            in_transcription_buf = merge_streaming_text(in_transcription_buf, it_txt.strip())
             await event_q.put(
                 LiveTranscriptEvent(
                     text=in_transcription_buf,
@@ -256,7 +264,11 @@ async def process_live_message(
 
             # If assistant starts outputting, finalize the current user segment once.
             # Note: output_txt is from output transcription above
-            if output_txt and in_transcription_segment_id is not None and in_transcription_buf.strip():
+            if (
+                output_txt
+                and in_transcription_segment_id is not None
+                and in_transcription_buf.strip()
+            ):
                 await event_q.put(
                     LiveTranscriptEvent(
                         text=in_transcription_buf.strip(),
@@ -301,17 +313,13 @@ async def process_live_message(
                                 t.strip()[:200],
                             )
                         except Exception:
-                            logger.info(
-                                "LIVE_CHAT_DEBUG text_part (failed to log details)"
-                            )
+                            logger.info("LIVE_CHAT_DEBUG text_part (failed to log details)")
                     # text_partもバッファリングして結合し、segmentIdを設定する
                     if text_part_segment_id is None:
                         text_part_seq += 1
                         text_part_segment_id = f"asst_text_{text_part_seq}"
                         text_part_buf = ""
-                    text_part_buf = merge_streaming_text(
-                        text_part_buf, t.strip()
-                    )
+                    text_part_buf = merge_streaming_text(text_part_buf, t.strip())
                     await event_q.put(
                         LiveAssistantTextEvent(
                             text=text_part_buf,
@@ -326,9 +334,7 @@ async def process_live_message(
     function_calls = tool_call_function_calls(tc)
     if function_calls:
         tool_call_start = time.time()
-        logger.info(
-            "TOOL_CALL: Received %d function call(s)", len(function_calls)
-        )
+        logger.info("TOOL_CALL: Received %d function call(s)", len(function_calls))
         # Best-effort: respond "ok" so the model can continue the turn.
         try:
             from google.genai import types  # type: ignore
@@ -368,9 +374,7 @@ async def process_live_message(
                             if inspect.isawaitable(maybe):
                                 await maybe
                     except Exception as e:
-                        logger.info(
-                            "GeminiLiveSession send_tool_response failed: %s", str(e)
-                        )
+                        logger.info("GeminiLiveSession send_tool_response failed: %s", str(e))
                     continue
 
                 if name == "GET_COLOR_HISTORY":
@@ -386,9 +390,7 @@ async def process_live_message(
                             if inspect.isawaitable(maybe):
                                 await maybe
                     except Exception as e:
-                        logger.info(
-                            "GeminiLiveSession send_tool_response failed: %s", str(e)
-                        )
+                        logger.info("GeminiLiveSession send_tool_response failed: %s", str(e))
                     continue
 
                 if name == "GET_CLOSEST_COLOR":
@@ -399,9 +401,18 @@ async def process_live_message(
                         lang = getattr(cfg, "language", "ja")
                         closest = color_service.find_closest_colors(r, g, b, top_n=5, language=lang)
                         resp = {"r": r, "g": g, "b": b, "closest": closest}
-                        logger.info("GET_CLOSEST_COLOR: rgb=(%d,%d,%d) top=%s", r, g, b, [c["name"] for c in closest[:3]])
+                        logger.info(
+                            "GET_CLOSEST_COLOR: rgb=(%d,%d,%d) top=%s",
+                            r,
+                            g,
+                            b,
+                            [c["name"] for c in closest[:3]],
+                        )
                     else:
-                        resp = {"error": "No current color or color service unavailable", "closest": []}
+                        resp = {
+                            "error": "No current color or color service unavailable",
+                            "closest": [],
+                        }
                     try:
                         if callable(send_tool) and FunctionResponse is not None:
                             fr = FunctionResponse(name=name, response=resp, id=call_id)
@@ -414,7 +425,11 @@ async def process_live_message(
 
                 if name == "SEARCH_COLOR":
                     query = args.get("query", "")
-                    logger.info("SEARCH_COLOR: query=%r color_service=%s", query, type(color_service).__name__)
+                    logger.info(
+                        "SEARCH_COLOR: query=%r color_service=%s",
+                        query,
+                        type(color_service).__name__,
+                    )
                     if color_service is not None and query:
                         matches = color_service.search_by_name(query)
                         results = [
@@ -429,11 +444,29 @@ async def process_live_message(
                             }
                             for c in matches[:10]
                         ]
-                        resp = {"query": query, "count": len(results), "results": results}
-                        logger.info("SEARCH_COLOR: found %d results for %r: %s", len(results), query, [r["name"] for r in results])
+                        resp = {
+                            "query": query,
+                            "count": len(results),
+                            "results": results,
+                        }
+                        logger.info(
+                            "SEARCH_COLOR: found %d results for %r: %s",
+                            len(results),
+                            query,
+                            [r["name"] for r in results],
+                        )
                     else:
-                        resp = {"query": query, "count": 0, "results": [], "error": "Search unavailable"}
-                        logger.info("SEARCH_COLOR: unavailable — color_service=%s query=%r", color_service, query)
+                        resp = {
+                            "query": query,
+                            "count": 0,
+                            "results": [],
+                            "error": "Search unavailable",
+                        }
+                        logger.info(
+                            "SEARCH_COLOR: unavailable — color_service=%s query=%r",
+                            color_service,
+                            query,
+                        )
                     try:
                         if callable(send_tool) and FunctionResponse is not None:
                             fr = FunctionResponse(name=name, response=resp, id=call_id)
@@ -442,11 +475,13 @@ async def process_live_message(
                                 await maybe
                             logger.info("SEARCH_COLOR: send_tool_response sent OK")
                         else:
-                            logger.info("SEARCH_COLOR: send_tool skipped — callable=%s FunctionResponse=%s", callable(send_tool), FunctionResponse)
+                            logger.info(
+                                "SEARCH_COLOR: send_tool skipped — callable=%s FunctionResponse=%s",
+                                callable(send_tool),
+                                FunctionResponse,
+                            )
                     except Exception as e:
-                        logger.info(
-                            "SEARCH_COLOR send_tool_response failed: %s", str(e)
-                        )
+                        logger.info("SEARCH_COLOR send_tool_response failed: %s", str(e))
                     continue
 
                 # UI tool: map to a frontend command
@@ -473,7 +508,7 @@ async def process_live_message(
                             await maybe
                 except Exception as e:
                     logger.info("GeminiLiveSession send_tool_response failed: %s", str(e))
-        
+
         tool_call_end = time.time()
         logger.info(
             "PERF: tool_call_processing elapsed=%.3fs num_calls=%d",
@@ -496,8 +531,7 @@ async def process_live_message(
 
     # ASR/Transcript
     transcript = (
-        getattr(msg, "transcript", None)
-        or msg.get("transcript") if isinstance(msg, dict) else None
+        getattr(msg, "transcript", None) or msg.get("transcript") if isinstance(msg, dict) else None
     )
     if transcript:
         text = transcript.get("text") if isinstance(transcript, dict) else None
@@ -519,9 +553,7 @@ async def process_live_message(
             text_part_seq += 1
             text_part_segment_id = f"asst_text_{text_part_seq}"
             text_part_buf = ""
-        text_part_buf = merge_streaming_text(
-            text_part_buf, text_out.strip()
-        )
+        text_part_buf = merge_streaming_text(text_part_buf, text_out.strip())
         await event_q.put(
             LiveAssistantTextEvent(
                 text=text_part_buf,

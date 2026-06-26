@@ -7,7 +7,6 @@ from __future__ import annotations
 import base64
 import inspect
 import logging
-from typing import Optional
 
 from app.config.settings import settings
 
@@ -28,8 +27,7 @@ def make_genai_client():
         from google import genai  # type: ignore
     except Exception as e:  # pragma: no cover
         raise RuntimeError(
-            "google-genai is required for Gemini Live. "
-            "Install backend requirements (google-genai)."
+            "google-genai is required for Gemini Live. Install backend requirements (google-genai)."
         ) from e
 
     if not settings.GEMINI_API_KEY:
@@ -39,7 +37,10 @@ def make_genai_client():
     if api_version:
         if getattr(settings, "GEMINI_LIVE_CHAT_DEBUG", False):
             try:
-                logger.info("LIVE_CHAT_DEBUG google-genai http_options.api_version=%s", api_version)
+                logger.info(
+                    "LIVE_CHAT_DEBUG google-genai http_options.api_version=%s",
+                    api_version,
+                )
             except Exception:
                 pass
         try:
@@ -107,7 +108,12 @@ def deep_find_keys(x, *, keys: tuple[str, ...], max_depth: int = 6, max_items: i
                 k_str = k if isinstance(k, str) else None
                 if k_str and k_str in keys:
                     found.append((f"{path}.{k_str}" if path else k_str, v))
-                _iter(v, f"{path}.{k_str}" if path else (k_str or "<?>"), depth + 1, budget)
+                _iter(
+                    v,
+                    f"{path}.{k_str}" if path else (k_str or "<?>"),
+                    depth + 1,
+                    budget,
+                )
             return
 
         if isinstance(obj, (list, tuple)):
@@ -131,14 +137,14 @@ def deep_find_keys(x, *, keys: tuple[str, ...], max_depth: int = 6, max_items: i
     return found
 
 
-def b64_to_bytes(s: str) -> Optional[bytes]:
+def b64_to_bytes(s: str) -> bytes | None:
     try:
         return base64.b64decode(s)
     except Exception:
         return None
 
 
-def extract_blob_bytes(x) -> Optional[bytes]:
+def extract_blob_bytes(x) -> bytes | None:
     if x is None:
         return None
     if isinstance(x, (bytes, bytearray)):
@@ -158,7 +164,7 @@ def extract_blob_bytes(x) -> Optional[bytes]:
     return None
 
 
-def extract_mime(x) -> Optional[str]:
+def extract_mime(x) -> str | None:
     if x is None:
         return None
     if isinstance(x, dict):

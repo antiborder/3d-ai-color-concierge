@@ -5,10 +5,10 @@
 
 from app.services.prompts.common import (
     get_color_database_summary,
+    get_color_selection_rules_section,
+    get_communication_style_section,
     get_knowledge_base_section,
     get_material_design_context_section,
-    get_communication_style_section,
-    get_color_selection_rules_section,
 )
 
 __all__ = [

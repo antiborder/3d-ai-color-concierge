@@ -1,15 +1,15 @@
+import asyncio
 import os
 import re
 from urllib.parse import urlparse
+
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
-from app.api.routes import live_ws
-from app.api.routes import ws_token
-from app.api.routes import colors
+
+from app.api.routes import colors, live_ws, ws_token
 from app.config.settings import settings
 from app.services.duckdns_updater import run_duckdns_updater
-import asyncio
 
 # Load .env file for local development
 # In container deployments (ECS/Fargate), environment variables are set on the task definition
@@ -25,6 +25,7 @@ app = FastAPI(
 # Background tasks
 _duckdns_stop_evt = asyncio.Event()
 _duckdns_task: asyncio.Task | None = None
+
 
 # CORS設定
 def _cors_regex_from_allowed_origins(allowed: list[str]) -> str | None:
@@ -75,6 +76,7 @@ app.include_router(ws_token.router, prefix="/api/ws", tags=["ws-token"])
 app.include_router(live_ws.router, prefix="/ws", tags=["live-ws"])
 app.include_router(colors.router, prefix="/api/colors", tags=["colors"])
 
+
 @app.on_event("startup")
 async def _startup_tasks():
     global _duckdns_task
@@ -105,4 +107,3 @@ async def root():
 async def health():
     """ヘルスチェックエンドポイント"""
     return {"status": "healthy"}
-

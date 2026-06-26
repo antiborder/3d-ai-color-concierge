@@ -11,8 +11,7 @@ Gemini Live（Multimodal Live API）連携で使う、最小限の型・イベ�
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Literal, Optional, Union
-
+from typing import Any, Literal
 
 AudioFormat = Literal["pcm_s16le"]
 
@@ -33,8 +32,8 @@ class LiveTranscriptEvent:
 
     text: str
     is_final: bool = False
-    language: Optional[str] = None
-    segment_id: Optional[str] = None
+    language: str | None = None
+    segment_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -46,13 +45,11 @@ class LiveAssistantTextEvent:
     # - "output_audio_transcription": server-generated transcript of the model's OUTPUT audio
     # - "output_transcription": server-generated transcript of the model's OUTPUT audio (observed in v1alpha)
     # - "text_part": plain text parts in the model turn (fallback)
-    source: Optional[
-        Literal["output_audio_transcription", "output_transcription", "text_part"]
-    ] = None
+    source: Literal["output_audio_transcription", "output_transcription", "text_part"] | None = None
     # Segment identifier for grouping streaming updates into one bubble.
-    segment_id: Optional[str] = None
+    segment_id: str | None = None
     # Whether this text is the final (completed) transcript for the segment.
-    is_final: Optional[bool] = None
+    is_final: bool | None = None
 
 
 @dataclass(frozen=True)
@@ -60,7 +57,7 @@ class LiveErrorEvent:
     """Liveセッションのエラー。"""
 
     message: str
-    code: Optional[str] = None
+    code: str | None = None
 
 
 @dataclass(frozen=True)
@@ -70,15 +67,14 @@ class LiveCommandEvent:
     """
 
     command: dict[str, Any]
-    tool_name: Optional[str] = None
-    tool_call_id: Optional[str] = None
+    tool_name: str | None = None
+    tool_call_id: str | None = None
 
 
-LiveEvent = Union[
-    LiveAudioChunk,
-    LiveTranscriptEvent,
-    LiveAssistantTextEvent,
-    LiveCommandEvent,
-    LiveErrorEvent,
-]
-
+LiveEvent = (
+    LiveAudioChunk
+    | LiveTranscriptEvent
+    | LiveAssistantTextEvent
+    | LiveCommandEvent
+    | LiveErrorEvent
+)

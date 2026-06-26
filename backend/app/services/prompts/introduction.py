@@ -6,10 +6,10 @@
 def build_introduction_prompt(language: str) -> str:
     """
     初回接続時の自己紹介プロンプトを生成
-    
+
     Args:
         language: 言語コード (ja/en)
-    
+
     Returns:
         自己紹介プロンプト文字列
     """
