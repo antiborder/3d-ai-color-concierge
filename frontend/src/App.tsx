@@ -4,13 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { Toaster } from 'react-hot-toast';
 import ControlPane from './components/common/ControlPane';
 import Structure from './components/ColorPicker/Structure';
-import Header from './components/common/Header';
-import MobileControlColumn from './components/common/MobileControlColumn';
 import LanguageSelector from './components/common/LanguageSelector';
 import { useMatchMedia } from './hooks/useMatchMedia';
 import VoiceControl from './components/VoiceControl/VoiceControl';
 import ChatHistoryModal from './components/Chatbot/ChatHistoryModal';
 import { useColorState } from './hooks/useColorState';
+import { useColorHandlers } from './hooks/useColorHandlers';
 import { useColorHistory } from './hooks/useColorHistory';
 import { useDisplaySettings } from './hooks/useDisplaySettings';
 import { useBridgeState } from './hooks/useBridgeState';
@@ -91,46 +90,24 @@ function App() {
     prevColorRef.current = { r: colorState.r, g: colorState.g, b: colorState.b };
   }, [colorState.r, colorState.g, colorState.b, addColor]);
 
-  // Handler functions for color changes
-  const handleRgbChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    colorParam: 'R' | 'G' | 'B'
-  ) => {
-    updateRgbValue(colorParam, Number(event.target.value));
-  };
-
-  const handleCmykChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    colorParam: 'C' | 'M' | 'Y' | 'K'
-  ) => {
-    updateCmykValue(colorParam, Number(event.target.value));
-  };
-
-  const handleHslChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    colorParam: 'H' | 'S' | 'L'
-  ) => {
-    updateHslValue(colorParam, Number(event.target.value));
-  };
-
-  const handleHsvChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    colorParam: 'H' | 'HsvS' | 'V'
-  ) => {
-    updateHsvValue(colorParam, Number(event.target.value));
-  };
-
-  const handleClick = (r: number, g: number, b: number) => {
-    updateFromRgb(r, g, b);
-  };
-
-  const handleHsvElementClick = (h: number, s: number, v: number) => {
-    updateFromHsb(h, s, v);
-  };
-
-  const handleHexUpdate = () => {
-    updateFromHex(colorState.hexInput);
-  };
+  const {
+    handleRgbChange,
+    handleCmykChange,
+    handleHslChange,
+    handleHsvChange,
+    handleClick,
+    handleHsvElementClick,
+    handleHexUpdate,
+  } = useColorHandlers({
+    hexInput:       colorState.hexInput,
+    updateFromRgb,
+    updateFromHsb,
+    updateFromHex,
+    updateRgbValue,
+    updateCmykValue,
+    updateHslValue,
+    updateHsvValue,
+  });
 
   // Chatbot hook for conversation history management
   const {
@@ -153,7 +130,7 @@ function App() {
     setColorSets,
   } = useDisplaySettings();
 
-  const isDesktopLayout = useMatchMedia('(min-width: 801px)');
+  const isDesktopLayout = useMatchMedia('(min-width: 1000px)');
 
   const [harmonyMode, setHarmonyMode] = useState<HarmonyMode>('none');
 
@@ -255,178 +232,107 @@ function App() {
     setIsLoading(false);
   };
 
+  // ── Prop groups ────────────────────────────────────────────────────────────
+
+  const colorValues = {
+    shape:           colorState.shape,
+    focusR: colorState.r,    focusG: colorState.g,    focusB: colorState.b,
+    focusC: colorState.c,    focusM: colorState.m,    focusY: colorState.y,    focusK: colorState.k,
+    focusH: colorState.h,    focusS: colorState.s,    focusL: colorState.l,
+    focusHsvS:       colorState.hsbS,
+    focusV:          colorState.v,
+    rgbMainElement:  colorState.rgbMainElement,
+    cmykMainElement: colorState.cmykMainElement,
+    hslMainElement:  colorState.hslMainElement,
+    hsbMainElement:  colorState.hsbMainElement,
+  };
+
+  const colorHandlers = {
+    handleLabel:           toggleLabel,
+    handleClick,
+    handleHsvElementClick,
+    onShapeClick:          setShape,
+    onRgbChange:           handleRgbChange,
+    onCmykChange:          handleCmykChange,
+    onHslChange:           handleHslChange,
+    onHsvChange:           handleHsvChange,
+    setRgbMainElement,
+    setCmykMainElement,
+    setHslMainElement,
+    setHsvMainElement,
+    setFocusR: (v: number) => updateRgbValue('R', v),
+    setFocusG: (v: number) => updateRgbValue('G', v),
+    setFocusB: (v: number) => updateRgbValue('B', v),
+    setHexInput,
+    onHexUpdate: handleHexUpdate,
+  };
+
+  const bridgeForStructure = {
+    bridgeColorA:    isBridgeOpen ? bridgeColorA : undefined,
+    bridgeColorB:    isBridgeOpen ? bridgeColorB : undefined,
+    isBridgeOpen,
+    isTwoDPickerOpen,
+  };
+
+  const bridgeForControlPane = {
+    bridgeColorA,
+    bridgeColorB,
+    onSetBridgeColorA:      setBridgeColorA,
+    onSetBridgeColorB:      setBridgeColorB,
+    isBridgeOpen,
+    onBridgeOpenChange:     setIsBridgeOpen,
+    isTwoDPickerOpen,
+    onTwoDPickerOpenChange: setIsTwoDPickerOpen,
+  };
+
+  const displaySettings = {
+    cssColorsEnabled,
+    materialColorsEnabled,
+    spectral12ColorsEnabled,
+    japaneseColorsEnabled,
+    rgbGridColorsEnabled,
+  };
+
+  const displaySettingsHandlers = {
+    onCssColorsToggle:        setCssColorsEnabled,
+    onMaterialColorsToggle:   setMaterialColorsEnabled,
+    onSpectral12ColorsToggle: setSpectral12ColorsEnabled,
+    onJapaneseColorsToggle:   setJapaneseColorsEnabled,
+    onRgbGridColorsToggle:    setRgbGridColorsEnabled,
+  };
+
+  const harmonyState = {
+    harmonyMode,
+    onHarmonyModeChange: setHarmonyMode,
+    harmonyColors,
+  };
+
   return (
     <>
       <Toaster position="top-right" />
-      {!isDesktopLayout && (
-        <LanguageSelectorWrapper>
-          <LanguageSelector />
-        </LanguageSelectorWrapper>
-      )}
-      {isDesktopLayout && (
-        <Header
-          cssColorsEnabled={cssColorsEnabled}
-          materialColorsEnabled={materialColorsEnabled}
-          spectral12ColorsEnabled={spectral12ColorsEnabled}
-          japaneseColorsEnabled={japaneseColorsEnabled}
-          rgbGridColorsEnabled={rgbGridColorsEnabled}
-          onCssColorsToggle={setCssColorsEnabled}
-          onMaterialColorsToggle={setMaterialColorsEnabled}
-          onSpectral12ColorsToggle={setSpectral12ColorsEnabled}
-          onJapaneseColorsToggle={setJapaneseColorsEnabled}
-          onRgbGridColorsToggle={setRgbGridColorsEnabled}
-          colorHistory={history}
-          onColorSelect={handleClick}
-          harmonyMode={harmonyMode}
-          onHarmonyModeChange={setHarmonyMode}
-          harmonyColors={harmonyColors}
-          currentR={colorState.r}
-          currentG={colorState.g}
-          currentB={colorState.b}
-          onHelpClick={handleHelpClick}
-        />
-      )}
+      <LangSelectorWrapper>
+        <LanguageSelector />
+      </LangSelectorWrapper>
       <Structure
-        bridgeColorA={isBridgeOpen ? bridgeColorA : undefined}
-        bridgeColorB={isBridgeOpen ? bridgeColorB : undefined}
-        isBridgeOpen={isBridgeOpen}
-        isTwoDPickerOpen={isTwoDPickerOpen}
-        shape={colorState.shape}
+        {...colorValues}
+        {...bridgeForStructure}
+        {...displaySettings}
         isLabelShown={colorState.isLabelShown}
         onParticleClick={handleClick}
-        focusR={colorState.r}
-        focusG={colorState.g}
-        focusB={colorState.b}
-        focusC={colorState.c}
-        focusM={colorState.m}
-        focusY={colorState.y}
-        focusK={colorState.k}
-        focusH={colorState.h}
-        focusS={colorState.s}
-        focusL={colorState.l}
-        focusHsvS={colorState.hsbS}
-        focusV={colorState.v}
-        rgbMainElement={colorState.rgbMainElement}
-        cmykMainElement={colorState.cmykMainElement}
-        hslMainElement={colorState.hslMainElement}
-        hsbMainElement={colorState.hsbMainElement}
-        cssColorsEnabled={cssColorsEnabled}
-        materialColorsEnabled={materialColorsEnabled}
-        spectral12ColorsEnabled={spectral12ColorsEnabled}
-        japaneseColorsEnabled={japaneseColorsEnabled}
-        rgbGridColorsEnabled={rgbGridColorsEnabled}
         harmonyColors={harmonyColors}
       />
-      {isDesktopLayout ? (
-        <ControlPane
-          bridgeColorA={bridgeColorA}
-          bridgeColorB={bridgeColorB}
-          onSetBridgeColorA={setBridgeColorA}
-          onSetBridgeColorB={setBridgeColorB}
-          isBridgeOpen={isBridgeOpen}
-          onBridgeOpenChange={setIsBridgeOpen}
-          isTwoDPickerOpen={isTwoDPickerOpen}
-          onTwoDPickerOpenChange={setIsTwoDPickerOpen}
-          onHelpClick={handleHelpClick}
-          handleLabel={toggleLabel}
-          handleClick={handleClick}
-          handleHsvElementClick={handleHsvElementClick}
-          onShapeClick={setShape}
-          onRgbChange={handleRgbChange}
-          onCmykChange={handleCmykChange}
-          onHslChange={handleHslChange}
-          onHsvChange={handleHsvChange}
-          setRgbMainElement={setRgbMainElement}
-          setCmykMainElement={setCmykMainElement}
-          setHslMainElement={setHslMainElement}
-          setHsvMainElement={setHsvMainElement}
-          shape={colorState.shape}
-          focusR={colorState.r}
-          focusG={colorState.g}
-          focusB={colorState.b}
-          focusC={colorState.c}
-          focusM={colorState.m}
-          focusY={colorState.y}
-          focusK={colorState.k}
-          focusH={colorState.h}
-          focusS={colorState.s}
-          focusL={colorState.l}
-          focusHsvS={colorState.hsbS}
-          focusV={colorState.v}
-          rgbMainElement={colorState.rgbMainElement}
-          hslMainElement={colorState.hslMainElement}
-          hsbMainElement={colorState.hsbMainElement}
-          cmykMainElement={colorState.cmykMainElement}
-          setFocusR={(value: number) => updateRgbValue('R', value)}
-          setFocusG={(value: number) => updateRgbValue('G', value)}
-          setFocusB={(value: number) => updateRgbValue('B', value)}
-          hexInput={colorState.hexInput}
-          setHexInput={setHexInput}
-          onHexUpdate={handleHexUpdate}
-        />
-      ) : (
-        <MobileControlColumn
-          bridgeColorA={bridgeColorA}
-          bridgeColorB={bridgeColorB}
-          onSetBridgeColorA={setBridgeColorA}
-          onSetBridgeColorB={setBridgeColorB}
-          isBridgeOpen={isBridgeOpen}
-          onBridgeOpenChange={setIsBridgeOpen}
-          isTwoDPickerOpen={isTwoDPickerOpen}
-          onTwoDPickerOpenChange={setIsTwoDPickerOpen}
-          onHelpClick={handleHelpClick}
-          handleLabel={toggleLabel}
-          handleClick={handleClick}
-          handleHsvElementClick={handleHsvElementClick}
-          onShapeClick={setShape}
-          onRgbChange={handleRgbChange}
-          onCmykChange={handleCmykChange}
-          onHslChange={handleHslChange}
-          onHsvChange={handleHsvChange}
-          setRgbMainElement={setRgbMainElement}
-          setCmykMainElement={setCmykMainElement}
-          setHslMainElement={setHslMainElement}
-          setHsvMainElement={setHsvMainElement}
-          shape={colorState.shape}
-          focusR={colorState.r}
-          focusG={colorState.g}
-          focusB={colorState.b}
-          focusC={colorState.c}
-          focusM={colorState.m}
-          focusY={colorState.y}
-          focusK={colorState.k}
-          focusH={colorState.h}
-          focusS={colorState.s}
-          focusL={colorState.l}
-          focusHsvS={colorState.hsbS}
-          focusV={colorState.v}
-          rgbMainElement={colorState.rgbMainElement}
-          hslMainElement={colorState.hslMainElement}
-          hsbMainElement={colorState.hsbMainElement}
-          cmykMainElement={colorState.cmykMainElement}
-          setFocusR={(value: number) => updateRgbValue('R', value)}
-          setFocusG={(value: number) => updateRgbValue('G', value)}
-          setFocusB={(value: number) => updateRgbValue('B', value)}
-          hexInput={colorState.hexInput}
-          setHexInput={setHexInput}
-          onHexUpdate={handleHexUpdate}
-          cssColorsEnabled={cssColorsEnabled}
-          materialColorsEnabled={materialColorsEnabled}
-          spectral12ColorsEnabled={spectral12ColorsEnabled}
-          japaneseColorsEnabled={japaneseColorsEnabled}
-          rgbGridColorsEnabled={rgbGridColorsEnabled}
-          onCssColorsToggle={setCssColorsEnabled}
-          onMaterialColorsToggle={setMaterialColorsEnabled}
-          onSpectral12ColorsToggle={setSpectral12ColorsEnabled}
-          onJapaneseColorsToggle={setJapaneseColorsEnabled}
-          onRgbGridColorsToggle={setRgbGridColorsEnabled}
-          colorHistory={history}
-          onColorSelect={handleClick}
-          harmonyMode={harmonyMode}
-          onHarmonyModeChange={setHarmonyMode}
-          harmonyColors={harmonyColors}
-        />
-      )}
+      <ControlPane
+        isDesktopLayout={isDesktopLayout}
+        {...colorValues}
+        {...colorHandlers}
+        {...bridgeForControlPane}
+        {...displaySettings}
+        {...displaySettingsHandlers}
+        {...harmonyState}
+        hexInput={colorState.hexInput}
+        colorHistory={history}
+        onHelpClick={handleHelpClick}
+      />
       <VoiceControl
         currentColorState={colorState}
         bridgeColorA={bridgeColorA}
@@ -453,7 +359,7 @@ function App() {
 
 import styled from 'styled-components';
 
-const LanguageSelectorWrapper = styled.div`
+const LangSelectorWrapper = styled.div`
   position: absolute;
   top: 12px;
   right: 20px;

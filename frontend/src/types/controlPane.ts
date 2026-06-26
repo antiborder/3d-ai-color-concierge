@@ -1,4 +1,6 @@
 import type { ColorSpace } from './color';
+import type { ColorHistoryItem } from '../hooks/useColorHistory';
+import type { HarmonyMode, HarmonyColor } from '../utils/colorHarmony';
 
 export interface ControlPaneProps extends BridgeProps {
   // Color values
@@ -64,6 +66,23 @@ export interface BridgeProps {
   onBridgeOpenChange: (open: boolean) => void;
   isTwoDPickerOpen: boolean;
   onTwoDPickerOpenChange: (open: boolean) => void;
+}
+
+export interface ColorPanelProps {
+  cssColorsEnabled: boolean;
+  materialColorsEnabled: boolean;
+  spectral12ColorsEnabled: boolean;
+  japaneseColorsEnabled: boolean;
+  rgbGridColorsEnabled: boolean;
+  onCssColorsToggle: (enabled: boolean) => void;
+  onMaterialColorsToggle: (enabled: boolean) => void;
+  onSpectral12ColorsToggle: (enabled: boolean) => void;
+  onJapaneseColorsToggle: (enabled: boolean) => void;
+  onRgbGridColorsToggle: (enabled: boolean) => void;
+  colorHistory: ColorHistoryItem[];
+  harmonyMode: HarmonyMode;
+  onHarmonyModeChange: (mode: HarmonyMode) => void;
+  harmonyColors: HarmonyColor[];
 }
 
 export interface SliderContainerProps {

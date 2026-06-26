@@ -1,45 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Command } from '@/types/voice';
+import type { Command, WsInboundText } from '@/types/voice';
 import type { ColorState as UiColorState } from '@/types/colorState';
 import type { ColorHistoryItem } from '@/hooks/useColorHistory';
 import { floatTo16BitPCM, downsample } from '../utils/audioUtils';
 import { getWsUrl, fetchWsToken } from '../utils/wsEndpoint';
 import { usePcmPlayer } from './usePcmPlayer';
-
-// ─── WebSocket message types ─────────────────────────────────────────────────
-
-type WsInboundText =
-  | {
-      type: 'ready';
-      inputSampleRateHz: number;
-      outputSampleRateHz: number;
-    }
-  | {
-      type: 'transcript';
-      text: string;
-      final: boolean;
-      language?: string;
-      segmentId?: string | null;
-    }
-  | {
-      type: 'assistant_text';
-      text: string;
-      source?: 'output_audio_transcription' | 'output_transcription' | 'text_part' | null;
-      segmentId?: string | null;
-      final?: boolean | null;
-    }
-  | {
-      type: 'command';
-      command: Command;
-      tool_name?: string;
-      tool_call_id?: string;
-    }
-  | {
-      type: 'error';
-      message: string;
-      code?: string;
-    };
+import { useWsColorSync } from './useWsColorSync';
 
 export interface UseVoiceStreamingOptions {
   currentColorState?: UiColorState | null;
@@ -75,14 +42,6 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
 
   // ─── Refs ───────────────────────────────────────────────────────────────────
 
-  const bridgeColorARef = useRef(bridgeColorA);
-  bridgeColorARef.current = bridgeColorA;
-  const bridgeColorBRef = useRef(bridgeColorB);
-  bridgeColorBRef.current = bridgeColorB;
-
-  const colorHistoryRef = useRef(colorHistory);
-  colorHistoryRef.current = colorHistory;
-
   const wsRef = useRef<WebSocket | null>(null);
   const startRef = useRef<(() => void) | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
@@ -111,10 +70,6 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     lastCommandReceived?: number;
   }>({});
 
-  const currentColorRef = useRef<UiColorState | null>(null);
-  const lastSentColorJsonRef = useRef<string | null>(null);
-  const colorDebounceTimerRef = useRef<number | null>(null);
-
   // ─── State ──────────────────────────────────────────────────────────────────
 
   const [isConnecting, setIsConnecting] = useState(false);
@@ -134,34 +89,22 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     calculateRMS,
   } = usePcmPlayer();
 
-  // ─── Color sync ─────────────────────────────────────────────────────────────
+  // ─── Color sync (useWsColorSync) ─────────────────────────────────────────────
 
-  useEffect(() => {
-    currentColorRef.current = currentColorState ?? null;
-  }, [currentColorState]);
-
-  const buildWireColorState = useCallback((cs: UiColorState) => {
-    return {
-      r: cs.r, g: cs.g, b: cs.b,
-      c: cs.c, m: cs.m, y: cs.y, k: cs.k,
-      h: cs.h, s: cs.s, l: cs.l,
-      hsbS: cs.hsbS, v: cs.v,
-    };
-  }, []);
-
-  const sendColorState = useCallback(
-    (cs: UiColorState) => {
-      const ws = wsRef.current;
-      if (!ws || ws.readyState !== WebSocket.OPEN) return;
-      const color: Record<string, unknown> = { ...buildWireColorState(cs) };
-      if (bridgeColorARef.current) color.bridgeColorA = bridgeColorARef.current;
-      if (bridgeColorBRef.current) color.bridgeColorB = bridgeColorBRef.current;
-      try {
-        ws.send(JSON.stringify({ type: 'color_state', color }));
-      } catch { /* ignore best-effort */ }
-    },
-    [buildWireColorState]
-  );
+  const {
+    buildWireColorState,
+    sendColorState,
+    cancelPendingSync,
+    currentColorRef,
+    lastSentColorJsonRef,
+  } = useWsColorSync({
+    wsRef,
+    isConnected,
+    currentColorState,
+    bridgeColorA,
+    bridgeColorB,
+    colorHistory,
+  });
 
   // ─── Mic / session cleanup ───────────────────────────────────────────────────
 
@@ -287,14 +230,10 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
 
     try { wsRef.current?.send(JSON.stringify({ type: 'stop' })); } catch { /* ignore */ }
 
-    if (colorDebounceTimerRef.current != null) {
-      window.clearTimeout(colorDebounceTimerRef.current);
-      colorDebounceTimerRef.current = null;
-    }
-
+    cancelPendingSync();
     cleanupAudio();
     cleanupWs({ code: 1000, reason: 'client stop' });
-  }, [cleanupAudio, cleanupWs, clearReconnectTimer]);
+  }, [cancelPendingSync, cleanupAudio, cleanupWs, clearReconnectTimer]);
 
   const start = useCallback(async (opts?: { skipIntro?: boolean }) => {
     if (isConnecting || isStreaming) return;
@@ -419,11 +358,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
         setIsStreaming(false);
         setIsConnecting(false);
         cleanupAudio();
-
-        if (colorDebounceTimerRef.current != null) {
-          window.clearTimeout(colorDebounceTimerRef.current);
-          colorDebounceTimerRef.current = null;
-        }
+        cancelPendingSync();
 
         const isExpectedClose = !shouldReconnectRef.current || evt.code === 1000 || evt.code === 1005;
         if (!isExpectedClose) {
@@ -452,6 +387,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   }, [
     buildWireColorState,
     calculateRMS,
+    cancelPendingSync,
     cleanupAudio,
     clearReconnectTimer,
     handleWsMessage,
@@ -479,56 +415,6 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   useEffect(() => {
     return () => { stop(); };
   }, [stop]);
-
-  // Debounced color sync while connected
-  useEffect(() => {
-    if (!isConnected) return;
-    if (!currentColorState) return;
-
-    const json = JSON.stringify(buildWireColorState(currentColorState));
-    if (lastSentColorJsonRef.current === json) return;
-
-    if (colorDebounceTimerRef.current != null) {
-      window.clearTimeout(colorDebounceTimerRef.current);
-      colorDebounceTimerRef.current = null;
-    }
-
-    colorDebounceTimerRef.current = window.setTimeout(() => {
-      sendColorState(currentColorState);
-      lastSentColorJsonRef.current = json;
-      colorDebounceTimerRef.current = null;
-    }, 150);
-
-    return () => {
-      if (colorDebounceTimerRef.current != null) {
-        window.clearTimeout(colorDebounceTimerRef.current);
-        colorDebounceTimerRef.current = null;
-      }
-    };
-  }, [buildWireColorState, currentColorState, isConnected, sendColorState]);
-
-  // Re-send color_state when bridge colors change while connected
-  useEffect(() => {
-    if (!isConnected) return;
-    const cs = currentColorRef.current;
-    if (!cs) return;
-    sendColorState(cs);
-    lastSentColorJsonRef.current = null;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bridgeColorA, bridgeColorB, isConnected]);
-
-  // Sync color history to backend whenever it changes while connected
-  useEffect(() => {
-    if (!isConnected) return;
-    const ws = wsRef.current;
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    const history = (colorHistoryRef.current ?? []).slice(0, 50).map(({ hex, r, g, b }) => ({
-      hex, r: Math.round(r), g: Math.round(g), b: Math.round(b),
-    }));
-    try {
-      ws.send(JSON.stringify({ type: 'color_history', history }));
-    } catch { /* best-effort */ }
-  }, [colorHistory, isConnected]);
 
   // ─── Public API ──────────────────────────────────────────────────────────────
 

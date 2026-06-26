@@ -3,33 +3,17 @@ import ColorHistoryPanel from '../menus/ColorHistoryPanel';
 import ColorHarmonyPanel from '../menus/ColorHarmonyPanel';
 import DisplayedColorsPanel from '../menus/DisplayedColorsPanel';
 import ColorSearchPanel from '../menus/ColorSearchPanel';
-import LanguageSelector from './LanguageSelector';
-import type { ColorHistoryItem } from '../../hooks/useColorHistory';
-import type { HarmonyMode, HarmonyColor } from '../../utils/colorHarmony';
+import type { ColorPanelProps } from '../../types/controlPane';
 
-interface HeaderProps {
-  cssColorsEnabled: boolean;
-  materialColorsEnabled: boolean;
-  spectral12ColorsEnabled: boolean;
-  japaneseColorsEnabled: boolean;
-  rgbGridColorsEnabled: boolean;
-  onCssColorsToggle: (enabled: boolean) => void;
-  onMaterialColorsToggle: (enabled: boolean) => void;
-  onSpectral12ColorsToggle: (enabled: boolean) => void;
-  onJapaneseColorsToggle: (enabled: boolean) => void;
-  onRgbGridColorsToggle: (enabled: boolean) => void;
-  colorHistory: ColorHistoryItem[];
+interface DesktopRightPaneProps extends ColorPanelProps {
   onColorSelect: (r: number, g: number, b: number) => void;
-  harmonyMode: HarmonyMode;
-  onHarmonyModeChange: (mode: HarmonyMode) => void;
-  harmonyColors: HarmonyColor[];
   currentR: number;
   currentG: number;
   currentB: number;
   onHelpClick?: (topic: string) => void;
 }
 
-const Header = ({
+const DesktopRightPane = ({
   cssColorsEnabled,
   materialColorsEnabled,
   spectral12ColorsEnabled,
@@ -49,10 +33,9 @@ const Header = ({
   currentG,
   currentB,
   onHelpClick,
-}: HeaderProps) => {
+}: DesktopRightPaneProps) => {
   return (
     <StyledHeader>
-      <LanguageSelector />
       <ColorSearchPanel onColorSelect={onColorSelect} />
       <DisplayedColorsPanel
         cssColorsEnabled={cssColorsEnabled}
@@ -85,10 +68,6 @@ const Header = ({
 };
 
 const StyledHeader = styled.header`
-  position: absolute;
-  top: 12px;
-  right: 20px;
-  z-index: 1000;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -97,4 +76,4 @@ const StyledHeader = styled.header`
 
 const HistoryPanelWrapper = styled.div``;
 
-export default Header;
+export default DesktopRightPane;
