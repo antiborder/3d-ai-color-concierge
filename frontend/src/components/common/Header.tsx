@@ -1,14 +1,13 @@
 import styled from 'styled-components';
 import ColorHistoryPanel from '../menus/ColorHistoryPanel';
 import ColorHarmonyPanel from '../menus/ColorHarmonyPanel';
-import LanguageSelector from './LanguageSelector';
 import DisplayedColorsPanel from '../menus/DisplayedColorsPanel';
 import ColorSearchPanel from '../menus/ColorSearchPanel';
+import LanguageSelector from './LanguageSelector';
 import type { ColorHistoryItem } from '../../hooks/useColorHistory';
 import type { HarmonyMode, HarmonyColor } from '../../utils/colorHarmony';
 
 interface HeaderProps {
-  isDesktopLayout?: boolean;
   cssColorsEnabled: boolean;
   materialColorsEnabled: boolean;
   spectral12ColorsEnabled: boolean;
@@ -31,7 +30,6 @@ interface HeaderProps {
 }
 
 const Header = ({
-  isDesktopLayout = true,
   cssColorsEnabled,
   materialColorsEnabled,
   spectral12ColorsEnabled,
@@ -52,14 +50,6 @@ const Header = ({
   currentB,
   onHelpClick,
 }: HeaderProps) => {
-  if (!isDesktopLayout) {
-    return (
-      <StyledHeader>
-        <LanguageSelector />
-      </StyledHeader>
-    );
-  }
-
   return (
     <StyledHeader>
       <LanguageSelector />

@@ -6,6 +6,7 @@ import ControlPane from './components/common/ControlPane';
 import Structure from './components/ColorPicker/Structure';
 import Header from './components/common/Header';
 import MobileControlColumn from './components/common/MobileControlColumn';
+import LanguageSelector from './components/common/LanguageSelector';
 import { useMatchMedia } from './hooks/useMatchMedia';
 import VoiceControl from './components/VoiceControl/VoiceControl';
 import ChatHistoryModal from './components/Chatbot/ChatHistoryModal';
@@ -257,28 +258,34 @@ function App() {
   return (
     <>
       <Toaster position="top-right" />
-      <Header
-        isDesktopLayout={isDesktopLayout}
-        cssColorsEnabled={cssColorsEnabled}
-        materialColorsEnabled={materialColorsEnabled}
-        spectral12ColorsEnabled={spectral12ColorsEnabled}
-        japaneseColorsEnabled={japaneseColorsEnabled}
-        rgbGridColorsEnabled={rgbGridColorsEnabled}
-        onCssColorsToggle={setCssColorsEnabled}
-        onMaterialColorsToggle={setMaterialColorsEnabled}
-        onSpectral12ColorsToggle={setSpectral12ColorsEnabled}
-        onJapaneseColorsToggle={setJapaneseColorsEnabled}
-        onRgbGridColorsToggle={setRgbGridColorsEnabled}
-        colorHistory={history}
-        onColorSelect={handleClick}
-        harmonyMode={harmonyMode}
-        onHarmonyModeChange={setHarmonyMode}
-        harmonyColors={harmonyColors}
-        currentR={colorState.r}
-        currentG={colorState.g}
-        currentB={colorState.b}
-        onHelpClick={handleHelpClick}
-      />
+      {!isDesktopLayout && (
+        <LanguageSelectorWrapper>
+          <LanguageSelector />
+        </LanguageSelectorWrapper>
+      )}
+      {isDesktopLayout && (
+        <Header
+          cssColorsEnabled={cssColorsEnabled}
+          materialColorsEnabled={materialColorsEnabled}
+          spectral12ColorsEnabled={spectral12ColorsEnabled}
+          japaneseColorsEnabled={japaneseColorsEnabled}
+          rgbGridColorsEnabled={rgbGridColorsEnabled}
+          onCssColorsToggle={setCssColorsEnabled}
+          onMaterialColorsToggle={setMaterialColorsEnabled}
+          onSpectral12ColorsToggle={setSpectral12ColorsEnabled}
+          onJapaneseColorsToggle={setJapaneseColorsEnabled}
+          onRgbGridColorsToggle={setRgbGridColorsEnabled}
+          colorHistory={history}
+          onColorSelect={handleClick}
+          harmonyMode={harmonyMode}
+          onHarmonyModeChange={setHarmonyMode}
+          harmonyColors={harmonyColors}
+          currentR={colorState.r}
+          currentG={colorState.g}
+          currentB={colorState.b}
+          onHelpClick={handleHelpClick}
+        />
+      )}
       <Structure
         bridgeColorA={isBridgeOpen ? bridgeColorA : undefined}
         bridgeColorB={isBridgeOpen ? bridgeColorB : undefined}
@@ -443,5 +450,14 @@ function App() {
     </>
   );
 }
+
+import styled from 'styled-components';
+
+const LanguageSelectorWrapper = styled.div`
+  position: absolute;
+  top: 12px;
+  right: 20px;
+  z-index: 1000;
+`;
 
 export default App;

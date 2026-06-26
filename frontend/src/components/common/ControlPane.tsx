@@ -5,6 +5,7 @@ import { ControlPaneSliders } from '../menus/ControlPaneSliders';
 import OneDPickerPanel from '../menus/OneDPickerPanel';
 import CIEPanel from '../menus/CIEPanel';
 import type { ControlPaneProps } from '../../types/controlPane';
+import { IconSliders, IconOneDPicker, IconCIE } from './MenuIcons';
 
 export { ControlPaneSliders } from '../menus/ControlPaneSliders';
 
@@ -20,60 +21,75 @@ const ControlPane = (props: ControlPaneProps) => {
   return (
     <ControlPaneRoot>
       <CurrentColor {...props} />
-      <MenuBar>
-        <MenuIconButton
-          type="button"
-          aria-label="Color sliders"
-          aria-pressed={activeMenu === 'sliders'}
-          $active={activeMenu === 'sliders'}
-          onClick={() => onIconClick('sliders')}
-        >
-          <IconSliders />
-        </MenuIconButton>
-        <MenuIconButton
-          type="button"
-          aria-label="1D picker"
-          aria-pressed={activeMenu === 'oneDPicker'}
-          $active={activeMenu === 'oneDPicker'}
-          onClick={() => onIconClick('oneDPicker')}
-        >
-          <IconOneDPicker />
-        </MenuIconButton>
-        <MenuIconButton
-          type="button"
-          aria-label="CIE xy diagram"
-          aria-pressed={activeMenu === 'cie'}
-          $active={activeMenu === 'cie'}
-          onClick={() => onIconClick('cie')}
-        >
-          <IconCIE />
-        </MenuIconButton>
-      </MenuBar>
-      {activeMenu === 'sliders' && <ControlPaneSliders {...props} />}
-      {activeMenu === 'oneDPicker' && <OneDPickerPanel {...props} />}
-      {activeMenu === 'cie' && <CIEPanel {...props} />}
+      <MenuAndContent>
+        <MenuBar>
+          <MenuIconButton
+            type="button"
+            aria-label="Color sliders"
+            aria-pressed={activeMenu === 'sliders'}
+            $active={activeMenu === 'sliders'}
+            onClick={() => onIconClick('sliders')}
+          >
+            <IconSliders />
+          </MenuIconButton>
+          <MenuIconButton
+            type="button"
+            aria-label="1D picker"
+            aria-pressed={activeMenu === 'oneDPicker'}
+            $active={activeMenu === 'oneDPicker'}
+            onClick={() => onIconClick('oneDPicker')}
+          >
+            <IconOneDPicker />
+          </MenuIconButton>
+          <MenuIconButton
+            type="button"
+            aria-label="CIE xy diagram"
+            aria-pressed={activeMenu === 'cie'}
+            $active={activeMenu === 'cie'}
+            onClick={() => onIconClick('cie')}
+          >
+            <IconCIE />
+          </MenuIconButton>
+        </MenuBar>
+        <PanelArea>
+          {activeMenu === 'sliders' && <ControlPaneSliders {...props} />}
+          {activeMenu === 'oneDPicker' && <OneDPickerPanel {...props} />}
+          {activeMenu === 'cie' && <CIEPanel {...props} />}
+        </PanelArea>
+      </MenuAndContent>
     </ControlPaneRoot>
   );
 };
 
 const ControlPaneRoot = styled.div`
-  width: 237px;
   position: absolute;
   top: 12px;
   left: 20px;
+  width: fit-content;
+`;
+
+const MenuAndContent = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
 `;
 
 const MenuBar = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  width: fit-content;
   gap: 8px;
-  padding: 6px 8px;
-  margin-top: 12px;
+  padding: 8px 6px;
   background: rgba(255, 255, 255);
   border: 1px solid #ddd;
   border-radius: 4px;
+`;
+
+const PanelArea = styled.div`
+  flex: 1;
+  min-width: 0;
 `;
 
 const MenuIconButton = styled.button<{ $active: boolean }>`
@@ -97,42 +113,5 @@ const MenuIconButton = styled.button<{ $active: boolean }>`
     background: ${(p) => (p.$active ? '#dceaf9' : '#f5f5f5')};
   }
 `;
-
-function IconSliders() {
-  return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M4 15h4v2H4v-2zm0-8h8v2H4V7zm0 4h12v2H4v-2zm16 5v2H4v-2h16z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
-function IconOneDPicker() {
-  return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M5,10 L12,10 L12,14 L5,14 Q3,14 3,12 Q3,10 5,10 Z" fill="white" />
-      <path d="M12,10 L19,10 Q21,10 21,12 Q21,14 19,14 L12,14 Z" fill="currentColor" />
-      <rect x="3" y="10" width="18" height="4" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none" />
-      <line x1="12" y1="7" x2="12" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function IconCIE() {
-  return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M6,21 Q2,10 4,4 Q8,2 12,6 Q17,9 20,15"
-        stroke="currentColor" strokeWidth="1.5" fill="none"
-        strokeLinecap="round" strokeLinejoin="round"
-      />
-      <line x1="6" y1="21" x2="20" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <polygon points="18,14 10,8 6,20" stroke="currentColor" strokeWidth="0.8" fill="none" strokeDasharray="2,1.5" />
-      <circle cx="11" cy="14" r="1.5" fill="currentColor" />
-    </svg>
-  );
-}
 
 export default ControlPane;
