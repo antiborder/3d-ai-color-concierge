@@ -68,7 +68,7 @@ export const TranscriptionPanel = styled.div<{ $textColor: string }>`
   color: ${(p) => p.$textColor};
   line-height: 1.6;
   text-align: left;
-  max-width: min(480px, 90vw);
+  width: min(380px, 90vw);
 `;
 
 export const StyledVoiceControl = styled.div<{ $isListening: boolean }>`

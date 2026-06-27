@@ -65,8 +65,8 @@ def extract_finished_from_transcription_obj(x) -> bool | None:
 def merge_streaming_text(prev: str, chunk: str) -> str:
     """
     ストリーミングで届くテキストを「累積表示用」に統合する。
-    - server が「差分chunk」を送る場合: prev + chunk
     - server が「全文（ここまで）」を送る場合: chunk へ置換
+    - server が「差分chunk」を送る場合: prev + space + chunk
     """
     prev = prev or ""
     chunk = (chunk or "").strip()
@@ -80,4 +80,5 @@ def merge_streaming_text(prev: str, chunk: str) -> str:
     # If chunk already appended, avoid duplication.
     if prev.endswith(chunk):
         return prev
-    return prev + chunk
+    # Differential chunk: always add a word boundary space.
+    return prev + " " + chunk

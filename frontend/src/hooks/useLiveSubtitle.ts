@@ -22,10 +22,16 @@ export function useLiveSubtitle({
   const displayOffsetRef = useRef(0);
   const subtitleClearTimerRef = useRef<NodeJS.Timeout | null>(null);
   const pendingDelayTimersRef = useRef<Set<NodeJS.Timeout>>(new Set());
+  const generationRef = useRef(0);
 
   const resetState = useCallback(() => {
+    generationRef.current += 1;
     rawBufRef.current = '';
     displayOffsetRef.current = 0;
+    if (subtitleClearTimerRef.current) {
+      clearTimeout(subtitleClearTimerRef.current);
+      subtitleClearTimerRef.current = null;
+    }
     pendingDelayTimersRef.current.forEach(clearTimeout);
     pendingDelayTimersRef.current.clear();
     setLiveSubtitle('');
@@ -110,9 +116,10 @@ export function useLiveSubtitle({
       const ctx = audioCtxRef.current;
       const delayMs = ctx ? Math.max(0, (playTimeRef.current - ctx.currentTime) * 1000) : 0;
       if (delayMs > 16) {
+        const gen = generationRef.current;
         const t = setTimeout(() => {
           pendingDelayTimersRef.current.delete(t);
-          setLiveSubtitle(displayText);
+          if (generationRef.current === gen) setLiveSubtitle(displayText);
         }, delayMs);
         pendingDelayTimersRef.current.add(t);
       } else {

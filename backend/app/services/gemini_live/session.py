@@ -266,6 +266,11 @@ class GeminiLiveSession:
         guaranteeing that Gemini generates a response. Falls back to send_realtime_input
         for older SDK versions.
         """
+        # New user turn starting: reset output transcription state so the next AI response
+        # starts fresh (same effect as the in_transcription_segment_id reset in voice turns).
+        self._out_transcription_buf = ""
+        self._out_transcription_segment_id = None
+
         if not await self._ensure_live_connected():
             return
 

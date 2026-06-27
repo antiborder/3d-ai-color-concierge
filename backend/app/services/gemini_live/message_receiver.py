@@ -152,6 +152,8 @@ async def process_live_message(
             interrupted_flag = sc.get("interrupted")
         if interrupted_flag:
             await event_q.put(LiveInterruptedEvent())
+            out_transcription_buf = ""
+            out_transcription_segment_id = None
 
         # 0-a) output audio transcription (server-generated)
         # NOTE: server field names differ by SDK/API version.
@@ -200,11 +202,12 @@ async def process_live_message(
                 ):
                     out_transcription_buf = ""
                     out_transcription_segment_id = None
-                out_transcription_buf = merge_streaming_text(out_transcription_buf, txt)
-                txt_to_emit = out_transcription_buf
                 if out_transcription_segment_id is None:
                     out_transcription_seq += 1
                     out_transcription_segment_id = f"asst_out_{out_transcription_seq}"
+                    out_transcription_buf = ""
+                out_transcription_buf = merge_streaming_text(out_transcription_buf, txt)
+                txt_to_emit = out_transcription_buf
             else:
                 txt_to_emit = txt
             await event_q.put(

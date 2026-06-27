@@ -20,12 +20,6 @@ import {
   LoadingMessage,
 } from './VoiceControl.styles';
 
-function toDisplayText(text: string): string {
-  if (!text) return '';
-  const words = text.trim().split(/\s+/).filter(Boolean);
-  return words.length > 8 ? words.slice(-8).join(' ') : words.join(' ');
-}
-
 // ChatIcon kept for future use with the commented-out chat history button
 const ChatIcon = () => (
   <svg
@@ -198,7 +192,7 @@ const VoiceControl = ({
         <ErrorPanel>{error}</ErrorPanel>
       ) : liveSubtitle ? (
         <TranscriptionPanel $textColor={(currentColorState?.l ?? 50) >= 50 ? '#000000' : '#ffffff'}>
-          {toDisplayText(liveSubtitle)}
+          {liveSubtitle}
         </TranscriptionPanel>
       ) : null}
       <StyledVoiceControl $isListening={isStreaming || isConnecting}>
