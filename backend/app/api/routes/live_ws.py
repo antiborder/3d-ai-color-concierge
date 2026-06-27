@@ -37,14 +37,11 @@ from app.services.gemini_live_client import (
     GeminiLiveSession,
     default_live_config,
 )
-from app.services.gemini_live_types import (
-    LiveAssistantTextEvent,
-    LiveAudioChunk,
-    LiveCommandEvent,
-    LiveErrorEvent,
-    LiveTranscriptEvent,
-)
 from app.services.prompts.common import get_color_service_for_prompt
+from app.services.ws.context import SessionContext
+from app.services.ws.event_dispatcher import EventDispatcher
+from app.services.ws.gemini_websocket import GeminiWebSocket
+from app.services.ws.user_websocket import UserWebSocket
 from app.utils.origin_check import is_origin_allowed
 from app.utils.rate_limit import FixedWindowRateLimiter
 from app.utils.ws_auth import extract_cookie, verify_ws_token
@@ -54,63 +51,6 @@ router = APIRouter()
 _conn_limiter = FixedWindowRateLimiter(limit=20, window_seconds=60)
 # Use uvicorn logger so it ends up in backend-local.log consistently.
 logger = logging.getLogger("uvicorn.error")
-
-
-def _clamp_int(v, lo: int, hi: int):
-    try:
-        if isinstance(v, bool):
-            return None
-        iv = int(v)
-    except Exception:
-        return None
-    if iv < lo:
-        iv = lo
-    if iv > hi:
-        iv = hi
-    return iv
-
-
-def _normalize_color_state(color) -> dict | None:
-    """
-    Best-effort validation for frontend-sent color_state.
-    We require r/g/b; other fields are optional and clamped.
-    """
-    if not isinstance(color, dict):
-        return None
-    r = _clamp_int(color.get("r"), 0, 255)
-    g = _clamp_int(color.get("g"), 0, 255)
-    b = _clamp_int(color.get("b"), 0, 255)
-    if r is None or g is None or b is None:
-        return None
-    out: dict = {"r": r, "g": g, "b": b}
-
-    opt_specs = {
-        "c": (0, 100),
-        "m": (0, 100),
-        "y": (0, 100),
-        "k": (0, 100),
-        "h": (0, 360),
-        "s": (0, 100),
-        "l": (0, 100),
-        "hsvS": (0, 100),
-        "v": (0, 100),
-    }
-    for k, (lo, hi) in opt_specs.items():
-        if k in color:
-            vv = _clamp_int(color.get(k), lo, hi)
-            if vv is not None:
-                out[k] = vv
-
-    for bridge_key in ("bridgeColorA", "bridgeColorB"):
-        bc = color.get(bridge_key)
-        if isinstance(bc, dict):
-            br = _clamp_int(bc.get("r"), 0, 255)
-            bg = _clamp_int(bc.get("g"), 0, 255)
-            bb = _clamp_int(bc.get("b"), 0, 255)
-            if br is not None and bg is not None and bb is not None:
-                out[bridge_key] = {"r": br, "g": bg, "b": bb}
-
-    return out
 
 
 @router.websocket("/live")
@@ -213,7 +153,6 @@ async def live_voice_ws(ws: WebSocket):
 
     cfg = default_live_config(language=language)
     stop_evt = asyncio.Event()
-    color_state_received = asyncio.Event()
 
     # パフォーマンス測定用のタイムスタンプ追跡
     session_id = id(ws)
@@ -225,258 +164,54 @@ async def live_voice_ws(ws: WebSocket):
         "last_response_sent": None,
     }
 
-    async def client_to_live(session: GeminiLiveSession):
-        try:
-            while not stop_evt.is_set():
-                incoming = await ws.receive()
-                if "text" in incoming and incoming["text"] is not None:
-                    try:
-                        payload = json.loads(incoming["text"])
-                        msg_type = payload.get("type") if isinstance(payload, dict) else None
-                        if msg_type == "stop":
-                            stop_evt.set()
-                            # Let Gemini flush a response for the current utterance.
-                            try:
-                                await session.end_audio_stream()
-                            except Exception:
-                                pass
-                            return
-                        if msg_type == "color_history" and isinstance(payload, dict):
-                            raw = payload.get("history", [])
-                            if isinstance(raw, list):
-                                history = [
-                                    {
-                                        "hex": str(c.get("hex", "")),
-                                        "r": max(0, min(255, int(c.get("r", 0)))),
-                                        "g": max(0, min(255, int(c.get("g", 0)))),
-                                        "b": max(0, min(255, int(c.get("b", 0)))),
-                                    }
-                                    for c in raw
-                                    if isinstance(c, dict)
-                                ][:50]
-                                session.set_color_history(history)
-                        if msg_type == "text_message" and isinstance(payload, dict):
-                            text = str(payload.get("text", "")).strip()
-                            if text:
-                                await session.send_text(text)
-                        if msg_type == "color_state" and isinstance(payload, dict):
-                            color = _normalize_color_state(payload.get("color"))
-                            if color:
-                                session.set_current_color_state(color)
-                                # 色状態が設定されたことを通知
-                                color_state_received.set()
-                                if getattr(settings, "GEMINI_LIVE_CHAT_DEBUG", False):
-                                    try:
-                                        logger.info(
-                                            "LIVE_CHAT_DEBUG recv color_state rgb=(%s,%s,%s) keys=%s",
-                                            color.get("r"),
-                                            color.get("g"),
-                                            color.get("b"),
-                                            sorted(list(color.keys())),
-                                        )
-                                    except Exception:
-                                        logger.info(
-                                            "LIVE_CHAT_DEBUG recv color_state (failed to log details)"
-                                        )
-                    except Exception:
-                        # 不正テキストは無視（プロトコル簡略化）
-                        continue
-                elif "bytes" in incoming and incoming["bytes"] is not None:
-                    now = time.time()
-                    perf_timestamps["last_audio_received"] = now
-                    if perf_timestamps.get("last_audio_sent_to_gemini"):
-                        elapsed = now - perf_timestamps["last_audio_sent_to_gemini"]
-                        logger.info(
-                            "PERF: audio_received_from_client session_id=%s bytes=%s elapsed_since_last_send=%.3fs",
-                            session_id,
-                            len(incoming["bytes"]),
-                            elapsed,
-                        )
-                    send_start = time.time()
-                    await session.send_audio(incoming["bytes"])
-                    perf_timestamps["last_audio_sent_to_gemini"] = time.time()
-                    elapsed = perf_timestamps["last_audio_sent_to_gemini"] - send_start
-                    logger.info(
-                        "PERF: audio_sent_to_gemini session_id=%s elapsed=%.3fs bytes=%s",
-                        session_id,
-                        elapsed,
-                        len(incoming["bytes"]),
-                    )
-        except WebSocketDisconnect:
-            try:
-                await session.end_audio_stream()
-            except Exception:
-                pass
-            stop_evt.set()
-        except RuntimeError:
-            # Starlette can raise RuntimeError after a disconnect message has been received.
-            # Treat it as disconnect and stop quietly.
-            try:
-                await session.end_audio_stream()
-            except Exception:
-                pass
-            stop_evt.set()
-        except Exception as e:
-            # 接続が既に閉じられている可能性があるため、送信はbest-effort
-            try:
-                await ws.send_text(
-                    json.dumps({"type": "error", "message": f"client receive error: {e}"})
-                )
-            except Exception:
-                pass
-            try:
-                await session.end_audio_stream()
-            except Exception as e2:
-                logger.info("GeminiLiveSession end_audio_stream failed: %s", str(e2))
-            stop_evt.set()
-
-    async def live_to_client(session: GeminiLiveSession):
-        async for ev in session.events():
-            if stop_evt.is_set():
-                return
-            now = time.time()
-
-            if isinstance(ev, LiveAudioChunk) and ev.direction == "out":
-                # 最初の音声チャンクのログを常に出力（last_gemini_responseの状態に関わらず）
-                if not perf_timestamps.get("first_audio_chunk_logged"):
-                    perf_timestamps["first_audio_chunk_logged"] = True
-                    if perf_timestamps.get("last_audio_sent_to_gemini"):
-                        elapsed = now - perf_timestamps["last_audio_sent_to_gemini"]
-                        logger.info(
-                            "PERF: first_audio_chunk_from_gemini session_id=%s elapsed_since_send=%.3fs bytes=%s",
-                            session_id,
-                            elapsed,
-                            len(ev.data),
-                        )
-                if not perf_timestamps.get("last_gemini_response"):
-                    perf_timestamps["last_gemini_response"] = now
-                # 音声はbinaryで返す
-                await ws.send_bytes(ev.data)
-                perf_timestamps["last_response_sent"] = time.time()
-            elif isinstance(ev, LiveTranscriptEvent):
-                if not perf_timestamps.get("last_gemini_response"):
-                    perf_timestamps["last_gemini_response"] = now
-                    if perf_timestamps.get("last_audio_sent_to_gemini"):
-                        elapsed = now - perf_timestamps["last_audio_sent_to_gemini"]
-                        logger.info(
-                            "PERF: first_transcript_from_gemini session_id=%s elapsed_since_send=%.3fs text_len=%s",
-                            session_id,
-                            elapsed,
-                            len(ev.text) if ev.text else 0,
-                        )
-                if getattr(settings, "GEMINI_LIVE_CHAT_DEBUG", False):
-                    try:
-                        logger.info(
-                            "LIVE_CHAT_DEBUG send transcript final=%s txt_len=%s txt_preview=%r",
-                            ev.is_final,
-                            len(ev.text) if ev.text else 0,
-                            (ev.text[:200] if ev.text else None),
-                        )
-                    except Exception:
-                        logger.info("LIVE_CHAT_DEBUG send transcript (failed to log details)")
-                await ws.send_text(
-                    json.dumps(
-                        {
-                            "type": "transcript",
-                            "text": ev.text,
-                            "final": ev.is_final,
-                            "language": ev.language,
-                            "segmentId": ev.segment_id,
-                        }
-                    )
-                )
-            elif isinstance(ev, LiveAssistantTextEvent):
-                if not perf_timestamps.get("last_gemini_response"):
-                    perf_timestamps["last_gemini_response"] = now
-                    if perf_timestamps.get("last_audio_sent_to_gemini"):
-                        elapsed = now - perf_timestamps["last_audio_sent_to_gemini"]
-                        logger.info(
-                            "PERF: first_assistant_text_from_gemini session_id=%s elapsed_since_send=%.3fs text_len=%s",
-                            session_id,
-                            elapsed,
-                            len(ev.text) if ev.text else 0,
-                        )
-                if getattr(settings, "GEMINI_LIVE_CHAT_DEBUG", False):
-                    try:
-                        logger.info(
-                            "LIVE_CHAT_DEBUG send assistant_text source=%s segmentId=%s final=%s txt_len=%s txt_preview=%r",
-                            ev.source,
-                            ev.segment_id,
-                            ev.is_final,
-                            len(ev.text) if ev.text else 0,
-                            (ev.text[:200] if ev.text else None),
-                        )
-                    except Exception:
-                        logger.info("LIVE_CHAT_DEBUG send assistant_text (failed to log details)")
-                await ws.send_text(
-                    json.dumps(
-                        {
-                            "type": "assistant_text",
-                            "text": ev.text,
-                            "source": ev.source,
-                            "segmentId": ev.segment_id,
-                            "final": ev.is_final,
-                        }
-                    )
-                )
-            elif isinstance(ev, LiveCommandEvent):
-                if not perf_timestamps.get("last_gemini_response"):
-                    perf_timestamps["last_gemini_response"] = now
-                    if perf_timestamps.get("last_audio_sent_to_gemini"):
-                        elapsed = now - perf_timestamps["last_audio_sent_to_gemini"]
-                        action = ev.command.get("action") if isinstance(ev.command, dict) else None
-                        logger.info(
-                            "PERF: first_command_from_gemini session_id=%s elapsed_since_send=%.3fs action=%s",
-                            session_id,
-                            elapsed,
-                            action,
-                        )
-                await ws.send_text(
-                    json.dumps(
-                        {
-                            "type": "command",
-                            "command": ev.command,
-                            "tool_name": ev.tool_name,
-                            "tool_call_id": ev.tool_call_id,
-                        }
-                    )
-                )
-            elif isinstance(ev, LiveErrorEvent):
-                await ws.send_text(
-                    json.dumps({"type": "error", "message": ev.message, "code": ev.code})
-                )
-
-    async def send_introduction(session: GeminiLiveSession):
-        """
-        自己紹介を即座に送信（色状態の送信を待たない）
-        """
-        # 自己紹介プロンプト（短く、色に言及し、提案を含める）
-        from app.services.prompts.introduction import build_introduction_prompt
-
-        introduction_prompt = build_introduction_prompt(language)
-        try:
-            await session.send_text(introduction_prompt)
-        except Exception as e:
-            # 自己紹介送信の失敗は致命的ではないのでログのみ
-            logger.info("Failed to send introduction prompt: %s", str(e))
-
     try:
-        async with GeminiLiveSession(cfg, color_service=get_color_service_for_prompt()) as session:
-            # 初回の場合のみ自己紹介を送信するタスクを開始
+        color_service = get_color_service_for_prompt()
+        async with GeminiLiveSession(cfg, color_service=color_service) as session:
+            ctx = SessionContext(
+                session_id=session_id,
+                stop_event=stop_evt,
+                language=language,
+                color_service=color_service,
+                perf_timestamps=perf_timestamps,
+            )
+            gemini_ws = GeminiWebSocket(session=session)
+            user_ws = UserWebSocket(ws=ws)
+            ctx.gemini_ws = gemini_ws
+            ctx.user_ws = user_ws
+
+            dispatcher = EventDispatcher(ctx=ctx)
+            dispatcher.register_all(gemini_ws.event_registry)
+            dispatcher.register_all(user_ws.event_registry)
+
+            tasks = [
+                asyncio.create_task(gemini_ws.receive_loop(dispatcher.queue)),
+                asyncio.create_task(user_ws.receive_loop(dispatcher.queue)),
+                asyncio.create_task(dispatcher.run()),
+            ]
+
             intro_task = None
             if is_first_time:
-                intro_task = asyncio.create_task(send_introduction(session))
 
-            t1 = asyncio.create_task(client_to_live(session))
-            t2 = asyncio.create_task(live_to_client(session))
+                async def _send_intro() -> None:
+                    from app.services.prompts.introduction import build_introduction_prompt
 
-            done, pending = await asyncio.wait({t1, t2}, return_when=asyncio.FIRST_COMPLETED)
-            for p in pending:
-                p.cancel()
-            # intro_taskもキャンセル（存在する場合）
+                    introduction_prompt = build_introduction_prompt(language)
+                    try:
+                        await session.send_text(introduction_prompt)
+                    except Exception as e:
+                        logger.info("Failed to send introduction prompt: %s", str(e))
+
+                intro_task = asyncio.create_task(_send_intro())
+
+            done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
             if intro_task and not intro_task.done():
                 intro_task.cancel()
-            # best-effort: wait for cancellation to settle
+            try:
+                await session.end_audio_stream()
+            except Exception:
+                pass
+            for p in pending:
+                p.cancel()
             await asyncio.gather(*pending, return_exceptions=True)
             if intro_task:
                 await asyncio.gather(intro_task, return_exceptions=True)
