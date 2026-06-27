@@ -228,10 +228,10 @@ const Bar = styled.div`
   height: 18px;
   border-radius: 4px;
   cursor: crosshair;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
 
   &:hover {
-    border-color: #4e8cee;
+    box-shadow: 0 0 0 1px #4e8cee;
   }
 `;
 
