@@ -142,6 +142,12 @@ const ColorBridge = ({
 }: ColorBridgeProps) => {
   const { i18n } = useTranslation();
   const barRef = useRef<HTMLDivElement>(null);
+  // [t, r, g, b] of the last bar pick; compared against currentColor each render
+  const lastPick = useRef<[number, number, number, number] | null>(null);
+
+  const { r: cr, g: cg, b: cb } = currentColor;
+  const lp = lastPick.current;
+  const indicatorT = lp && lp[1] === cr && lp[2] === cg && lp[3] === cb ? lp[0] : null;
 
   const handleBarClick = (e: MouseEvent<HTMLDivElement>) => {
     const bar = barRef.current;
@@ -149,6 +155,7 @@ const ColorBridge = ({
     const rect = bar.getBoundingClientRect();
     const t = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     const [r, g, b] = interpolateRgb(colorA, colorB, shape, t);
+    lastPick.current = [t, r, g, b];
     onColorSelect(r, g, b);
   };
 
@@ -174,7 +181,10 @@ const ColorBridge = ({
           }}
           title="Click to set current color"
         />
-        <Bar ref={barRef} style={{ background: gradient }} onClick={handleBarClick} />
+        <BarWrapper>
+          <Bar ref={barRef} style={{ background: gradient }} onClick={handleBarClick} />
+          {indicatorT !== null && <Indicator style={{ left: `${indicatorT * 100}%` }} />}
+        </BarWrapper>
         <EndpointDot
           style={{ background: `rgb(${colorB.r},${colorB.g},${colorB.b})` }}
           onClick={() => {
@@ -223,8 +233,13 @@ const Row = styled.div`
   gap: 6px;
 `;
 
-const Bar = styled.div`
+const BarWrapper = styled.div`
   flex: 1;
+  position: relative;
+`;
+
+const Bar = styled.div`
+  width: 100%;
   height: 18px;
   border-radius: 4px;
   cursor: crosshair;
@@ -233,6 +248,17 @@ const Bar = styled.div`
   &:hover {
     box-shadow: 0 0 0 1px #4e8cee;
   }
+`;
+
+const Indicator = styled.div`
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  transform: translateX(-50%);
+  background: #2563eb;
+  border-radius: 1px;
+  pointer-events: none;
 `;
 
 export default ColorBridge;
