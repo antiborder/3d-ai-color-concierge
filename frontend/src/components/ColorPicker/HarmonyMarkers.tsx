@@ -160,9 +160,7 @@ const SingleMarker = ({
           onPointerOver={() => setBubbleHovered(true)}
           onPointerOut={() => setBubbleHovered(false)}
         >
-          {(hovered || bubbleHovered || isAnimating) && (
-            <HarmonyBubble hex={hex} onColorSelect={() => onColorSelect(r, g, b)} />
-          )}
+          <HarmonyBubble hex={hex} onColorSelect={() => onColorSelect(r, g, b)} />
         </div>
       </Html>
 

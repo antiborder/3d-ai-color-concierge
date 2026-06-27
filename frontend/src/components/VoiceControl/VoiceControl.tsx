@@ -12,12 +12,14 @@ import {
   StyledVoiceControl,
   VoiceInputContainer,
   ChatButton,
-  ListeningIndicator,
   Spinner,
+  WaveBarsContainer,
+  WaveBarEl,
   TextInputForm,
   TextInput,
   SubmitButton,
   LoadingMessage,
+  type ButtonState,
 } from './VoiceControl.styles';
 
 // ChatIcon kept for future use with the commented-out chat history button
@@ -186,6 +188,15 @@ const VoiceControl = ({
     }
   };
 
+  const buttonState: ButtonState = (() => {
+    if (!isStreaming && !isConnecting) return 'idle';
+    if (isAISpeaking) return 'responding';
+    if (isConnected) return 'listening';
+    return 'connecting';
+  })();
+
+  const WAVE_DELAYS = [0, 0.12, 0.24, 0.36, 0.48];
+
   return (
     <VoiceControlRoot>
       {error ? (
@@ -195,24 +206,25 @@ const VoiceControl = ({
           {liveSubtitle}
         </TranscriptionPanel>
       ) : null}
-      <StyledVoiceControl $isListening={isStreaming || isConnecting}>
+      <StyledVoiceControl $isListening={buttonState !== 'idle'}>
         <VoiceInputContainer>
-          <ChatButton
-            onClick={handleMicClick}
-            disabled={isLoading}
-            $isListening={isStreaming || isConnecting}
-          >
-            {isStreaming || isConnecting ? (
-              showSpinner ? (
+          <ChatButton onClick={handleMicClick} disabled={isLoading} $state={buttonState}>
+            {buttonState === 'idle' && 'Start Chatting ▶︎'}
+            {buttonState === 'connecting' && (
+              <>
                 <Spinner />
-              ) : (
-                <>
-                  <ListeningIndicator />
-                  Listening...
-                </>
-              )
-            ) : (
-              'Start Chatting ▶︎'
+                Connecting...
+              </>
+            )}
+            {(buttonState === 'listening' || buttonState === 'responding') && (
+              <>
+                <WaveBarsContainer>
+                  {WAVE_DELAYS.map((delay, i) => (
+                    <WaveBarEl key={i} $fast={buttonState === 'listening'} $delay={delay} />
+                  ))}
+                </WaveBarsContainer>
+                {buttonState === 'listening' ? 'Listening...' : 'Responding...'}
+              </>
             )}
           </ChatButton>
           <TextInputForm onSubmit={handleTextSubmit} style={{ display: 'none' }}>

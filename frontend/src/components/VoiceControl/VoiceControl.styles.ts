@@ -38,6 +38,13 @@ export const spin = keyframes`
   }
 `;
 
+export const waveAnim = keyframes`
+  0%, 100% { transform: scaleY(0.25); }
+  50% { transform: scaleY(1); }
+`;
+
+export type ButtonState = 'idle' | 'connecting' | 'listening' | 'responding';
+
 export const VoiceControlRoot = styled.div`
   position: fixed;
   bottom: 20px;
@@ -87,27 +94,41 @@ export const VoiceInputContainer = styled.div`
   gap: 12px;
 `;
 
-export const ChatButton = styled.button<{ $isListening: boolean }>`
+export const ChatButton = styled.button<{ $state: ButtonState }>`
   padding: 12px 24px;
   border-radius: 8px;
   border: none;
-  background-color: ${(props) => (props.$isListening ? '#ff4444' : '#4e8cee')};
+  background-color: ${({ $state }) =>
+    $state === 'connecting'
+      ? '#8fa8c8'
+      : $state === 'listening'
+        ? '#ef5350'
+        : $state === 'responding'
+          ? '#7e57c2'
+          : '#4e8cee'};
   color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: all 0.3s;
+  gap: 10px;
+  transition: background-color 0.4s, transform 0.2s;
   font-size: 18px;
   font-weight: 700;
   flex: 1;
   min-width: 200px;
   max-width: 260px;
-  animation: ${(props) => (!props.$isListening ? breatheSubtle : 'none')} 2s ease-in-out infinite;
+  animation: ${({ $state }) => ($state === 'idle' ? breatheSubtle : 'none')} 2s ease-in-out infinite;
 
   &:hover:not(:disabled) {
-    background-color: ${(props) => (props.$isListening ? '#cc0000' : '#3d7bd6')};
+    background-color: ${({ $state }) =>
+      $state === 'connecting'
+        ? '#7d95b5'
+        : $state === 'listening'
+          ? '#cc0000'
+          : $state === 'responding'
+            ? '#6546a8'
+            : '#3d7bd6'};
     transform: scale(1.02);
   }
 
@@ -117,6 +138,24 @@ export const ChatButton = styled.button<{ $isListening: boolean }>`
     opacity: 0.6;
     animation: none;
   }
+`;
+
+export const WaveBarsContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 18px;
+  flex-shrink: 0;
+`;
+
+export const WaveBarEl = styled.div<{ $fast: boolean; $delay: number }>`
+  width: 3px;
+  height: 18px;
+  border-radius: 2px;
+  background: white;
+  transform-origin: center;
+  animation: ${waveAnim} ${({ $fast }) => ($fast ? '0.55s' : '1.1s')} ease-in-out infinite;
+  animation-delay: ${({ $delay }) => $delay}s;
 `;
 
 export const ListeningIndicator = styled.div`
