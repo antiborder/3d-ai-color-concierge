@@ -15,6 +15,7 @@ import { useDisplaySettings } from './hooks/useDisplaySettings';
 import { useBridgeState } from './hooks/useBridgeState';
 import { useHelpRequest } from './hooks/useHelpRequest';
 import { executeCommand } from './utils/commandExecutor';
+import EducationalContent from './components/educational/EducationalContent';
 import type { Command as VoiceCommand } from './types/voice';
 import { useChatbot } from './hooks/useChatbot';
 import { type HarmonyMode, computeHarmonyColors } from './utils/colorHarmony';
@@ -132,6 +133,9 @@ function App() {
   const isDesktopLayout = useMatchMedia('(min-width: 1000px)');
 
   const [harmonyMode, setHarmonyMode] = useState<HarmonyMode>('none');
+  const [activeContentId, setActiveContentId] = useState<string | null>(null);
+  const activeContentIdRef = useRef<string | null>(null);
+  activeContentIdRef.current = activeContentId;
 
   const {
     bridgeColorA,
@@ -168,6 +172,7 @@ function App() {
       const [r, g, b] = interpolateRgb(bridgeColorA, bridgeColorB, colorState.shape, position);
       updateFromRgb(r, g, b);
     },
+    showContent: (id: string) => setActiveContentId(id),
   };
 
   const harmonyColors = useMemo(
@@ -176,6 +181,9 @@ function App() {
   );
 
   const handleWsCommand = (command: VoiceCommand) => {
+    if (command.action !== 'SHOW_CONTENT' && activeContentIdRef.current !== null) {
+      setActiveContentId(null);
+    }
     executeCommand(command, voiceCommandHandlers);
   };
 
@@ -365,6 +373,10 @@ function App() {
         onClose={closeModal}
         conversationHistory={displayHistory}
         onClearHistory={clearHistory}
+      />
+      <EducationalContent
+        contentId={activeContentId}
+        onClose={() => setActiveContentId(null)}
       />
     </>
   );

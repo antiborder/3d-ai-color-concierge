@@ -13,6 +13,7 @@ from app.services.gemini_live.tools import (
     color_select,
     color_sets,
     color_space,
+    educational,
     hex_copy,
 )
 from app.services.prompts.common import (
@@ -44,6 +45,7 @@ _TOOL_MODULES = [
     color_harmony,
     color_sets,
     hex_copy,
+    educational,
 ]
 
 

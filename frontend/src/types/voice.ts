@@ -18,7 +18,8 @@ export interface Command {
     | 'SET_HARMONY'
     | 'SET_COLOR_SETS'
     | 'SET_BRIDGE_COLOR'
-    | 'SELECT_BRIDGE_POSITION';
+    | 'SELECT_BRIDGE_POSITION'
+    | 'SHOW_CONTENT';
   parameters: Record<string, unknown>;
 }
 

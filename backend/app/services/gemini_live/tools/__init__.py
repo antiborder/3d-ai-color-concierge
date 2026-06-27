@@ -12,6 +12,7 @@ from . import (
     color_select,
     color_sets,
     color_space,
+    educational,
     hex_copy,
 )
 
@@ -25,6 +26,7 @@ _TOOL_MODULES = [
     color_harmony,
     color_sets,
     color_bridge,
+    educational,
 ]
 
 # ── フロントエンドコマンド変換ディスパッチテーブル ─────────────────────────

@@ -40,5 +40,35 @@
       "empty": "No conversation history yet."
     },
     "loading": "Processing..."
+  },
+  "educational": {
+    "cmy_primary": {
+      "title": "Primary Colors of Pigment (Subtractive)",
+      "cyan": "Cyan",
+      "magenta": "Magenta",
+      "yellow": "Yellow",
+      "blue": "Blue",
+      "green": "Green",
+      "red": "Red",
+      "black": "Black",
+      "mix1": "Cyan + Magenta = Blue",
+      "mix2": "Cyan + Yellow = Green",
+      "mix3": "Magenta + Yellow = Red",
+      "mix4": "Cyan + Magenta + Yellow = Black"
+    },
+    "rgb_primary": {
+      "title": "Primary Colors of Light (Additive)",
+      "red": "Red",
+      "green": "Green",
+      "blue": "Blue",
+      "yellow": "Yellow",
+      "magenta": "Magenta",
+      "cyan": "Cyan",
+      "white": "White",
+      "mix1": "Red + Green = Yellow",
+      "mix2": "Red + Blue = Magenta",
+      "mix3": "Green + Blue = Cyan",
+      "mix4": "Red + Green + Blue = White"
+    }
   }
 }

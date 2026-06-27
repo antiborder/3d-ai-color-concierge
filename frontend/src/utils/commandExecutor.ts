@@ -29,6 +29,7 @@ export interface VoiceCommandHandlers {
   setBridgeColorB: (c: { r: number; g: number; b: number }) => void;
   setIsBridgeOpen: (open: boolean) => void;
   selectBridgePosition: (position: number) => void;
+  showContent: (id: string) => void;
 }
 
 /**
@@ -367,6 +368,14 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
         handlers.setBridgeColorA({ r, g, b });
       } else if (side === 'right') {
         handlers.setBridgeColorB({ r, g, b });
+      }
+      break;
+    }
+
+    case 'SHOW_CONTENT': {
+      const id = command.parameters.id as string;
+      if (id) {
+        handlers.showContent(id);
       }
       break;
     }

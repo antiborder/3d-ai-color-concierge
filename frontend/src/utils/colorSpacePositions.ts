@@ -78,7 +78,7 @@ export const getHsbPosition: PositionFunction = (r, g, b) => {
 
 export const getMunsellPosition: PositionFunction = (r, g, b) => {
   const { hueNum, value, chroma } = getMunsellHVC(r, g, b);
-  const theta = hueNum !== null ? (hueNum / 100) * 2 * Math.PI : 0;
+  const theta = hueNum !== null ? (hueNum / 100) * 2 * Math.PI - Math.PI / 3 : 0;
   const radius = hueNum !== null ? (chroma / 20) * cylinderRadius : 0;
   const z = (value / 10 - 0.5) * cylinderHeight;
   return cylindricalToCartesian(theta, radius, z);
@@ -100,11 +100,10 @@ export const getLabPosition: PositionFunction = (r, g, b) => {
   //   a*: [-85.41, +97.36]  center=+5.98  half-range=91.39
   //   b*: [-106.90, +93.63] center=-6.64  half-range=100.27
   const half = structureSize / 2;
-  return [
-    ((bLab - -6.64) / 100.27) * half,
-    -(((a - 5.98) / 91.39) * half),
-    (L / 100 - 0.5) * structureSize,
-  ];
+  const x = ((bLab - -6.64) / 100.27) * half;
+  const y = -(((a - 5.98) / 91.39) * half);
+  const rot = Math.PI / 3; // clockwise rotation in radians (π/6 = 30°)
+  return [x * Math.cos(rot) + y * Math.sin(rot), -x * Math.sin(rot) + y * Math.cos(rot), (L / 100 - 0.5) * structureSize];
 };
 
 export const getXyzPosition: PositionFunction = (r, g, b) => {
