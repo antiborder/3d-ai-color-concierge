@@ -46,5 +46,5 @@ RULES_JA = """\
 """
 
 RULES_EN = """\
-- If the user asks to show/hide a specific color set or says "show only X colors", call SET_COLOR_SETS. Omit keys you don't want to change. For "show only X", set X=true and all others to false. Color sets: css, material, spectral12, japanese, rgbGrid.\
+- If the user asks to show/hide a specific color set or says "show only X colors", call SET_COLOR_SETS. Omit keys you don't want to change. For "show only X", set X=true and all others to false. Color sets: css, material, spectral12, rgbGrid.\
 """

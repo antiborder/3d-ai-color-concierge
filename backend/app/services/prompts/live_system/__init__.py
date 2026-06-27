@@ -54,7 +54,7 @@ def _collect_tool_rules(language: str) -> str:
 
 
 def build_live_system_instruction(language: str) -> dict:
-    color_summary = get_color_database_summary()
+    color_summary = get_color_database_summary(language)
     knowledge_base = get_knowledge_base_section(language)
     material_design_context = get_material_design_context_section(language).format(
         color_summary=color_summary

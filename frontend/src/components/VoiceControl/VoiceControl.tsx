@@ -8,6 +8,7 @@ import type { ColorHistoryItem } from '../../hooks/useColorHistory';
 import {
   VoiceControlRoot,
   TranscriptionPanel,
+  ErrorPanel,
   StyledVoiceControl,
   VoiceInputContainer,
   ChatButton,
@@ -16,16 +17,13 @@ import {
   TextInputForm,
   TextInput,
   SubmitButton,
-  ErrorMessage,
   LoadingMessage,
 } from './VoiceControl.styles';
 
 function toDisplayText(text: string): string {
   if (!text) return '';
-  const afterLastBoundary = text.replace(/[\s\S]*[.!?。！？]\s+/, '').trim();
-  const display = afterLastBoundary || text.trim();
-  const words = display.split(/\s+/).filter(Boolean);
-  return words.length > 10 ? words.slice(-10).join(' ') : display;
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  return words.length > 8 ? words.slice(-8).join(' ') : words.join(' ');
 }
 
 // ChatIcon kept for future use with the commented-out chat history button
@@ -93,6 +91,8 @@ const VoiceControl = ({
     isConnecting,
     isConnected,
     isAISpeaking,
+    audioCtxRef,
+    playTimeRef,
     error,
     start,
     stop,
@@ -124,7 +124,12 @@ const VoiceControl = ({
   });
 
   // Live subtitle accumulation
-  const { liveSubtitle, handleAssistantChunk } = useLiveSubtitle({ isAISpeaking, isConnected });
+  const { liveSubtitle, handleAssistantChunk } = useLiveSubtitle({
+    isAISpeaking,
+    isConnected,
+    audioCtxRef,
+    playTimeRef,
+  });
 
   // Stable ref so the onAssistantMessage callback above can call handleAssistantChunk
   // without being in its own deps (avoids circular dep between useVoiceStreaming and useLiveSubtitle)
@@ -188,12 +193,14 @@ const VoiceControl = ({
 
   return (
     <VoiceControlRoot>
-      {liveSubtitle && (
+      {error ? (
+        <ErrorPanel>{error}</ErrorPanel>
+      ) : liveSubtitle ? (
         <TranscriptionPanel $textColor={(currentColorState?.l ?? 50) >= 50 ? '#000000' : '#ffffff'}>
           {toDisplayText(liveSubtitle)}
         </TranscriptionPanel>
-      )}
-      <StyledVoiceControl>
+      ) : null}
+      <StyledVoiceControl $isListening={isStreaming || isConnecting}>
         <VoiceInputContainer>
           <ChatButton
             onClick={handleMicClick}
@@ -232,7 +239,6 @@ const VoiceControl = ({
           )} */}
         </VoiceInputContainer>
         {isLoading && <LoadingMessage>{t('chatbot.loading')}</LoadingMessage>}
-        {error && <ErrorMessage>{error}</ErrorMessage>}
       </StyledVoiceControl>
     </VoiceControlRoot>
   );

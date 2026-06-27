@@ -82,6 +82,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
 
   const {
     audioCtxRef,
+    playTimeRef,
     isAISpeaking,
     isAISpeakingRef,
     stopAIAudio,
@@ -286,7 +287,6 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
       console.log('[PERF] start() called');
 
       shouldReconnectRef.current = true;
-      setError(null);
       setTranscript('');
       setIsConnecting(true);
 
@@ -312,6 +312,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           console.log(`[PERF] ws.onopen elapsed=${(wsOpenTime - startTime).toFixed(1)}ms`);
 
           setIsConnected(true);
+          setError(null);
           reconnectAttemptRef.current = 0;
 
           const isFirstTime = isFirstTimeRef.current;
@@ -505,6 +506,8 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     isConnected,
     isStreaming,
     isAISpeaking,
+    audioCtxRef,
+    playTimeRef,
     error,
     transcript,
     start,

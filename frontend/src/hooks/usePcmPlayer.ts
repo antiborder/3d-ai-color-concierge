@@ -62,6 +62,7 @@ export function usePcmPlayer() {
 
   return {
     audioCtxRef,
+    playTimeRef,
     isAISpeaking,
     isAISpeakingRef,
     stopAIAudio,

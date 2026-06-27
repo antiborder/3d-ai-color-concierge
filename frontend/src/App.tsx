@@ -376,7 +376,7 @@ const LangSelectorWrapper = styled.div`
   position: absolute;
   top: 12px;
   right: 20px;
-  z-index: 1000;
+  z-index: 1001;
 `;
 
 export default App;

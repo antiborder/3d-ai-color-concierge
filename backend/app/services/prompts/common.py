@@ -24,14 +24,19 @@ def get_color_service_for_prompt() -> ColorService | None:
     return _color_service_for_prompt
 
 
-def get_color_database_summary() -> str:
-    """色データベースの要約を取得"""
+def get_color_database_summary(language: str = "ja") -> str:
+    """色データベースの要約を取得。英語モードでは日本の伝統色を除外する。"""
+    exclude_tags = ["JAPANESE"] if language == "en" else []
     try:
         color_service = get_color_service_for_prompt()
         if color_service:
-            return color_service.get_summary_for_prompt(max_colors_per_category=15)
+            return color_service.get_summary_for_prompt(
+                max_colors_per_category=15, exclude_tags=exclude_tags
+            )
     except Exception as e:
         logger.warning(f"Failed to get color summary for prompt: {e}")
+    if language == "en":
+        return "Color database is available (CSS Named Colors, Material Design Colors)"
     return "Color database is available (CSS Named Colors, Material Design Colors, Japanese Traditional Colors)"
 
 
@@ -112,7 +117,7 @@ def get_material_design_context_section(language: str) -> str:
 - For CSS Named Colors (AliceBlue, Tomato, etc.), connect them to implementation convenience.
 
 # Available Color Database
-The application has access to a comprehensive color database. When users ask about specific colors, you can reference these colors by name. The database includes:
+The application has access to a comprehensive color database including CSS Named Colors and Material Design Colors. When users ask about specific colors, you can reference these colors by name. The database includes:
 {color_summary}
 
 When suggesting colors or answering questions about colors, you can mention specific color names from this database. For example, if a user asks about "red colors", you can mention specific shades like "Red 500" (Material Design) or "Crimson" (CSS Named Color).

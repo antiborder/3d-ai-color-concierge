@@ -115,12 +115,17 @@ class ColorService:
                 return color
         return None
 
-    def search_by_name(self, name: str) -> list[ColorItem]:
+    def search_by_name(
+        self, name: str, exclude_tags: list[str] | None = None
+    ) -> list[ColorItem]:
         """色名で検索（部分一致）。スペース正規化あり"""
+        exclude = set(exclude_tags or [])
         name_lower = name.lower().strip()
         name_nospace = name_lower.replace(" ", "").replace("　", "")
         results = []
         for color in self._colors:
+            if exclude and any(t in exclude for t in color.tag):
+                continue
             n1 = color.name1.lower()
             n1_nospace = n1.replace(" ", "")
             n2 = color.name2.lower() if color.name2 else ""
@@ -147,11 +152,20 @@ class ColorService:
         return self._colors
 
     def find_closest_colors(
-        self, r: int, g: int, b: int, top_n: int = 5, language: str = "ja"
+        self,
+        r: int,
+        g: int,
+        b: int,
+        top_n: int = 5,
+        language: str = "ja",
+        exclude_tags: list[str] | None = None,
     ) -> list[dict]:
         """現在色に最も近い色をRGB距離で検索"""
+        exclude = set(exclude_tags or [])
         scored = []
         for color in self._colors:
+            if exclude and any(t in exclude for t in color.tag):
+                continue
             dr = r - color.rgb["r"]
             dg = g - color.rgb["g"]
             db = b - color.rgb["b"]
@@ -178,14 +192,18 @@ class ColorService:
             for dist, c in scored[:top_n]
         ]
 
-    def get_summary_for_prompt(self, max_colors_per_category: int = 10) -> str:
+    def get_summary_for_prompt(
+        self, max_colors_per_category: int = 10, exclude_tags: list[str] | None = None
+    ) -> str:
         """プロンプト用の要約を生成"""
+        exclude = set(exclude_tags or [])
         categories = self.get_categories()
         summary_parts = []
 
         for category, count in categories.items():
+            if category in exclude:
+                continue
             category_colors = [c for c in self._colors if category in c.tag]
-            # 各カテゴリから代表的な色を選択
             sample_colors = category_colors[:max_colors_per_category]
 
             color_names = [c.name1 for c in sample_colors]

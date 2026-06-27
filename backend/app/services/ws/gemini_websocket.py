@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 
-from app.services.gemini_live_client import GeminiLiveSession
+from app.services.gemini_live import GeminiLiveSession
 from app.services.gemini_live_types import (
     LiveAssistantTextEvent,
     LiveAudioChunk,

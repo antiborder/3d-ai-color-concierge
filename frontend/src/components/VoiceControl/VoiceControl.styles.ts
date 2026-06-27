@@ -20,6 +20,15 @@ export const breathe = keyframes`
   }
 `;
 
+export const breatheSubtle = keyframes`
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+`;
+
 export const spin = keyframes`
   0% {
     transform: rotate(0deg);
@@ -37,9 +46,18 @@ export const VoiceControlRoot = styled.div`
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: center;
   gap: 8px;
-  width: 420px;
+`;
+
+export const ErrorPanel = styled.div`
+  padding: 0 4px 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #e53935;
+  line-height: 1.6;
+  text-align: left;
+  max-width: min(480px, 90vw);
 `;
 
 export const TranscriptionPanel = styled.div<{ $textColor: string }>`
@@ -49,14 +67,17 @@ export const TranscriptionPanel = styled.div<{ $textColor: string }>`
   font-weight: 500;
   color: ${(p) => p.$textColor};
   line-height: 1.6;
-  text-align: center;
+  text-align: left;
+  max-width: min(480px, 90vw);
 `;
 
-export const StyledVoiceControl = styled.div`
+export const StyledVoiceControl = styled.div<{ $isListening: boolean }>`
   background-color: white;
   border-radius: 12px;
   padding: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: fit-content;
+  animation: ${(props) => (!props.$isListening ? breathe : 'none')} 2s ease-in-out infinite;
 `;
 
 export const VoiceInputContainer = styled.div`
@@ -83,7 +104,7 @@ export const ChatButton = styled.button<{ $isListening: boolean }>`
   flex: 1;
   min-width: 200px;
   max-width: 260px;
-  animation: ${(props) => (!props.$isListening ? breathe : 'none')} 2s ease-in-out infinite;
+  animation: ${(props) => (!props.$isListening ? breatheSubtle : 'none')} 2s ease-in-out infinite;
 
   &:hover:not(:disabled) {
     background-color: ${(props) => (props.$isListening ? '#cc0000' : '#3d7bd6')};

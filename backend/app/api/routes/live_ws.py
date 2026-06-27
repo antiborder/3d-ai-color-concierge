@@ -31,7 +31,7 @@ import time
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from app.config.settings import settings
-from app.services.gemini_live_client import (
+from app.services.gemini_live import (
     DEFAULT_INPUT_SAMPLE_RATE_HZ,
     DEFAULT_OUTPUT_SAMPLE_RATE_HZ,
     GeminiLiveSession,
