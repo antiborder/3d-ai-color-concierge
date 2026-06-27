@@ -39,4 +39,5 @@ export type WsInboundText =
       final?: boolean | null;
     }
   | { type: 'command'; command: Command; tool_name?: string; tool_call_id?: string }
+  | { type: 'interrupted' }
   | { type: 'error'; message: string; code?: string };

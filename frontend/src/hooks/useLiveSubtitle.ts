@@ -122,5 +122,5 @@ export function useLiveSubtitle({
     [audioCtxRef, playTimeRef]
   );
 
-  return { liveSubtitle, handleAssistantChunk };
+  return { liveSubtitle, handleAssistantChunk, clearSubtitle: resetState };
 }

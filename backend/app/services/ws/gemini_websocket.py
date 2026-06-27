@@ -8,6 +8,7 @@ from app.services.gemini_live_types import (
     LiveAudioChunk,
     LiveCommandEvent,
     LiveErrorEvent,
+    LiveInterruptedEvent,
     LiveTranscriptEvent,
 )
 from app.services.ws.abstract_websocket import AbstractWebSocket
@@ -16,6 +17,7 @@ from app.services.ws.listeners.gemini_outbound import (
     GeminiAudioEventListener,
     GeminiCommandEventListener,
     GeminiErrorEventListener,
+    GeminiInterruptedEventListener,
     GeminiTranscriptEventListener,
 )
 
@@ -27,6 +29,7 @@ class GeminiWebSocket(AbstractWebSocket):
         LiveAssistantTextEvent: GeminiAssistantTextEventListener,
         LiveErrorEvent: GeminiErrorEventListener,
         LiveCommandEvent: GeminiCommandEventListener,
+        LiveInterruptedEvent: GeminiInterruptedEventListener,
     }
 
     def __init__(self, session: GeminiLiveSession) -> None:

@@ -30,6 +30,7 @@ from app.services.gemini_live_types import (
     LiveAssistantTextEvent,
     LiveAudioChunk,
     LiveCommandEvent,
+    LiveInterruptedEvent,
     LiveTranscriptEvent,
 )
 
@@ -145,6 +146,13 @@ async def process_live_message(
     sc = getattr(msg, "server_content", None)
     output_txt: str | None = None  # Store for later use in input transcription finalization
     if sc is not None:
+        # 0-0) interrupted: Gemini がユーザーの割り込みを検知して生成を中断した
+        interrupted_flag = getattr(sc, "interrupted", None)
+        if interrupted_flag is None and isinstance(sc, dict):
+            interrupted_flag = sc.get("interrupted")
+        if interrupted_flag:
+            await event_q.put(LiveInterruptedEvent())
+
         # 0-a) output audio transcription (server-generated)
         # NOTE: server field names differ by SDK/API version.
         # We've observed `server_content.output_transcription` in v1alpha.

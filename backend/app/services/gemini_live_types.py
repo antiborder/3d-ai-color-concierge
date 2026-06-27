@@ -71,10 +71,16 @@ class LiveCommandEvent:
     tool_call_id: str | None = None
 
 
+@dataclass(frozen=True)
+class LiveInterruptedEvent:
+    """Gemini が応答生成を中断した（ユーザーの割り込み検知）。"""
+
+
 LiveEvent = (
     LiveAudioChunk
     | LiveTranscriptEvent
     | LiveAssistantTextEvent
     | LiveCommandEvent
     | LiveErrorEvent
+    | LiveInterruptedEvent
 )

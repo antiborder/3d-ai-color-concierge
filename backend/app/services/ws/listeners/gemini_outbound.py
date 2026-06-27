@@ -9,6 +9,7 @@ from app.services.gemini_live_types import (
     LiveAudioChunk,
     LiveCommandEvent,
     LiveErrorEvent,
+    LiveInterruptedEvent,
     LiveTranscriptEvent,
 )
 from app.services.ws.listeners.base import AbstractEventListener
@@ -123,6 +124,11 @@ class GeminiErrorEventListener(AbstractEventListener):
                 }
             )
         )
+
+
+class GeminiInterruptedEventListener(AbstractEventListener):
+    async def handle(self, event: LiveInterruptedEvent) -> None:
+        await self._ctx.user_ws.send_text(json.dumps({"type": "interrupted"}))
 
 
 class GeminiCommandEventListener(AbstractEventListener):

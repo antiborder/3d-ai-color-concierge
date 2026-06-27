@@ -124,7 +124,7 @@ const VoiceControl = ({
   });
 
   // Live subtitle accumulation
-  const { liveSubtitle, handleAssistantChunk } = useLiveSubtitle({
+  const { liveSubtitle, handleAssistantChunk, clearSubtitle } = useLiveSubtitle({
     isAISpeaking,
     isConnected,
     audioCtxRef,
@@ -157,6 +157,7 @@ const VoiceControl = ({
   useEffect(() => {
     if (!helpRequest || helpRequest.id === lastHelpIdRef.current) return;
     lastHelpIdRef.current = helpRequest.id;
+    clearSubtitle();
     if (isConnected) {
       sendTextMessage(helpRequest.text);
     } else {

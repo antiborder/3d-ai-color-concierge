@@ -222,6 +222,8 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           }
           ts.lastCommandReceived = now;
           if (onCommand) onCommand(msg.command);
+        } else if (msg.type === 'interrupted') {
+          stopAIAudio();
         } else if (msg.type === 'error') {
           if (
             msg.code === '1008' ||
@@ -252,6 +254,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
       setErr,
       t,
       schedulePcmPlayback,
+      stopAIAudio,
     ]
   );
 
