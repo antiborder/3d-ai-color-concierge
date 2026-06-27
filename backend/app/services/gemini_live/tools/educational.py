@@ -44,15 +44,17 @@ COMMANDS: dict[str, object] = {
 }
 
 RULES_JA = """\
-- ユーザーが色彩理論について質問した場合（例：「三原色とは？」「HSLとは？」「補色とは？」）:
-  - まず SHOW_CONTENT でスライドを表示し、その後で音声で簡潔に説明する（定義1文＋補足1文）。
-  - 同じレスポンス内で SELECT_COLOR などのアクションツールを呼ばないこと。
-  - 説明の最後に「実際に見てみましょうか？」など一言添えて、次のターンで SELECT_COLOR を使って実演する。\
+- SHOW_CONTENT は、質問されたトピックに対応するスライドが存在する場合のみ使用すること。
+  - 利用可能なスライド: rgb_primary（光の三原色・加法混色）、cmy_primary（色材の三原色・減法混色）。
+  - HSL・Lab・LCH・補色・トーンなど、スライドが存在しないトピックでは SHOW_CONTENT を呼ばないこと。
+  - スライドを表示する場合は、まず SHOW_CONTENT を呼び、その後で音声で簡潔に説明する（定義1文＋補足1文）。
+  - 同じレスポンス内で SELECT_COLOR などのアクションツールを呼ばないこと。\
 """
 
 RULES_EN = """\
-- When the user asks about a color theory concept (e.g., "What are the primary colors?", "What is HSL?"):
-  - Call SHOW_CONTENT at the start, then explain verbally in 2 sentences (definition + follow-up).
-  - Do NOT call SELECT_COLOR or any other action tool in the same response.
-  - End with a brief prompt like "Shall I show you an example?" then demonstrate with SELECT_COLOR in the follow-up.\
+- Only call SHOW_CONTENT when the user's question matches a topic that has an available slide.
+  - Available slides: rgb_primary (primary colors of light / additive mixing), cmy_primary (primary colors of pigment / subtractive mixing).
+  - Do NOT call SHOW_CONTENT for topics without a slide (e.g., HSL, Lab, LCH, complementary colors, tones, etc.).
+  - When showing a slide, call SHOW_CONTENT first, then explain verbally in 2 sentences.
+  - Do NOT call SELECT_COLOR or any other action tool in the same response as SHOW_CONTENT.\
 """
