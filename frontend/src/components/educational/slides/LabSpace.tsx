@@ -1,26 +1,26 @@
 import { useTranslation } from 'react-i18next';
 
-// L* vertical bar — height matches the a*×b* parallelogram (~70 px)
+// L* vertical bar — LH = prev 70 × 1.2 ≈ 84
 const LX = 122,
   LY = 16,
   LW = 16,
-  LH = 70;
+  LH = 84;
 const ARR_X = LX - 6; // vertical arrow, left of bar
 const L_LABEL_X = ARR_X - 6; // L* label, right-aligned here
 const L_LABEL_Y = LY + LH / 2 + 5; // vertically centred with bar
 
 // Dividing line
-const DIV_Y = LY + LH + 8; // 94
+const DIV_Y = LY + LH + 8; // 108
 
 // Parallelogram corners (a*×b* plane in perspective)
-const BL = { x: 50, y: 174 };
-const BR = { x: 192, y: 174 };
-const TL = { x: 76, y: 102 };
-const TR = { x: 218, y: 102 };
+const BL = { x: 50, y: 188 };
+const BR = { x: 192, y: 188 };
+const TL = { x: 76, y: 116 };
+const TR = { x: 218, y: 116 };
 
 // Gradient anchors (userSpaceOnUse clamping)
 const CX = 134,
-  CY = 138;
+  CY = 152;
 const RIGHT_X = 205,
   LEFT_X = 63;
 const FAR_X = 147,
@@ -29,13 +29,13 @@ const NEAR_X = 121,
   NEAR_Y = BL.y;
 
 // a* arrow just below near edge
-const AY = BL.y + 10; // 184
+const AY = BL.y + 10; // 198
 
 // b* arrow: parallel to left edge, shifted 12 px left
-const BS = { x: BL.x - 12, y: BL.y }; // (38, 174)
-const BE = { x: TL.x - 12, y: TL.y }; // (64, 102)
+const BS = { x: BL.x - 12, y: BL.y }; // (38, 188)
+const BE = { x: TL.x - 12, y: TL.y }; // (64, 116)
 const B_ANGLE = 20;
-const B_LABEL_Y = (BS.y + BE.y) / 2; // 138
+const B_LABEL_Y = (BS.y + BE.y) / 2; // 152
 
 const POLY = `${BL.x},${BL.y} ${BR.x},${BR.y} ${TR.x},${TR.y} ${TL.x},${TL.y}`;
 
@@ -49,7 +49,7 @@ const LabSpace = () => {
         {k('title')}
       </h3>
       <svg
-        viewBox="0 0 230 220"
+        viewBox="0 0 230 235"
         width="100%"
         style={{
           display: 'block',
@@ -115,12 +115,11 @@ const LabSpace = () => {
 
         {/* ── L* vertical bar with arrow and label ── */}
 
-        {/* L* label to the left of the arrow */}
         <text x={L_LABEL_X} y={L_LABEL_Y} textAnchor="end" fontFamily="sans-serif" fill="#444">
           <tspan fontSize="16" fontWeight="bold">
             L
           </tspan>
-          <tspan fontSize="11">*</tspan>
+          <tspan fontSize="12">*</tspan>
         </text>
 
         {/* Vertical arrow (pointing up = brighter) */}
@@ -149,10 +148,10 @@ const LabSpace = () => {
           strokeWidth="0.8"
           rx="1"
         />
-        <text x={LX + LW + 4} y={LY + 12} fontSize="9" fontFamily="sans-serif" fill="#888">
+        <text x={LX + LW + 4} y={LY + 16} fontSize="14" fontFamily="sans-serif" fill="#888">
           {k('white')}
         </text>
-        <text x={LX + LW + 4} y={LY + LH - 2} fontSize="9" fontFamily="sans-serif" fill="#888">
+        <text x={LX + LW + 4} y={LY + LH - 4} fontSize="14" fontFamily="sans-serif" fill="#888">
           {k('black')}
         </text>
 
@@ -199,10 +198,11 @@ const LabSpace = () => {
           points={`${BR.x + 5},${AY} ${BR.x - 2},${AY - 4} ${BR.x - 2},${AY + 4}`}
           fill="#555"
         />
+        {/* Green moved 28px right; Red moved 28px left */}
         <text
-          x={44}
-          y={AY + 13}
-          fontSize="11"
+          x={72}
+          y={AY + 14}
+          fontSize="14"
           fontFamily="sans-serif"
           fill="#22aa44"
           textAnchor="end"
@@ -210,9 +210,9 @@ const LabSpace = () => {
           Green
         </text>
         <text
-          x={200}
-          y={AY + 13}
-          fontSize="11"
+          x={172}
+          y={AY + 14}
+          fontSize="14"
           fontFamily="sans-serif"
           fill="#cc3030"
           textAnchor="start"
@@ -221,7 +221,7 @@ const LabSpace = () => {
         </text>
         <text
           x={(BL.x + BR.x) / 2}
-          y={AY + 28}
+          y={AY + 30}
           textAnchor="middle"
           fontFamily="sans-serif"
           fill="#444"
@@ -229,7 +229,7 @@ const LabSpace = () => {
           <tspan fontSize="16" fontWeight="bold">
             a
           </tspan>
-          <tspan fontSize="11">*</tspan>
+          <tspan fontSize="12">*</tspan>
         </text>
 
         {/* ── b* axis arrow (along left edge, blue → yellow) ── */}
@@ -239,18 +239,16 @@ const LabSpace = () => {
           transform={`translate(${BE.x},${BE.y}) rotate(${B_ANGLE})`}
           fill="#555"
         />
-        {/* b* label: upright, left of arrow */}
         <text x={26} y={B_LABEL_Y + 5} textAnchor="end" fontFamily="sans-serif" fill="#444">
           <tspan fontSize="16" fontWeight="bold">
             b
           </tspan>
-          <tspan fontSize="11">*</tspan>
+          <tspan fontSize="12">*</tspan>
         </text>
-        {/* Blue near end, Yellow far end — both below the dividing line */}
         <text
           x={28}
           y={BS.y + 3}
-          fontSize="11"
+          fontSize="14"
           fontFamily="sans-serif"
           fill="#2244cc"
           textAnchor="end"
@@ -260,7 +258,7 @@ const LabSpace = () => {
         <text
           x={52}
           y={BE.y + 16}
-          fontSize="11"
+          fontSize="14"
           fontFamily="sans-serif"
           fill="#a89000"
           textAnchor="end"
