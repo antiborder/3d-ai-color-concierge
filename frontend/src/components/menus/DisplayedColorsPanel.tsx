@@ -34,6 +34,15 @@ const DisplayedColorsPanel = ({
       <CheckboxLabel>
         <input
           type="checkbox"
+          checked={rgbGridColorsEnabled}
+          onChange={(e) => onRgbGridColorsToggle(e.target.checked)}
+        />
+        <span>RGB Cube Grid</span>
+        {onHelpClick && <HelpIcon topic="rgb_grid" onHelpClick={onHelpClick} />}
+      </CheckboxLabel>
+      <CheckboxLabel>
+        <input
+          type="checkbox"
           checked={cssColorsEnabled}
           onChange={(e) => onCssColorsToggle(e.target.checked)}
         />
@@ -66,15 +75,6 @@ const DisplayedColorsPanel = ({
         />
         <span>Japanese Traditional Colors</span>
         {onHelpClick && <HelpIcon topic="japanese_colors" onHelpClick={onHelpClick} />}
-      </CheckboxLabel>
-      <CheckboxLabel>
-        <input
-          type="checkbox"
-          checked={rgbGridColorsEnabled}
-          onChange={(e) => onRgbGridColorsToggle(e.target.checked)}
-        />
-        <span>RGB Cube Grid</span>
-        {onHelpClick && <HelpIcon topic="rgb_grid" onHelpClick={onHelpClick} />}
       </CheckboxLabel>
     </Panel>
   );

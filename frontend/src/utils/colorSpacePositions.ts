@@ -13,7 +13,7 @@ export const cylinderHeight = structureSize * sizeRatio;
 export const cylinderRadius = structureSize * sizeRatio;
 
 // Precomputed rotation applied to RGB-cube and XYZ-space positions
-const RGB_XYZ_ROTATION = (() => {
+export const RGB_XYZ_ROTATION = (() => {
   const tilt = new THREE.Quaternion().setFromUnitVectors(
     new THREE.Vector3(-1, -1, 1).normalize(),
     new THREE.Vector3(0, 0, 1)

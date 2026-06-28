@@ -8,7 +8,7 @@ const CIEPanel = (props: ControlPaneProps) => (
   <PanelShell>
     <Section>
       <XyzSliders {...props} />
-      <CIExyDiagram focusR={props.focusR} focusG={props.focusG} focusB={props.focusB} />
+      <CIExyDiagram focusR={props.focusR} focusG={props.focusG} focusB={props.focusB} onColorSelect={props.handleClick} />
     </Section>
   </PanelShell>
 );

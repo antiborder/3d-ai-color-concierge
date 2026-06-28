@@ -11,6 +11,7 @@ import CylinderEllipses from './CylinderEllipses';
 import ColorCursor from './ColorCursor';
 import HarmonyMarkers from './HarmonyMarkers';
 import ColorBridgeLine from './ColorBridgeLine';
+import AxisIndicators from './AxisIndicators';
 import sampleColors from '../../constants/sampleColors';
 import {
   structureSize,
@@ -165,6 +166,7 @@ const Structure = (props: StructureProps) => {
             cylinderHeight={cylinderHeight}
             visible={frameVisible}
           />
+          <AxisIndicators shape={displayShape} />
         </group>
       </Canvas>
     </div>

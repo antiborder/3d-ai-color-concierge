@@ -1,4 +1,6 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, type MouseEvent } from 'react';
+import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import type { ControlPaneProps } from '../../../types/controlPane';
 import { LOCUS, CMF } from '../../../constants/cieLocus';
 
@@ -73,11 +75,20 @@ function rgbToXY(r: number, g: number, b: number): [number, number] {
   return s < 1e-10 ? [0.3127, 0.329] : [X / s, Yv / s];
 }
 
-type Props = Pick<ControlPaneProps, 'focusR' | 'focusG' | 'focusB'>;
+const SRGB_TRIANGLE: Array<[number, number]> = [
+  [0.64, 0.33],
+  [0.3, 0.6],
+  [0.15, 0.06],
+];
 
-const CIExyDiagram = ({ focusR, focusG, focusB }: Props) => {
+type Props = Pick<ControlPaneProps, 'focusR' | 'focusG' | 'focusB'> & {
+  onColorSelect?: (r: number, g: number, b: number) => void;
+};
+
+const CIExyDiagram = ({ focusR, focusG, focusB, onColorSelect }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const bgRef = useRef<ImageData | null>(null);
+  const { i18n } = useTranslation();
 
   const [cx, cy] = rgbToXY(focusR, focusG, focusB);
 
@@ -227,6 +238,31 @@ const CIExyDiagram = ({ focusR, focusG, focusB }: Props) => {
     ctx.stroke();
   }, [focusR, focusG, focusB, cx, cy]);
 
+  const handleCanvasClick = (e: MouseEvent<HTMLCanvasElement>) => {
+    if (!onColorSelect) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = CW / rect.width;
+    const scaleY = CH / rect.height;
+    const px = (e.clientX - rect.left) * scaleX;
+    const py = (e.clientY - rect.top) * scaleY;
+    const x = X0 + ((px - LM) / DW) * (XN - X0);
+    const y = Y0 + (1 - (py - TM) / DH) * (YN - Y0);
+
+    if (!inPoly(x, y, SRGB_TRIANGLE)) {
+      toast(
+        i18n.language === 'ja'
+          ? 'この色はPC上での表現が不可能です。三角形の枠の中を選んでください。'
+          : 'This color is outside the sRGB gamut and cannot be displayed. Please select a color inside the triangle.',
+        { icon: '⚠️', style: { background: '#333', color: '#fff' } }
+      );
+      return;
+    }
+    const [r, g, b] = xyToRGB(x, y);
+    onColorSelect(r, g, b);
+  };
+
   return (
     <div className="controlPanel">
       <div style={{ height: '24px', display: 'flex', alignItems: 'center' }}>
@@ -237,7 +273,8 @@ const CIExyDiagram = ({ focusR, focusG, focusB }: Props) => {
           ref={canvasRef}
           width={CW}
           height={CH}
-          style={{ display: 'block', margin: '4px auto 0' }}
+          style={{ display: 'block', margin: '4px auto 0', cursor: onColorSelect ? 'crosshair' : 'default' }}
+          onClick={handleCanvasClick}
         />
         <div
           style={{
