@@ -31,6 +31,7 @@ export interface VoiceCommandHandlers {
   setIsBridgeOpen: (open: boolean) => void;
   selectBridgePosition: (position: number) => void;
   showContent: (id: string) => void;
+  openCIEPanel: () => void;
 }
 
 /**
@@ -217,9 +218,14 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
 
     case 'CHANGE_SHAPE': {
       const colorSpace = command.parameters.colorSpace as string;
-      const validShapes: ColorSpace[] = ['RGB', 'CMYK', 'HSL', 'HSB', 'Lab', 'LCH'];
+      const validShapes: ColorSpace[] = ['RGB', 'CMYK', 'HSL', 'HSB', 'Lab', 'LCH', 'XYZ', 'xyz', 'xy'];
       const matched = validShapes.find((s) => s.toLowerCase() === colorSpace?.toLowerCase());
-      if (matched) handlers.setShape(matched);
+      if (matched) {
+        handlers.setShape(matched);
+        if (matched === 'xy' || matched === 'XYZ' || matched === 'xyz') {
+          handlers.openCIEPanel();
+        }
+      }
       break;
     }
 

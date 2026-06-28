@@ -167,7 +167,7 @@ const CubeWireframe = ({ shape, structureSize, visible, labBoxSize, focusL = 50 
     return (
       <group>
         {boxEdges.map(([a, b], i) => (
-          <Line key={i} points={[a, b]} color="#555555" lineWidth={0.7} />
+          <Line key={i} points={[a, b]} color={focusContrastColor(focusL)} lineWidth={0.7} />
         ))}
         <mesh>
           <bufferGeometry>
@@ -247,7 +247,7 @@ const CubeWireframe = ({ shape, structureSize, visible, labBoxSize, focusL = 50 
     return (
       <group>
         {boxEdges.map(([a, b], i) => (
-          <Line key={i} points={[a, b]} color="#555555" lineWidth={0.7} />
+          <Line key={i} points={[a, b]} color={focusContrastColor(focusL)} lineWidth={0.7} />
         ))}
         <mesh>
           <bufferGeometry>

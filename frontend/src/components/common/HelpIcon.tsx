@@ -14,7 +14,7 @@ const HelpIcon = ({ topic, onHelpClick, size = 26 }: HelpIconProps) => (
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '0 2px',
+      padding: '0 2px 0 8px',
       lineHeight: 1,
       display: 'flex',
       alignItems: 'center',

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ControlPaneSliders } from '../menus/ControlPaneSliders';
 import OneDPickerPanel from '../menus/OneDPickerPanel';
@@ -49,6 +49,10 @@ const MobilePane = (props: MobilePaneProps) => {
   } = props;
 
   const [activeSheet, setActiveSheet] = useState<MobileSheetId | null>(null);
+
+  useEffect(() => {
+    if (controlPaneProps.openCIEPanelSignal) setActiveSheet('cie');
+  }, [controlPaneProps.openCIEPanelSignal]);
 
   const onIconClick = useCallback((id: MobileSheetId) => {
     setActiveSheet((prev) => (prev === id ? null : id));

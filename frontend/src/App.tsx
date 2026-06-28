@@ -137,6 +137,7 @@ function App() {
 
   const [harmonyMode, setHarmonyMode] = useState<HarmonyMode>('none');
   const [activeContentId, setActiveContentId] = useState<string | null>(null);
+  const [openCIEPanelSignal, setOpenCIEPanelSignal] = useState(0);
   const activeContentIdRef = useRef<string | null>(null);
   activeContentIdRef.current = activeContentId;
 
@@ -177,6 +178,7 @@ function App() {
       updateFromRgb(r, g, b);
     },
     showContent: (id: string) => setActiveContentId(id),
+    openCIEPanel: () => setOpenCIEPanelSignal((n) => n + 1),
   };
 
   const harmonyColors = useMemo(
@@ -358,6 +360,7 @@ function App() {
         hexInput={colorState.hexInput}
         colorHistory={history}
         onHelpClick={handleHelpClick}
+        openCIEPanelSignal={openCIEPanelSignal}
       />
       <VoiceControl
         currentColorState={colorState}

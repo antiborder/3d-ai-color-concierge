@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ControlPaneSliders } from '../menus/ControlPaneSliders';
 import OneDPickerPanel from '../menus/OneDPickerPanel';
@@ -10,6 +10,10 @@ type DesktopMenuId = 'sliders' | 'oneDPicker' | 'cie';
 
 const DesktopLeftPane = (props: ControlPaneProps) => {
   const [activeMenu, setActiveMenu] = useState<DesktopMenuId | null>('sliders');
+
+  useEffect(() => {
+    if (props.openCIEPanelSignal) setActiveMenu('cie');
+  }, [props.openCIEPanelSignal]);
 
   const onIconClick = useCallback((id: DesktopMenuId) => {
     setActiveMenu((prev) => (prev === id ? null : id));

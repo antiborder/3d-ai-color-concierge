@@ -35,6 +35,8 @@ const HELP_TEXTS_EN: Record<string, string> = {
   lch_l: 'What is L (Lightness) in LCH?',
   lch_c: 'What is C (Chroma) in LCH?',
   lch_h: 'What is H (Hue) in LCH?',
+  xyz_space: 'What is the XYZ color space?',
+  cie_xy: 'What is the CIE chromaticity diagram?',
 };
 
 const HELP_TEXTS_JA: Record<string, string> = {
@@ -72,6 +74,8 @@ const HELP_TEXTS_JA: Record<string, string> = {
   lch_l: 'LCHのL（明度）とは？',
   lch_c: 'LCHのC（彩度）とは？',
   lch_h: 'LCHのH（色相）とは？',
+  xyz_space: 'XYZ色空間とは？',
+  cie_xy: 'CIE色度図とは？',
 };
 
 export function useHelpRequest(language: string) {

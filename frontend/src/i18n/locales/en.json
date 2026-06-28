@@ -69,6 +69,34 @@
       "mix2": "Red + Blue = Magenta",
       "mix3": "Green + Blue = Cyan",
       "mix4": "Red + Green + Blue = White"
+    },
+    "hsb_space": {
+      "title": "HSB Color Space",
+      "hue": "Hue",
+      "saturation": "Saturation",
+      "brightness": "Brightness",
+      "white": "White",
+      "black": "Black",
+      "desc1": "HSB expresses color using three axes: Hue (H), Saturation (S), and Brightness (B).",
+      "desc2": "Hue is the angle on a color wheel (0–360°). Saturation is vividness and Brightness is lightness — each ranging from 0 to 1."
+    },
+    "xyz_space": {
+      "title": "CIE XYZ Color Space",
+      "luminance": "Luminance",
+      "visible": "Visible gamut",
+      "outOfDisplay": "Not displayable",
+      "desc1": "Designed from the response of three types of cone cells in the human eye. Only the Y axis represents luminance (brightness).",
+      "desc2": "XYZ covers all colors visible to humans — wider than sRGB, including colors that cannot be reproduced on any display."
+    },
+    "hsl_space": {
+      "title": "HSL Color Space",
+      "white": "White",
+      "black": "Black"
+    },
+    "lab_space": {
+      "title": "Lab Color Space",
+      "white": "White",
+      "black": "Black"
     }
   }
 }

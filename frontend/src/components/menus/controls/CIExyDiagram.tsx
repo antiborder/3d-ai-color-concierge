@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import type { ControlPaneProps } from '../../../types/controlPane';
 import { LOCUS, CMF } from '../../../constants/cieLocus';
+import HelpIcon from '../../common/HelpIcon';
 
 export { LOCUS, CMF };
 
@@ -83,9 +84,10 @@ const SRGB_TRIANGLE: Array<[number, number]> = [
 
 type Props = Pick<ControlPaneProps, 'focusR' | 'focusG' | 'focusB'> & {
   onColorSelect?: (r: number, g: number, b: number) => void;
+  onHelpClick?: (topic: string) => void;
 };
 
-const CIExyDiagram = ({ focusR, focusG, focusB, onColorSelect }: Props) => {
+const CIExyDiagram = ({ focusR, focusG, focusB, onColorSelect, onHelpClick }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const bgRef = useRef<ImageData | null>(null);
   const { i18n } = useTranslation();
@@ -263,8 +265,9 @@ const CIExyDiagram = ({ focusR, focusG, focusB, onColorSelect }: Props) => {
 
   return (
     <div className="controlPanel">
-      <div style={{ height: '24px', display: 'flex', alignItems: 'center' }}>
+      <div style={{ height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontWeight: 600, fontSize: '16px' }}>CIE chromaticity diagram</span>
+        {onHelpClick && <HelpIcon topic="cie_xy" onHelpClick={onHelpClick} />}
       </div>
       <>
         <canvas

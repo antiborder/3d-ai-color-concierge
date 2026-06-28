@@ -96,6 +96,7 @@ const HsbSliders = (props: HsbSlidersProps) => {
           <SliderContainer
             {...props}
             symbol={'V'}
+            label={'B'}
             value={props.focusV}
             max={100}
             color={systemColors['K']}

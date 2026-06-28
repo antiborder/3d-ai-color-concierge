@@ -56,6 +56,9 @@ export interface ControlPaneProps extends BridgeProps {
 
   // Help
   onHelpClick?: (topic: string) => void;
+
+  // Panel navigation (incremented each time AI requests a specific panel)
+  openCIEPanelSignal?: number;
 }
 
 export interface BridgeProps {
@@ -88,6 +91,7 @@ export interface ColorPanelProps {
 
 export interface SliderContainerProps {
   symbol: string;
+  label?: string;
   value: number;
   max: number;
   color: string;

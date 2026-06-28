@@ -1,6 +1,10 @@
 import styled from 'styled-components';
 import RgbPrimary from './slides/RgbPrimary';
 import CmyPrimary from './slides/CmyPrimary';
+import HsbSpace from './slides/HsbSpace';
+import HslSpace from './slides/HslSpace';
+import LabSpace from './slides/LabSpace';
+import XyzSpace from './slides/XyzSpace';
 
 interface EducationalContentProps {
   contentId: string | null;
@@ -10,6 +14,10 @@ interface EducationalContentProps {
 const SLIDES: Record<string, React.ComponentType> = {
   rgb_primary: RgbPrimary,
   cmy_primary: CmyPrimary,
+  hsb_space: HsbSpace,
+  hsl_space: HslSpace,
+  lab_space: LabSpace,
+  xyz_space: XyzSpace,
 };
 
 const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => {

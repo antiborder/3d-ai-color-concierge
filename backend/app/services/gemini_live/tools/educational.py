@@ -5,6 +5,9 @@ from __future__ import annotations
 CONTENT_IDS = [
     "rgb_primary",  # 光の三原色と加法混色
     "cmy_primary",  # 色材の三原色と減法混色
+    "hsb_space",    # HSB色空間（カラーホイール・彩度・明度）
+    "hsl_space",    # HSL色空間（カラーホイール・彩度・輝度）
+    "lab_space",    # Lab色空間（L*明度バー・a*b*平面）
 ]
 
 DECLARATIONS: list[dict] = [
@@ -18,7 +21,10 @@ DECLARATIONS: list[dict] = [
             "reserve demonstrations for the follow-up after the user has seen the slide. "
             f"Available content IDs: {', '.join(CONTENT_IDS)}. "
             "rgb_primary: primary colors of light (red, green, blue) and additive color mixing. "
-            "cmy_primary: primary colors of pigment (cyan, magenta, yellow) and subtractive color mixing."
+            "cmy_primary: primary colors of pigment (cyan, magenta, yellow) and subtractive color mixing. "
+            "hsb_space: HSB color space — color wheel (hue), saturation (vividness), and brightness. "
+            "hsl_space: HSL color space — color wheel (hue), saturation (vividness), and lightness (0=black, 0.5=vivid, 1=white). "
+            "lab_space: Lab color space — L* lightness bar (black to white) and a*×b* chrominance plane (green↔red, blue↔yellow). "
         ),
         "parameters": {
             "type": "object",
@@ -45,16 +51,18 @@ COMMANDS: dict[str, object] = {
 
 RULES_JA = """\
 - SHOW_CONTENT は、質問されたトピックに対応するスライドが存在する場合のみ使用すること。
-  - 利用可能なスライド: rgb_primary（光の三原色・加法混色）、cmy_primary（色材の三原色・減法混色）。
-  - HSL・Lab・LCH・補色・トーンなど、スライドが存在しないトピックでは SHOW_CONTENT を呼ばないこと。
+  - 利用可能なスライド: rgb_primary（光の三原色・加法混色）、cmy_primary（色材の三原色・減法混色）、hsb_space（HSB色空間）、hsl_space（HSL色空間）、lab_space（Lab色空間）。
+  - LCH・補色・トーンなど、スライドが存在しないトピックでは SHOW_CONTENT を呼ばないこと。
+  - SHOW_CONTENT を呼ぶとスライドが自動表示されます。「スライドを表示します」「見てみましょう」などの文言は言わないこと。
   - スライドを表示する場合は、まず SHOW_CONTENT を呼び、その後で音声で簡潔に説明する（定義1文＋補足1文）。
-  - 同じレスポンス内で SELECT_COLOR などのアクションツールを呼ばないこと。\
+  - CHANGE_SHAPE と SHOW_CONTENT は同じレスポンスで呼び出してよい。SELECT_COLOR は呼ばないこと。\
 """
 
 RULES_EN = """\
 - Only call SHOW_CONTENT when the user's question matches a topic that has an available slide.
-  - Available slides: rgb_primary (primary colors of light / additive mixing), cmy_primary (primary colors of pigment / subtractive mixing).
-  - Do NOT call SHOW_CONTENT for topics without a slide (e.g., HSL, Lab, LCH, complementary colors, tones, etc.).
+  - Available slides: rgb_primary (primary colors of light / additive mixing), cmy_primary (primary colors of pigment / subtractive mixing), hsb_space (HSB color space), hsl_space (HSL color space), lab_space (Lab color space).
+  - Do NOT call SHOW_CONTENT for topics without a slide (e.g., LCH, complementary colors, tones, etc.).
+  - SHOW_CONTENT displays the slide automatically — do NOT say "let me show you a slide" or "here's a diagram". Call the tool, then explain directly.
   - When showing a slide, call SHOW_CONTENT first, then explain verbally in 2 sentences.
-  - Do NOT call SELECT_COLOR or any other action tool in the same response as SHOW_CONTENT.\
+  - CHANGE_SHAPE and SHOW_CONTENT may be called together in the same response. Do NOT call SELECT_COLOR.\
 """
