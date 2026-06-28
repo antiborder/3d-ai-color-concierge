@@ -253,8 +253,8 @@ const CIExyDiagram = ({ focusR, focusG, focusB, onColorSelect }: Props) => {
     if (!inPoly(x, y, SRGB_TRIANGLE)) {
       toast(
         i18n.language === 'ja'
-          ? 'この色はPC上での表現が不可能です。三角形の枠の中を選んでください。'
-          : 'This color is outside the sRGB gamut and cannot be displayed. Please select a color inside the triangle.',
+          ? 'この色は画面上で表現できません。三角形の枠の中を選んでください。'
+          : 'This color cannot be displayed on the screen. Please select a color inside the triangle.',
         { icon: '⚠️', style: { background: '#333', color: '#fff' } }
       );
       return;

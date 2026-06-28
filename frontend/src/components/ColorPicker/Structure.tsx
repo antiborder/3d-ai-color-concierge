@@ -12,6 +12,7 @@ import ColorCursor from './ColorCursor';
 import HarmonyMarkers from './HarmonyMarkers';
 import ColorBridgeLine from './ColorBridgeLine';
 import AxisIndicators from './AxisIndicators';
+import GamutWireframe from './GamutWireframe';
 import sampleColors from '../../constants/sampleColors';
 import {
   structureSize,
@@ -159,12 +160,18 @@ const Structure = (props: StructureProps) => {
             structureSize={structureSize}
             visible={frameVisible}
             labBoxSize={{ x: structureSize, y: structureSize, z: structureSize }}
+            focusL={props.focusL}
           />
+          <GamutWireframe shape={displayShape} visible={frameVisible} />
           <CylinderEllipses
             shape={displayShape}
             cylinderRadius={cylinderRadius}
             cylinderHeight={cylinderHeight}
             visible={frameVisible}
+            focusR={props.focusR}
+            focusG={props.focusG}
+            focusB={props.focusB}
+            focusL={props.focusL}
           />
           <AxisIndicators shape={displayShape} />
         </group>

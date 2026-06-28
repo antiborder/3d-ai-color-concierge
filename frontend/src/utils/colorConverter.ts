@@ -77,3 +77,9 @@ export class ColorConverter {
     return this.fromRgb(rgb[0], rgb[1], rgb[2]);
   }
 }
+
+/** Returns the contrast color (#000000 or #ffffff) that remains readable
+ *  against a background that matches the current focus color. */
+export function focusContrastColor(focusL: number): '#000000' | '#ffffff' {
+  return focusL >= 50 ? '#000000' : '#ffffff';
+}

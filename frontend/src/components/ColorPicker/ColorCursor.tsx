@@ -3,6 +3,7 @@ import { Line } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useRef, useEffect } from 'react';
 import type { StructureProps, PositionFunction } from '../../types/structure';
+import { focusContrastColor } from '../../utils/colorConverter';
 
 interface ColorCursorProps extends StructureProps {
   getRgbPosition: PositionFunction;
@@ -23,7 +24,7 @@ const ColorCursor = (props: ColorCursorProps) => {
   const timeRef = useRef(0);
 
   const focusHex = `#${Math.round(props.focusR).toString(16).padStart(2, '0')}${Math.round(props.focusG).toString(16).padStart(2, '0')}${Math.round(props.focusB).toString(16).padStart(2, '0')}`;
-  const contrastHex = props.focusL >= 50 ? '#000000' : '#ffffff';
+  const contrastHex = focusContrastColor(props.focusL);
 
   const focusColorRef = useRef(focusHex);
   const contrastColorRef = useRef(contrastHex);

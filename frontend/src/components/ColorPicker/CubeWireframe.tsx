@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Line } from '@react-three/drei';
 import type { StructureProps } from '../../types/structure';
 import { LOCUS } from '../../constants/cieLocus';
+import { focusContrastColor } from '../../utils/colorConverter';
 
 function wavelengthToHex(nm: number): string {
   let r = 0,
@@ -43,8 +44,8 @@ function wavelengthToHex(nm: number): string {
 interface CubeWireframeProps extends Pick<StructureProps, 'shape'> {
   structureSize: number;
   visible: boolean;
-  // Lab box override: if provided, renders an axis-aligned box instead of the rotated RGB cube
   labBoxSize?: { x: number; y: number; z: number };
+  focusL?: number;
 }
 
 // Same rotation as RGB: tilt (1,-1,1)/√3 → z, then 90° z-rotation
@@ -71,10 +72,8 @@ function xyzVertex(r: number, g: number, b: number, s: number): [number, number,
     .toArray() as [number, number, number];
 }
 
-const CubeWireframe = ({ shape, structureSize, visible, labBoxSize }: CubeWireframeProps) => {
+const CubeWireframe = ({ shape, structureSize, visible, labBoxSize, focusL = 50 }: CubeWireframeProps) => {
   const shouldShow =
-    shape === 'RGB' ||
-    shape === 'CMYK' ||
     shape === 'Lab' ||
     shape === 'XYZ' ||
     shape === 'xyz' ||
@@ -386,6 +385,8 @@ const CubeWireframe = ({ shape, structureSize, visible, labBoxSize }: CubeWirefr
     );
   }
 
+  const labColor = shape === 'Lab' ? focusContrastColor(focusL) : '#ffffff';
+
   return (
     <group>
       {edges.map((edge, index) => {
@@ -394,7 +395,7 @@ const CubeWireframe = ({ shape, structureSize, visible, labBoxSize }: CubeWirefr
           <Line
             key={index}
             points={[vertices[start], vertices[end]]}
-            color="#ffffff"
+            color={labColor}
             lineWidth={1}
           />
         );
