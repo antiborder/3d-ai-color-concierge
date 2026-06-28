@@ -1,7 +1,9 @@
+import type { MutableRefObject } from 'react';
 import type { ColorSpace } from './color';
 import type { HarmonyColor } from '../utils/colorHarmony';
 
 export interface StructureProps {
+  rotateCameraRef?: MutableRefObject<boolean>;
   bridgeColorA?: { r: number; g: number; b: number };
   bridgeColorB?: { r: number; g: number; b: number };
   isBridgeOpen?: boolean;

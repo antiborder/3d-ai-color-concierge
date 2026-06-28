@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { useEffect, useRef } from 'react';
+import type { MutableRefObject } from 'react';
 import type { PositionFunction } from '../../types/structure';
 
 interface CameraControllerProps {
@@ -12,6 +13,7 @@ interface CameraControllerProps {
   getRgbPosition: PositionFunction;
   getHslPosition: PositionFunction;
   getHsbPosition: PositionFunction;
+  rotateCameraRef?: MutableRefObject<boolean>;
 }
 
 const CameraController = ({
@@ -22,6 +24,7 @@ const CameraController = ({
   getRgbPosition,
   getHslPosition,
   getHsbPosition,
+  rotateCameraRef,
 }: CameraControllerProps) => {
   const controlsRef = useRef<any>(null);
   const { camera } = useThree();
@@ -35,7 +38,13 @@ const CameraController = ({
       prevColorRef.current.g !== g ||
       prevColorRef.current.b !== b;
 
-    if (colorChanged && !isAnimatingRef.current) {
+    if (colorChanged) {
+      prevColorRef.current = { r, g, b };
+    }
+
+    const shouldRotate = rotateCameraRef ? rotateCameraRef.current : false;
+    if (shouldRotate && colorChanged && !isAnimatingRef.current) {
+      if (rotateCameraRef) rotateCameraRef.current = false;
       let colorPosition: [number, number, number];
       if (shape === 'RGB' || shape === 'CMYK') {
         colorPosition = getRgbPosition(r, g, b);
@@ -122,10 +131,8 @@ const CameraController = ({
 
         animate();
       }
-
-      prevColorRef.current = { r, g, b };
     }
-  }, [r, g, b, shape, getRgbPosition, getHslPosition, getHsbPosition, camera]);
+  }, [r, g, b, shape, getRgbPosition, getHslPosition, getHsbPosition, camera, rotateCameraRef]);
 
   return <OrbitControls ref={controlsRef} />;
 };

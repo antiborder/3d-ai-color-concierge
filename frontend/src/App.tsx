@@ -75,6 +75,9 @@ function App() {
   const { history, addColor } = useColorHistory();
   const prevColorRef = useRef<{ r: number; g: number; b: number } | null>(null);
 
+  // Set to true just before an AI tool call changes the color; CameraController reads and resets it
+  const aiColorTriggerRef = useRef(false);
+
   // Add color to history when colorState changes
   useEffect(() => {
     // Skip if this is the initial render or color hasn't actually changed
@@ -156,6 +159,7 @@ function App() {
 
   // Voice command handlers
   const voiceCommandHandlers = {
+    rotateCameraOnColorChange: () => { aiColorTriggerRef.current = true; },
     updateFromRgb,
     updateRgbValue,
     setShape,
@@ -341,6 +345,7 @@ function App() {
         isLabelShown={colorState.isLabelShown}
         onParticleClick={handleClick}
         harmonyColors={harmonyColors}
+        rotateCameraRef={aiColorTriggerRef}
       />
       <ControlPane
         isDesktopLayout={isDesktopLayout}

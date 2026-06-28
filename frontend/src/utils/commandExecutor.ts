@@ -11,6 +11,7 @@ import type { HarmonyMode } from './colorHarmony';
  * コマンド実行に必要なハンドラー関数の型定義
  */
 export interface VoiceCommandHandlers {
+  rotateCameraOnColorChange: () => void;
   updateFromRgb: (r: number, g: number, b: number) => void;
   updateRgbValue: (colorParam: 'R' | 'G' | 'B', value: number) => void;
   setShape: (shape: ColorSpace) => void;
@@ -189,6 +190,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
         typeof color.g === 'number' &&
         typeof color.b === 'number'
       ) {
+        handlers.rotateCameraOnColorChange();
         handlers.updateFromRgb(color.r, color.g, color.b);
 
         // 最適な色空間を自動決定して変更
@@ -202,6 +204,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
 
     case 'SET_COLOR': {
       // R, G, Bのいずれかを設定
+      handlers.rotateCameraOnColorChange();
       if ('r' in command.parameters && typeof command.parameters.r === 'number') {
         handlers.updateRgbValue('R', command.parameters.r);
       } else if ('g' in command.parameters && typeof command.parameters.g === 'number') {
@@ -249,6 +252,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
         handlers.setShape('HSL');
       }
 
+      handlers.rotateCameraOnColorChange();
       try {
         handlers.adjustHslValue(
           property as 'brightness' | 'saturation' | 'hue',
@@ -309,6 +313,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
         toast.error(`Invalid hex code: ${raw}`);
         break;
       }
+      handlers.rotateCameraOnColorChange();
       handlers.updateFromHex(normalized);
       break;
     }
@@ -352,6 +357,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
     case 'SELECT_BRIDGE_POSITION': {
       const position = command.parameters.position as number;
       if (typeof position === 'number' && position >= 0 && position <= 1) {
+        handlers.rotateCameraOnColorChange();
         handlers.setIsBridgeOpen(true);
         handlers.selectBridgePosition(position);
       }

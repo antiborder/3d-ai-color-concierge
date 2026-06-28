@@ -1,3 +1,4 @@
+import styled from 'styled-components';
 import ShapeButton from './ShapeButton';
 import type { ControlPaneProps } from '../../../types/controlPane';
 
@@ -30,8 +31,65 @@ function xyzToRgb(X: number, Y: number, Z: number): [number, number, number] {
   return [Math.round(toSRGB(r) * 255), Math.round(toSRGB(g) * 255), Math.round(toSRGB(b) * 255)];
 }
 
+// Analytical sRGB gamut range for one XYZ axis given the other two.
+// Derived by solving the 6 linear constraints r,g,b ∈ [0,1] for the target axis.
+// Matrix used: r=3.2406X-1.5372Y-0.4986Z  g=-0.9689X+1.8758Y+0.0415Z  b=0.0557X-0.204Y+1.057Z
+function xyzGamutRange(
+  axis: 'X' | 'Y' | 'Z',
+  X: number,
+  Y: number,
+  Z: number
+): [number, number] {
+  let lo: number, hi: number;
+  if (axis === 'X') {
+    lo = Math.max(
+      0,
+      (1.5372 * Y + 0.4986 * Z) / 3.2406,         // r >= 0
+      (1.8758 * Y + 0.0415 * Z - 1) / 0.9689,      // g <= 1
+      (0.204 * Y - 1.057 * Z) / 0.0557              // b >= 0
+    );
+    hi = Math.min(
+      0.95047,
+      (1 + 1.5372 * Y + 0.4986 * Z) / 3.2406,      // r <= 1
+      (1.8758 * Y + 0.0415 * Z) / 0.9689,           // g >= 0
+      (1 + 0.204 * Y - 1.057 * Z) / 0.0557          // b <= 1
+    );
+  } else if (axis === 'Y') {
+    lo = Math.max(
+      0,
+      (3.2406 * X - 0.4986 * Z - 1) / 1.5372,      // r <= 1
+      (0.9689 * X - 0.0415 * Z) / 1.8758,           // g >= 0
+      (0.0557 * X + 1.057 * Z - 1) / 0.204          // b <= 1
+    );
+    hi = Math.min(
+      1.0,
+      (3.2406 * X - 0.4986 * Z) / 1.5372,           // r >= 0
+      (1 + 0.9689 * X - 0.0415 * Z) / 1.8758,       // g <= 1
+      (0.0557 * X + 1.057 * Z) / 0.204              // b >= 0
+    );
+  } else {
+    lo = Math.max(
+      0,
+      (3.2406 * X - 1.5372 * Y - 1) / 0.4986,      // r <= 1
+      (0.9689 * X - 1.8758 * Y) / 0.0415,           // g >= 0
+      (0.204 * Y - 0.0557 * X) / 1.057              // b >= 0
+    );
+    hi = Math.min(
+      1.08883,
+      (3.2406 * X - 1.5372 * Y) / 0.4986,           // r >= 0
+      (1 + 0.9689 * X - 1.8758 * Y) / 0.0415,       // g <= 1
+      (1 - 0.0557 * X + 0.204 * Y) / 1.057          // b <= 1
+    );
+  }
+  return [Math.max(0, lo), Math.max(lo, hi)];
+}
+
 const XyzSliders = (props: Props) => {
   const [X, Y, Z] = rgbToXYZ(props.focusR, props.focusG, props.focusB);
+
+  const [xLo, xHi] = xyzGamutRange('X', X, Y, Z);
+  const [yLo, yHi] = xyzGamutRange('Y', X, Y, Z);
+  const [zLo, zHi] = xyzGamutRange('Z', X, Y, Z);
 
   const handleChange = (channel: 'X' | 'Y' | 'Z', val: number) => {
     const [r, g, b] = xyzToRgb(
@@ -42,33 +100,51 @@ const XyzSliders = (props: Props) => {
     props.handleClick(r, g, b);
   };
 
-  const row = (label: 'X' | 'Y' | 'Z', value: number, max: number, color: string) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-      <span style={{ width: '14px', fontSize: '12px', fontWeight: 600, color, flexShrink: 0 }}>
-        {label}
-      </span>
-      <input
-        type="range"
-        min={0}
-        max={max}
-        step={0.001}
-        value={value}
-        style={{ flex: 1, minWidth: '80px' }}
-        onChange={(e) => handleChange(label, Number(e.target.value))}
-      />
-      <span
-        style={{
-          width: '42px',
-          fontSize: '11px',
-          textAlign: 'right',
-          fontFamily: 'monospace',
-          color: '#444',
-        }}
-      >
-        {value.toFixed(4)}
-      </span>
-    </div>
-  );
+  const row = (
+    label: 'X' | 'Y' | 'Z',
+    value: number,
+    absMax: number,
+    lo: number,
+    hi: number
+  ) => {
+    const loP = (lo / absMax) * 100;
+    const hiP = (hi / absMax) * 100;
+    const clamped = Math.max(lo, Math.min(hi, value));
+    return (
+      <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+        <Label>{label}</Label>
+        <SliderTrack>
+          <input
+            type="range"
+            min={lo}
+            max={hi}
+            step={0.001}
+            value={clamped}
+            onChange={(e) => handleChange(label, Number(e.target.value))}
+            style={{
+              position: 'absolute',
+              margin: 0,
+              left: `${loP}%`,
+              width: `${Math.max(hiP - loP, 0.1)}%`,
+              height: '100%',
+              boxSizing: 'border-box',
+            }}
+          />
+        </SliderTrack>
+        <span
+          style={{
+            width: '42px',
+            fontSize: '11px',
+            textAlign: 'right',
+            fontFamily: 'monospace',
+            color: '#444',
+          }}
+        >
+          {value.toFixed(4)}
+        </span>
+      </div>
+    );
+  };
 
   return (
     <div className="controlPanel">
@@ -86,15 +162,32 @@ const XyzSliders = (props: Props) => {
         <ShapeButton {...props} setIsVisible={() => {}} shapeName="xy" content="" />
       </div>
       <div style={{ paddingTop: '6px' }}>
-        {row('X', X, 0.95047, '#cc3333')}
-        {row('Y', Y, 1.0, '#338833')}
-        {row('Z', Z, 1.08883, '#3366cc')}
-        <div style={{ fontSize: '10px', color: '#888', marginTop: '4px', lineHeight: 1.4 }}>
-          Y = 輝度（0〜1） 白色点 D65
-        </div>
+        {row('X', X, 0.95047, xLo, xHi)}
+        {row('Y', Y, 1.0,     yLo, yHi)}
+        {row('Z', Z, 1.08883, zLo, zHi)}
       </div>
     </div>
   );
 };
+
+const Label = styled.span`
+  font-weight: 600;
+  font-size: 16px;
+  width: 24px;
+  text-align: right;
+  flex-shrink: 0;
+`;
+
+const SliderTrack = styled.div`
+  position: relative;
+  flex: 1;
+  min-width: 80px;
+  height: 20px;
+
+  input[type='range'] {
+    height: 100%;
+    box-sizing: border-box;
+  }
+`;
 
 export default XyzSliders;

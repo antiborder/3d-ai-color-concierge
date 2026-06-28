@@ -187,11 +187,9 @@ const CIExyDiagram = ({ focusR, focusG, focusB, onColorSelect }: Props) => {
       i === 0 ? ctx.moveTo(tx(x), ty(y)) : ctx.lineTo(tx(x), ty(y))
     );
     ctx.closePath();
-    ctx.strokeStyle = 'rgba(255,255,255,0.9)';
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([5, 3]);
+    ctx.strokeStyle = 'rgba(0,0,0,1)';
+    ctx.lineWidth = 1;
     ctx.stroke();
-    ctx.setLineDash([]);
     srgbVerts.forEach(([x, y, label, ox, oy]) => {
       const px = tx(x),
         py = ty(y);

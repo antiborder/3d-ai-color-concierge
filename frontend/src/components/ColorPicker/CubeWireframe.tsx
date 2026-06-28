@@ -62,15 +62,6 @@ const XYZ_ROT = (() => {
   return zRot.multiply(tilt);
 })();
 
-// sRGB corner → XYZ (D65), normalized by white point, Y negated to match RGB orientation
-function xyzVertex(r: number, g: number, b: number, s: number): [number, number, number] {
-  const X = 0.4124564 * r + 0.3575761 * g + 0.1804375 * b;
-  const Y = 0.2126729 * r + 0.7151522 * g + 0.072175 * b;
-  const Z = 0.0193339 * r + 0.119192 * g + 0.9503041 * b;
-  return new THREE.Vector3(-(X / 0.95047 - 0.5) * s, -(Y / 1.0 - 0.5) * s, (Z / 1.08883 - 0.5) * s)
-    .applyQuaternion(XYZ_ROT)
-    .toArray() as [number, number, number];
-}
 
 const CubeWireframe = ({ shape, structureSize, visible, labBoxSize, focusL = 50 }: CubeWireframeProps) => {
   const shouldShow =
@@ -80,83 +71,30 @@ const CubeWireframe = ({ shape, structureSize, visible, labBoxSize, focusL = 50 
     shape === 'xy';
   const isVisible = shouldShow && visible;
 
-  let vertices: [number, number, number][];
+  let vertices: [number, number, number][] = [];
 
-  if (shape === 'XYZ') {
-    // sRGB parallelepiped in XYZ space: 8 corners of [0,1]³ mapped via sRGB→XYZ
-    // vertex order: [Black, Red, Green, Blue, Yellow, Magenta, Cyan, White]
-    const s = structureSize;
-    vertices = [
-      xyzVertex(0, 0, 0, s),
-      xyzVertex(1, 0, 0, s),
-      xyzVertex(0, 1, 0, s),
-      xyzVertex(0, 0, 1, s),
-      xyzVertex(1, 1, 0, s),
-      xyzVertex(1, 0, 1, s),
-      xyzVertex(0, 1, 1, s),
-      xyzVertex(1, 1, 1, s),
+  if (shape === 'Lab' && labBoxSize) {
+    const hx = labBoxSize.x / 2, hy = labBoxSize.y / 2, hz = labBoxSize.z / 2;
+    // Same π/3 rotation as getLabPosition so the box aligns with the data
+    const rot = Math.PI / 3;
+    const cosR = Math.cos(rot), sinR = Math.sin(rot);
+    const rv = (x: number, y: number, z: number): [number, number, number] => [
+      x * cosR + y * sinR,
+      -x * sinR + y * cosR,
+      z,
     ];
-  } else if (shape === 'Lab' && labBoxSize) {
-    // Lab box: axis-aligned, centered at origin
-    const {
-      x: hx,
-      y: hy,
-      z: hz,
-    } = { x: labBoxSize.x / 2, y: labBoxSize.y / 2, z: labBoxSize.z / 2 };
     vertices = [
-      [-hx, -hy, -hz],
-      [hx, -hy, -hz],
-      [hx, hy, -hz],
-      [-hx, hy, -hz],
-      [-hx, -hy, hz],
-      [hx, -hy, hz],
-      [hx, hy, hz],
-      [-hx, hy, hz],
+      rv(-hx, -hy, -hz),
+      rv(hx, -hy, -hz),
+      rv(hx, hy, -hz),
+      rv(-hx, hy, -hz),
+      rv(-hx, -hy, hz),
+      rv(hx, -hy, hz),
+      rv(hx, hy, hz),
+      rv(-hx, hy, hz),
     ];
-  } else {
-    // RGB/CMYK rotated cube
-    const tiltRotationQuaternion = new THREE.Quaternion().setFromUnitVectors(
-      new THREE.Vector3(-1, -1, 1).normalize(),
-      new THREE.Vector3(0, 0, 1)
-    );
-    const zRotationQuaternion = new THREE.Quaternion().setFromUnitVectors(
-      new THREE.Vector3(1, 0, 0).normalize(),
-      new THREE.Vector3(0, 0.77, 0)
-    );
-    const rotationQuaternion = zRotationQuaternion.multiply(tiltRotationQuaternion);
-    const halfSize = structureSize / 2;
-    vertices = [
-      [-halfSize, halfSize, -halfSize],
-      [halfSize, halfSize, -halfSize],
-      [halfSize, -halfSize, -halfSize],
-      [-halfSize, -halfSize, -halfSize],
-      [-halfSize, halfSize, halfSize],
-      [halfSize, halfSize, halfSize],
-      [halfSize, -halfSize, halfSize],
-      [-halfSize, -halfSize, halfSize],
-    ].map((v) => {
-      const vec = new THREE.Vector3(...v);
-      vec.applyQuaternion(rotationQuaternion);
-      return vec.toArray() as [number, number, number];
-    });
   }
 
-  // XYZ: color edges by RGB axis direction (R=red, G=green, B=blue)
-  // vertex order for XYZ: [Black(0), Red(1), Green(2), Blue(3), Yellow(4), Magenta(5), Cyan(6), White(7)]
-  const xyzColoredEdges: Array<[number, number, string]> = [
-    [0, 1, '#ff5555'],
-    [2, 4, '#ff5555'],
-    [3, 5, '#ff5555'],
-    [6, 7, '#ff5555'], // R-direction
-    [0, 2, '#55ff55'],
-    [1, 4, '#55ff55'],
-    [3, 6, '#55ff55'],
-    [5, 7, '#55ff55'], // G-direction
-    [0, 3, '#5599ff'],
-    [1, 5, '#5599ff'],
-    [2, 6, '#5599ff'],
-    [4, 7, '#5599ff'], // B-direction
-  ];
 
   // Standard edges for non-XYZ shapes
   const edges = [
@@ -371,15 +309,7 @@ const CubeWireframe = ({ shape, structureSize, visible, labBoxSize, focusL = 50 
     return (
       <group>
         {xyzBoxEdges.map(([a, b], i) => (
-          <Line key={`xyz-${i}`} points={[a, b]} color="#ffffff" lineWidth={1.0} />
-        ))}
-        {xyzColoredEdges.map(([start, end, color], i) => (
-          <Line
-            key={`rgb-${i}`}
-            points={[vertices[start], vertices[end]]}
-            color={color}
-            lineWidth={1.5}
-          />
+          <Line key={`xyz-${i}`} points={[a, b]} color={focusContrastColor(focusL)} lineWidth={1.0} />
         ))}
       </group>
     );

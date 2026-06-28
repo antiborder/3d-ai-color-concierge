@@ -117,13 +117,17 @@ export const getXyzPosition: PositionFunction = (r, g, b) => {
     .toArray() as [number, number, number];
 };
 
+// D65 white point chromaticity — fallback for black (X=Y=Z=0) so it plots
+// at the same neutral point as grays and white.
+const D65_X = 0.3127, D65_Y = 0.3290, D65_Z = 0.3583;
+
 export const getXyzChromaticityPosition: PositionFunction = (r, g, b) => {
   const [X, Y, Z] = rgbToXyz(r, g, b);
   const sum = X + Y + Z;
-  if (sum < 1e-10) return [0, 0, 0];
-  const xc = X / sum - 0.5,
-    yc = Y / sum - 0.5,
-    zc = Z / sum - 0.5;
+  const nx = sum < 1e-10 ? D65_X : X / sum;
+  const ny = sum < 1e-10 ? D65_Y : Y / sum;
+  const nz = sum < 1e-10 ? D65_Z : Z / sum;
+  const xc = nx - 0.5, yc = ny - 0.5, zc = nz - 0.5;
   return new THREE.Vector3(-xc * structureSize, -yc * structureSize, zc * structureSize)
     .applyQuaternion(RGB_XYZ_ROTATION)
     .toArray() as [number, number, number];
@@ -132,9 +136,9 @@ export const getXyzChromaticityPosition: PositionFunction = (r, g, b) => {
 export const getXyChromaticityPosition: PositionFunction = (r, g, b) => {
   const [X, Y, Z] = rgbToXyz(r, g, b);
   const sum = X + Y + Z;
-  if (sum < 1e-10) return [0, 0, 0];
-  const xc = X / sum - 0.5,
-    yc = Y / sum - 0.5;
+  const nx = sum < 1e-10 ? D65_X : X / sum;
+  const ny = sum < 1e-10 ? D65_Y : Y / sum;
+  const xc = nx - 0.5, yc = ny - 0.5;
   // z_c=0 face of the xyz cube: zc_centered = 0 - 0.5 = -0.5
   return new THREE.Vector3(-xc * structureSize, -yc * structureSize, -0.5 * structureSize)
     .applyQuaternion(RGB_XYZ_ROTATION)

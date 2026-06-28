@@ -110,6 +110,7 @@ const Structure = (props: StructureProps) => {
           getRgbPosition={getRgbPosition}
           getHslPosition={getHslPosition}
           getHsbPosition={getHsbPosition}
+          rotateCameraRef={props.rotateCameraRef}
         />
         <group rotation={[-Math.PI / 2, 0, 0]}>
           <Particles {...props} filteredColors={filteredColors} {...positionProps} />
@@ -173,7 +174,7 @@ const Structure = (props: StructureProps) => {
             focusB={props.focusB}
             focusL={props.focusL}
           />
-          <AxisIndicators shape={displayShape} />
+          <AxisIndicators shape={displayShape} focusL={props.focusL} />
         </group>
       </Canvas>
     </div>
