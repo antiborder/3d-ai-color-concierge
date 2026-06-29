@@ -12,6 +12,9 @@ import ColorCursor from './ColorCursor';
 import HarmonyMarkers from './HarmonyMarkers';
 import ColorBridgeLine from './ColorBridgeLine';
 import AxisIndicators from './AxisIndicators';
+import CylindricalAxisArrows from './CylindricalAxisArrows';
+import FocusAxisArrows from './FocusAxisArrows';
+import type { AxisDef } from './FocusAxisArrows';
 import GamutWireframe from './GamutWireframe';
 import sampleColors from '../../constants/sampleColors';
 import {
@@ -28,7 +31,43 @@ import {
   getXyzPosition,
   getXyzChromaticityPosition,
   getXyChromaticityPosition,
+  RGB_XYZ_ROTATION,
 } from '../../utils/colorSpacePositions';
+
+// Rotate a unit vector by the shared RGB/XYZ quaternion.
+function rv(x: number, y: number, z: number): [number, number, number] {
+  return new THREE.Vector3(x, y, z).applyQuaternion(RGB_XYZ_ROTATION).toArray() as [number, number, number];
+}
+
+const RGB_ARROWS: AxisDef[] = [
+  { dir: rv(-1, 0, 0), label: 'R' },
+  { dir: rv(0, -1, 0), label: 'G' },
+  { dir: rv(0,  0, 1), label: 'B' },
+];
+const CMY_ARROWS: AxisDef[] = [
+  { dir: rv(1,  0,  0), label: 'C' },
+  { dir: rv(0,  1,  0), label: 'M' },
+  { dir: rv(0,  0, -1), label: 'Y' },
+];
+const LAB_ARROWS: AxisDef[] = [
+  { dir: [0, 0, 1], label: 'L' },
+  { dir: [-Math.sin(Math.PI / 3), -Math.cos(Math.PI / 3), 0], label: 'a' },
+  { dir: [Math.cos(Math.PI / 3), -Math.sin(Math.PI / 3), 0], label: 'b' },
+];
+const XYZ_ARROWS: AxisDef[] = [
+  { dir: rv(-1, 0, 0), label: 'X' },
+  { dir: rv(0, -1, 0), label: 'Y' },
+  { dir: rv(0,  0, 1), label: 'Z' },
+];
+const xyz_ARROWS: AxisDef[] = [
+  { dir: rv(-1, 0, 0), label: 'x' },
+  { dir: rv(0, -1, 0), label: 'y' },
+  { dir: rv(0,  0, 1), label: 'z' },
+];
+const xy_ARROWS: AxisDef[] = [
+  { dir: rv(-1, 0, 0), label: 'x' },
+  { dir: rv(0, -1, 0), label: 'y' },
+];
 import type { StructureProps } from '../../types/structure';
 
 const cameraPosition: [number, number, number] = [0, 15, 0];
@@ -173,6 +212,89 @@ const Structure = (props: StructureProps) => {
             focusL={props.focusL}
           />
           <AxisIndicators shape={displayShape} focusL={props.focusL} />
+          {props.shape === 'HSB' && (
+            <CylindricalAxisArrows
+              focusR={props.focusR}
+              focusG={props.focusG}
+              focusB={props.focusB}
+              focusH={props.focusH}
+              focusL={props.focusL}
+              getPosition={getHsbPosition}
+              labels={{ h: 'H', s: 'S', l: 'B' }}
+            />
+          )}
+          {props.shape === 'HSL' && (
+            <CylindricalAxisArrows
+              focusR={props.focusR}
+              focusG={props.focusG}
+              focusB={props.focusB}
+              focusH={props.focusH}
+              focusL={props.focusL}
+              getPosition={getHslPosition}
+              labels={{ h: 'H', s: 'S', l: 'L' }}
+            />
+          )}
+          {props.shape === 'LCH' && (
+            <CylindricalAxisArrows
+              focusR={props.focusR}
+              focusG={props.focusG}
+              focusB={props.focusB}
+              focusH={props.focusH}
+              focusL={props.focusL}
+              getPosition={getMunsellPosition}
+              labels={{ h: 'H', s: 'C', l: 'L' }}
+            />
+          )}
+          {(props.shape === 'RGB' || props.shape === 'CMYK') && (
+            <FocusAxisArrows
+              focusR={props.focusR}
+              focusG={props.focusG}
+              focusB={props.focusB}
+              focusL={props.focusL}
+              getPosition={getRgbPosition}
+              axes={props.shape === 'CMYK' ? CMY_ARROWS : RGB_ARROWS}
+            />
+          )}
+          {props.shape === 'Lab' && (
+            <FocusAxisArrows
+              focusR={props.focusR}
+              focusG={props.focusG}
+              focusB={props.focusB}
+              focusL={props.focusL}
+              getPosition={getLabPosition}
+              axes={LAB_ARROWS}
+            />
+          )}
+          {props.shape === 'XYZ' && (
+            <FocusAxisArrows
+              focusR={props.focusR}
+              focusG={props.focusG}
+              focusB={props.focusB}
+              focusL={props.focusL}
+              getPosition={getXyzPosition}
+              axes={XYZ_ARROWS}
+            />
+          )}
+          {props.shape === 'xyz' && (
+            <FocusAxisArrows
+              focusR={props.focusR}
+              focusG={props.focusG}
+              focusB={props.focusB}
+              focusL={props.focusL}
+              getPosition={getXyzChromaticityPosition}
+              axes={xyz_ARROWS}
+            />
+          )}
+          {props.shape === 'xy' && (
+            <FocusAxisArrows
+              focusR={props.focusR}
+              focusG={props.focusG}
+              focusB={props.focusB}
+              focusL={props.focusL}
+              getPosition={getXyChromaticityPosition}
+              axes={xy_ARROWS}
+            />
+          )}
         </group>
       </Canvas>
     </div>
