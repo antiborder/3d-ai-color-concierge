@@ -201,14 +201,6 @@ const AxisIndicators = ({ shape, focusL = 50 }: { shape: string; focusL?: number
 
       const axes = [
         {
-          dir: [0, 0, 1] as [number, number, number],
-          label: 'L',
-          color: xyzColor,
-          fromDist: structureSize - arrowLen,
-          toDist: structureSize * 1.06,
-          vertexColors: undefined as THREE.Color[] | undefined,
-        },
-        {
           dir: [-Math.sin(Math.PI / 3), -Math.cos(Math.PI / 3), 0] as [number, number, number],
           label: 'a',
           color: xyzColor,
