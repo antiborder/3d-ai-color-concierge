@@ -24,7 +24,7 @@ export interface VoiceCommandHandlers {
   getCurrentHex: () => string;
   setHarmonyMode: (mode: HarmonyMode) => void;
   setColorSets: (
-    sets: Partial<Record<'css' | 'material' | 'spectral12' | 'japanese' | 'rgbGrid', boolean>>
+    sets: Partial<Record<'css' | 'material' | 'japanese' | 'rgbGrid', boolean>>
   ) => void;
   setBridgeColorA: (c: { r: number; g: number; b: number }) => void;
   setBridgeColorB: (c: { r: number; g: number; b: number }) => void;
@@ -346,7 +346,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
     }
 
     case 'SET_COLOR_SETS': {
-      const validKeys = ['css', 'material', 'spectral12', 'japanese', 'rgbGrid'] as const;
+      const validKeys = ['css', 'material', 'japanese', 'rgbGrid'] as const;
       const sets: Partial<Record<(typeof validKeys)[number], boolean>> = {};
       for (const key of validKeys) {
         const val = command.parameters[key];

@@ -33,12 +33,10 @@ const MobilePane = (props: MobilePaneProps) => {
   const {
     cssColorsEnabled,
     materialColorsEnabled,
-    spectral12ColorsEnabled,
     japaneseColorsEnabled,
     rgbGridColorsEnabled,
     onCssColorsToggle,
     onMaterialColorsToggle,
-    onSpectral12ColorsToggle,
     onJapaneseColorsToggle,
     onRgbGridColorsToggle,
     colorHistory,
@@ -61,12 +59,10 @@ const MobilePane = (props: MobilePaneProps) => {
   const displaySettingsProps = {
     cssColorsEnabled,
     materialColorsEnabled,
-    spectral12ColorsEnabled,
     japaneseColorsEnabled,
     rgbGridColorsEnabled,
     onCssColorsToggle,
     onMaterialColorsToggle,
-    onSpectral12ColorsToggle,
     onJapaneseColorsToggle,
     onRgbGridColorsToggle,
   };

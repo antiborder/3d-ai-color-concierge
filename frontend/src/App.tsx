@@ -124,8 +124,6 @@ function App() {
     setCssColorsEnabled,
     materialColorsEnabled,
     setMaterialColorsEnabled,
-    spectral12ColorsEnabled,
-    setSpectral12ColorsEnabled,
     japaneseColorsEnabled,
     setJapaneseColorsEnabled,
     rgbGridColorsEnabled,
@@ -315,7 +313,6 @@ function App() {
   const displaySettings = {
     cssColorsEnabled,
     materialColorsEnabled,
-    spectral12ColorsEnabled,
     japaneseColorsEnabled,
     rgbGridColorsEnabled,
   };
@@ -323,7 +320,6 @@ function App() {
   const displaySettingsHandlers = {
     onCssColorsToggle: setCssColorsEnabled,
     onMaterialColorsToggle: setMaterialColorsEnabled,
-    onSpectral12ColorsToggle: setSpectral12ColorsEnabled,
     onJapaneseColorsToggle: setJapaneseColorsEnabled,
     onRgbGridColorsToggle: setRgbGridColorsEnabled,
   };

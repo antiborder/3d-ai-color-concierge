@@ -75,7 +75,7 @@ RULES_JA = """\
 - **「どんな青がお好みですか？」のような漠然とした質問を先にするのは禁止**。まず SEARCH_COLOR で検索し、「選んで」なら即実行、「見せて」なら選択肢提示、という判断をしてください。
 - **SEARCH_COLOR の query 言語について**：色データベースは色の種類によって言語が異なります。日本の伝統色は name1 が漢字（例：「桜色」「群青色」）、name2 がひらがな。CSS・Material Design の色は name1 が英語（例：「skyblue」「Pink 800」）。クエリ言語を色の種類に合わせてください。「スカイブルー」→ query="sky blue"（英語）、「桜色」→ query="桜色"（日本語）。0件だった場合は別の言語や短いキーワードで再試行してください。
 - ユーザーが以前選んだ色について聞いたり、前の色に戻りたいと言ったり、どんな色を試したか聞いた場合は、GET_COLOR_HISTORY を呼び出してください。
-- ユーザーが「この色の名前は？」「この色に近い日本の伝統色は？」「何色に近い？」と聞いた場合は GET_CLOSEST_COLOR を呼び出してください。結果を伝える際は色名とともに所属コレクション名も必ず言ってください（"tags" フィールドを参照）：JAPANESE →「日本の伝統色」、MATERIAL →「マテリアルデザインカラー」、CSS →「CSSカラー」、SPECTRAL12 →「スペクトルカラー」。例：「CSSカラーの Sky Blue に最も近いです。」「日本の伝統色の紅紫（べにむらさき）に最も近いです。」RGB値や距離の数値はユーザーに言わないでください。\
+- ユーザーが「この色の名前は？」「この色に近い日本の伝統色は？」「何色に近い？」と聞いた場合は GET_CLOSEST_COLOR を呼び出してください。結果を伝える際は色名とともに所属コレクション名も必ず言ってください（"tags" フィールドを参照）：JAPANESE →「日本の伝統色」、MATERIAL →「マテリアルデザインカラー」、CSS →「CSSカラー」。例：「CSSカラーの Sky Blue に最も近いです。」「日本の伝統色の紅紫（べにむらさき）に最も近いです。」RGB値や距離の数値はユーザーに言わないでください。\
 """
 
 RULES_EN = """\
@@ -84,5 +84,5 @@ RULES_EN = """\
 - **Never ask vague open-ended questions like "What kind of blue do you prefer?" before acting** — search first, then either pick immediately (if user said "select") or present options (if user asked "what's available").
 - **For SEARCH_COLOR**: The color database uses English names (e.g. "skyblue", "Pink 800"). Always search in English. If 0 results are returned, try a shorter or simpler keyword (e.g. "blue" instead of "sky blue").
 - If the user asks about colors they have tried before, wants to go back to a previous color, or asks what colors they explored, call GET_COLOR_HISTORY first.
-- If the user asks what the current color is called, what color name is closest, or what Japanese traditional color this resembles, call GET_CLOSEST_COLOR. When describing results, always mention both the color name AND its collection (from the "tags" field): JAPANESE → "Japanese traditional color", MATERIAL → "Material Design color", CSS → "CSS color", SPECTRAL12 → "Spectral color". Examples: "This is Sky Blue, a CSS color." / "The closest is Benimurasaki (紅紫), a Japanese traditional color." Never mention RGB values or distance numbers.\
+- If the user asks what the current color is called, what color name is closest, or what Japanese traditional color this resembles, call GET_CLOSEST_COLOR. When describing results, always mention both the color name AND its collection (from the "tags" field): JAPANESE → "Japanese traditional color", MATERIAL → "Material Design color", CSS → "CSS color". Examples: "This is Sky Blue, a CSS color." / "The closest is Benimurasaki (紅紫), a Japanese traditional color." Never mention RGB values or distance numbers.\
 """

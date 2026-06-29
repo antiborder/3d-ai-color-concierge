@@ -75,12 +75,10 @@ export interface BridgeProps {
 export interface ColorPanelProps {
   cssColorsEnabled: boolean;
   materialColorsEnabled: boolean;
-  spectral12ColorsEnabled: boolean;
   japaneseColorsEnabled: boolean;
   rgbGridColorsEnabled: boolean;
   onCssColorsToggle: (enabled: boolean) => void;
   onMaterialColorsToggle: (enabled: boolean) => void;
-  onSpectral12ColorsToggle: (enabled: boolean) => void;
   onJapaneseColorsToggle: (enabled: boolean) => void;
   onRgbGridColorsToggle: (enabled: boolean) => void;
   colorHistory: ColorHistoryItem[];

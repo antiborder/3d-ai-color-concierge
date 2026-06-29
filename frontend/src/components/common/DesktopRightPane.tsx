@@ -16,12 +16,10 @@ interface DesktopRightPaneProps extends ColorPanelProps {
 const DesktopRightPane = ({
   cssColorsEnabled,
   materialColorsEnabled,
-  spectral12ColorsEnabled,
   japaneseColorsEnabled,
   rgbGridColorsEnabled,
   onCssColorsToggle,
   onMaterialColorsToggle,
-  onSpectral12ColorsToggle,
   onJapaneseColorsToggle,
   onRgbGridColorsToggle,
   colorHistory,
@@ -40,12 +38,10 @@ const DesktopRightPane = ({
       <DisplayedColorsPanel
         cssColorsEnabled={cssColorsEnabled}
         materialColorsEnabled={materialColorsEnabled}
-        spectral12ColorsEnabled={spectral12ColorsEnabled}
         japaneseColorsEnabled={japaneseColorsEnabled}
         rgbGridColorsEnabled={rgbGridColorsEnabled}
         onCssColorsToggle={onCssColorsToggle}
         onMaterialColorsToggle={onMaterialColorsToggle}
-        onSpectral12ColorsToggle={onSpectral12ColorsToggle}
         onJapaneseColorsToggle={onJapaneseColorsToggle}
         onRgbGridColorsToggle={onRgbGridColorsToggle}
         onHelpClick={onHelpClick}

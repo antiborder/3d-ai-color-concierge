@@ -4,12 +4,10 @@ import HelpIcon from '../common/HelpIcon';
 export interface DisplayedColorsPanelProps {
   cssColorsEnabled: boolean;
   materialColorsEnabled: boolean;
-  spectral12ColorsEnabled: boolean;
   japaneseColorsEnabled: boolean;
   rgbGridColorsEnabled: boolean;
   onCssColorsToggle: (enabled: boolean) => void;
   onMaterialColorsToggle: (enabled: boolean) => void;
-  onSpectral12ColorsToggle: (enabled: boolean) => void;
   onJapaneseColorsToggle: (enabled: boolean) => void;
   onRgbGridColorsToggle: (enabled: boolean) => void;
   onHelpClick?: (topic: string) => void;
@@ -18,12 +16,10 @@ export interface DisplayedColorsPanelProps {
 const DisplayedColorsPanel = ({
   cssColorsEnabled,
   materialColorsEnabled,
-  spectral12ColorsEnabled,
   japaneseColorsEnabled,
   rgbGridColorsEnabled,
   onCssColorsToggle,
   onMaterialColorsToggle,
-  onSpectral12ColorsToggle,
   onJapaneseColorsToggle,
   onRgbGridColorsToggle,
   onHelpClick,
@@ -57,15 +53,6 @@ const DisplayedColorsPanel = ({
         />
         <span>Material Design Colors</span>
         {onHelpClick && <HelpIcon topic="material_colors" onHelpClick={onHelpClick} />}
-      </CheckboxLabel>
-      <CheckboxLabel>
-        <input
-          type="checkbox"
-          checked={spectral12ColorsEnabled}
-          onChange={(e) => onSpectral12ColorsToggle(e.target.checked)}
-        />
-        <span>12-color Spectral Wheel</span>
-        {onHelpClick && <HelpIcon topic="spectral_colors" onHelpClick={onHelpClick} />}
       </CheckboxLabel>
       <CheckboxLabel>
         <input
