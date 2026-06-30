@@ -7,12 +7,13 @@ DECLARATIONS: list[dict] = [
         "name": "SET_COLOR_SETS",
         "description": (
             "Show or hide color sets displayed in the 3D space. "
-            "Each key is optional — omit a key to leave that set unchanged. "
-            "Use this when the user wants to toggle specific color sets or say 'show only X'. "
+            "When any key is set to true, all other sets are automatically hidden — "
+            "you only need to specify the set(s) you want to show. "
+            "To turn off a set without showing another, set it explicitly to false. "
             "Available sets: 'css' (CSS named colors), 'material' (Material Design colors), "
             "'japanese' (Japanese traditional colors / 日本の伝統色), "
             "'rgbGrid' (RGB grid colors). "
-            "Example — 'show only Japanese colors': set japanese=true and all others to false."
+            "Example — 'show Japanese colors': set japanese=true (others hide automatically)."
         ),
         "parameters": {
             "type": "object",
@@ -41,9 +42,9 @@ COMMANDS: dict[str, object] = {
 }
 
 RULES_JA = """\
-- ユーザーが特定のカラーセットの表示切替を求めたり「〇〇だけ表示して」と言った場合は SET_COLOR_SETS を呼び出してください。変えないキーは省略可。「〇〇だけ表示」の場合は〇〇=true、他すべてを false に設定してください。カラーセット: css, material, japanese, rgbGrid。\
+- ユーザーが特定のカラーセットを表示したい場合は SET_COLOR_SETS を呼び出してください。表示したいセットを true に設定するだけで、他のセットは自動的に非表示になります。非表示にするだけの場合は明示的に false を指定してください。カラーセット: css, material, japanese, rgbGrid。\
 """
 
 RULES_EN = """\
-- If the user asks to show/hide a specific color set or says "show only X colors", call SET_COLOR_SETS. Omit keys you don't want to change. For "show only X", set X=true and all others to false. Color sets: css, material, japanese, rgbGrid.\
+- If the user asks to show a specific color set, call SET_COLOR_SETS and set the desired set(s) to true — all others are automatically hidden. To hide a set without showing another, set it explicitly to false. Color sets: css, material, japanese, rgbGrid.\
 """

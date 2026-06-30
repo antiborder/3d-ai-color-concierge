@@ -19,7 +19,8 @@ export interface Command {
     | 'SET_COLOR_SETS'
     | 'SET_BRIDGE_COLOR'
     | 'SELECT_BRIDGE_POSITION'
-    | 'SHOW_CONTENT';
+    | 'SHOW_CONTENT'
+    | 'SELECT_COLORS';
   parameters: Record<string, unknown>;
 }
 

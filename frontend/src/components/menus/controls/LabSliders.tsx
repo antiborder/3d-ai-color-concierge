@@ -7,6 +7,9 @@ import { rgbToLab, labToRgb, isInGamut, computeGamutRange } from '../../../utils
 
 const LabSliders = (props: ControlPaneProps & BridgeProps) => {
   const [isVisible, setIsVisible] = useState(props.shape === 'Lab');
+  useEffect(() => {
+    if (props.shape === 'Lab') setIsVisible(true);
+  }, [props.shape]);
 
   const [L, a, b_init] = rgbToLab(
     Math.round(props.focusR),

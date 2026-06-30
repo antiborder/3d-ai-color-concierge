@@ -53,7 +53,10 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   const isFirstTimeRef = useRef<boolean>(true);
 
   // VAD thresholds
-  const vadThresholdRef = useRef<number>(0.1);
+  // vadThreshold: AI 発話中にこの RMS を超えると AI を中断する（高いほど雑音で中断しにくい）
+  const vadThresholdRef = useRef<number>(0.3);
+  // userVoiceRecognitionThreshold: Gemini のサーバー側 VAD が機能するために沈黙フレームも送る必要がある。
+  // ここを上げると Gemini が発話終了を検知できず応答が極端に遅くなるため、極小値を維持する。
   const userVoiceRecognitionThresholdRef = useRef<number>(0.0001);
 
   // パフォーマンス測定用タイムスタンプ

@@ -2,6 +2,13 @@ import type { MutableRefObject } from 'react';
 import type { ColorSpace } from './color';
 import type { HarmonyColor } from '../utils/colorHarmony';
 
+export interface AiColorLabel {
+  r: number;
+  g: number;
+  b: number;
+  label: string;
+}
+
 export interface StructureProps {
   rotateCameraRef?: MutableRefObject<boolean>;
   bridgeColorA?: { r: number; g: number; b: number };
@@ -9,6 +16,7 @@ export interface StructureProps {
   isBridgeOpen?: boolean;
   isTwoDPickerOpen?: boolean;
   harmonyColors?: HarmonyColor[];
+  aiColorLabels?: AiColorLabel[];
   shape: ColorSpace;
   isLabelShown: boolean;
   onParticleClick: (r: number, g: number, b: number) => void;

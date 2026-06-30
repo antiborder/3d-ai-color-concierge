@@ -5,12 +5,10 @@ import RgbSliders from './controls/RgbSliders';
 import CmykSliders from './controls/CmykSliders';
 import HslSliders from './controls/HslSliders';
 import HsbSliders from './controls/HsbSliders';
-import LabSliders from './controls/LabSliders';
-import LchSliders from './controls/LchSliders';
 import type { ControlPaneProps } from '../../types/controlPane';
 import '../../App.css';
 
-/** RGB/CMYK/HSB/HSL/Lab/Lch sliders + TwoDPicker. */
+/** RGB/CMYK/HSB/HSL sliders + TwoDPicker. Lab/LCH sliders live in OneDPickerPanel. */
 export const ControlPaneSliders = (props: ControlPaneProps) => {
   return (
     <PanelShell>
@@ -43,10 +41,6 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
           panelShape={'HSL'}
         />
         {props.shape === 'HSL' && <TwoDPicker {...props} />}
-        <LabSliders {...props} />
-        {props.shape === 'Lab' && <TwoDPicker {...props} />}
-        <LchSliders {...props} />
-        {props.shape === 'LCH' && <TwoDPicker {...props} />}
       </SlidersSection>
     </PanelShell>
   );

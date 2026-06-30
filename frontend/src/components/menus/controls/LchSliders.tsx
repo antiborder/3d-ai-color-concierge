@@ -50,6 +50,9 @@ function computeLchGamutRange(
 
 const LchSliders = (props: ControlPaneProps & BridgeProps) => {
   const [isVisible, setIsVisible] = useState(props.shape === 'LCH');
+  useEffect(() => {
+    if (props.shape === 'LCH') setIsVisible(true);
+  }, [props.shape]);
 
   const initial = getMunsellHVC(props.focusR, props.focusG, props.focusB);
 

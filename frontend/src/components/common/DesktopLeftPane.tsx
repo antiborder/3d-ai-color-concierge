@@ -2,11 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ControlPaneSliders } from '../menus/ControlPaneSliders';
 import OneDPickerPanel from '../menus/OneDPickerPanel';
+import LabLchPanel from '../menus/LabLchPanel';
 import CIEPanel from '../menus/CIEPanel';
 import type { ControlPaneProps } from '../../types/controlPane';
-import { IconSliders, IconOneDPicker, IconCIE } from './MenuIcons';
+import { IconSliders, IconOneDPicker, IconLabLch, IconCIE } from './MenuIcons';
 
-type DesktopMenuId = 'sliders' | 'oneDPicker' | 'cie';
+type DesktopMenuId = 'sliders' | 'oneDPicker' | 'labLch' | 'cie';
 
 const DesktopLeftPane = (props: ControlPaneProps) => {
   const [activeMenu, setActiveMenu] = useState<DesktopMenuId | null>('sliders');
@@ -29,6 +30,7 @@ const DesktopLeftPane = (props: ControlPaneProps) => {
       <PanelArea>
         {activeMenu === 'sliders' && <ControlPaneSliders {...props} />}
         {activeMenu === 'oneDPicker' && <OneDPickerPanel {...props} />}
+        {activeMenu === 'labLch' && <LabLchPanel {...props} />}
         {activeMenu === 'cie' && <CIEPanel {...props} />}
       </PanelArea>
     </MenuAndContent>
@@ -53,21 +55,30 @@ const DesktopMenuBar = ({ activeMenu, onIconClick }: DesktopMenuBarProps) => (
     </MenuIconButton>
     <MenuIconButton
       type="button"
-      aria-label="1D picker"
-      aria-pressed={activeMenu === 'oneDPicker'}
-      $active={activeMenu === 'oneDPicker'}
-      onClick={() => onIconClick('oneDPicker')}
-    >
-      <IconOneDPicker />
-    </MenuIconButton>
-    <MenuIconButton
-      type="button"
       aria-label="CIE xy diagram"
       aria-pressed={activeMenu === 'cie'}
       $active={activeMenu === 'cie'}
       onClick={() => onIconClick('cie')}
     >
       <IconCIE />
+    </MenuIconButton>
+    <MenuIconButton
+      type="button"
+      aria-label="Lab / LCH / Color Difference"
+      aria-pressed={activeMenu === 'labLch'}
+      $active={activeMenu === 'labLch'}
+      onClick={() => onIconClick('labLch')}
+    >
+      <IconLabLch />
+    </MenuIconButton>
+    <MenuIconButton
+      type="button"
+      aria-label="1D picker"
+      aria-pressed={activeMenu === 'oneDPicker'}
+      $active={activeMenu === 'oneDPicker'}
+      onClick={() => onIconClick('oneDPicker')}
+    >
+      <IconOneDPicker />
     </MenuIconButton>
   </MenuBar>
 );

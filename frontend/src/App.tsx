@@ -20,6 +20,7 @@ import type { Command as VoiceCommand } from './types/voice';
 import { useChatbot } from './hooks/useChatbot';
 import { type HarmonyMode, computeHarmonyColors } from './utils/colorHarmony';
 import { interpolateRgb } from './components/menus/controls/ColorBridge';
+import type { AiColorLabel } from './types/structure';
 
 function App() {
   const { i18n } = useTranslation();
@@ -134,6 +135,7 @@ function App() {
   const isDesktopLayout = useMatchMedia('(min-width: 1000px)');
 
   const [harmonyMode, setHarmonyMode] = useState<HarmonyMode>('none');
+  const [aiColorLabels, setAiColorLabels] = useState<AiColorLabel[]>([]);
   const [activeContentId, setActiveContentId] = useState<string | null>(null);
   const [openCIEPanelSignal, setOpenCIEPanelSignal] = useState(0);
   const activeContentIdRef = useRef<string | null>(null);
@@ -177,12 +179,29 @@ function App() {
     },
     showContent: (id: string) => setActiveContentId(id),
     openCIEPanel: () => setOpenCIEPanelSignal((n) => n + 1),
+    setAiColorLabels,
+    addAllColorsToHistory: (colors: Array<{ r: number; g: number; b: number }>) => {
+      for (const c of colors) addColor(c.r, c.g, c.b);
+    },
   };
 
   const harmonyColors = useMemo(
     () => computeHarmonyColors(colorState.h, colorState.s, colorState.l, harmonyMode),
     [colorState.h, colorState.s, colorState.l, harmonyMode]
   );
+
+  const handleParticleClick = (r: number, g: number, b: number) => {
+    if (aiColorLabels.length > 0) {
+      const isAiSelected = aiColorLabels.some(
+        (c) =>
+          Math.round(c.r) === Math.round(r) &&
+          Math.round(c.g) === Math.round(g) &&
+          Math.round(c.b) === Math.round(b)
+      );
+      if (!isAiSelected) setAiColorLabels([]);
+    }
+    handleClick(r, g, b);
+  };
 
   const handleWsCommand = (command: VoiceCommand) => {
     if (command.action !== 'SHOW_CONTENT' && activeContentIdRef.current !== null) {
@@ -341,8 +360,9 @@ function App() {
         {...bridgeForStructure}
         {...displaySettings}
         isLabelShown={colorState.isLabelShown}
-        onParticleClick={handleClick}
+        onParticleClick={handleParticleClick}
         harmonyColors={harmonyColors}
+        aiColorLabels={aiColorLabels}
         rotateCameraRef={aiColorTriggerRef}
       />
       <ControlPane

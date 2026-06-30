@@ -8,6 +8,7 @@ from . import (
     color_adjust,
     color_bridge,
     color_harmony,
+    color_labels,
     color_query,
     color_select,
     color_sets,
@@ -26,6 +27,7 @@ _TOOL_MODULES = [
     color_harmony,
     color_sets,
     color_bridge,
+    color_labels,
     educational,
 ]
 

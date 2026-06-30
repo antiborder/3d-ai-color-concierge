@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ControlPaneProps, BridgeProps } from '../../../types/controlPane';
 import type { ColorSpace } from '../../../types/color';
@@ -16,6 +16,9 @@ interface HsbSlidersProps extends ControlPaneProps, BridgeProps {
 const HsbSliders = (props: HsbSlidersProps) => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(props.shape === 'HSB');
+  useEffect(() => {
+    if (props.shape === 'HSB') setIsVisible(true);
+  }, [props.shape]);
   return (
     <div className="controlPanel">
       <div

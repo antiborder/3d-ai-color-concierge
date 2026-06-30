@@ -31,7 +31,8 @@
     "notAllowed": "マイクの権限が拒否されました",
     "networkError": "ネットワークエラーが発生しました",
     "chatHistory": "チャット履歴",
-    "stopTTS": "音声を停止"
+    "stopTTS": "音声を停止",
+    "sessionTimeout": "制限時間を超えたので会話を終了しました。"
   },
   "chatbot": {
     "history": {

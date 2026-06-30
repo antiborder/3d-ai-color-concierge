@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import type { Command } from '@/types/voice';
 import type { ColorSpace } from '@/types/color';
 import type { HarmonyMode } from './colorHarmony';
+import type { AiColorLabel } from '@/types/structure';
 
 /**
  * コマンド実行に必要なハンドラー関数の型定義
@@ -32,6 +33,8 @@ export interface VoiceCommandHandlers {
   selectBridgePosition: (position: number) => void;
   showContent: (id: string) => void;
   openCIEPanel: () => void;
+  setAiColorLabels: (labels: AiColorLabel[]) => void;
+  addAllColorsToHistory: (colors: Array<{ r: number; g: number; b: number }>) => void;
 }
 
 /**
@@ -191,6 +194,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
         typeof color.g === 'number' &&
         typeof color.b === 'number'
       ) {
+        handlers.setAiColorLabels([]);
         handlers.rotateCameraOnColorChange();
         handlers.updateFromRgb(color.r, color.g, color.b);
 
@@ -355,7 +359,22 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
         }
       }
       if (Object.keys(sets).length > 0) {
-        handlers.setColorSets(sets);
+        // If any set is being turned ON, exclusively show only those sets (hide all others)
+        const hasAnyTrue = Object.values(sets).some((v) => v === true);
+        if (hasAnyTrue) {
+          const exclusive: Record<(typeof validKeys)[number], boolean> = {
+            css: false,
+            material: false,
+            japanese: false,
+            rgbGrid: false,
+          };
+          for (const key of validKeys) {
+            if (sets[key] === true) exclusive[key] = true;
+          }
+          handlers.setColorSets(exclusive);
+        } else {
+          handlers.setColorSets(sets);
+        }
       }
       break;
     }
@@ -388,6 +407,29 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
       const id = command.parameters.id as string;
       if (id) {
         handlers.showContent(id);
+      }
+      break;
+    }
+
+    case 'SELECT_COLORS': {
+      const colors = (command.parameters.colors ?? []) as AiColorLabel[];
+      const seen = new Set<string>();
+      const deduped = colors.filter(({ r, g, b }) => {
+        const key = `${Math.round(r)},${Math.round(g)},${Math.round(b)}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      const clamped = deduped.slice(0, 12);
+      if (clamped.length === 0) {
+        handlers.setAiColorLabels([]);
+      } else {
+        handlers.addAllColorsToHistory(clamped);
+        const last = clamped[clamped.length - 1];
+        // Camera does NOT rotate — we want all label spheres to remain visible
+        // in the current view. Focus still moves to the last color.
+        handlers.updateFromRgb(last.r, last.g, last.b);
+        handlers.setAiColorLabels(clamped);
       }
       break;
     }

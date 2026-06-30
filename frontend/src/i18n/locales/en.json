@@ -31,7 +31,8 @@
     "notAllowed": "Microphone permission denied",
     "networkError": "Network error occurred",
     "chatHistory": "Chat History",
-    "stopTTS": "Stop speaking"
+    "stopTTS": "Stop speaking",
+    "sessionTimeout": "Session ended after 5 minutes."
   },
   "chatbot": {
     "history": {

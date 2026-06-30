@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef, type FormEvent } from 'react';
+import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { useVoiceStreaming } from '../../hooks/useVoiceStreaming';
 import { useLiveSubtitle } from '../../hooks/useLiveSubtitle';
@@ -78,8 +79,11 @@ const VoiceControl = ({
   const [showSpinner, setShowSpinner] = useState(false);
   const [isFirstStart, setIsFirstStart] = useState(true);
   const spinnerTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const sessionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pendingHelpRef = useRef<string | null>(null);
   const lastHelpIdRef = useRef<number>(0);
+
+  const SESSION_LIMIT_MS = 5 * 60 * 1000;
 
   // Streaming session
   const {
@@ -131,6 +135,24 @@ const VoiceControl = ({
   // without being in its own deps (avoids circular dep between useVoiceStreaming and useLiveSubtitle)
   const handleAssistantChunkRef = useRef(handleAssistantChunk);
   handleAssistantChunkRef.current = handleAssistantChunk;
+
+  // 5分タイムアウト: isStreaming が true になったら開始、false になったらリセット
+  useEffect(() => {
+    if (!isStreaming) {
+      if (sessionTimeoutRef.current) { clearTimeout(sessionTimeoutRef.current); sessionTimeoutRef.current = null; }
+      return;
+    }
+    sessionTimeoutRef.current = setTimeout(() => {
+      stop();
+      toast(t('voiceControl.sessionTimeout'), {
+        duration: 5000,
+        style: { background: '#333', color: '#fff' },
+      });
+    }, SESSION_LIMIT_MS);
+    return () => {
+      if (sessionTimeoutRef.current) { clearTimeout(sessionTimeoutRef.current); sessionTimeoutRef.current = null; }
+    };
+  }, [isStreaming]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // スピナーを3秒後に非表示にする
   useEffect(() => {

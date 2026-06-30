@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ControlPaneSliders } from '../menus/ControlPaneSliders';
 import OneDPickerPanel from '../menus/OneDPickerPanel';
+import LabLchPanel from '../menus/LabLchPanel';
 import CIEPanel from '../menus/CIEPanel';
 import DisplayedColorsPanel from '../menus/DisplayedColorsPanel';
 import ColorHarmonyPanel from '../menus/ColorHarmonyPanel';
@@ -11,6 +12,7 @@ import type { ControlPaneProps, ColorPanelProps } from '../../types/controlPane'
 import {
   IconSliders,
   IconOneDPicker,
+  IconLabLch,
   IconCIE,
   IconPalette,
   IconHarmony,
@@ -20,8 +22,9 @@ import {
 
 export type MobileSheetId =
   | 'control'
-  | 'oneDPicker'
   | 'cie'
+  | 'labLch'
+  | 'oneDPicker'
   | 'displayed'
   | 'harmony'
   | 'history'
@@ -90,14 +93,19 @@ const MobilePane = (props: MobilePaneProps) => {
           <ControlPaneSliders {...controlPaneProps} />
         </SheetBlock>
       )}
-      {activeSheet === 'oneDPicker' && (
-        <SheetBlock>
-          <OneDPickerPanel {...controlPaneProps} />
-        </SheetBlock>
-      )}
       {activeSheet === 'cie' && (
         <SheetBlock>
           <CIEPanel {...controlPaneProps} />
+        </SheetBlock>
+      )}
+      {activeSheet === 'labLch' && (
+        <SheetBlock>
+          <LabLchPanel {...controlPaneProps} />
+        </SheetBlock>
+      )}
+      {activeSheet === 'oneDPicker' && (
+        <SheetBlock>
+          <OneDPickerPanel {...controlPaneProps} />
         </SheetBlock>
       )}
       {activeSheet === 'displayed' && (
@@ -149,6 +157,33 @@ const MobileMenuBar = ({ activeSheet, onIconClick }: MobileMenuBarProps) => (
     </IconButton>
     <IconButton
       type="button"
+      aria-label="CIE xy diagram"
+      aria-pressed={activeSheet === 'cie'}
+      $active={activeSheet === 'cie'}
+      onClick={() => onIconClick('cie')}
+    >
+      <IconCIE />
+    </IconButton>
+    <IconButton
+      type="button"
+      aria-label="Lab / LCH / Color Difference"
+      aria-pressed={activeSheet === 'labLch'}
+      $active={activeSheet === 'labLch'}
+      onClick={() => onIconClick('labLch')}
+    >
+      <IconLabLch />
+    </IconButton>
+    <IconButton
+      type="button"
+      aria-label="1D picker"
+      aria-pressed={activeSheet === 'oneDPicker'}
+      $active={activeSheet === 'oneDPicker'}
+      onClick={() => onIconClick('oneDPicker')}
+    >
+      <IconOneDPicker />
+    </IconButton>
+    <IconButton
+      type="button"
       aria-label="Displayed colors"
       aria-pressed={activeSheet === 'displayed'}
       $active={activeSheet === 'displayed'}
@@ -182,24 +217,6 @@ const MobileMenuBar = ({ activeSheet, onIconClick }: MobileMenuBarProps) => (
       onClick={() => onIconClick('search')}
     >
       <IconSearch />
-    </IconButton>
-    <IconButton
-      type="button"
-      aria-label="1D picker"
-      aria-pressed={activeSheet === 'oneDPicker'}
-      $active={activeSheet === 'oneDPicker'}
-      onClick={() => onIconClick('oneDPicker')}
-    >
-      <IconOneDPicker />
-    </IconButton>
-    <IconButton
-      type="button"
-      aria-label="CIE xy diagram"
-      aria-pressed={activeSheet === 'cie'}
-      $active={activeSheet === 'cie'}
-      onClick={() => onIconClick('cie')}
-    >
-      <IconCIE />
     </IconButton>
   </IconBar>
 );

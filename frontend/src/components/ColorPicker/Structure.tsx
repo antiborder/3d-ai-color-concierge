@@ -14,6 +14,7 @@ import ColorBridgeLine from './ColorBridgeLine';
 import AxisIndicators from './AxisIndicators';
 import CylindricalAxisArrows from './CylindricalAxisArrows';
 import FocusAxisArrows from './FocusAxisArrows';
+import AiColorLabels from './AiColorLabels';
 import type { AxisDef } from './FocusAxisArrows';
 import GamutWireframe from './GamutWireframe';
 import sampleColors from '../../constants/sampleColors';
@@ -152,6 +153,22 @@ const Structure = (props: StructureProps) => {
         <group rotation={[-Math.PI / 2, 0, 0]}>
           <Particles {...props} filteredColors={filteredColors} {...positionProps} />
           <ColorCursor {...props} {...positionProps} />
+          {props.aiColorLabels && props.aiColorLabels.length > 0 && (
+            <AiColorLabels
+              labels={props.aiColorLabels}
+              shape={props.shape}
+              focusL={props.focusL}
+              getRgbPosition={getRgbPosition}
+              getHslPosition={getHslPosition}
+              getHsbPosition={getHsbPosition}
+              getMunsellPosition={getMunsellPosition}
+              getLabPosition={getLabPosition}
+              getXyzPosition={getXyzPosition}
+              getXyzChromaticityPosition={getXyzChromaticityPosition}
+              getXyChromaticityPosition={getXyChromaticityPosition}
+              onColorSelect={props.onParticleClick}
+            />
+          )}
           {props.harmonyColors && props.harmonyColors.length > 0 && (
             <HarmonyMarkers
               harmonyColors={props.harmonyColors}
