@@ -1,6 +1,7 @@
-import { Line } from '@react-three/drei';
+import { Line, Html } from '@react-three/drei';
 import type { PositionFunction } from '../../types/structure';
 import type { ColorSpace } from '../../types/color';
+import { deltaEab } from '../../utils/colorConverter';
 
 interface RGB {
   r: number;
@@ -87,6 +88,13 @@ const ColorBridgeLine = ({
     getXyChromaticityPosition
   );
 
+  const mid: [number, number, number] = [
+    (posA[0] + posB[0]) / 2,
+    (posA[1] + posB[1]) / 2,
+    (posA[2] + posB[2]) / 2,
+  ];
+  const de = deltaEab(colorA.r, colorA.g, colorA.b, colorB.r, colorB.g, colorB.b);
+
   return (
     <>
       <Line points={[posA, posB]} color="white" lineWidth={2} />
@@ -98,6 +106,19 @@ const ColorBridgeLine = ({
         <sphereGeometry args={[0.25, 16, 16]} />
         <meshBasicMaterial color={toHex(colorB.r, colorB.g, colorB.b)} />
       </mesh>
+      <Html position={mid} zIndexRange={[100, 5]}>
+        <div style={{
+          color: 'white',
+          fontWeight: 'bold',
+          fontSize: '13px',
+          textShadow: '0 0 2px #000, 0 0 2px #000',
+          whiteSpace: 'nowrap',
+          userSelect: 'none',
+          pointerEvents: 'none',
+        }}>
+          ΔE = {de.toFixed(1)}
+        </div>
+      </Html>
     </>
   );
 };

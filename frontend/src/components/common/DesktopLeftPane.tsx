@@ -15,6 +15,10 @@ const DesktopLeftPane = (props: ControlPaneProps) => {
     if (props.openCIEPanelSignal) setActiveMenu('cie');
   }, [props.openCIEPanelSignal]);
 
+  useEffect(() => {
+    props.onBridgeOpenChange(activeMenu === 'oneDPicker');
+  }, [activeMenu]);
+
   const onIconClick = useCallback((id: DesktopMenuId) => {
     setActiveMenu((prev) => (prev === id ? null : id));
   }, []);

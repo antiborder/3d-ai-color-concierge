@@ -41,6 +41,13 @@ const rgbToXyz = (r: number, g: number, b: number): [number, number, number] => 
   ];
 };
 
+export const rgbToLab = (r: number, g: number, b: number): [number, number, number] => {
+  const [X, Y, Z] = rgbToXyz(r, g, b);
+  const f = (t: number) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116);
+  const fx = f(X / 0.95047), fy = f(Y / 1.0), fz = f(Z / 1.08883);
+  return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
+};
+
 const rescaleRgb = (r: number, g: number, b: number): [number, number, number] => [
   -(r / 255 - 0.5) * structureSize,
   (-g / 255 + 0.5) * structureSize,

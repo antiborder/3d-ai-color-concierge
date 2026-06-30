@@ -52,6 +52,10 @@ const MobilePane = (props: MobilePaneProps) => {
     if (controlPaneProps.openCIEPanelSignal) setActiveSheet('cie');
   }, [controlPaneProps.openCIEPanelSignal]);
 
+  useEffect(() => {
+    controlPaneProps.onBridgeOpenChange(activeSheet === 'oneDPicker');
+  }, [activeSheet]);
+
   const onIconClick = useCallback((id: MobileSheetId) => {
     setActiveSheet((prev) => (prev === id ? null : id));
   }, []);
