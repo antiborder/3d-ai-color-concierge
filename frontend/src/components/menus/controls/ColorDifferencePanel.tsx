@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import { rgbToLab } from '../../../utils/gamutUtils';
 import HelpIcon from '../../common/HelpIcon';
 
@@ -32,6 +33,8 @@ function fmt(n: number): string {
 }
 
 export const ColorDifferencePanel = ({ currentColor, onHelpClick }: Props) => {
+  const { i18n } = useTranslation();
+  const isEn = i18n.language === 'en';
   const [referenceColor, setReferenceColor] = useState(() => ({ ...currentColor }));
 
   const { dE, dL, da, db } = useMemo(() => {
@@ -63,38 +66,45 @@ export const ColorDifferencePanel = ({ currentColor, onHelpClick }: Props) => {
   return (
     <div className="controlPanel">
       <TitleRow>
-        <span style={{ fontWeight: 600, fontSize: '16px' }}>Color Difference</span>
-        {onHelpClick && (
-          <HelpIcon topic="color-difference" onHelpClick={onHelpClick} size={20} />
-        )}
+        <span style={{ fontWeight: 600, fontSize: '16px' }}>
+          {isEn ? 'Color Difference' : '色差'}
+        </span>
+        {onHelpClick && <HelpIcon topic="color-difference" onHelpClick={onHelpClick} size={20} />}
       </TitleRow>
-      <SwatchRow>
-        <SwatchBlock>
-          <RefSwatch
-            style={{
-              background: `rgb(${referenceColor.r},${referenceColor.g},${referenceColor.b})`,
-            }}
-            title="Click to set current color as reference"
-            onClick={() => setReferenceColor({ ...currentColor })}
-          />
-          <SwatchLabel>Reference</SwatchLabel>
-        </SwatchBlock>
-        <ArrowCol>
-          <Arrow>↔</Arrow>
-          <DeltaE>ΔE = {dE.toFixed(2)}</DeltaE>
-        </ArrowCol>
-        <SwatchBlock>
-          <Swatch
-            style={{ background: `rgb(${currentColor.r},${currentColor.g},${currentColor.b})` }}
-          />
-          <SwatchLabel>Current</SwatchLabel>
-        </SwatchBlock>
-      </SwatchRow>
+      <LabelsRow>
+        <SwatchLabel>Reference</SwatchLabel>
+        <SwatchLabel>Current</SwatchLabel>
+      </LabelsRow>
+      <ConnectorRow>
+        <RefSwatch
+          style={{
+            background: `rgb(${referenceColor.r},${referenceColor.g},${referenceColor.b})`,
+          }}
+          title="Click to set current color as reference"
+          onClick={() => setReferenceColor({ ...currentColor })}
+        />
+        <ArrowConnect>
+          <ArrowHead $dir="left" />
+          <ArrowLineBody />
+          <ArrowHead $dir="right" />
+        </ArrowConnect>
+        <Swatch
+          style={{ background: `rgb(${currentColor.r},${currentColor.g},${currentColor.b})` }}
+        />
+      </ConnectorRow>
+      <DeltaE>ΔE = {dE.toFixed(1)}</DeltaE>
       <Breakdown>
-        ΔL*： {fmt(dL)} &nbsp;·&nbsp; Δa*： {fmt(da)} &nbsp;·&nbsp; Δb*： {fmt(db)}
+        <BreakdownRow>ΔL* = {fmt(dL)}</BreakdownRow>
+        <BreakdownRow>Δa* = {fmt(da)}</BreakdownRow>
+        <BreakdownRow>Δb* = {fmt(db)}</BreakdownRow>
       </Breakdown>
-      <JudgmentRow style={{ color: judgment.color }}>
-        {judgment.en}
+      <JudgmentRow>
+        <span style={{ color: '#222' }}>{isEn ? 'Judgment: ' : '判定結果：'}</span>
+        {dE < 0.001 ? (
+          <span style={{ color: '#aaa' }}>{isEn ? 'Same color' : '同一の色'}</span>
+        ) : (
+          <span style={{ color: judgment.color }}>{isEn ? judgment.en : judgment.ja}</span>
+        )}
       </JudgmentRow>
     </div>
   );
@@ -107,22 +117,20 @@ const TitleRow = styled.div`
   margin-bottom: 6px;
 `;
 
-const SwatchRow = styled.div`
+const LabelsRow = styled.div`
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 8px;
-`;
-
-const SwatchBlock = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
+  margin-bottom: 4px;
 `;
 
 const SwatchLabel = styled.div`
   font-size: 10px;
+`;
+
+const ConnectorRow = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
 `;
 
 const Swatch = styled.div`
@@ -130,6 +138,7 @@ const Swatch = styled.div`
   height: 24px;
   border-radius: 4px;
   border: 1px solid rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
 `;
 
 const RefSwatch = styled.div`
@@ -137,6 +146,7 @@ const RefSwatch = styled.div`
   height: 24px;
   border-radius: 4px;
   border: 1px solid rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
   cursor: pointer;
 
   &:hover {
@@ -145,39 +155,57 @@ const RefSwatch = styled.div`
   }
 `;
 
-const ArrowCol = styled.div`
+const ArrowConnect = styled.div`
   flex: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 2px;
+  padding: 0 4px;
 `;
 
-const Arrow = styled.span`
-  font-size: 18px;
-  color: #aaa;
+const ArrowHead = styled.div<{ $dir: 'left' | 'right' }>`
+  width: 0;
+  height: 0;
+  flex-shrink: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  ${({ $dir }) => $dir === 'left' ? 'border-right: 10px solid #bbb;' : 'border-left: 10px solid #bbb;'}
+`;
+
+const ArrowLineBody = styled.div`
+  flex: 1;
+  height: 3px;
+  background: #bbb;
 `;
 
 const DeltaE = styled.div`
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: #222;
   line-height: 1.1;
-  white-space: nowrap;
-`;
-
-const Breakdown = styled.div`
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-  color: #555;
+  text-align: center;
   margin-bottom: 6px;
 `;
 
-const JudgmentRow = styled.div`
+const Breakdown = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  margin-bottom: 6px;
+`;
+
+const BreakdownRow = styled.div`
   font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: #555;
+`;
+
+const JudgmentRow = styled.div`
+  font-size: 15px;
   font-weight: 600;
   line-height: 1.5;
+  text-align: center;
   padding-bottom: 4px;
 `;
 

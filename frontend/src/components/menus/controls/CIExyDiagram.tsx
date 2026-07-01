@@ -266,7 +266,9 @@ const CIExyDiagram = ({ focusR, focusG, focusB, onColorSelect, onHelpClick }: Pr
   return (
     <div className="controlPanel">
       <div style={{ height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontWeight: 600, fontSize: '16px' }}>CIE chromaticity diagram</span>
+        <span style={{ fontWeight: 600, fontSize: '16px' }}>
+          {i18n.language === 'en' ? 'CIE chromaticity diagram' : 'CIE色度図'}
+        </span>
         {onHelpClick && <HelpIcon topic="cie_xy" onHelpClick={onHelpClick} />}
       </div>
       <>
