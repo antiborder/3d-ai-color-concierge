@@ -13,7 +13,10 @@ const LabLchPanel = (props: ControlPaneProps) => (
       {props.shape === 'Lab' && <TwoDPicker {...props} />}
       <LchSliders {...props} />
       {props.shape === 'LCH' && <TwoDPicker {...props} />}
-      <ColorDifferencePanel colorA={props.bridgeColorA} colorB={props.bridgeColorB} />
+      <ColorDifferencePanel
+        currentColor={{ r: props.focusR, g: props.focusG, b: props.focusB }}
+        onHelpClick={props.onHelpClick}
+      />
     </Section>
   </PanelShell>
 );
