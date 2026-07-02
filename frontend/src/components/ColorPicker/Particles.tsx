@@ -127,7 +127,7 @@ const Particle = ({
                       ? props.getXyChromaticityPosition(props.r, props.g, props.b)
                       : props.getHsbPosition(props.r, props.g, props.b),
     },
-    config: { duration: 500 },
+    config: { duration: 1500 },
   });
 
   const { scale } = useSpring({

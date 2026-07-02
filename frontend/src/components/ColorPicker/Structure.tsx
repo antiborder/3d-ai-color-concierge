@@ -7,7 +7,7 @@ import FocusPlane from './FocusPlane';
 import FocusLine from './FocusLine';
 import Particles from './Particles';
 import CubeWireframe from './CubeWireframe';
-import CylinderEllipses from './CylinderEllipses';
+import AnimatedWireframe from './AnimatedWireframe';
 import ColorCursor from './ColorCursor';
 import HarmonyMarkers from './HarmonyMarkers';
 import ColorBridgeLine from './ColorBridgeLine';
@@ -16,7 +16,6 @@ import CylindricalAxisArrows from './CylindricalAxisArrows';
 import FocusAxisArrows from './FocusAxisArrows';
 import AiColorLabels from './AiColorLabels';
 import type { AxisDef } from './FocusAxisArrows';
-import GamutWireframe from './GamutWireframe';
 import sampleColors from '../../constants/sampleColors';
 import {
   structureSize,
@@ -218,13 +217,7 @@ const Structure = (props: StructureProps) => {
             labBoxSize={{ x: structureSize, y: structureSize, z: structureSize }}
             focusL={props.focusL}
           />
-          <GamutWireframe shape={displayShape} visible={frameVisible} />
-          <CylinderEllipses
-            shape={displayShape}
-            cylinderRadius={cylinderRadius}
-            cylinderHeight={cylinderHeight}
-            visible={frameVisible}
-          />
+          <AnimatedWireframe shape={props.shape} visible={frameVisible} />
           <AxisIndicators shape={displayShape} focusL={props.focusL} />
           {props.shape === 'HSB' && (
             <CylindricalAxisArrows
