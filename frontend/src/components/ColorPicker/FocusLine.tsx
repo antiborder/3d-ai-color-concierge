@@ -2,6 +2,7 @@ import React from 'react';
 import StraightLine from './StraightLine';
 import Circle from './Circle';
 import { systemColors } from '../../constants/systemColors';
+import { hslCylinderHeight, hsbCylinderHeight } from '../../utils/colorSpacePositions';
 import type {
   StructureProps,
   PositionFunction,
@@ -95,60 +96,80 @@ const FocusLine = (props: FocusLineProps) => {
         </>
       )}
 
-      {props.shape === 'HSL' && (
-        <>
-          {props.hslMainElement !== 'H' && (
-            <Circle radius={rescaledS} position={[0, 0, rescaledL]} color={systemColors['W']} />
-          )}
-
-          {props.hslMainElement !== 'S' && (
-            <StraightLine
-              points={[
-                props.cylindricalToCartesian(rescaledH, 0, rescaledL),
-                props.cylindricalToCartesian(rescaledH, props.cylinderRadius, rescaledL),
-              ]}
-              color={systemColors['K']}
-            />
-          )}
-
-          {props.hslMainElement !== 'L' && (
-            <StraightLine
-              points={[
-                props.cylindricalToCartesian(rescaledH, rescaledS, -props.cylinderHeight / 2),
-                props.cylindricalToCartesian(rescaledH, rescaledS, props.cylinderHeight / 2),
-              ]}
-              color={systemColors['DEEP_GRAY']}
-            />
-          )}
-        </>
-      )}
-      {props.shape === 'HSB' && (
-        <>
-          {props.hsbMainElement !== 'H' && (
-            <Circle radius={rescaledHsvS} position={[0, 0, rescaledV]} color={systemColors['W']} />
-          )}
-
-          {props.hsbMainElement !== 'S' && (
-            <StraightLine
-              points={[
-                props.cylindricalToCartesian(rescaledH, 0, rescaledV),
-                props.cylindricalToCartesian(rescaledH, props.cylinderRadius, rescaledV),
-              ]}
-              color={systemColors['K']}
-            />
-          )}
-
-          {props.hsbMainElement !== 'V' && (
-            <StraightLine
-              points={[
-                props.cylindricalToCartesian(rescaledH, rescaledHsvS, -props.cylinderHeight / 2),
-                props.cylindricalToCartesian(rescaledH, rescaledHsvS, props.cylinderHeight / 2),
-              ]}
-              color={systemColors['DEEP_GRAY']}
-            />
-          )}
-        </>
-      )}
+      {props.shape === 'HSL' && (() => {
+        const rescaledL_hsl = ((props.focusL - 50) / 100) * hslCylinderHeight;
+        const biconeScale = 1 - Math.abs((2 * props.focusL) / 100 - 1);
+        return (
+          <>
+            {props.hslMainElement !== 'H' && (
+              <Circle
+                radius={rescaledS * biconeScale}
+                position={[0, 0, rescaledL_hsl]}
+                color={systemColors['W']}
+              />
+            )}
+            {props.hslMainElement !== 'S' && (
+              <StraightLine
+                points={[
+                  props.cylindricalToCartesian(rescaledH, 0, rescaledL_hsl),
+                  props.cylindricalToCartesian(rescaledH, props.cylinderRadius * biconeScale, rescaledL_hsl),
+                ]}
+                color={systemColors['K']}
+              />
+            )}
+            {props.hslMainElement !== 'L' && (
+              <>
+                <StraightLine
+                  points={[
+                    props.cylindricalToCartesian(rescaledH, 0, -hslCylinderHeight / 2),
+                    props.cylindricalToCartesian(rescaledH, rescaledS, 0),
+                  ]}
+                  color={systemColors['DEEP_GRAY']}
+                />
+                <StraightLine
+                  points={[
+                    props.cylindricalToCartesian(rescaledH, rescaledS, 0),
+                    props.cylindricalToCartesian(rescaledH, 0, hslCylinderHeight / 2),
+                  ]}
+                  color={systemColors['DEEP_GRAY']}
+                />
+              </>
+            )}
+          </>
+        );
+      })()}
+      {props.shape === 'HSB' && (() => {
+        const rescaledV_hsb = (props.focusV / 100 - 0.5) * hsbCylinderHeight;
+        return (
+          <>
+            {props.hsbMainElement !== 'H' && (
+              <Circle
+                radius={rescaledHsvS * (props.focusV / 100)}
+                position={[0, 0, rescaledV_hsb]}
+                color={systemColors['W']}
+              />
+            )}
+            {props.hsbMainElement !== 'S' && (
+              <StraightLine
+                points={[
+                  props.cylindricalToCartesian(rescaledH, 0, rescaledV_hsb),
+                  props.cylindricalToCartesian(rescaledH, props.cylinderRadius * (props.focusV / 100), rescaledV_hsb),
+                ]}
+                color={systemColors['K']}
+              />
+            )}
+            {props.hsbMainElement !== 'V' && (
+              <StraightLine
+                points={[
+                  props.cylindricalToCartesian(rescaledH, 0, -hsbCylinderHeight / 2),
+                  props.cylindricalToCartesian(rescaledH, props.cylinderRadius, hsbCylinderHeight / 2),
+                ]}
+                color={systemColors['DEEP_GRAY']}
+              />
+            )}
+          </>
+        );
+      })()}
     </>
   );
 };

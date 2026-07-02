@@ -11,6 +11,9 @@ export const structureSize = 9;
 const sizeRatio = 0.7;
 export const cylinderHeight = structureSize * sizeRatio;
 export const cylinderRadius = structureSize * sizeRatio;
+// HSL/HSB tip height matches RGB white/black diagonal: z = ±(structureSize/2)·√3
+export const hslCylinderHeight = structureSize * Math.sqrt(3);
+export const hsbCylinderHeight = structureSize * Math.sqrt(3);
 
 // Precomputed rotation applied to RGB-cube and XYZ-space positions
 export const RGB_XYZ_ROTATION = (() => {
@@ -62,7 +65,7 @@ export const getRgbPosition: PositionFunction = (r, g, b) =>
   ];
 
 export const rescaleHsl: RescaleHslFunction = (h, s, l) => [
-  (h / 360) * (2 * Math.PI) - Math.PI / 12,
+  (h / 360) * (2 * Math.PI) - Math.PI / 6,
   (s / 100) * cylinderRadius,
   ((l - 50) / 100) * cylinderHeight,
 ];
@@ -75,12 +78,23 @@ export const cylindricalToCartesian: CylindricalToCartesianFunction = (theta, ra
 
 export const getHslPosition: PositionFunction = (r, g, b) => {
   const [h, s, l] = convert.rgb.hsl([Math.round(r), Math.round(g), Math.round(b)]);
-  return cylindricalToCartesian(...rescaleHsl(h, s, l));
+  const theta = (h / 360) * (2 * Math.PI) - Math.PI / 6;
+  // Bicone: radius scales to 0 at L=0 and L=100, max at L=50
+  const radius = (s / 100) * cylinderRadius * (1 - Math.abs(2 * l / 100 - 1));
+  const z = ((l - 50) / 100) * hslCylinderHeight;
+  return cylindricalToCartesian(theta, radius, z);
 };
+
+// HSB cone: radius scales with v so black (v=0) collapses to a tip at the bottom.
+export const rescaleHsb = (h: number, s: number, v: number): [number, number, number] => [
+  (h / 360) * (2 * Math.PI) - Math.PI / 6,
+  (s / 100) * cylinderRadius * (v / 100),
+  (v / 100 - 0.5) * hsbCylinderHeight,
+];
 
 export const getHsbPosition: PositionFunction = (r, g, b) => {
   const [h, s, v] = convert.rgb.hsv([Math.round(r), Math.round(g), Math.round(b)]);
-  return cylindricalToCartesian(...rescaleHsl(h, s, v));
+  return cylindricalToCartesian(...rescaleHsb(h, s, v));
 };
 
 export const getMunsellPosition: PositionFunction = (r, g, b) => {

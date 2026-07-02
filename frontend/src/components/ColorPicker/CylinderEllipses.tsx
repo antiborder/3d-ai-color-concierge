@@ -1,7 +1,9 @@
+import React from 'react';
 import * as THREE from 'three';
 import { Line } from '@react-three/drei';
 import type { StructureProps } from '../../types/structure';
 import { focusContrastColor } from '../../utils/colorConverter';
+import { hslCylinderHeight, hsbCylinderHeight } from '../../utils/colorSpacePositions';
 
 interface CylinderEllipsesProps extends Pick<StructureProps, 'shape'> {
   cylinderRadius: number;
@@ -69,25 +71,97 @@ const CylinderEllipses = ({
   if (!isVisible) return null;
 
   if (shape === 'HSB') {
-    // Top circle: each segment colored by the actual HSB hue at that position.
-    // Circle uses [r·sin θ, r·cos θ] but cylindricalToCartesian uses [r·sin θ, −r·cos θ],
-    // so the hue-angle mapping is: θ_p = π − θ_c → h = (θ_p + π/12) / 2π × 360
-    const topColors: THREE.Color[] = topPoints.map((_, i) => {
+    const hsbTopZ = hsbCylinderHeight / 2;
+    const hsbBottomZ = -hsbCylinderHeight / 2;
+    const hsbTopPoints: [number, number, number][] = [];
+    for (let i = 0; i <= segments; i++) {
+      const theta = (i / segments) * Math.PI * 2;
+      hsbTopPoints.push([cylinderRadius * Math.sin(theta), cylinderRadius * Math.cos(theta), hsbTopZ]);
+    }
+    const topColors: THREE.Color[] = hsbTopPoints.map((_, i) => {
       const thetaCircle = (i / segments) * Math.PI * 2;
       const thetaHsb = Math.PI - thetaCircle;
-      const h = ((thetaHsb + Math.PI / 12) / (Math.PI * 2)) * 360;
+      const h = ((thetaHsb + Math.PI / 6) / (Math.PI * 2)) * 360;
       return hsvToColor(h);
     });
-    const contrastColor = focusContrastColor(focusL);
+
+    const rgbcmy = [
+      { h:   0, color: new THREE.Color(1, 0, 0) },
+      { h:  60, color: new THREE.Color(1, 1, 0) },
+      { h: 120, color: new THREE.Color(0, 1, 0) },
+      { h: 180, color: new THREE.Color(0, 1, 1) },
+      { h: 240, color: new THREE.Color(0, 0, 1) },
+      { h: 300, color: new THREE.Color(1, 0, 1) },
+    ];
+    const tip: [number, number, number] = [0, 0, hsbBottomZ];
+    const black = new THREE.Color(0, 0, 0);
+    const slants = rgbcmy.map(({ h, color }) => {
+      const thetaCircle = Math.PI + Math.PI / 6 - (h * Math.PI) / 180;
+      const topPt: [number, number, number] = [
+        cylinderRadius * Math.sin(thetaCircle),
+        cylinderRadius * Math.cos(thetaCircle),
+        hsbTopZ,
+      ];
+      return {
+        points: [topPt, tip] as [number, number, number][],
+        colors: [color, black],
+      };
+    });
+
     return (
       <group>
-        <Line points={topPoints} vertexColors={topColors} lineWidth={1.5} />
-        <Line points={bottomPoints} color={contrastColor} lineWidth={1} />
+        <Line points={hsbTopPoints} vertexColors={topColors} lineWidth={1.5} />
+        {slants.map((s, i) => (
+          <Line key={i} points={s.points} vertexColors={s.colors} lineWidth={0.8} />
+        ))}
       </group>
     );
   }
 
-  const ringColor = (shape === 'HSL' || shape === 'LCH') ? focusContrastColor(focusL) : '#ffffff';
+  if (shape === 'HSL') {
+    // Middle ring at L=50 (z=0), full radius, colored by hue
+    const midPoints: [number, number, number][] = [];
+    const midColors: THREE.Color[] = [];
+    for (let i = 0; i <= segments; i++) {
+      const theta = (i / segments) * Math.PI * 2;
+      midPoints.push([cylinderRadius * Math.sin(theta), cylinderRadius * Math.cos(theta), 0]);
+      const thetaHsl = Math.PI - theta;
+      const h = ((thetaHsl + Math.PI / 6) / (Math.PI * 2)) * 360;
+      midColors.push(hsvToColor(h));
+    }
+
+    // 6 slant lines at R/Y/G/C/B/M: middle → top (hue→white) and middle → bottom (hue→black)
+    const rgbcmyHues = [0, 60, 120, 180, 240, 300];
+    const white = new THREE.Color(1, 1, 1);
+    const black = new THREE.Color(0, 0, 0);
+    const topTip: [number, number, number] = [0, 0, hslCylinderHeight / 2];
+    const bottomTip: [number, number, number] = [0, 0, -hslCylinderHeight / 2];
+
+    const slants = rgbcmyHues.map((h) => {
+      const thetaCircle = Math.PI + Math.PI / 6 - (h * Math.PI) / 180;
+      const midPt: [number, number, number] = [
+        cylinderRadius * Math.sin(thetaCircle),
+        cylinderRadius * Math.cos(thetaCircle),
+        0,
+      ];
+      const color = hsvToColor(h);
+      return { midPt, color };
+    });
+
+    return (
+      <group>
+        <Line points={midPoints} vertexColors={midColors} lineWidth={1.5} />
+        {slants.map((s, i) => (
+          <React.Fragment key={i}>
+            <Line points={[s.midPt, topTip]} vertexColors={[s.color, white]} lineWidth={0.8} />
+            <Line points={[s.midPt, bottomTip]} vertexColors={[s.color, black]} lineWidth={0.8} />
+          </React.Fragment>
+        ))}
+      </group>
+    );
+  }
+
+  const ringColor = shape === 'LCH' ? focusContrastColor(focusL) : '#ffffff';
 
   return (
     <group>

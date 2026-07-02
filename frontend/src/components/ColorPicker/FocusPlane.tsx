@@ -4,6 +4,7 @@ import Cylinder from './Cylinder';
 import Quadrilateral from './Quadrilateral';
 import Disc from './Disc';
 import { getMunsellHVC } from '../../utils/munsellUtils';
+import { hslCylinderHeight, hsbCylinderHeight } from '../../utils/colorSpacePositions';
 import type {
   StructureProps,
   PositionFunction,
@@ -97,89 +98,80 @@ const FocusPlane = (props: FocusPlaneProps) => {
         </>
       )}
 
-      {props.shape === 'HSL' && (
-        <>
-          {props.hslMainElement === 'H' && (
-            <Quadrilateral
-              {...props}
-              points={[
-                props.cylindricalToCartesian(
-                  rescaledH,
-                  props.cylinderRadius,
-                  props.cylinderHeight / 2
-                ),
-                props.cylindricalToCartesian(
-                  rescaledH,
-                  props.cylinderRadius,
-                  -props.cylinderHeight / 2
-                ),
-                props.cylindricalToCartesian(rescaledH, 0, -props.cylinderHeight / 2),
-                props.cylindricalToCartesian(rescaledH, 0, props.cylinderHeight / 2),
-              ]}
-            />
-          )}
-          <group rotation={[Math.PI / 2, 0, 0]}>
-            {props.hslMainElement === 'S' && (
-              <Cylinder
+      {props.shape === 'HSL' && (() => {
+        const rescaledL_hsl = ((props.focusL - 50) / 100) * hslCylinderHeight;
+        return (
+          <>
+            {props.hslMainElement === 'H' && (
+              // Triangle: equator-outer → top-tip → bottom-tip (degenerate quad p2=p3)
+              <Quadrilateral
                 {...props}
-                radius={rescaledS}
-                height={props.cylinderHeight}
-                side={THREE.DoubleSide}
+                points={[
+                  props.cylindricalToCartesian(rescaledH, props.cylinderRadius, 0),
+                  props.cylindricalToCartesian(rescaledH, 0, hslCylinderHeight / 2),
+                  props.cylindricalToCartesian(rescaledH, 0, -hslCylinderHeight / 2),
+                  props.cylindricalToCartesian(rescaledH, 0, -hslCylinderHeight / 2),
+                ]}
               />
             )}
-            {props.hslMainElement === 'L' && (
-              <Disc
-                {...props}
-                position={[0, rescaledL, 0]}
-                radius={props.cylinderRadius}
-                side={THREE.DoubleSide}
-              />
-            )}
-          </group>
-        </>
-      )}
+            <group rotation={[Math.PI / 2, 0, 0]}>
+              {props.hslMainElement === 'S' && (
+                <Disc
+                  {...props}
+                  position={[0, rescaledL_hsl, 0]}
+                  radius={rescaledS * (1 - Math.abs((2 * props.focusL) / 100 - 1))}
+                  side={THREE.DoubleSide}
+                />
+              )}
+              {props.hslMainElement === 'L' && (
+                <Disc
+                  {...props}
+                  position={[0, rescaledL_hsl, 0]}
+                  radius={props.cylinderRadius * (1 - Math.abs((2 * props.focusL) / 100 - 1))}
+                  side={THREE.DoubleSide}
+                />
+              )}
+            </group>
+          </>
+        );
+      })()}
 
-      {props.shape === 'HSB' && (
-        <>
-          {props.hsbMainElement === 'H' && (
-            <Quadrilateral
-              {...props}
-              points={[
-                props.cylindricalToCartesian(
-                  rescaledH,
-                  props.cylinderRadius,
-                  props.cylinderHeight / 2
-                ),
-                props.cylindricalToCartesian(
-                  rescaledH,
-                  props.cylinderRadius,
-                  -props.cylinderHeight / 2
-                ),
-                props.cylindricalToCartesian(rescaledH, 0, -props.cylinderHeight / 2),
-                props.cylindricalToCartesian(rescaledH, 0, props.cylinderHeight / 2),
-              ]}
-            />
-          )}
-          <group rotation={[Math.PI / 2, 0, 0]}>
-            {props.hsbMainElement === 'S' && (
-              <Cylinder
+      {props.shape === 'HSB' && (() => {
+        const rescaledV_hsb = (props.focusV / 100 - 0.5) * hsbCylinderHeight;
+        return (
+          <>
+            {props.hsbMainElement === 'H' && (
+              <Quadrilateral
                 {...props}
-                radius={rescaledHsvS}
-                height={props.cylinderHeight}
-                side={THREE.DoubleSide}
+                points={[
+                  props.cylindricalToCartesian(rescaledH, props.cylinderRadius, hsbCylinderHeight / 2),
+                  props.cylindricalToCartesian(rescaledH, 0, -hsbCylinderHeight / 2),
+                  props.cylindricalToCartesian(rescaledH, 0, hsbCylinderHeight / 2),
+                  props.cylindricalToCartesian(rescaledH, 0, hsbCylinderHeight / 2),
+                ]}
               />
             )}
-            {props.hsbMainElement === 'V' && (
-              <Disc
-                {...props}
-                position={[0, rescaledV, 0]}
-                radius={props.cylinderRadius}
-                side={THREE.DoubleSide}
-              />
-            )}
-          </group>
-        </>
-      )}
+            <group rotation={[Math.PI / 2, 0, 0]}>
+              {props.hsbMainElement === 'S' && (
+                <Disc
+                  {...props}
+                  position={[0, rescaledV_hsb, 0]}
+                  radius={rescaledHsvS * (props.focusV / 100)}
+                  side={THREE.DoubleSide}
+                />
+              )}
+              {props.hsbMainElement === 'V' && (
+                <Disc
+                  {...props}
+                  position={[0, rescaledV_hsb, 0]}
+                  radius={props.cylinderRadius * (props.focusV / 100)}
+                  side={THREE.DoubleSide}
+                />
+              )}
+            </group>
+          </>
+        );
+      })()}
 
       {props.shape === 'Lab' &&
         (() => {
