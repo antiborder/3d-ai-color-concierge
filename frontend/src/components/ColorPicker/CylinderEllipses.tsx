@@ -76,34 +76,35 @@ const CylinderEllipses = ({
       return hsvToColor(h);
     });
 
-    const rgbcmy = [
-      { h:   0, color: new THREE.Color(1, 0, 0) },
+    // Upper spokes (top center→rim): CMY (white→hue), lower slants (rim→tip): RGB (hue→black)
+    const cmyHues = [
       { h:  60, color: new THREE.Color(1, 1, 0) },
-      { h: 120, color: new THREE.Color(0, 1, 0) },
       { h: 180, color: new THREE.Color(0, 1, 1) },
-      { h: 240, color: new THREE.Color(0, 0, 1) },
       { h: 300, color: new THREE.Color(1, 0, 1) },
     ];
+    const rgbHues = [
+      { h:   0, color: new THREE.Color(1, 0, 0) },
+      { h: 120, color: new THREE.Color(0, 1, 0) },
+      { h: 240, color: new THREE.Color(0, 0, 1) },
+    ];
+    const topCenter: [number, number, number] = [0, 0, hsbTopZ];
     const tip: [number, number, number] = [0, 0, hsbBottomZ];
+    const white = new THREE.Color(1, 1, 1);
     const black = new THREE.Color(0, 0, 0);
-    const slants = rgbcmy.map(({ h, color }) => {
+
+    const rimPt = (h: number): [number, number, number] => {
       const thetaCircle = Math.PI + Math.PI / 6 - (h * Math.PI) / 180;
-      const topPt: [number, number, number] = [
-        cylinderRadius * Math.sin(thetaCircle),
-        cylinderRadius * Math.cos(thetaCircle),
-        hsbTopZ,
-      ];
-      return {
-        points: [topPt, tip] as [number, number, number][],
-        colors: [color, black],
-      };
-    });
+      return [cylinderRadius * Math.sin(thetaCircle), cylinderRadius * Math.cos(thetaCircle), hsbTopZ];
+    };
 
     return (
       <group>
         <Line points={hsbTopPoints} vertexColors={topColors} lineWidth={1.5} />
-        {slants.map((s, i) => (
-          <Line key={i} points={s.points} vertexColors={s.colors} lineWidth={0.8} />
+        {cmyHues.map(({ h, color }, i) => (
+          <Line key={`up-${i}`} points={[topCenter, rimPt(h)]} vertexColors={[white, color]} lineWidth={0.8} />
+        ))}
+        {rgbHues.map(({ h, color }, i) => (
+          <Line key={`dn-${i}`} points={[rimPt(h), tip]} vertexColors={[color, black]} lineWidth={0.8} />
         ))}
       </group>
     );
@@ -121,32 +122,27 @@ const CylinderEllipses = ({
       midColors.push(hsvToColor(h));
     }
 
-    // 6 slant lines at R/Y/G/C/B/M: middle → top (hue→white) and middle → bottom (hue→black)
-    const rgbcmyHues = [0, 60, 120, 180, 240, 300];
+    // Upper slants (mid→top): CMY only. Lower slants (mid→bottom): RGB only.
+    const cmyHues = [60, 180, 300];
+    const rgbHues = [0, 120, 240];
     const white = new THREE.Color(1, 1, 1);
     const black = new THREE.Color(0, 0, 0);
     const topTip: [number, number, number] = [0, 0, hslCylinderHeight / 2];
     const bottomTip: [number, number, number] = [0, 0, -hslCylinderHeight / 2];
 
-    const slants = rgbcmyHues.map((h) => {
+    const makeMidPt = (h: number): [number, number, number] => {
       const thetaCircle = Math.PI + Math.PI / 6 - (h * Math.PI) / 180;
-      const midPt: [number, number, number] = [
-        cylinderRadius * Math.sin(thetaCircle),
-        cylinderRadius * Math.cos(thetaCircle),
-        0,
-      ];
-      const color = hsvToColor(h);
-      return { midPt, color };
-    });
+      return [cylinderRadius * Math.sin(thetaCircle), cylinderRadius * Math.cos(thetaCircle), 0];
+    };
 
     return (
       <group>
         <Line points={midPoints} vertexColors={midColors} lineWidth={1.5} />
-        {slants.map((s, i) => (
-          <React.Fragment key={i}>
-            <Line points={[s.midPt, topTip]} vertexColors={[s.color, white]} lineWidth={0.8} />
-            <Line points={[s.midPt, bottomTip]} vertexColors={[s.color, black]} lineWidth={0.8} />
-          </React.Fragment>
+        {cmyHues.map((h, i) => (
+          <Line key={`up-${i}`} points={[makeMidPt(h), topTip]} vertexColors={[hsvToColor(h), white]} lineWidth={0.8} />
+        ))}
+        {rgbHues.map((h, i) => (
+          <Line key={`dn-${i}`} points={[makeMidPt(h), bottomTip]} vertexColors={[hsvToColor(h), black]} lineWidth={0.8} />
         ))}
       </group>
     );
