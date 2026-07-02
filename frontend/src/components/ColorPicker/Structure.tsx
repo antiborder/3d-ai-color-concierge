@@ -22,6 +22,7 @@ import {
   structureSize,
   cylinderHeight,
   cylinderRadius,
+  labCylinderHeight,
   getRgbPosition,
   rescaleHsl,
   cylindricalToCartesian,
@@ -215,7 +216,7 @@ const Structure = (props: StructureProps) => {
             shape={displayShape}
             structureSize={structureSize}
             visible={frameVisible}
-            labBoxSize={{ x: structureSize, y: structureSize, z: structureSize }}
+            labBoxSize={{ x: labCylinderHeight, y: labCylinderHeight, z: labCylinderHeight }}
             focusL={props.focusL}
           />
           <AnimatedWireframe shape={props.shape} visible={frameVisible} />
