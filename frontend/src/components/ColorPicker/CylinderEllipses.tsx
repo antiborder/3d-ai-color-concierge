@@ -2,17 +2,12 @@ import React from 'react';
 import * as THREE from 'three';
 import { Line } from '@react-three/drei';
 import type { StructureProps } from '../../types/structure';
-import { focusContrastColor } from '../../utils/colorConverter';
-import { hslCylinderHeight, hsbCylinderHeight } from '../../utils/colorSpacePositions';
+import { hslCylinderHeight, hsbCylinderHeight, lchCylinderHeight } from '../../utils/colorSpacePositions';
 
 interface CylinderEllipsesProps extends Pick<StructureProps, 'shape'> {
   cylinderRadius: number;
   cylinderHeight: number;
   visible: boolean;
-  focusR?: number;
-  focusG?: number;
-  focusB?: number;
-  focusL?: number;
 }
 
 // HSV(h°, s=1, v=1) → THREE.Color in [0,1]
@@ -34,10 +29,6 @@ const CylinderEllipses = ({
   cylinderRadius,
   cylinderHeight,
   visible,
-  focusR = 128,
-  focusG = 128,
-  focusB = 128,
-  focusL = 50,
 }: CylinderEllipsesProps) => {
   // HSL/HSVの時のみ表示
   const shouldShow = shape === 'HSL' || shape === 'HSB' || shape === 'LCH';
@@ -161,14 +152,36 @@ const CylinderEllipses = ({
     );
   }
 
-  const ringColor = shape === 'LCH' ? focusContrastColor(focusL) : '#ffffff';
+  if (shape === 'LCH') {
+    // Single equatorial ring at L=50 (z=0), colored by CIE LCH hue (H*=atan2(b*,a*)).
+    // thetaCircle = π - H* (inverse of cylindricalToCartesian)
+    const lchMidPoints: [number, number, number][] = [];
+    const lchMidColors: THREE.Color[] = [];
+    for (let i = 0; i <= segments; i++) {
+      const thetaCircle = (i / segments) * Math.PI * 2;
+      lchMidPoints.push([
+        cylinderRadius * Math.sin(thetaCircle),
+        cylinderRadius * Math.cos(thetaCircle),
+        0,
+      ]);
+      const H_rad = Math.PI - thetaCircle + Math.PI / 6;
+      const H_deg = ((H_rad * 180) / Math.PI + 360) % 360;
+      lchMidColors.push(hsvToColor(H_deg));
+    }
+    const lchAxisPoints: [number, number, number][] = [
+      [0, 0, -lchCylinderHeight / 2],
+      [0, 0, lchCylinderHeight / 2],
+    ];
+    const lchAxisColors = [new THREE.Color(0, 0, 0), new THREE.Color(1, 1, 1)];
+    return (
+      <group>
+        <Line points={lchMidPoints} vertexColors={lchMidColors} lineWidth={1.5} />
+        <Line points={lchAxisPoints} vertexColors={lchAxisColors} lineWidth={1} />
+      </group>
+    );
+  }
 
-  return (
-    <group>
-      <Line points={topPoints} color={ringColor} lineWidth={1} />
-      <Line points={bottomPoints} color={ringColor} lineWidth={1} />
-    </group>
-  );
+  return null;
 };
 
 export default CylinderEllipses;

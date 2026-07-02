@@ -3,8 +3,7 @@ import * as THREE from 'three';
 import Cylinder from './Cylinder';
 import Quadrilateral from './Quadrilateral';
 import Disc from './Disc';
-import { getMunsellHVC } from '../../utils/munsellUtils';
-import { hslCylinderHeight, hsbCylinderHeight } from '../../utils/colorSpacePositions';
+import { hslCylinderHeight, hsbCylinderHeight, lchCylinderHeight, labCylinderHeight } from '../../utils/colorSpacePositions';
 import type {
   StructureProps,
   PositionFunction,
@@ -35,9 +34,9 @@ function rgbToLab(r: number, g: number, b: number): [number, number, number] {
 function labToThreePosition(L: number, a: number, bLab: number): [number, number, number] {
   const half = STRUCTURE_SIZE / 2;
   return [
-    ((bLab - -6.64) / 100.27) * half,
-    ((a - 5.98) / 91.39) * half,
-    (L / 100 - 0.5) * STRUCTURE_SIZE,
+    (bLab / 100.27) * half,
+    (a / 91.39) * half,
+    (L / 100 - 0.5) * labCylinderHeight,
   ];
 }
 
@@ -187,14 +186,15 @@ const FocusPlane = (props: FocusPlaneProps) => {
 
       {props.shape === 'LCH' &&
         (() => {
-          const { value } = getMunsellHVC(props.focusR, props.focusG, props.focusB);
-          const discZ = (value / 10 - 0.5) * props.cylinderHeight;
+          const [L] = rgbToLab(props.focusR, props.focusG, props.focusB);
+          const discZ = (L / 100 - 0.5) * lchCylinderHeight;
+          const biconeScale = 1 - Math.abs((2 * L) / 100 - 1);
           return (
             <group rotation={[Math.PI / 2, 0, 0]}>
               <Disc
                 {...props}
                 position={[0, discZ, 0]}
-                radius={props.cylinderRadius}
+                radius={props.cylinderRadius * biconeScale}
                 side={THREE.DoubleSide}
               />
             </group>

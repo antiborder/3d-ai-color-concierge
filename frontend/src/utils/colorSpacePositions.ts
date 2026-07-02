@@ -10,10 +10,13 @@ import type {
 export const structureSize = 9;
 const sizeRatio = 0.7;
 export const cylinderHeight = structureSize * sizeRatio;
-export const cylinderRadius = structureSize * sizeRatio;
-// HSL/HSB tip height matches RGB white/black diagonal: z = ±(structureSize/2)·√3
+// Radius chosen so HSL bicone volume equals RGB cube volume: r = size·√(√3/π)
+export const cylinderRadius = structureSize * Math.sqrt(Math.sqrt(3) / Math.PI);
+// All cylindrical/bicone shapes + Lab share this height so white/black aligns with RGB diagonal: z = ±(structureSize/2)·√3
 export const hslCylinderHeight = structureSize * Math.sqrt(3);
 export const hsbCylinderHeight = structureSize * Math.sqrt(3);
+export const lchCylinderHeight = structureSize * Math.sqrt(3);
+export const labCylinderHeight = structureSize * Math.sqrt(3);
 
 // Precomputed rotation applied to RGB-cube and XYZ-space positions
 export const RGB_XYZ_ROTATION = (() => {
@@ -100,10 +103,14 @@ export const getHsbPosition: PositionFunction = (r, g, b) => {
 export const getMunsellPosition: PositionFunction = (r, g, b) => {
   const { hueNum, value, chroma } = getMunsellHVC(r, g, b);
   const theta = hueNum !== null ? (hueNum / 100) * 2 * Math.PI - Math.PI / 3 : 0;
-  const radius = hueNum !== null ? (chroma / 20) * cylinderRadius : 0;
-  const z = (value / 10 - 0.5) * cylinderHeight;
+  const biconeScale = 1 - Math.abs(2 * value / 10 - 1);
+  const radius = hueNum !== null ? (chroma / 20) * cylinderRadius * biconeScale : 0;
+  const z = (value / 10 - 0.5) * lchCylinderHeight;
   return cylindricalToCartesian(theta, radius, z);
 };
+
+// CIE LCH is the polar form of CIE Lab — same positions, different coordinate description.
+export const getLchPosition: PositionFunction = (r, g, b) => getLabPosition(r, g, b);
 
 export const getLabPosition: PositionFunction = (r, g, b) => {
   const [X, Y, Z] = rgbToXyz(r, g, b);
@@ -117,14 +124,12 @@ export const getLabPosition: PositionFunction = (r, g, b) => {
   const L = 116 * fy - 16;
   const a = 500 * (fx - fy);
   const bLab = 200 * (fy - fz);
-  // Ranges measured by exhaustive sRGB sampling:
-  //   a*: [-85.41, +97.36]  center=+5.98  half-range=91.39
-  //   b*: [-106.90, +93.63] center=-6.64  half-range=100.27
+  // Scale so white/black (a*=b*=0) maps to origin; ranges from sRGB sampling.
   const half = structureSize / 2;
-  const x = ((bLab - -6.64) / 100.27) * half;
-  const y = -(((a - 5.98) / 91.39) * half);
+  const x = (bLab / 100.27) * half;
+  const y = -(a / 91.39) * half;
   const rot = Math.PI / 3; // clockwise rotation in radians (π/6 = 30°)
-  return [x * Math.cos(rot) + y * Math.sin(rot), -x * Math.sin(rot) + y * Math.cos(rot), (L / 100 - 0.5) * structureSize];
+  return [x * Math.cos(rot) + y * Math.sin(rot), -x * Math.sin(rot) + y * Math.cos(rot), (L / 100 - 0.5) * labCylinderHeight];
 };
 
 export const getXyzPosition: PositionFunction = (r, g, b) => {

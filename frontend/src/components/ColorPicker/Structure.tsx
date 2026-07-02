@@ -28,6 +28,7 @@ import {
   getHslPosition,
   getHsbPosition,
   getMunsellPosition,
+  getLchPosition,
   getLabPosition,
   getXyzPosition,
   getXyzChromaticityPosition,
@@ -117,7 +118,7 @@ const Structure = (props: StructureProps) => {
     getRgbPosition,
     getHslPosition,
     getHsbPosition,
-    getMunsellPosition,
+    getMunsellPosition: getLchPosition,
     getLabPosition,
     getXyzPosition,
     getXyzChromaticityPosition,
@@ -223,10 +224,6 @@ const Structure = (props: StructureProps) => {
             cylinderRadius={cylinderRadius}
             cylinderHeight={cylinderHeight}
             visible={frameVisible}
-            focusR={props.focusR}
-            focusG={props.focusG}
-            focusB={props.focusB}
-            focusL={props.focusL}
           />
           <AxisIndicators shape={displayShape} focusL={props.focusL} />
           {props.shape === 'HSB' && (
@@ -258,7 +255,7 @@ const Structure = (props: StructureProps) => {
               focusB={props.focusB}
               focusH={props.focusH}
               focusL={props.focusL}
-              getPosition={getMunsellPosition}
+              getPosition={getLchPosition}
               labels={{ h: 'H', s: 'C', l: 'L' }}
             />
           )}

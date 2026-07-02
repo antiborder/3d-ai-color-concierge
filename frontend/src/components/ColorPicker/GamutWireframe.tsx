@@ -5,7 +5,7 @@ import {
   getRgbPosition,
   getLabPosition,
   getXyzPosition,
-  getMunsellPosition,
+  getLchPosition,
 } from '../../utils/colorSpacePositions';
 import type { PositionFunction } from '../../types/structure';
 
@@ -53,7 +53,7 @@ const GamutWireframe = ({ shape, visible }: GamutWireframeProps) => {
     shape === 'RGB' || shape === 'CMYK' ? getRgbPosition
     : shape === 'Lab' ? getLabPosition
     : shape === 'XYZ' ? getXyzPosition
-    : shape === 'LCH' ? getMunsellPosition
+    : shape === 'LCH' ? getLchPosition
     : null;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
