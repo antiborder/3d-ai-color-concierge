@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { useMemo } from 'react';
 import { Html, Line } from '@react-three/drei';
-import { RGB_XYZ_ROTATION, structureSize } from '../../utils/colorSpacePositions';
+import { RGB_XYZ_ROTATION, structureSize, labCylinderHeight } from '../../utils/colorSpacePositions';
 import { focusContrastColor } from '../../utils/colorConverter';
 
 const ARROW_LEN = 2.8;
@@ -188,9 +188,8 @@ const AxisIndicators = ({ shape, focusL = 50 }: { shape: string; focusL?: number
     const xyzColor = focusContrastColor(focusL);
 
     if (shape === 'Lab') {
-      const origin = labOrigin(structureSize);
-      const halfS = structureSize / 2;
-      const arrowLen = structureSize * 0.2;
+      const origin: [number, number, number] = [0, 0, 0];
+      const halfS = labCylinderHeight / 2;
       const fromDist = -halfS;
       const toDist   = halfS * 1.06;
 

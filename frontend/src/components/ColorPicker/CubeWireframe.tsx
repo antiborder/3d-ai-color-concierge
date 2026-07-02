@@ -315,7 +315,7 @@ const CubeWireframe = ({ shape, structureSize, visible, labBoxSize, focusL = 50 
     );
   }
 
-  const labColor = shape === 'Lab' ? focusContrastColor(focusL) : '#ffffff';
+  const labColor = shape === 'Lab' ? '#888888' : '#ffffff';
 
   return (
     <group>
