@@ -8,6 +8,7 @@ import FocusLine from './FocusLine';
 import Particles from './Particles';
 import CubeWireframe from './CubeWireframe';
 import AnimatedWireframe from './AnimatedWireframe';
+import CylinderEllipses from './CylinderEllipses';
 import ColorCursor from './ColorCursor';
 import HarmonyMarkers from './HarmonyMarkers';
 import ColorBridgeLine from './ColorBridgeLine';
@@ -218,6 +219,14 @@ const Structure = (props: StructureProps) => {
             focusL={props.focusL}
           />
           <AnimatedWireframe shape={props.shape} visible={frameVisible} />
+          {props.shape === 'LCH' && (
+            <CylinderEllipses
+              shape="LCH"
+              cylinderRadius={cylinderRadius}
+              cylinderHeight={cylinderHeight}
+              visible={frameVisible}
+            />
+          )}
           <AxisIndicators shape={displayShape} focusL={props.focusL} />
           {props.shape === 'HSB' && (
             <CylindricalAxisArrows

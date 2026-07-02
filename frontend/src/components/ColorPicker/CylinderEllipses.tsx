@@ -2,7 +2,7 @@ import React from 'react';
 import * as THREE from 'three';
 import { Line } from '@react-three/drei';
 import type { StructureProps } from '../../types/structure';
-import { hslCylinderHeight, hsbCylinderHeight, lchCylinderHeight } from '../../utils/colorSpacePositions';
+import { hslCylinderHeight, hsbCylinderHeight } from '../../utils/colorSpacePositions';
 
 interface CylinderEllipsesProps extends Pick<StructureProps, 'shape'> {
   cylinderRadius: number;
@@ -164,15 +164,9 @@ const CylinderEllipses = ({
       const H_deg = ((H_rad * 180) / Math.PI + 360) % 360;
       lchMidColors.push(hsvToColor(H_deg));
     }
-    const lchAxisPoints: [number, number, number][] = [
-      [0, 0, -lchCylinderHeight / 2],
-      [0, 0, lchCylinderHeight / 2],
-    ];
-    const lchAxisColors = [new THREE.Color(0, 0, 0), new THREE.Color(1, 1, 1)];
     return (
       <group>
         <Line points={lchMidPoints} vertexColors={lchMidColors} lineWidth={1.5} />
-        <Line points={lchAxisPoints} vertexColors={lchAxisColors} lineWidth={1} />
       </group>
     );
   }

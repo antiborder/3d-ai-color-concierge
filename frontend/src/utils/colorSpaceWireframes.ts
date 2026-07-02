@@ -120,8 +120,7 @@ export function getWireframeSegments(shape: string): WireframeSegment[] {
     case 'LCH':
       return [
         ...cubeEdgeSegments(1.2),
-        hslRingSegment(1.5), // equatorial ring approximation
-        grayAxisSegment(),   // L* axis
+        grayAxisSegment(),
       ];
 
     case 'HSL':
