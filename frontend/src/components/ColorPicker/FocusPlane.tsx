@@ -32,7 +32,7 @@ function rgbToLab(r: number, g: number, b: number): [number, number, number] {
 }
 
 function labToThreePosition(L: number, a: number, bLab: number): [number, number, number] {
-  const half = STRUCTURE_SIZE / 2;
+  const half = STRUCTURE_SIZE / 2 * 1.184;
   return [
     (bLab / 100.27) * half,
     (a / 91.39) * half,

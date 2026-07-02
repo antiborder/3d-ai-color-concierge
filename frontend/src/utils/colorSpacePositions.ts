@@ -124,8 +124,8 @@ export const getLabPosition: PositionFunction = (r, g, b) => {
   const L = 116 * fy - 16;
   const a = 500 * (fx - fy);
   const bLab = 200 * (fy - fz);
-  // Scale so white/black (a*=b*=0) maps to origin; ranges from sRGB sampling.
-  const half = structureSize / 2;
+  // Scale so white/black (a*=b*=0) maps to origin; ×1.15 to match RGB cube apparent size.
+  const half = structureSize / 2 * 1.184;
   const x = (bLab / 100.27) * half;
   const y = -(a / 91.39) * half;
   const rot = Math.PI / 3; // clockwise rotation in radians (π/6 = 30°)
