@@ -15,7 +15,7 @@ import {
   getXyChromaticityPosition,
 } from '../../utils/colorSpacePositions';
 
-const DURATION = 1.5;
+const DURATION = 2.0;
 
 function easeInOut(t: number): number {
   return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
