@@ -43,6 +43,12 @@ function labToRgb(L: number, a: number, b: number): [number, number, number] {
   return [toS(rl), toS(gl), toS(bl2)];
 }
 
+// Returns true if (xVal, yVal) ∈ [0,1]² is inside the HSL-H triangle:
+// top-left=(white), bottom-left=(black), right=(pure hue at L=50,S=100)
+function inHslTriangle(xVal: number, yVal: number): boolean {
+  return yVal >= 0.5 * xVal && yVal <= 1 - 0.5 * xVal;
+}
+
 const SUPPORTED = new Set(['RGB', 'CMYK', 'HSB', 'HSL', 'Lab', 'LCH']);
 
 const TwoDPicker = (props: ControlPaneProps) => {
@@ -76,6 +82,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
       shape === 'Lab' || shape === 'LCH' ? rgbToLab(focusR, focusG, focusB) : [0, 0, 0];
 
     // ── Pixel fill ────────────────────────────────────────────────────────────
+    ctx.clearRect(0, 0, SIZE, SIZE);
     const imageData = ctx.createImageData(SIZE, SIZE);
     const d = imageData.data;
 
@@ -85,7 +92,8 @@ const TwoDPicker = (props: ControlPaneProps) => {
         const yVal = py / (SIZE - 1); // 0→1 top→bottom
         let r = 0,
           g = 0,
-          b = 0;
+          b = 0,
+          alpha = 255;
 
         if (shape === 'RGB' || shape === 'CMYK') {
           const el = shape === 'RGB' ? rgbMainElement : cmykMainElement;
@@ -124,7 +132,12 @@ const TwoDPicker = (props: ControlPaneProps) => {
           }
         } else if (shape === 'HSL') {
           if (hslMainElement === 'H') {
-            [r, g, b] = convert.hsl.rgb([focusH, xVal * 100, (1 - yVal) * 100]);
+            // Triangle picker: top-left=white, bottom-left=black, right=pure hue
+            if (inHslTriangle(xVal, yVal)) {
+              [r, g, b] = convert.hsl.rgb([focusH, xVal * 100, (1 - yVal) * 100]);
+            } else {
+              alpha = 0;
+            }
           } else if (hslMainElement === 'S') {
             [r, g, b] = convert.hsl.rgb([xVal * 360, focusS, (1 - yVal) * 100]);
           } else {
@@ -159,7 +172,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
         d[idx] = r;
         d[idx + 1] = g;
         d[idx + 2] = b;
-        d[idx + 3] = 255;
+        d[idx + 3] = alpha;
       }
     }
 
@@ -221,8 +234,17 @@ const TwoDPicker = (props: ControlPaneProps) => {
       }
     } else if (shape === 'HSL') {
       if (hslMainElement === 'H') {
+        // Clip guide lines to triangle shape
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, SIZE);
+        ctx.lineTo(SIZE, SIZE / 2);
+        ctx.closePath();
+        ctx.clip();
         line(systemColors['K'], (focusS / 100) * SIZE, 0, (focusS / 100) * SIZE, SIZE);
         line(systemColors['K'], 0, (1 - focusL / 100) * SIZE, SIZE, (1 - focusL / 100) * SIZE);
+        ctx.restore();
       } else if (hslMainElement === 'S') {
         line(systemColors['K'], (focusH / 360) * SIZE, 0, (focusH / 360) * SIZE, SIZE);
         line(systemColors['W'], 0, (1 - focusL / 100) * SIZE, SIZE, (1 - focusL / 100) * SIZE);
@@ -338,6 +360,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
         s = focusS,
         l = focusL;
       if (hslMainElement === 'H') {
+        if (!inHslTriangle(xVal, yVal)) return;
         s = xVal * 100;
         l = (1 - yVal) * 100;
       } else if (hslMainElement === 'S') {
@@ -371,6 +394,8 @@ const TwoDPicker = (props: ControlPaneProps) => {
   };
 
   if (!SUPPORTED.has(shape)) return null;
+
+  const isHslTriangle = shape === 'HSL' && props.hslMainElement === 'H';
 
   return (
     <StyledTwoDPicker>
@@ -413,9 +438,12 @@ const TwoDPicker = (props: ControlPaneProps) => {
               width: `${CSS_SIZE}px`,
               height: `${CSS_SIZE}px`,
               display: 'block',
-              border: '1px solid #000000',
+              border: isHslTriangle ? 'none' : '1px solid #000000',
               cursor: 'crosshair',
               marginTop: '8px',
+              clipPath: isHslTriangle
+                ? 'polygon(0% 0%, 0% 100%, 100% 50%)'
+                : undefined,
             }}
             onClick={handleClick}
           />

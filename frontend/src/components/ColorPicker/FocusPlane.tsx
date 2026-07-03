@@ -114,14 +114,6 @@ const FocusPlane = (props: FocusPlaneProps) => {
               />
             )}
             <group rotation={[Math.PI / 2, 0, 0]}>
-              {props.hslMainElement === 'S' && (
-                <Disc
-                  {...props}
-                  position={[0, rescaledL_hsl, 0]}
-                  radius={rescaledS * (1 - Math.abs((2 * props.focusL) / 100 - 1))}
-                  side={THREE.DoubleSide}
-                />
-              )}
               {props.hslMainElement === 'L' && (
                 <Disc
                   {...props}
@@ -151,14 +143,6 @@ const FocusPlane = (props: FocusPlaneProps) => {
               />
             )}
             <group rotation={[Math.PI / 2, 0, 0]}>
-              {props.hsbMainElement === 'S' && (
-                <Disc
-                  {...props}
-                  position={[0, rescaledV_hsb, 0]}
-                  radius={rescaledHsvS * (props.focusV / 100)}
-                  side={THREE.DoubleSide}
-                />
-              )}
               {props.hsbMainElement === 'V' && (
                 <Disc
                   {...props}
