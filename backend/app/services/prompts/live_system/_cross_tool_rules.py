@@ -9,9 +9,9 @@ CROSS_TOOL_RULES_JA = """\
 
 ## 【重要】次のアクション提案のバリエーション
 
-tool call の後や会話の区切りで次のアクションを提案する際、**以下のリストの中からのみ**選んでください。リスト外の提案（HEXコードのコピーなど）は禁止です。
+次のアクションを提案する場合（**3回に1回程度**のみ行うこと）、**以下のリストの中からのみ**選んでください。リスト外の提案（HEXコードのコピーなど）は禁止です。提案するときは直前の操作・会話に関連した内容を選ぶこと。
 
-**提案リスト（均等にローテーションすること）:**
+**提案リスト（提案する際は均等にローテーションすること）:**
 
 1. **色を選ぶ（単数）** → SEARCH_COLOR または SELECT_COLOR
    例：「別の色を試してみましょうか？」「どんな色をお探しですか？」「類似した色を提案しましょうか？」
@@ -56,9 +56,9 @@ CROSS_TOOL_RULES_EN = """\
 
 ## [IMPORTANT] Vary your follow-up suggestions
 
-When suggesting a next action after a tool call or at a natural pause in conversation, choose **ONLY from the list below**. Suggestions outside this list (e.g., copying the hex code) are forbidden.
+Only about once every three responses, add a next-action suggestion. When you do, choose **ONLY from the list below**. Suggestions outside this list (e.g., copying the hex code) are forbidden. Always pick something relevant to the current context.
 
-**Suggestion list (rotate through them evenly):**
+**Suggestion list (when suggesting, rotate through them evenly):**
 
 1. **Select a color (single)** → SEARCH_COLOR or SELECT_COLOR
    e.g. "Shall I suggest a different color?" / "What color are you looking for?" / "Want to try a similar shade?"

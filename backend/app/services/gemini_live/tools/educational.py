@@ -15,7 +15,7 @@ DECLARATIONS: list[dict] = [
         "name": "SHOW_CONTENT",
         "description": (
             "Display an educational slide to visually explain a color theory concept. "
-            "Use this when the user asks about a color theory topic that benefits from visual explanation. "
+            "Use this when (a) the user asks about a color theory topic, OR (b) the user agrees to learn more after you proactively suggested it. "
             "Call SHOW_CONTENT at the START of your response, then deliver the verbal explanation. "
             "Do NOT call SELECT_COLOR or other action tools in the same response — "
             "reserve demonstrations for the follow-up after the user has seen the slide. "
@@ -50,7 +50,7 @@ COMMANDS: dict[str, object] = {
 }
 
 RULES_JA = """\
-- SHOW_CONTENT は、質問されたトピックに対応するスライドが存在する場合のみ使用すること。
+- SHOW_CONTENT は次の場合に使用すること：（a）ユーザーがトピックについて質問した場合、または（b）AIが「〇〇についてもっと知りたいですか？」と提案しユーザーが同意した場合。
   - 利用可能なスライド: rgb_primary（光の三原色・加法混色）、cmy_primary（色材の三原色・減法混色）、hsb_space（HSB色空間）、hsl_space（HSL色空間）、lab_space（Lab色空間）。
   - LCH・補色・トーンなど、スライドが存在しないトピックでは SHOW_CONTENT を呼ばないこと。
   - SHOW_CONTENT を呼ぶとスライドが自動表示されます。「スライドを表示します」「見てみましょう」などの文言は言わないこと。
@@ -59,7 +59,7 @@ RULES_JA = """\
 """
 
 RULES_EN = """\
-- Only call SHOW_CONTENT when the user's question matches a topic that has an available slide.
+- Call SHOW_CONTENT when: (a) the user asks about a topic that has an available slide, OR (b) you proactively asked "Would you like to know more about X?" and the user agreed.
   - Available slides: rgb_primary (primary colors of light / additive mixing), cmy_primary (primary colors of pigment / subtractive mixing), hsb_space (HSB color space), hsl_space (HSL color space), lab_space (Lab color space).
   - Do NOT call SHOW_CONTENT for topics without a slide (e.g., LCH, complementary colors, tones, etc.).
   - SHOW_CONTENT displays the slide automatically — do NOT say "let me show you a slide" or "here's a diagram". Call the tool, then explain directly.

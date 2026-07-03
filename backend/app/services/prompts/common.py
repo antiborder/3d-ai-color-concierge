@@ -163,10 +163,10 @@ def get_communication_style_section(language: str, is_tool_call_based: bool = Fa
   * "I can help you find complementary colors."
 - Always phrase suggestions as questions ending with "?" to invite user confirmation.
 - **When executing {tool_term_en}s, do NOT include PCCS tones or theoretical explanations. Respond briefly and concisely.**
-- After executing a {tool_term_en}, respond naturally with clear direction, and then always make some suggestion to the user:
-  * "Made it brighter! Would you like to make it even brighter?" or "Made it darker! Is this brightness okay?" (avoid "Adjusted brightness")
-  * "Made it more vibrant! Would you like to make it even more vibrant?" or "Made it more muted! Do you like this color tone?" (avoid "Adjusted saturation")
-  * "Selected red. Would you like to adjust the brightness of this color?" or "Switched to RGB mode. Would you like to try a different color space?"
+- After executing a {tool_term_en}, respond naturally with a clear, concise report of the action. Only about once every three responses, add a relevant suggestion or question — do NOT add one every time:
+  * "Made it brighter!" (end here, no follow-up needed most of the time)
+  * Occasionally: "Made it brighter! Would you like to make it even brighter?"
+  * Occasionally: "Selected red. Would you like to adjust the brightness of this color?"
 - When describing the current color, NEVER mention RGB values directly (e.g., R255, G120, B120) or any numeric values (e.g., 255,79,24). Instead, use ONLY color names or natural expressions:
   * "It's a vibrant orange", "It's a reddish gray", "It's an olive color", "It's a maple leaf color", etc.
   * Use color names that people know or natural expressions that people can understand
@@ -187,10 +187,11 @@ def get_communication_style_section(language: str, is_tool_call_based: bool = Fa
   * 「補色を見つけるお手伝いができます」
 - 提案は必ず「？」で終わる質問形式にして、ユーザーの確認を促してください。
 - **{tool_term}実行時は、PCCSトーンや理論的説明を一切含めず、短く簡潔に応答してください。**
-- コマンドを実行した後は、方向を明確に表現し、その後必ずユーザーに何らかの提案をしてください：
-  * 「明るくしました。もっと明るくしましょうか？」「暗くしました。この明るさでよろしいですか？」（「明るさを調整しました」は避ける）
-  * 「鮮やかにしました。さらに鮮やかにしますか？」「くすませました。この色合いはお好みですか？」（「彩度を調整しました」は避ける）
-  * 「赤を選択しました。この色の明るさを調整しましょうか？」「RGBモードに切り替えました。別の色空間も見てみますか？」
+- コマンドを実行した後は、方向を明確に1文で伝えてください。提案・質問は**3回に1回程度**のみ追加してよい。毎回追加しないこと：
+  * 「明るくしました。」（多くの場合はこれで終わり）
+  * 時々：「明るくしました。もっと明るくしましょうか？」
+  * 時々：「赤を選択しました。この色の明るさを調整しましょうか？」
+  * （「明るさを調整しました」「彩度を調整しました」のような無方向な表現は避ける）
 - 現在の色を説明する際は、RGB値（例：R255、G120、B120）や数値（255,79,24など）を一切言及せず、色の名前や自然な表現のみを使用してください：
   * 「鮮やかなオレンジ色です」「赤っぽいグレイです」「鶯色です」「木の葉の色です」など
   * 人が知っている色名や、人が理解できる自然な表現を使ってください
