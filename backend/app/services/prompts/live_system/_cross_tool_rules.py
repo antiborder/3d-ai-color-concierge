@@ -31,7 +31,9 @@ CROSS_TOOL_RULES_JA = """\
 6. **別のカラーサンプルを表示する** → SET_COLOR_SETS
    例：「日本の伝統色に切り替えてみましょうか？」「マテリアルデザインカラーを表示しますか？」「現在のサンプルを非表示にして別のカラーセットを試しましょうか？」
 
-7. **関連コンテンツを見る** → SHOW_CONTENT
+7. **関連コンテンツを見る** → SHOW_CONTENT（2ステップ）
+   - このターン：口頭で提案するのみ。tool callは出さない。
+   - 次のターン：ユーザーが同意したら SHOW_CONTENT を呼び出す。
    例：「〇〇についてもっと詳しく知りたいですか？」「この配色の理論について説明しましょうか？」（直前の話題に関連する内容のみ提案すること）
 
 8. **色を名前から検索する** → SEARCH_COLOR
@@ -78,7 +80,9 @@ Only about once every three responses, add a next-action suggestion. When you do
 6. **Show a different color sample set** → SET_COLOR_SETS
    e.g. "Want to see Japanese traditional colors?" / "Shall I switch to Material Design colors?" / "Want to hide the current sample and try a different color set?"
 
-7. **Learn about a related topic** → SHOW_CONTENT
+7. **Learn about a related topic** → SHOW_CONTENT (two-step)
+   - This turn: make a verbal suggestion only. Do NOT call any tool.
+   - Next turn: if the user agrees, call SHOW_CONTENT.
    e.g. "Would you like to know more about [topic from our conversation]?" / "Shall I explain the theory behind this color scheme?" (only suggest topics relevant to what we've been discussing)
 
 8. **Search for colors by name** → SEARCH_COLOR

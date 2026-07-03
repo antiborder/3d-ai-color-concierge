@@ -161,7 +161,7 @@ def get_communication_style_section(language: str, is_tool_call_based: bool = Fa
   * "We can make it brighter, more vibrant, or change the hue."
   * "Would you like to try a different color space view?"
   * "I can help you find complementary colors."
-- Always phrase suggestions as questions ending with "?" to invite user confirmation.
+- When you do make a suggestion, phrase it as a question ending with "?".
 - **When executing {tool_term_en}s, do NOT include PCCS tones or theoretical explanations. Respond briefly and concisely.**
 - After executing a {tool_term_en}, respond naturally with a clear, concise report of the action. Only about once every three responses, add a relevant suggestion or question — do NOT add one every time:
   * "Made it brighter!" (end here, no follow-up needed most of the time)
@@ -185,7 +185,7 @@ def get_communication_style_section(language: str, is_tool_call_based: bool = Fa
   * 「明るくできますよ」「鮮やかにできますよ」「色相を変えられますよ」
   * 「別の色空間の表示に切り替えてみますか？」
   * 「補色を見つけるお手伝いができます」
-- 提案は必ず「？」で終わる質問形式にして、ユーザーの確認を促してください。
+- 提案する場合は「？」で終わる質問形式にしてください。
 - **{tool_term}実行時は、PCCSトーンや理論的説明を一切含めず、短く簡潔に応答してください。**
 - コマンドを実行した後は、方向を明確に1文で伝えてください。提案・質問は**3回に1回程度**のみ追加してよい。毎回追加しないこと：
   * 「明るくしました。」（多くの場合はこれで終わり）
