@@ -77,7 +77,6 @@ const FocusPlane = (props: FocusPlaneProps) => {
     props.focusS,
     props.focusL
   );
-  const rescaledHsvS = props.rescaleHsl(props.focusH, props.focusHsvS, props.focusV)[1];
   const rescaledV = props.rescaleHsl(props.focusH, props.focusHsvS, props.focusV)[2];
 
   return (

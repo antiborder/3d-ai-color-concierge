@@ -43,10 +43,14 @@ function labToRgb(L: number, a: number, b: number): [number, number, number] {
   return [toS(rl), toS(gl), toS(bl2)];
 }
 
-// Returns true if (xVal, yVal) ∈ [0,1]² is inside the HSL-H triangle:
-// top-left=(white), bottom-left=(black), right=(pure hue at L=50,S=100)
+// HSL-H triangle: top-left=white, bottom-left=black, right=pure hue (L=50,S=100)
 function inHslTriangle(xVal: number, yVal: number): boolean {
   return yVal >= 0.5 * xVal && yVal <= 1 - 0.5 * xVal;
+}
+
+// HSB-H triangle (upper-left half): top-left=white, top-right=pure hue, bottom-left=black
+function inHsbTriangle(xVal: number, yVal: number): boolean {
+  return xVal + yVal <= 1;
 }
 
 const SUPPORTED = new Set(['RGB', 'CMYK', 'HSB', 'HSL', 'Lab', 'LCH']);
@@ -112,7 +116,11 @@ const TwoDPicker = (props: ControlPaneProps) => {
           }
         } else if (shape === 'HSB') {
           if (hsbMainElement === 'H') {
-            [r, g, b] = convert.hsv.rgb([focusH, xVal * 100, (1 - yVal) * 100]);
+            if (inHsbTriangle(xVal, yVal)) {
+              [r, g, b] = convert.hsv.rgb([focusH, xVal * 100, (1 - yVal) * 100]);
+            } else {
+              alpha = 0;
+            }
           } else if (hsbMainElement === 'S') {
             [r, g, b] = convert.hsv.rgb([xVal * 360, focusHsvS, (1 - yVal) * 100]);
           } else {
@@ -212,8 +220,16 @@ const TwoDPicker = (props: ControlPaneProps) => {
       line(hCol, 0, hY, SIZE, hY);
     } else if (shape === 'HSB') {
       if (hsbMainElement === 'H') {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(SIZE, 0);
+        ctx.lineTo(0, SIZE);
+        ctx.closePath();
+        ctx.clip();
         line(systemColors['K'], (focusHsvS / 100) * SIZE, 0, (focusHsvS / 100) * SIZE, SIZE);
         line(systemColors['K'], 0, (1 - focusV / 100) * SIZE, SIZE, (1 - focusV / 100) * SIZE);
+        ctx.restore();
       } else if (hsbMainElement === 'S') {
         line(systemColors['K'], (focusH / 360) * SIZE, 0, (focusH / 360) * SIZE, SIZE);
         line(systemColors['W'], 0, (1 - focusV / 100) * SIZE, SIZE, (1 - focusV / 100) * SIZE);
@@ -339,6 +355,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
         s = focusHsvS,
         v = focusV;
       if (hsbMainElement === 'H') {
+        if (!inHsbTriangle(xVal, yVal)) return;
         s = xVal * 100;
         v = (1 - yVal) * 100;
       } else if (hsbMainElement === 'S') {
@@ -396,6 +413,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
   if (!SUPPORTED.has(shape)) return null;
 
   const isHslTriangle = shape === 'HSL' && props.hslMainElement === 'H';
+  const isHsbTriangle = shape === 'HSB' && props.hsbMainElement === 'H';
 
   return (
     <StyledTwoDPicker>
@@ -438,12 +456,14 @@ const TwoDPicker = (props: ControlPaneProps) => {
               width: `${CSS_SIZE}px`,
               height: `${CSS_SIZE}px`,
               display: 'block',
-              border: isHslTriangle ? 'none' : '1px solid #000000',
+              border: (isHslTriangle || isHsbTriangle) ? 'none' : '1px solid #000000',
               cursor: 'crosshair',
               marginTop: '8px',
               clipPath: isHslTriangle
                 ? 'polygon(0% 0%, 0% 100%, 100% 50%)'
-                : undefined,
+                : isHsbTriangle
+                  ? 'polygon(0% 0%, 100% 0%, 0% 100%)'
+                  : undefined,
             }}
             onClick={handleClick}
           />
