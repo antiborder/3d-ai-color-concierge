@@ -43,6 +43,20 @@ function labToRgb(L: number, a: number, b: number): [number, number, number] {
   return [toS(rl), toS(gl), toS(bl2)];
 }
 
+function labInGamut(L: number, a: number, b: number): boolean {
+  const fy = (L + 16) / 116,
+    fx = a / 500 + fy,
+    fz = fy - b / 200;
+  const fInv = (t: number) => (t > 0.008856 ? t * t * t : (t - 16 / 116) / 7.787);
+  const X = fInv(fx) * 0.95047,
+    Y = fInv(fy),
+    Z = fInv(fz) * 1.08883;
+  const rl = X * 3.2404542 - Y * 1.5371385 - Z * 0.4985314;
+  const gl = -X * 0.969266 + Y * 1.8760108 + Z * 0.041556;
+  const bl2 = X * 0.0556434 - Y * 0.2040259 + Z * 1.0572252;
+  return rl >= 0 && rl <= 1 && gl >= 0 && gl <= 1 && bl2 >= 0 && bl2 <= 1;
+}
+
 // HSL-H triangle: top-left=white, bottom-left=black, right=pure hue (L=50,S=100)
 function inHslTriangle(xVal: number, yVal: number): boolean {
   return yVal >= 0.5 * xVal && yVal <= 1 - 0.5 * xVal;
@@ -71,6 +85,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
       cmykMainElement,
       hsbMainElement,
       hslMainElement,
+      labMainElement,
       focusR,
       focusG,
       focusB,
@@ -164,10 +179,22 @@ const TwoDPicker = (props: ControlPaneProps) => {
             }
           }
         } else if (shape === 'Lab') {
-          // x: a axis (-128 → 127), y: b axis (127 top → -128 bottom)
-          const aVal = -128 + xVal * 255;
-          const bVal = 127 - yVal * 255;
-          [r, g, b] = labToRgb(labFixedL, aVal, bVal);
+          if (labMainElement === 'a') {
+            const bVal = -128 + xVal * 255;
+            const LVal = (1 - yVal) * 100;
+            if (!labInGamut(LVal, labCurrentA, bVal)) { alpha = 0; }
+            else { [r, g, b] = labToRgb(LVal, labCurrentA, bVal); }
+          } else if (labMainElement === 'b') {
+            const aVal = -128 + xVal * 255;
+            const LVal = (1 - yVal) * 100;
+            if (!labInGamut(LVal, aVal, labCurrentB)) { alpha = 0; }
+            else { [r, g, b] = labToRgb(LVal, aVal, labCurrentB); }
+          } else {
+            const aVal = -128 + xVal * 255;
+            const bVal = 127 - yVal * 255;
+            if (!labInGamut(labFixedL, aVal, bVal)) { alpha = 0; }
+            else { [r, g, b] = labToRgb(labFixedL, aVal, bVal); }
+          }
         } else if (shape === 'LCH') {
           // x: H (0→360), y: C (LCH_MAX_C top → 0 bottom)
           const H = xVal * 360;
@@ -280,11 +307,25 @@ const TwoDPicker = (props: ControlPaneProps) => {
         ctx.stroke();
       }
     } else if (shape === 'Lab') {
-      // Vertical = current a, horizontal = current b
-      const vX = ((labCurrentA + 128) / 255) * SIZE;
-      const hY = ((127 - labCurrentB) / 255) * SIZE;
-      line(systemColors['K'], vX, 0, vX, SIZE);
-      line(systemColors['W'], 0, hY, SIZE, hY);
+      if (labMainElement === 'a') {
+        // a fixed: x=b, y=L
+        const vX = ((labCurrentB + 128) / 255) * SIZE;
+        const hY = (1 - labFixedL / 100) * SIZE;
+        line(systemColors['K'], vX, 0, vX, SIZE);
+        line(systemColors['W'], 0, hY, SIZE, hY);
+      } else if (labMainElement === 'b') {
+        // b fixed: x=a, y=L
+        const vX = ((labCurrentA + 128) / 255) * SIZE;
+        const hY = (1 - labFixedL / 100) * SIZE;
+        line(systemColors['K'], vX, 0, vX, SIZE);
+        line(systemColors['W'], 0, hY, SIZE, hY);
+      } else {
+        // L fixed: x=a, y=b
+        const vX = ((labCurrentA + 128) / 255) * SIZE;
+        const hY = ((127 - labCurrentB) / 255) * SIZE;
+        line(systemColors['K'], vX, 0, vX, SIZE);
+        line(systemColors['W'], 0, hY, SIZE, hY);
+      }
     } else if (shape === 'LCH') {
       const labCurrentC = Math.sqrt(labCurrentA * labCurrentA + labCurrentB * labCurrentB);
       const labCurrentH = ((Math.atan2(labCurrentB, labCurrentA) * 180) / Math.PI + 360) % 360;
@@ -299,6 +340,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
     props.cmykMainElement,
     props.hsbMainElement,
     props.hslMainElement,
+    props.labMainElement,
     props.focusR,
     props.focusG,
     props.focusB,
@@ -324,6 +366,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
       cmykMainElement,
       hsbMainElement,
       hslMainElement,
+      labMainElement,
       focusR,
       focusG,
       focusB,
@@ -395,10 +438,24 @@ const TwoDPicker = (props: ControlPaneProps) => {
       const [r, g, b] = convert.hsl.rgb([h, s, l]);
       props.handleClick(r, g, b);
     } else if (shape === 'Lab') {
-      const [fixedL] = rgbToLab(focusR, focusG, focusB);
-      const aVal = -128 + xVal * 255;
-      const bVal = 127 - yVal * 255;
-      const [r, g, b] = labToRgb(fixedL, aVal, bVal);
+      const [fixedL, fixedA, fixedB] = rgbToLab(focusR, focusG, focusB);
+      let r: number, g: number, b: number;
+      if (labMainElement === 'a') {
+        const bVal = -128 + xVal * 255;
+        const LVal = (1 - yVal) * 100;
+        if (!labInGamut(LVal, fixedA, bVal)) return;
+        [r, g, b] = labToRgb(LVal, fixedA, bVal);
+      } else if (labMainElement === 'b') {
+        const aVal = -128 + xVal * 255;
+        const LVal = (1 - yVal) * 100;
+        if (!labInGamut(LVal, aVal, fixedB)) return;
+        [r, g, b] = labToRgb(LVal, aVal, fixedB);
+      } else {
+        const aVal = -128 + xVal * 255;
+        const bVal = 127 - yVal * 255;
+        if (!labInGamut(fixedL, aVal, bVal)) return;
+        [r, g, b] = labToRgb(fixedL, aVal, bVal);
+      }
       props.handleClick(r, g, b);
     } else if (shape === 'LCH') {
       const [fixedL] = rgbToLab(focusR, focusG, focusB);
@@ -414,6 +471,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
 
   const isHslTriangle = shape === 'HSL' && props.hslMainElement === 'H';
   const isHsbTriangle = shape === 'HSB' && props.hsbMainElement === 'H';
+  const isLabGamut = shape === 'Lab';
 
   return (
     <StyledTwoDPicker>
@@ -456,7 +514,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
               width: `${CSS_SIZE}px`,
               height: `${CSS_SIZE}px`,
               display: 'block',
-              border: (isHslTriangle || isHsbTriangle) ? 'none' : '1px solid #000000',
+              border: (isHslTriangle || isHsbTriangle || isLabGamut) ? 'none' : '1px solid #000000',
               cursor: 'crosshair',
               marginTop: '8px',
               clipPath: isHslTriangle

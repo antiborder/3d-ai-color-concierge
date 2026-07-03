@@ -67,6 +67,7 @@ function App() {
     setCmykMainElement,
     setHslMainElement,
     setHsvMainElement,
+    setLabMainElement,
     toggleLabel,
     setHexInput,
     adjustHslValue,
@@ -289,6 +290,7 @@ function App() {
     cmykMainElement: colorState.cmykMainElement,
     hslMainElement: colorState.hslMainElement,
     hsbMainElement: colorState.hsbMainElement,
+    labMainElement: colorState.labMainElement,
   };
 
   const colorHandlers = {
@@ -304,6 +306,7 @@ function App() {
     setCmykMainElement,
     setHslMainElement,
     setHsvMainElement,
+    setLabMainElement,
     setFocusR: (v: number) => updateRgbValue('R', v),
     setFocusG: (v: number) => updateRgbValue('G', v),
     setFocusB: (v: number) => updateRgbValue('B', v),

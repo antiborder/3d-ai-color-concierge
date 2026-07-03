@@ -199,6 +199,12 @@ export const useColorState = () => {
     []
   );
 
+  const setLabMainElement = useCallback(
+    (element: 'L' | 'a' | 'b') =>
+      setColorState((p) => applyShapeAndElement(p, 'Lab', 'labMainElement', element)),
+    []
+  );
+
   const toggleLabel = useCallback(() => {
     setColorState((prev) => ({ ...prev, isLabelShown: !prev.isLabelShown }));
   }, []);
@@ -271,6 +277,7 @@ export const useColorState = () => {
     setCmykMainElement,
     setHslMainElement,
     setHsvMainElement,
+    setLabMainElement,
     toggleLabel,
     setHexInput,
     adjustHslValue,

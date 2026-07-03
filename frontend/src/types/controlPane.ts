@@ -26,6 +26,7 @@ export interface ControlPaneProps extends BridgeProps {
   cmykMainElement: 'C' | 'M' | 'Y' | 'K';
   hslMainElement: 'H' | 'S' | 'L';
   hsbMainElement: 'H' | 'S' | 'V';
+  labMainElement: 'L' | 'a' | 'b';
 
   // Hex input
   hexInput: string;
@@ -50,6 +51,7 @@ export interface ControlPaneProps extends BridgeProps {
   setCmykMainElement: (symbol: 'C' | 'M' | 'Y' | 'K') => void;
   setHslMainElement: (symbol: 'H' | 'S' | 'L') => void;
   setHsvMainElement: (symbol: 'H' | 'S' | 'V') => void;
+  setLabMainElement: (symbol: 'L' | 'a' | 'b') => void;
   setFocusR: (value: number) => void;
   setFocusG: (value: number) => void;
   setFocusB: (value: number) => void;

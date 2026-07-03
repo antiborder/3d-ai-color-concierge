@@ -33,6 +33,7 @@ export interface ColorState {
   cmykMainElement: 'C' | 'M' | 'Y' | 'K';
   hslMainElement: 'H' | 'S' | 'L';
   hsbMainElement: 'H' | 'S' | 'V';
+  labMainElement: 'L' | 'a' | 'b';
 
   // Hex input
   hexInput: string;
@@ -156,6 +157,7 @@ function generateRandomInitialColorState(): ColorState {
     cmykMainElement: cmykMainElements[Math.floor(Math.random() * cmykMainElements.length)],
     hslMainElement: hslMainElements[Math.floor(Math.random() * hslMainElements.length)],
     hsbMainElement: hsbMainElements[Math.floor(Math.random() * hsbMainElements.length)],
+    labMainElement: 'L',
     hexInput: allFormats.hex.toUpperCase(),
     isLabelShown: false,
   };
