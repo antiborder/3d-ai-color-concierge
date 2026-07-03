@@ -279,7 +279,7 @@ const CubeWireframe = ({ shape, structureSize, visible, labBoxSize, focusL = 50 
     // sRGB parallelepiped fits inside this cube
     const s = structureSize;
     const bv = (xn: number, yn: number, zn: number): [number, number, number] =>
-      new THREE.Vector3(-(xn - 0.5) * s, (yn - 0.5) * s, (zn - 0.5) * s)
+      new THREE.Vector3(-(xn - 0.5) * s, -(yn - 0.5) * s, (zn - 0.5) * s)
         .applyQuaternion(XYZ_ROT)
         .toArray() as [number, number, number];
     const [b000, b100, b010, b001, b110, b101, b011, b111] = [

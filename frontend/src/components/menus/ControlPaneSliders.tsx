@@ -27,13 +27,6 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
           panelShape={'CMYK'}
         />
         {props.shape === 'CMYK' && <TwoDPicker {...props} />}
-        <HsbSliders
-          {...props}
-          mainElement={props.hsbMainElement}
-          setMainElement={props.setHsvMainElement}
-          panelShape={'HSB'}
-        />
-        {props.shape === 'HSB' && <TwoDPicker {...props} />}
         <HslSliders
           {...props}
           mainElement={props.hslMainElement}
@@ -41,6 +34,13 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
           panelShape={'HSL'}
         />
         {props.shape === 'HSL' && <TwoDPicker {...props} />}
+        <HsbSliders
+          {...props}
+          mainElement={props.hsbMainElement}
+          setMainElement={props.setHsvMainElement}
+          panelShape={'HSB'}
+        />
+        {props.shape === 'HSB' && <TwoDPicker {...props} />}
       </SlidersSection>
     </PanelShell>
   );

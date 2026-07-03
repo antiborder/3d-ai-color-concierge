@@ -55,7 +55,7 @@ const CMY_ARROWS: AxisDef[] = [
 const LAB_ARROWS: AxisDef[] = [
   { dir: [0, 0, 1], label: 'L' },
   { dir: [-Math.sin(Math.PI / 3), -Math.cos(Math.PI / 3), 0], label: 'a' },
-  { dir: [Math.cos(Math.PI / 3), -Math.sin(Math.PI / 3), 0], label: 'b' },
+  { dir: [-Math.cos(Math.PI / 3), Math.sin(Math.PI / 3), 0], label: 'b' },
 ];
 const XYZ_ARROWS: AxisDef[] = [
   { dir: rv(-1, 0, 0), label: 'X' },
