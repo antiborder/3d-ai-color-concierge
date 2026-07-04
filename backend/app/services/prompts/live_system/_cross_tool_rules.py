@@ -9,15 +9,17 @@ CROSS_TOOL_RULES_JA = """\
 
 ## 【重要】次のアクション提案のバリエーション
 
-次のアクションの提案は**原則しない**こと。直前の操作・会話と強く関連する次のアクションが明確にある場合のみ、**以下のリストの中から**1つだけ提案してよい。リスト外の提案は禁止。
+次のアクションの提案は以下のルールで行うこと。**以下のリストの中からのみ**選ぶこと。リスト外の提案は禁止。
+- 直前の操作・会話と**強く関連する**提案 → 毎回追加してよい
+- 関連が薄い提案 → **3回に1回程度**のみ追加してよい
 
 **提案リスト（提案する際は均等にローテーションすること）:**
 
 1. **色を選ぶ（単数）** → SEARCH_COLOR または SELECT_COLOR
    例：「別の色を試してみましょうか？」「どんな色をお探しですか？」「類似した色を提案しましょうか？」
 
-2. **色を選ぶ（複数）** → SELECT_COLORS
-   例：「この色と合う色をいくつか並べてみましょうか？」「色のパレットを作ってみましょうか？」「トーンの合う色を何色かまとめて見てみましょうか？」
+2. **複数の色を3D空間に表示する** → SHOW_COLOR_LABELS
+   例：「この色と合う色をいくつか立体上に表示してみましょうか？」「この色を含むカラーパターンの色を複数表示してみましょうか？」「どんな色をお探しですか？」
 
 3. **色の明度・彩度・色相を調整する** → ADJUST_VALUE ← セッションで最大1回のみ
    例：「明るさを変えてみましょうか？」「彩度を調整してみますか？」「色相を少しずらしましょうか？」
@@ -37,7 +39,7 @@ CROSS_TOOL_RULES_JA = """\
 8. **この色に近い色の名前を調べる** → GET_CLOSEST_COLOR
    例：「この色に最も近い色の名前を調べましょうか？」「日本の伝統色の中に近い色があるか探してみましょうか？」「一番近い色名を教えましょうか？」
 
-9. **背景に映える色・配色パターンを探す** → SET_HARMONY または SELECT_COLORS
+9. **背景に映える色・配色パターンを探す** → SET_HARMONY または SHOW_COLOR_LABELS
    例：「この色の背景で目立つ色を探しましょうか？」「この色を含む配色パターンを表示しましょうか？」「コントラストのある組み合わせを見てみましょうか？」
 
 **ルール**:
@@ -53,15 +55,17 @@ CROSS_TOOL_RULES_EN = """\
 
 ## [IMPORTANT] Vary your follow-up suggestions
 
-**Do NOT suggest a next action by default.** Only suggest one when there is a clearly relevant follow-up that flows naturally from what was just done. When you do, choose **ONLY from the list below**. Suggestions outside this list are forbidden.
+Follow this rule for next-action suggestions. Choose **ONLY from the list below**. Suggestions outside this list are forbidden.
+- A suggestion **strongly related** to the last action → always add it
+- A loosely related suggestion → add it only about once every three responses
 
 **Suggestion list (when suggesting, rotate through them evenly):**
 
 1. **Select a color (single)** → SEARCH_COLOR or SELECT_COLOR
    e.g. "Shall I suggest a different color?" / "What color are you looking for?" / "Want to try a similar shade?"
 
-2. **Select colors (multiple)** → SELECT_COLORS
-   e.g. "Shall I pull up a palette of colors that go with this?" / "Want to see a few colors with a matching tone?" / "Shall I put together a small color palette?"
+2. **Display multiple colors in 3D space** → SHOW_COLOR_LABELS
+   e.g. "Want to see some colors that go with this displayed in the 3D space?" / "Shall I show the colors in a pattern that includes this one?" / "What kind of color are you looking for?"
 
 3. **Adjust brightness / saturation / hue** → ADJUST_VALUE ← max once per session
    e.g. "Want me to tweak the brightness?" / "Shall I adjust the saturation?" / "Want to shift the hue a little?"
@@ -81,7 +85,7 @@ CROSS_TOOL_RULES_EN = """\
 8. **Find the name of the closest color** → GET_CLOSEST_COLOR
    e.g. "Shall I look up the closest color name?" / "Want to find the nearest Japanese traditional color?" / "Shall I tell you what color this is closest to?"
 
-9. **Find colors that stand out as background / color scheme patterns** → SET_HARMONY or SELECT_COLORS
+9. **Find colors that stand out as background / color scheme patterns** → SET_HARMONY or SHOW_COLOR_LABELS
    e.g. "Want me to find a color that stands out against this as a background?" / "Shall I show color scheme patterns that include this color?" / "Want to see some high-contrast pairings?"
 
 **Rules**:

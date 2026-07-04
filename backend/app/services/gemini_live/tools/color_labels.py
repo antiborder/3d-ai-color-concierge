@@ -1,14 +1,14 @@
-"""SELECT_COLORS — 複数のDBカラーを選択してhistoryに追加し、3D空間にラベル表示するツール。"""
+"""SHOW_COLOR_LABELS — 複数のDBカラーをhistoryに追加し、3D空間にラベル表示するツール（背景・フォーカスは変えない）。"""
 
 from __future__ import annotations
 
 DECLARATIONS: list[dict] = [
     {
-        "name": "SELECT_COLORS",
+        "name": "SHOW_COLOR_LABELS",
         "description": (
-            "Select up to 12 colors from the database and display them as labeled markers "
-            "in the 3D color space. All selected colors are added to the color history. "
-            "The focus sphere moves to the last color in the list. "
+            "Display up to 12 colors as labeled markers in the 3D color space. "
+            "All colors are added to the color history. "
+            "The current background color and focus position do NOT change. "
             "IMPORTANT: You must ONLY use colors that exist in the color database. "
             "Before calling this tool, always call SEARCH_COLOR to find the actual registered "
             "colors and their exact names. Use the RGB values and name (name1 or name2) returned "
@@ -52,7 +52,7 @@ DECLARATIONS: list[dict] = [
 ]
 
 
-def _select_colors(args: dict) -> dict:
+def _show_color_labels(args: dict) -> dict:
     colors = args.get("colors", [])
     clamped = [
         {
@@ -67,24 +67,24 @@ def _select_colors(args: dict) -> dict:
 
 
 COMMANDS: dict[str, object] = {
-    "SELECT_COLORS": _select_colors,
+    "SHOW_COLOR_LABELS": _show_color_labels,
 }
 
 RULES_JA = """\
-- **SELECT_COLORS を積極的に使用してください**。以下の場面では必ず呼び出すこと：
+- **SHOW_COLOR_LABELS を積極的に使用してください**。以下の場面では必ず呼び出すこと：
   - 三原色・原色を説明するとき
   - 近隣色・類似色を提示するとき
   - トンマナが合う色・配色セットを提案するとき
   - 合わせる背景色・文字色を提案するとき
   - 対照的な色・補色を具体的なラベル付きで示すとき（SET_HARMONY との併用も可）
   - 彩度や明度を上げた/下げた色のバリエーションを比較するとき
-  - **必須ルール — SEARCH_COLOR を先に呼ぶこと**：SELECT_COLORS に渡す色は必ずカラーデータベースに登録されているものだけ使用すること。RGB値もラベルも SEARCH_COLOR が返した結果（name1 または name2）をそのまま使い、自分で作った色名や RGB 値は絶対に使わないこと。
-  - 選択された全ての色がhistoryに追加され、最後の色にfocus sphereが移動します。
+  - **必須ルール — SEARCH_COLOR を先に呼ぶこと**：SHOW_COLOR_LABELS に渡す色は必ずカラーデータベースに登録されているものだけ使用すること。RGB値もラベルも SEARCH_COLOR が返した結果（name1 または name2）をそのまま使い、自分で作った色名や RGB 値は絶対に使わないこと。
+  - 表示された色は全てhistoryに追加されます。背景色・フォーカス位置は変わりません。
   - 説明が終わったら必ず colors=[] でクリアしてください。最大12色まで。\
 """
 
 RULES_EN = """\
-- **Use SELECT_COLORS proactively** in these situations:
+- **Use SHOW_COLOR_LABELS proactively** in these situations:
   - Explaining primary colors or color basics
   - Showing neighboring or analogous colors
   - Suggesting tone-matching color palettes
@@ -92,6 +92,6 @@ RULES_EN = """\
   - Demonstrating contrasting or complementary colors with labels (can combine with SET_HARMONY)
   - Comparing saturation or brightness variations of a color
   - **REQUIRED: always call SEARCH_COLOR first** — only use colors that exist in the database. Use the exact RGB values and name (name1 or name2) returned by SEARCH_COLOR. Never invent RGB values or create new label names.
-  - All selected colors are added to history; the focus sphere moves to the last color.
+  - All displayed colors are added to history. The background color and focus position do NOT change.
   - Always clear labels with colors=[] when the explanation is finished. Maximum 12 colors.\
 """

@@ -261,7 +261,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
       break;
     }
 
-    case 'SELECT_COLORS': {
+    case 'SHOW_COLOR_LABELS': {
       const colors = (command.parameters.colors ?? []) as AiColorLabel[];
       const seen = new Set<string>();
       const deduped = colors.filter(({ r, g, b }) => {
@@ -275,10 +275,6 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
         handlers.setAiColorLabels([]);
       } else {
         handlers.addAllColorsToHistory(clamped);
-        const last = clamped[clamped.length - 1];
-        // Camera does NOT rotate — we want all label spheres to remain visible
-        // in the current view. Focus still moves to the last color.
-        handlers.updateFromRgb(last.r, last.g, last.b);
         handlers.setAiColorLabels(clamped);
       }
       break;

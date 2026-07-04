@@ -21,7 +21,7 @@ export interface Command {
     | 'SELECT_BRIDGE_POSITION'
     | 'SHOW_CONTENT'
     | 'DISMISS_CONTENT'
-    | 'SELECT_COLORS';
+    | 'SHOW_COLOR_LABELS';
   parameters: Record<string, unknown>;
 }
 
