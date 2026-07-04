@@ -285,7 +285,9 @@ const TwoDPicker = (props: ControlPaneProps) => {
         ctx.lineTo(SIZE, SIZE / 2);
         ctx.closePath();
         ctx.clip();
-        line(systemColors['K'], (focusS / 100) * SIZE, 0, (focusS / 100) * SIZE, SIZE);
+        const xS = (focusS / 100) * SIZE;
+        line(systemColors['K'], 0, 0, xS, SIZE / 2);        // white → L=50 bend
+        line(systemColors['K'], xS, SIZE / 2, 0, SIZE);     // L=50 bend → black
         line(systemColors['K'], 0, (1 - focusL / 100) * SIZE, SIZE, (1 - focusL / 100) * SIZE);
         ctx.restore();
       } else if (hslMainElement === 'S') {
