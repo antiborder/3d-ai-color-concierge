@@ -397,6 +397,7 @@ function App() {
             rgbGrid: rgbGridColorsEnabled,
           },
           activeSlide: activeContentId,
+          harmony: harmonyMode,
         }}
         onTranscript={handleVoiceTranscript}
         onTranscriptUpdate={handleTranscriptUpdate}

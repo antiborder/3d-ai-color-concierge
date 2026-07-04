@@ -11,6 +11,7 @@ export interface UiContext {
     rgbGrid: boolean;
   };
   activeSlide: string | null;
+  harmony: string;
 }
 
 interface UseWsColorSyncParams {

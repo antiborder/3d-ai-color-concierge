@@ -16,9 +16,14 @@ DECLARATIONS: list[dict] = [
             "(4) color.uiContext.colorSamples — which color sets are visible in 3D space "
             "    (css, material, japanese, rgbGrid — true means visible); "
             "(5) color.uiContext.activeSlide — ID of the educational slide currently shown on screen "
-            "    (null means none is shown). "
+            "    (null means none is shown); "
+            "(6) color.uiContext.harmony — current harmony mode "
+            "    ('none' means off, 'complementary', 'triangle', 'square', 'pentagon', 'hexagon', etc.). "
             "Use this information to decide: what to say, what to dismiss (DISMISS_CONTENT), "
             "and what to show (SHOW_CONTENT, SET_COLOR_SETS, CHANGE_SHAPE). "
+            "IMPORTANT: Never suggest activating something already active — "
+            "e.g. do not suggest showing complementary colors if harmony is already 'complementary', "
+            "do not suggest enabling Japanese colors if colorSamples.japanese is already true. "
             "Describe colors using natural expressions or color names only — "
             "NEVER mention raw RGB values like 255,79,24 to the user."
         ),
@@ -95,6 +100,12 @@ RULES_JA = """\
    - `color.shape`（色空間）に合わせた説明・提案をする。例：shape=Lab なら知覚的均一性を自然に話題にできる。
    - `color.uiContext.colorSamples` で japanese=true なら、日本の伝統色名を積極的に使う。
    - `color.uiContext.activeSlide` が設定されていれば、そのスライドの内容に関連した説明を優先する。
+   - **すでにアクティブな設定と同じ内容は絶対に提案しないこと**：
+     - `color.shape` が 'HSB' なら「HSBで見てみますか？」は禁止。他のshapeについても同様
+     - `color.uiContext.harmony` が 'complementary' なら「補色を表示しますか？」は禁止。他のharmonyについても同様
+     - `color.uiContext.colorSamples.japanese` が true なら「日本の伝統色を表示しますか？」は禁止
+     - `color.uiContext.colorSamples.material` が true なら「マテリアルデザインカラーを表示しますか？」は禁止
+     - その他のcolorSamplesについても同様
 
 2. **何を消すか**
    - `color.uiContext.activeSlide` が設定されており、ユーザーの話題とそのスライドが無関係な場合は DISMISS_CONTENT を呼び出して閉じる。
@@ -126,6 +137,12 @@ Use the returned data to make three decisions before generating your response:
    - Tailor your explanation to `color.shape` (the active color space). E.g., if shape=Lab, naturally bring up perceptual uniformity.
    - If `color.uiContext.colorSamples.japanese` is true, actively use Japanese traditional color names.
    - If `color.uiContext.activeSlide` is set, prioritize explanations related to that slide's topic.
+   - **Never suggest activating something that is already active**:
+     - If `color.shape` is 'HSB', do NOT suggest "want to view in HSB?". Apply the same to any other shape.
+     - If `color.uiContext.harmony` is 'complementary', do NOT suggest "want to see complementary colors?". Apply the same to any other harmony mode.
+     - If `color.uiContext.colorSamples.japanese` is true, do NOT suggest "want to see Japanese traditional colors?"
+     - If `color.uiContext.colorSamples.material` is true, do NOT suggest "want to see Material Design colors?"
+     - Apply the same logic to any other color sample set.
 
 2. **What to dismiss**
    - If `color.uiContext.activeSlide` is set and the user's topic is unrelated to that slide, call DISMISS_CONTENT to close it.
