@@ -72,8 +72,34 @@ const xy_ARROWS: AxisDef[] = [
   { dir: rv(0, -1, 0), label: 'y' },
 ];
 import type { StructureProps } from '../../types/structure';
+import type { ColorSpace } from '../../types/color';
 
 const cameraPosition: [number, number, number] = [0, 15, 0];
+
+function resolveLabelPositions(
+  labels: StructureProps['aiColorLabels'],
+  shape: ColorSpace,
+  getRgbPosition: (r: number, g: number, b: number) => [number, number, number],
+  getHslPosition: (r: number, g: number, b: number) => [number, number, number],
+  getHsbPosition: (r: number, g: number, b: number) => [number, number, number],
+  getMunsellPosition: (r: number, g: number, b: number) => [number, number, number],
+  getLabPosition: (r: number, g: number, b: number) => [number, number, number],
+  getXyzPosition: (r: number, g: number, b: number) => [number, number, number],
+  getXyzChromaticityPosition: (r: number, g: number, b: number) => [number, number, number],
+  getXyChromaticityPosition: (r: number, g: number, b: number) => [number, number, number],
+): [number, number, number][] {
+  if (!labels || labels.length === 0) return [];
+  return labels.map(({ r, g, b }) => {
+    if (shape === 'HSL') return getHslPosition(r, g, b);
+    if (shape === 'HSB') return getHsbPosition(r, g, b);
+    if (shape === 'LCH') return getMunsellPosition(r, g, b);
+    if (shape === 'Lab') return getLabPosition(r, g, b);
+    if (shape === 'XYZ') return getXyzPosition(r, g, b);
+    if (shape === 'xyz') return getXyzChromaticityPosition(r, g, b);
+    if (shape === 'xy') return getXyChromaticityPosition(r, g, b);
+    return getRgbPosition(r, g, b);
+  });
+}
 
 const Structure = (props: StructureProps) => {
   const [frameVisible, setFrameVisible] = useState(true);
@@ -126,6 +152,23 @@ const Structure = (props: StructureProps) => {
     getXyChromaticityPosition,
   };
 
+  const aiLabelPositions = useMemo(
+    () =>
+      resolveLabelPositions(
+        props.aiColorLabels,
+        props.shape,
+        getRgbPosition,
+        getHslPosition,
+        getHsbPosition,
+        getLchPosition,
+        getLabPosition,
+        getXyzPosition,
+        getXyzChromaticityPosition,
+        getXyChromaticityPosition,
+      ),
+    [props.aiColorLabels, props.shape],
+  );
+
   return (
     <div>
       <Canvas
@@ -151,6 +194,7 @@ const Structure = (props: StructureProps) => {
           getHslPosition={getHslPosition}
           getHsbPosition={getHsbPosition}
           rotateCameraRef={props.rotateCameraRef}
+          aiColorLabelPositions={aiLabelPositions}
         />
         <group rotation={[-Math.PI / 2, 0, 0]}>
           <Particles {...props} filteredColors={filteredColors} {...positionProps} />

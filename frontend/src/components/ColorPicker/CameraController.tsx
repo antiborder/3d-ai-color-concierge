@@ -14,6 +14,18 @@ interface CameraControllerProps {
   getHslPosition: PositionFunction;
   getHsbPosition: PositionFunction;
   rotateCameraRef?: MutableRefObject<boolean>;
+  aiColorLabelPositions?: [number, number, number][];
+}
+
+const GROUP_ROTATION = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
+
+// Minimum camera distance when zoomed in on labels
+const MIN_LABEL_DISTANCE = 3;
+// Padding added to bounding radius (world units)
+const LABEL_PADDING = 1.5;
+
+function localToWorld(local: [number, number, number]): THREE.Vector3 {
+  return new THREE.Vector3(...local).applyQuaternion(GROUP_ROTATION);
 }
 
 const CameraController = ({
@@ -25,12 +37,77 @@ const CameraController = ({
   getHslPosition,
   getHsbPosition,
   rotateCameraRef,
+  aiColorLabelPositions,
 }: CameraControllerProps) => {
   const controlsRef = useRef<any>(null);
   const { camera } = useThree();
   const prevColorRef = useRef<{ r: number; g: number; b: number } | null>(null);
   const isAnimatingRef = useRef(false);
+  const savedCameraRef = useRef<{ position: THREE.Vector3; target: THREE.Vector3 } | null>(null);
+  const labelAnimFrameRef = useRef<number | null>(null);
 
+  // --- Label focus effect ---
+  useEffect(() => {
+    if (!controlsRef.current) return;
+
+    // Cancel any in-progress label animation
+    if (labelAnimFrameRef.current !== null) {
+      cancelAnimationFrame(labelAnimFrameRef.current);
+      labelAnimFrameRef.current = null;
+    }
+
+    const positions = aiColorLabelPositions ?? [];
+
+    if (positions.length === 0) {
+      // Restore saved camera state
+      if (savedCameraRef.current) {
+        const targetPos = savedCameraRef.current.position.clone();
+        const targetLook = savedCameraRef.current.target.clone();
+        savedCameraRef.current = null;
+        animateCameraTo(camera, controlsRef.current, targetPos, targetLook, labelAnimFrameRef);
+      }
+      return;
+    }
+
+    // Save current camera state (only on first label set, not on updates)
+    if (!savedCameraRef.current) {
+      savedCameraRef.current = {
+        position: camera.position.clone(),
+        target: controlsRef.current.target.clone(),
+      };
+    }
+
+    // Transform positions to world space (group rotation applied)
+    const worldPositions = positions.map(localToWorld);
+
+    // Centroid
+    const centroid = new THREE.Vector3();
+    worldPositions.forEach((p) => centroid.add(p));
+    centroid.divideScalar(worldPositions.length);
+
+    // Bounding radius
+    let boundingRadius = 0;
+    worldPositions.forEach((p) => {
+      boundingRadius = Math.max(boundingRadius, p.distanceTo(centroid));
+    });
+
+    // Target camera distance: fit the padded bounding sphere in the vertical FOV
+    const halfFovRad = ((camera as THREE.PerspectiveCamera).fov * Math.PI) / 360;
+    const targetDist = Math.max(
+      MIN_LABEL_DISTANCE,
+      (boundingRadius + LABEL_PADDING) / Math.tan(halfFovRad),
+    );
+
+    // Keep the current orbital direction, only change distance and target
+    const currentTarget = controlsRef.current.target.clone();
+    const currentDir = camera.position.clone().sub(currentTarget).normalize();
+    const newCameraPos = centroid.clone().add(currentDir.multiplyScalar(targetDist));
+
+    animateCameraTo(camera, controlsRef.current, newCameraPos, centroid, labelAnimFrameRef);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aiColorLabelPositions]);
+
+  // --- Existing color-change rotation effect ---
   useEffect(() => {
     const colorChanged =
       !prevColorRef.current ||
@@ -55,11 +132,7 @@ const CameraController = ({
       }
 
       const colorVector = new THREE.Vector3(...colorPosition);
-
-      // group rotation={[-Math.PI / 2, 0, 0]} applied in Structure, so transform to world space
-      const groupRotation = new THREE.Euler(-Math.PI / 2, 0, 0, 'XYZ');
-      const groupRotationQuaternion = new THREE.Quaternion().setFromEuler(groupRotation);
-      const worldColorPosition = colorVector.clone().applyQuaternion(groupRotationQuaternion);
+      const worldColorPosition = colorVector.clone().applyQuaternion(GROUP_ROTATION);
 
       if (controlsRef.current && controlsRef.current.object) {
         isAnimatingRef.current = true;
@@ -136,5 +209,37 @@ const CameraController = ({
 
   return <OrbitControls ref={controlsRef} />;
 };
+
+function animateCameraTo(
+  camera: THREE.Camera,
+  controls: any,
+  targetPos: THREE.Vector3,
+  targetLook: THREE.Vector3,
+  frameRef: MutableRefObject<number | null>,
+) {
+  const startPos = camera.position.clone();
+  const startLook = controls.target.clone();
+  const duration = 800;
+  const startTime = Date.now();
+
+  const tick = () => {
+    const elapsed = Date.now() - startTime;
+    const t = Math.min(elapsed / duration, 1);
+    // Ease in-out cubic
+    const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    camera.position.lerpVectors(startPos, targetPos, eased);
+    controls.target.lerpVectors(startLook, targetLook, eased);
+    controls.update();
+
+    if (t < 1) {
+      frameRef.current = requestAnimationFrame(tick);
+    } else {
+      frameRef.current = null;
+    }
+  };
+
+  frameRef.current = requestAnimationFrame(tick);
+}
 
 export default CameraController;
