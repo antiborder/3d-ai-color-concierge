@@ -1,10 +1,10 @@
-"""GET_CURRENT_COLOR / GET_CLOSEST_COLOR / GET_COLOR_HISTORY / SEARCH_COLOR — 色情報クエリツール群。"""
+"""GET_UI_STATE / GET_CLOSEST_COLOR / GET_COLOR_HISTORY / SEARCH_COLOR — 色情報クエリツール群。"""
 
 from __future__ import annotations
 
 DECLARATIONS: list[dict] = [
     {
-        "name": "GET_CURRENT_COLOR",
+        "name": "GET_UI_STATE",
         "description": (
             "Get the full current UI state snapshot from the frontend. "
             "ALWAYS call this as the very FIRST tool call at the start of every user interaction, "
@@ -87,9 +87,9 @@ DECLARATIONS: list[dict] = [
 COMMANDS: dict[str, object] = {}
 
 RULES_JA = """\
-## GET_CURRENT_COLOR — 毎回最初に呼ぶこと
+## GET_UI_STATE — 毎回最初に呼ぶこと
 
-**ユーザーが発言するたびに、最初のアクションとして必ず GET_CURRENT_COLOR を呼び出してください。**
+**ユーザーが発言するたびに、最初のアクションとして必ず GET_UI_STATE を呼び出してください。**
 ただし、以下の場合は tool call 不要で会話のみで返してください：
 - 「何ができますか？」「使い方は？」などの機能確認の質問
 - 単純な挨拶・世間話
@@ -124,9 +124,9 @@ RULES_JA = """\
 """
 
 RULES_EN = """\
-## GET_CURRENT_COLOR — Call at the start of every interaction
+## GET_UI_STATE — Call at the start of every interaction
 
-**At the start of EVERY user interaction, call GET_CURRENT_COLOR as your very first action.**
+**At the start of EVERY user interaction, call GET_UI_STATE as your very first action.**
 Exceptions — respond conversationally without any tool call for:
 - Capability questions: "What can you do?", "How do I use this?", etc.
 - Simple greetings or small talk

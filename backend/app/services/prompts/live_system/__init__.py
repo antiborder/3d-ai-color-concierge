@@ -19,22 +19,11 @@ from app.services.gemini_live.tools import (
 )
 from app.services.prompts.common import (
     get_color_database_summary,
-    get_color_selection_rules_section,
-    get_communication_style_section,
     get_knowledge_base_section,
     get_material_design_context_section,
 )
-from app.services.prompts.live_system._cross_tool_rules import (
-    CROSS_TOOL_RULES_EN,
-    CROSS_TOOL_RULES_JA,
-)
-from app.services.prompts.live_system._persona import PERSONA_EN, PERSONA_JA
-from app.services.prompts.live_system._role import ROLE_EN, ROLE_JA
-from app.services.prompts.live_system._pronunciation import (
-    PRONUNCIATION_SECTION_EN,
-    PRONUNCIATION_SECTION_JA,
-)
-from app.services.prompts.live_system._tone import TONE_EN, TONE_JA
+from app.services.prompts.live_system._identity import IDENTITY_EN, IDENTITY_JA
+from app.services.prompts.live_system._response_rules import RESPONSE_RULES_EN, RESPONSE_RULES_JA
 
 # ツールファイルのルールを収集する順序（表示順）
 _TOOL_MODULES = [
@@ -67,43 +56,27 @@ def build_live_system_instruction(language: str) -> dict:
     material_design_context = get_material_design_context_section(language).format(
         color_summary=color_summary
     )
-    communication_style = get_communication_style_section(language, is_tool_call_based=True)
-    color_selection_rules = get_color_selection_rules_section(language)
     tool_rules = _collect_tool_rules(language)
 
     if language == "en":
-        persona_section = PERSONA_EN
-        role_section = ROLE_EN
-        tone_style_section = TONE_EN
-        cross_tool_rules = CROSS_TOOL_RULES_EN
+        identity = IDENTITY_EN
+        response_rules = RESPONSE_RULES_EN
         tool_usage_header = "## Tool usage rules"
-        pronunciation_section = PRONUNCIATION_SECTION_EN
     else:
-        persona_section = PERSONA_JA
-        role_section = ROLE_JA
-        tone_style_section = TONE_JA
-        cross_tool_rules = CROSS_TOOL_RULES_JA
+        identity = IDENTITY_JA
+        response_rules = RESPONSE_RULES_JA
         tool_usage_header = "## tool call ルール"
-        pronunciation_section = PRONUNCIATION_SECTION_JA
-
-    pronunciation_block = f"\n{pronunciation_section}\n" if pronunciation_section else ""
 
     text = (
-        f"{persona_section}\n"
-        f"{role_section}\n"
+        f"{identity}\n"
         f"{knowledge_base}\n"
         f"\n"
         f"{material_design_context}\n"
         f"\n"
-        f"{tone_style_section}\n"
-        f"{pronunciation_block}\n"
+        f"{response_rules}\n"
+        f"\n"
         f"{tool_usage_header}\n"
         f"{tool_rules}\n"
-        f"{cross_tool_rules}\n"
-        f"\n"
-        f"{color_selection_rules}\n"
-        f"\n"
-        f"{communication_style}"
     )
 
     return {"role": "system", "parts": [{"text": text}]}

@@ -83,7 +83,8 @@ RULES_JA = """\
   - シアン・マゼンタ・イエローの純粋な二次色 → CMYK
   - それ以外（大多数の色）→ HSB
 - ユーザーが HEX コードで色を指定した場合（例：「#FF5733 にして」）は、SET_HEX を呼び出し、その後 CHANGE_SHAPE を呼んでください。
-- 明度・彩度・色相の調整には絶対に SELECT_COLOR を使用しないでください。SELECT_COLOR は色名や説明で新しい色を選ぶ場合のみ使用してください。\
+- 明度・彩度・色相の調整には絶対に SELECT_COLOR を使用しないでください。SELECT_COLOR は色名や説明で新しい色を選ぶ場合のみ使用してください。
+- SET_COLOR は r/g/b の個別チャンネルを直接調整する場合のみ使用してください。色名での選択には使わないこと。\
 """
 
 RULES_EN = """\
@@ -95,5 +96,6 @@ RULES_EN = """\
   - Pure CMY secondaries (cyan, magenta, yellow) → CMYK
   - Everything else (the majority of colors) → HSB
 - If the user specifies a color by its hex code (e.g. "set color to #FF5733"), call SET_HEX followed by CHANGE_SHAPE.
-- NEVER use SELECT_COLOR for brightness/saturation/hue adjustments. SELECT_COLOR is ONLY for selecting a new color by name or description.\
+- NEVER use SELECT_COLOR for brightness/saturation/hue adjustments. SELECT_COLOR is ONLY for selecting a new color by name or description.
+- SET_COLOR is ONLY for adjusting individual RGB channels (r/g/b). Never use it to select a color by name.\
 """

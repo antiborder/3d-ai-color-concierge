@@ -65,7 +65,7 @@ class GeminiLiveSession:
         self._color_service = color_service
 
         # Client-side UI state snapshot (kept by the WS layer). This is intentionally
-        # separate from Gemini state and can be used by future tools like GET_CURRENT_COLOR.
+        # separate from Gemini state and can be used by future tools like GET_UI_STATE.
         self.current_color_state: dict | None = None
         self.current_color_updated_at: float = 0.0
         self.color_history: list[dict] = []

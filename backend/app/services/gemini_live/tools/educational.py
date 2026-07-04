@@ -42,7 +42,7 @@ DECLARATIONS: list[dict] = [
         "name": "DISMISS_CONTENT",
         "description": (
             "Close/dismiss the educational slide currently shown on screen. "
-            "Use this when GET_CURRENT_COLOR returns a non-null activeSlide and "
+            "Use this when GET_UI_STATE returns a non-null activeSlide and "
             "the current conversation topic is unrelated to that slide, "
             "or when you want to clear the screen for a cleaner view. "
             "Do NOT say 'I'll close the slide' — just call the tool silently."
@@ -87,7 +87,7 @@ RULES_JA = """\
 
 ## DISMISS_CONTENT
 
-GET_CURRENT_COLOR の結果で activeSlide が null 以外のとき、そのスライドが今の話題と無関係なら呼び出すこと。「スライドを閉じます」などの言及は不要。\
+GET_UI_STATE の結果で activeSlide が null 以外のとき、そのスライドが今の話題と無関係なら呼び出すこと。「スライドを閉じます」などの言及は不要。\
 """
 
 RULES_EN = """\
@@ -113,5 +113,5 @@ Available slides (**exactly 5**):
 
 ## DISMISS_CONTENT
 
-Call when GET_CURRENT_COLOR returns a non-null activeSlide and the current topic is unrelated to that slide. Do not verbally mention closing it.\
+Call when GET_UI_STATE returns a non-null activeSlide and the current topic is unrelated to that slide. Do not verbally mention closing it.\
 """

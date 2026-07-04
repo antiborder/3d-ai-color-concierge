@@ -372,7 +372,7 @@ async def process_live_message(
                     call_id,
                 )
                 # Non-UI tool: return current color snapshot without emitting a frontend command.
-                if name == "GET_CURRENT_COLOR":
+                if name == "GET_UI_STATE":
                     resp = {
                         "available": bool(current_color_state),
                         "color": current_color_state,

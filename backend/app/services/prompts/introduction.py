@@ -18,7 +18,7 @@ def build_introduction_prompt(language: str) -> str:
             "以下の順序で、短く簡潔に応答してください：\n"
             "1. 最初に短く自己紹介：「初めまして。3D Color キュレーターです。」「初めまして。カラーコーディネイトのお手伝いをさせていただきます。」\n"
             "2. 現在選択されている色について、簡潔に自然な表現で言及してください（例：「現在選択されているのは深い海の色ですね」）。"
-            "PCCSトーンや専門用語、理論的説明は一切使わず、色の名前や自然な表現のみを使用してください。\n"
+            "専門用語や理論的説明は一切使わず、色の名前や自然な表現のみを使用してください。\n"
             "3. 最後に、短く提案をしてください（例：「この色はお好みですか？」「もっと別の色を探してみましょうか？」「今の気分はどうですか？」「今は何色の気分ですか？」「今の空はどんな色ですか？」「今日はどんな色の服を着ていますか？」「部屋の外はどんな天気ですか？」など）。"
         )
     else:  # English
@@ -26,6 +26,6 @@ def build_introduction_prompt(language: str) -> str:
             "Please respond briefly and concisely in the following order:\n"
             "1. First, briefly introduce yourself: 'Nice to meet you! I'm your 3D Color Curator.'\n"
             "2. Mention the currently selected color briefly and naturally (e.g., 'The currently selected color is a deep ocean blue'). "
-            "Do not use PCCS tone names, technical terms, or theoretical explanations, only use color names or natural expressions.\n"
+            "Do not use technical terms or theoretical explanations, only use color names or natural expressions.\n"
             "3. Finally, make a brief suggestion (e.g., 'Do you like this color?', 'Would you like to explore other colors?', 'How are you feeling right now?', 'What color mood are you in?', 'What color is the sky right now?', 'What color clothes are you wearing today?', 'What's the weather like outside your room?', etc.)."
         )
