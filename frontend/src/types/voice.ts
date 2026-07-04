@@ -20,6 +20,7 @@ export interface Command {
     | 'SET_BRIDGE_COLOR'
     | 'SELECT_BRIDGE_POSITION'
     | 'SHOW_CONTENT'
+    | 'DISMISS_CONTENT'
     | 'SELECT_COLORS';
   parameters: Record<string, unknown>;
 }

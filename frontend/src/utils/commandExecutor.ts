@@ -411,6 +411,12 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
       break;
     }
 
+    case 'DISMISS_CONTENT': {
+      // App.tsx's handleWsCommand already calls setActiveContentId(null) for any
+      // non-SHOW_CONTENT action, so the slide is already dismissed at this point.
+      break;
+    }
+
     case 'SELECT_COLORS': {
       const colors = (command.parameters.colors ?? []) as AiColorLabel[];
       const seen = new Set<string>();

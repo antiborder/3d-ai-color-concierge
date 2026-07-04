@@ -37,7 +37,21 @@ DECLARATIONS: list[dict] = [
             },
             "required": ["id"],
         },
-    }
+    },
+    {
+        "name": "DISMISS_CONTENT",
+        "description": (
+            "Close/dismiss the educational slide currently shown on screen. "
+            "Use this when GET_CURRENT_COLOR returns a non-null activeSlide and "
+            "the current conversation topic is unrelated to that slide, "
+            "or when you want to clear the screen for a cleaner view. "
+            "Do NOT say 'I'll close the slide' — just call the tool silently."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {},
+        },
+    },
 ]
 
 
@@ -47,6 +61,7 @@ def _show_content(args: dict) -> dict:
 
 COMMANDS: dict[str, object] = {
     "SHOW_CONTENT": _show_content,
+    "DISMISS_CONTENT": lambda _args: {},
 }
 
 RULES_JA = """\
@@ -55,7 +70,8 @@ RULES_JA = """\
   - LCH・補色・トーンなど、スライドが存在しないトピックでは SHOW_CONTENT を呼ばないこと。
   - SHOW_CONTENT を呼ぶとスライドが自動表示されます。「スライドを表示します」「見てみましょう」などの文言は言わないこと。
   - スライドを表示する場合は、まず SHOW_CONTENT を呼び、その後で音声で簡潔に説明する（定義1文＋補足1文）。
-  - CHANGE_SHAPE と SHOW_CONTENT は同じレスポンスで呼び出してよい。SELECT_COLOR は呼ばないこと。\
+  - CHANGE_SHAPE と SHOW_CONTENT は同じレスポンスで呼び出してよい。SELECT_COLOR は呼ばないこと。
+- DISMISS_CONTENT は、GET_CURRENT_COLOR の結果で activeSlide が null 以外のとき、そのスライドが今の話題と無関係なら呼び出すこと。「スライドを閉じます」などの言及は不要。\
 """
 
 RULES_EN = """\
@@ -64,5 +80,6 @@ RULES_EN = """\
   - Do NOT call SHOW_CONTENT for topics without a slide (e.g., LCH, complementary colors, tones, etc.).
   - SHOW_CONTENT displays the slide automatically — do NOT say "let me show you a slide" or "here's a diagram". Call the tool, then explain directly.
   - When showing a slide, call SHOW_CONTENT first, then explain verbally in 2 sentences.
-  - CHANGE_SHAPE and SHOW_CONTENT may be called together in the same response. Do NOT call SELECT_COLOR.\
+  - CHANGE_SHAPE and SHOW_CONTENT may be called together in the same response. Do NOT call SELECT_COLOR.
+- Call DISMISS_CONTENT when GET_CURRENT_COLOR returns a non-null activeSlide and the current topic is unrelated to that slide. Do not verbally mention closing it.\
 """

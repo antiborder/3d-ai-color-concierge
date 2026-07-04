@@ -6,9 +6,21 @@ DECLARATIONS: list[dict] = [
     {
         "name": "GET_CURRENT_COLOR",
         "description": (
-            "Get the current selected color state (latest snapshot from the UI). "
-            "When responding to users about the current color, describe it using color names or natural expressions only. "
-            "NEVER mention RGB values or numeric values like 255,79,24."
+            "Get the full current UI state snapshot from the frontend. "
+            "ALWAYS call this as the very FIRST tool call at the start of every user interaction, "
+            "before generating any response or calling any other tool. "
+            "The response contains: "
+            "(1) color values (r, g, b, h, s, l, etc.); "
+            "(2) color.shape — the active 3D color space (RGB / CMYK / HSL / HSB / Lab / LCH); "
+            "(3) color.mainElement — which axis is currently fixed in the 3D view (e.g. 'L', 'H', 'C'); "
+            "(4) color.uiContext.colorSamples — which color sets are visible in 3D space "
+            "    (css, material, japanese, rgbGrid — true means visible); "
+            "(5) color.uiContext.activeSlide — ID of the educational slide currently shown on screen "
+            "    (null means none is shown). "
+            "Use this information to decide: what to say, what to dismiss (DISMISS_CONTENT), "
+            "and what to show (SHOW_CONTENT, SET_COLOR_SETS, CHANGE_SHAPE). "
+            "Describe colors using natural expressions or color names only — "
+            "NEVER mention raw RGB values like 255,79,24 to the user."
         ),
         "parameters": {
             "type": "object",
@@ -70,8 +82,26 @@ DECLARATIONS: list[dict] = [
 COMMANDS: dict[str, object] = {}
 
 RULES_JA = """\
-- ユーザーが「今の色は？」「現在のRGBを教えて」など現在色の確認を求めた場合は、必ず最初に GET_CURRENT_COLOR を tool call してください。
-- **ユーザーが「どんな色がある？」「見せて」と聞いた場合**（例：「青っぽい色にはどんな色がありますか？」「ピンク系を教えて」）：SEARCH_COLOR を呼び出し、結果から最大5件の色名を提示して「どれにしますか？」と聞いてから SELECT_COLOR を呼び出してください。
+## GET_CURRENT_COLOR — 毎回最初に呼ぶこと
+
+**ユーザーが発言するたびに、最初のアクションとして必ず GET_CURRENT_COLOR を呼び出してください。**
+返り値を使って次の3点を判断してから、応答を生成してください：
+
+1. **何を言うか**
+   - `color.shape`（色空間）に合わせた説明・提案をする。例：shape=Lab なら知覚的均一性を自然に話題にできる。
+   - `color.uiContext.colorSamples` で japanese=true なら、日本の伝統色名を積極的に使う。
+   - `color.uiContext.activeSlide` が設定されていれば、そのスライドの内容に関連した説明を優先する。
+
+2. **何を消すか**
+   - `color.uiContext.activeSlide` が設定されており、ユーザーの話題とそのスライドが無関係な場合は DISMISS_CONTENT を呼び出して閉じる。
+   - 同じスライドを再度表示する必要がない場面では、続けてスライドを開いたままにしてよい。
+
+3. **何を表示するか**
+   - 話題に合ったカラーセット（SET_COLOR_SETS）・スライド（SHOW_CONTENT）・色空間（CHANGE_SHAPE）を能動的に提案・切り替える。
+
+---
+
+- ユーザーが「どんな色がある？」「見せて」と聞いた場合（例：「青っぽい色にはどんな色がありますか？」「ピンク系を教えて」）：SEARCH_COLOR を呼び出し、結果から最大5件の色名を提示して「どれにしますか？」と聞いてから SELECT_COLOR を呼び出してください。
 - **「どんな青がお好みですか？」のような漠然とした質問を先にするのは禁止**。まず SEARCH_COLOR で検索し、「選んで」なら即実行、「見せて」なら選択肢提示、という判断をしてください。
 - **SEARCH_COLOR の query 言語について**：色データベースは色の種類によって言語が異なります。日本の伝統色は name1 が漢字（例：「桜色」「群青色」）、name2 がひらがな。CSS・Material Design の色は name1 が英語（例：「skyblue」「Pink 800」）。クエリ言語を色の種類に合わせてください。「スカイブルー」→ query="sky blue"（英語）、「桜色」→ query="桜色"（日本語）。0件だった場合は別の言語や短いキーワードで再試行してください。
 - ユーザーが以前選んだ色について聞いたり、前の色に戻りたいと言ったり、どんな色を試したか聞いた場合は、GET_COLOR_HISTORY を呼び出してください。
@@ -79,7 +109,25 @@ RULES_JA = """\
 """
 
 RULES_EN = """\
-- If the user asks what the current color is (e.g. "What is the current RGB?"), you MUST call GET_CURRENT_COLOR first.
+## GET_CURRENT_COLOR — Call at the start of every interaction
+
+**At the start of EVERY user interaction, call GET_CURRENT_COLOR as your very first action.**
+Use the returned data to make three decisions before generating your response:
+
+1. **What to say**
+   - Tailor your explanation to `color.shape` (the active color space). E.g., if shape=Lab, naturally bring up perceptual uniformity.
+   - If `color.uiContext.colorSamples.japanese` is true, actively use Japanese traditional color names.
+   - If `color.uiContext.activeSlide` is set, prioritize explanations related to that slide's topic.
+
+2. **What to dismiss**
+   - If `color.uiContext.activeSlide` is set and the user's topic is unrelated to that slide, call DISMISS_CONTENT to close it.
+   - If the slide is still relevant, leave it open.
+
+3. **What to show**
+   - Proactively suggest or switch to the relevant color set (SET_COLOR_SETS), slide (SHOW_CONTENT), or color space (CHANGE_SHAPE) based on the topic.
+
+---
+
 - **When the user asks what colors are available** (e.g., "what kinds of blue are there?", "show me options for pink"): call SEARCH_COLOR, then present up to 5 concrete color names and ask which one they want before calling SELECT_COLOR.
 - **Never ask vague open-ended questions like "What kind of blue do you prefer?" before acting** — search first, then either pick immediately (if user said "select") or present options (if user asked "what's available").
 - **For SEARCH_COLOR**: The color database uses English names (e.g. "skyblue", "Pink 800"). Always search in English. If 0 results are returned, try a shorter or simpler keyword (e.g. "blue" instead of "sky blue").

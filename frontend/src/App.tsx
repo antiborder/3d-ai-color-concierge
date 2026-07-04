@@ -389,6 +389,15 @@ function App() {
         bridgeColorA={bridgeColorA}
         bridgeColorB={bridgeColorB}
         colorHistory={history}
+        uiContext={{
+          colorSamples: {
+            css: cssColorsEnabled,
+            material: materialColorsEnabled,
+            japanese: japaneseColorsEnabled,
+            rgbGrid: rgbGridColorsEnabled,
+          },
+          activeSlide: activeContentId,
+        }}
         onTranscript={handleVoiceTranscript}
         onTranscriptUpdate={handleTranscriptUpdate}
         onAssistantMessage={handleAssistantMessage}

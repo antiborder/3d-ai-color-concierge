@@ -3,6 +3,16 @@ import type { MutableRefObject } from 'react';
 import type { ColorState as UiColorState } from '@/types/colorState';
 import type { ColorHistoryItem } from '@/hooks/useColorHistory';
 
+export interface UiContext {
+  colorSamples: {
+    css: boolean;
+    material: boolean;
+    japanese: boolean;
+    rgbGrid: boolean;
+  };
+  activeSlide: string | null;
+}
+
 interface UseWsColorSyncParams {
   wsRef: MutableRefObject<WebSocket | null>;
   isConnected: boolean;
@@ -10,6 +20,7 @@ interface UseWsColorSyncParams {
   bridgeColorA: { r: number; g: number; b: number } | null | undefined;
   bridgeColorB: { r: number; g: number; b: number } | null | undefined;
   colorHistory: ColorHistoryItem[] | undefined;
+  uiContext?: UiContext | null;
 }
 
 export function useWsColorSync({
@@ -19,6 +30,7 @@ export function useWsColorSync({
   bridgeColorA,
   bridgeColorB,
   colorHistory,
+  uiContext,
 }: UseWsColorSyncParams) {
   const bridgeColorARef = useRef(bridgeColorA);
   bridgeColorARef.current = bridgeColorA;
@@ -35,6 +47,9 @@ export function useWsColorSync({
     currentColorRef.current = currentColorState ?? null;
   }, [currentColorState]);
 
+  const uiContextRef = useRef(uiContext);
+  uiContextRef.current = uiContext;
+
   const buildWireColorState = useCallback(
     (cs: UiColorState) => ({
       r: cs.r,
@@ -49,6 +64,18 @@ export function useWsColorSync({
       l: cs.l,
       hsbS: cs.hsbS,
       v: cs.v,
+      shape: cs.shape,
+      mainElement: (() => {
+        switch (cs.shape) {
+          case 'RGB': return cs.rgbMainElement;
+          case 'CMYK': return cs.cmykMainElement;
+          case 'HSL': return cs.hslMainElement;
+          case 'HSB': return cs.hsbMainElement;
+          case 'Lab': return cs.labMainElement;
+          case 'LCH': return cs.lchMainElement;
+          default: return null;
+        }
+      })(),
     }),
     []
   );
@@ -60,6 +87,7 @@ export function useWsColorSync({
       const color: Record<string, unknown> = { ...buildWireColorState(cs) };
       if (bridgeColorARef.current) color.bridgeColorA = bridgeColorARef.current;
       if (bridgeColorBRef.current) color.bridgeColorB = bridgeColorBRef.current;
+      if (uiContextRef.current) color.uiContext = uiContextRef.current;
       try {
         ws.send(JSON.stringify({ type: 'color_state', color }));
       } catch {
@@ -90,7 +118,7 @@ export function useWsColorSync({
     return cancelPendingSync;
   }, [buildWireColorState, cancelPendingSync, currentColorState, isConnected, sendColorState]);
 
-  // Re-send color_state when bridge colors change while connected
+  // Re-send color_state when bridge colors or UI context change while connected
   useEffect(() => {
     if (!isConnected) return;
     const cs = currentColorRef.current;
@@ -98,7 +126,7 @@ export function useWsColorSync({
     sendColorState(cs);
     lastSentColorJsonRef.current = null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bridgeColorA, bridgeColorB, isConnected]);
+  }, [bridgeColorA, bridgeColorB, uiContext, isConnected]);
 
   // Sync color history to backend whenever it changes while connected
   useEffect(() => {

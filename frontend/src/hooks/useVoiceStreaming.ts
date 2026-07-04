@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { Command, WsInboundText } from '@/types/voice';
 import type { ColorState as UiColorState } from '@/types/colorState';
 import type { ColorHistoryItem } from '@/hooks/useColorHistory';
+import type { UiContext } from './useWsColorSync';
 import { floatTo16BitPCM, downsample } from '../utils/audioUtils';
 import { getWsUrl, fetchWsToken } from '../utils/wsEndpoint';
 import { usePcmPlayer } from './usePcmPlayer';
@@ -13,6 +14,7 @@ export interface UseVoiceStreamingOptions {
   bridgeColorA?: { r: number; g: number; b: number } | null;
   bridgeColorB?: { r: number; g: number; b: number } | null;
   colorHistory?: ColorHistoryItem[];
+  uiContext?: UiContext | null;
   onFinalTranscript?: (text: string) => void;
   onTranscriptUpdate?: (
     text: string,
@@ -33,6 +35,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     bridgeColorA,
     bridgeColorB,
     colorHistory,
+    uiContext,
     onFinalTranscript,
     onTranscriptUpdate,
     onAssistantMessage,
@@ -108,6 +111,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     bridgeColorA,
     bridgeColorB,
     colorHistory,
+    uiContext,
   });
 
   // ─── Mic / session cleanup ───────────────────────────────────────────────────

@@ -6,6 +6,7 @@ import { useLiveSubtitle } from '../../hooks/useLiveSubtitle';
 import type { Command } from '../../types/voice';
 import type { ColorState } from '../../types/colorState';
 import type { ColorHistoryItem } from '../../hooks/useColorHistory';
+import type { UiContext } from '../../hooks/useWsColorSync';
 import {
   VoiceControlRoot,
   TranscriptionPanel,
@@ -43,6 +44,7 @@ interface VoiceControlProps {
   bridgeColorA?: { r: number; g: number; b: number } | null;
   bridgeColorB?: { r: number; g: number; b: number } | null;
   colorHistory?: ColorHistoryItem[];
+  uiContext?: UiContext | null;
   onTranscript: (transcript: string) => void;
   onTranscriptUpdate?: (
     text: string,
@@ -65,6 +67,7 @@ const VoiceControl = ({
   bridgeColorA,
   bridgeColorB,
   colorHistory,
+  uiContext,
   onTranscript,
   onTranscriptUpdate,
   onAssistantMessage,
@@ -102,6 +105,7 @@ const VoiceControl = ({
     bridgeColorA,
     bridgeColorB,
     colorHistory,
+    uiContext,
     onFinalTranscript: onTranscript,
     onTranscriptUpdate,
     onAssistantMessage: useCallback(
