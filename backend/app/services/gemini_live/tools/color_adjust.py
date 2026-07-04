@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from ._color_math import determine_optimal_color_space
-
 DECLARATIONS: list[dict] = [
     {
         "name": "ADJUST_VALUE",
@@ -48,15 +46,10 @@ DECLARATIONS: list[dict] = [
 
 
 def _adjust_value(args: dict) -> dict:
-    property_name = args.get("property")
     params: dict = {
-        "property": property_name,
+        "property": args.get("property"),
         "direction": args.get("direction"),
     }
-    if property_name in ("hue", "saturation", "brightness"):
-        params["optimalColorSpace"] = determine_optimal_color_space(
-            0, 0, 0, adjust_property=property_name
-        )
     if "amount" in args:
         params["amount"] = args.get("amount")
     return params
@@ -73,7 +66,7 @@ RULES_JA = """\
      - 明度（lightness "l"）が100で「もっと明るく」と言われた場合、または0で「もっと暗く」と言われた場合、ADJUST_VALUE を呼び出さず、自然に「すでに最大の明るさになっています」または「すでに最小の明るさになっています」と伝えてください。
      - 彩度（saturation "s"）が100で「もっと鮮やかに」と言われた場合、または0で「彩度を下げて」と言われた場合、ADJUST_VALUE を呼び出さず、自然に「すでに最大の彩度になっています」または「すでに最小の彩度になっています」と伝えてください。
      - GET_CURRENT_COLOR の結果で彩度が100未満（例：s=80）だった場合は、最大値ではありません。ADJUST_VALUE を呼んでさらに上げてください。
-  3. 限界値に達していない場合のみ、ADJUST_VALUE を使用し、正しい方向を指定してください：
+  3. 限界値に達していない場合のみ、ADJUST_VALUE を呼び、続けて CHANGE_SHAPE("HSL") を呼んでください。正しい方向を指定してください：
      - 「もっと明るく」「明度を上げて」「明るくして」→ direction="up"
      - 「もっと暗く」「明度を下げて」「暗くして」→ direction="down"
      - 「もっと鮮やかに」「彩度を上げて」「鮮やかにして」→ direction="up" for saturation
@@ -92,7 +85,7 @@ RULES_EN = """\
      - If brightness (lightness "l") is 100 and user asks to increase brightness, or if it's 0 and user asks to decrease brightness, DO NOT call ADJUST_VALUE. Instead, respond naturally: "It's already at maximum brightness" or "It's already at minimum brightness".
      - If saturation ("s") is 100 and user asks to increase saturation, or if it's 0 and user asks to decrease saturation, DO NOT call ADJUST_VALUE. Instead, respond naturally: "It's already at maximum saturation" or "It's already at minimum saturation".
      - If the GET_CURRENT_COLOR result shows saturation below 100 (e.g., s=80), it is NOT at maximum — call ADJUST_VALUE to increase it further.
-  3. If not at the limit, use ADJUST_VALUE with the correct direction:
+  3. If not at the limit, call ADJUST_VALUE followed immediately by CHANGE_SHAPE("HSL"), with the correct direction:
      - "brighter", "increase brightness", "make it lighter" → direction="up"
      - "darker", "decrease brightness", "make it darker" → direction="down"
      - "more vibrant", "increase saturation", "more saturated" → direction="up" for saturation

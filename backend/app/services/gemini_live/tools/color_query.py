@@ -85,6 +85,10 @@ RULES_JA = """\
 ## GET_CURRENT_COLOR — 毎回最初に呼ぶこと
 
 **ユーザーが発言するたびに、最初のアクションとして必ず GET_CURRENT_COLOR を呼び出してください。**
+ただし、以下の場合は tool call 不要で会話のみで返してください：
+- 「何ができますか？」「使い方は？」などの機能確認の質問
+- 単純な挨拶・世間話
+
 返り値を使って次の3点を判断してから、応答を生成してください：
 
 1. **何を言うか**
@@ -112,6 +116,10 @@ RULES_EN = """\
 ## GET_CURRENT_COLOR — Call at the start of every interaction
 
 **At the start of EVERY user interaction, call GET_CURRENT_COLOR as your very first action.**
+Exceptions — respond conversationally without any tool call for:
+- Capability questions: "What can you do?", "How do I use this?", etc.
+- Simple greetings or small talk
+
 Use the returned data to make three decisions before generating your response:
 
 1. **What to say**

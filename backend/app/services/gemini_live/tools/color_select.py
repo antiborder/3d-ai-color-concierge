@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from ._color_math import determine_optimal_color_space
-
 DECLARATIONS: list[dict] = [
     {
         "name": "SELECT_COLOR",
@@ -59,10 +57,7 @@ def _select_color(args: dict) -> dict:
     r = int(args.get("r", 0))
     g = int(args.get("g", 0))
     b = int(args.get("b", 0))
-    return {
-        "color": {"r": r, "g": g, "b": b},
-        "optimalColorSpace": determine_optimal_color_space(r, g, b),
-    }
+    return {"color": {"r": r, "g": g, "b": b}}
 
 
 def _set_color(args: dict) -> dict:
@@ -80,13 +75,25 @@ COMMANDS: dict[str, object] = {
 }
 
 RULES_JA = """\
-- **ユーザーが色を「選んで」「にして」と指示した場合**（例：「青を選んで」「暖かい色にして」「青っぽい色を選んで」）：即座に SEARCH_COLOR を呼び出し、最も代表的な1色を選んで SELECT_COLOR を実行してください。どれにするか逆質問してはいけません。選んだ後に「〇〇を選びました」と一言添えてください。代表色の選び方：「blue」なら "Blue" や "Blue 500"、「pink」なら "Pink 500" など、最も基本的な色名を優先してください。
-- ユーザーが HEX コードで色を指定した場合（例：「#FF5733 にして」）は、SET_HEX を呼び出してください。
+- **ユーザーが色を「選んで」「にして」と指示した場合**（例：「青を選んで」「暖かい色にして」「青っぽい色を選んで」）：即座に SEARCH_COLOR を呼び出し、最も適切な1色を選んで SELECT_COLOR を実行してください。どれにするか逆質問してはいけません。選んだ後に「〇〇を選びました」と一言添えてください。
+  - **純粋な三原色（#FF0000, #0000FF, #00FF00 など）は、三原色の説明をしている文脈以外では選ばないこと。** SEARCH_COLOR の結果から、なるべく多様な色を選んでください。
+- **SELECT_COLOR の直後に、必ず CHANGE_SHAPE を呼んで色空間を切り替えてください。** 色の特性に応じて以下の色空間を選んでください：
+  - ほぼ白（明度90%以上）・グレー系 → HSL
+  - 純粋な原色（R/G/Bのいずれか1チャンネルのみ）→ RGB
+  - シアン・マゼンタ・イエローの純粋な二次色 → CMYK
+  - それ以外（大多数の色）→ HSB
+- ユーザーが HEX コードで色を指定した場合（例：「#FF5733 にして」）は、SET_HEX を呼び出し、その後 CHANGE_SHAPE を呼んでください。
 - 明度・彩度・色相の調整には絶対に SELECT_COLOR を使用しないでください。SELECT_COLOR は色名や説明で新しい色を選ぶ場合のみ使用してください。\
 """
 
 RULES_EN = """\
-- **When the user asks to SELECT a color by name or description** (e.g., "select blue", "choose something warm", "pick a bluish color"): call SEARCH_COLOR immediately, then pick the single most representative result and call SELECT_COLOR right away — do NOT ask the user which one they want. Just choose the most canonical match (e.g., "blue" → pick "Blue" or "Blue 500", not "sky blue" or "powder blue"). Announce what you picked after selecting.
-- If the user specifies a color by its hex code (e.g. "set color to #FF5733"), call SET_HEX with the hex value.
+- **When the user asks to SELECT a color by name or description** (e.g., "select blue", "choose something warm", "pick a bluish color"): call SEARCH_COLOR immediately, then pick the most fitting result and call SELECT_COLOR right away — do NOT ask the user which one they want. Announce what you picked after selecting.
+  - **Never pick pure primaries (#FF0000, #0000FF, #00FF00, etc.) outside of a color theory explanation context.** Choose varied, interesting colors from the SEARCH_COLOR results.
+- **Immediately after SELECT_COLOR, always call CHANGE_SHAPE** to switch to the best color space for that color:
+  - Near-white (lightness ≥ 90%) or grays → HSL
+  - Pure primaries (only one of R/G/B dominant) → RGB
+  - Pure CMY secondaries (cyan, magenta, yellow) → CMYK
+  - Everything else (the majority of colors) → HSB
+- If the user specifies a color by its hex code (e.g. "set color to #FF5733"), call SET_HEX followed by CHANGE_SHAPE.
 - NEVER use SELECT_COLOR for brightness/saturation/hue adjustments. SELECT_COLOR is ONLY for selecting a new color by name or description.\
 """

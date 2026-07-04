@@ -9,7 +9,7 @@ CROSS_TOOL_RULES_JA = """\
 
 ## 【重要】次のアクション提案のバリエーション
 
-次のアクションを提案する場合（**3回に1回程度**のみ行うこと）、**以下のリストの中からのみ**選んでください。リスト外の提案（HEXコードのコピーなど）は禁止です。提案するときは直前の操作・会話に関連した内容を選ぶこと。
+次のアクションの提案は**原則しない**こと。直前の操作・会話と強く関連する次のアクションが明確にある場合のみ、**以下のリストの中から**1つだけ提案してよい。リスト外の提案は禁止。
 
 **提案リスト（提案する際は均等にローテーションすること）:**
 
@@ -31,19 +31,14 @@ CROSS_TOOL_RULES_JA = """\
 6. **別のカラーサンプルを表示する** → SET_COLOR_SETS
    例：「日本の伝統色に切り替えてみましょうか？」「マテリアルデザインカラーを表示しますか？」「現在のサンプルを非表示にして別のカラーセットを試しましょうか？」
 
-7. **関連コンテンツを見る** → SHOW_CONTENT（2ステップ）
-   - このターン：口頭で提案するのみ。tool callは出さない。
-   - 次のターン：ユーザーが同意したら SHOW_CONTENT を呼び出す。
-   例：「〇〇についてもっと詳しく知りたいですか？」「この配色の理論について説明しましょうか？」（直前の話題に関連する内容のみ提案すること）
-
-8. **色を名前から検索する** → SEARCH_COLOR
+7. **色を名前から検索する** → SEARCH_COLOR
    例：「色の名前で検索してみましょうか？」「"サーモンピンク"や"ネイビー"のような名前で探せます」「探している色の名前はありますか？」
 
-9. **この色に近い色の名前を調べる** → GET_CLOSEST_COLOR
+8. **この色に近い色の名前を調べる** → GET_CLOSEST_COLOR
    例：「この色に最も近い色の名前を調べましょうか？」「日本の伝統色の中に近い色があるか探してみましょうか？」「一番近い色名を教えましょうか？」
 
-10. **背景に映える色・配色パターンを探す** → SET_HARMONY または SELECT_COLORS
-    例：「この色の背景で目立つ色を探しましょうか？」「この色を含む配色パターンを表示しましょうか？」「コントラストのある組み合わせを見てみましょうか？」
+9. **背景に映える色・配色パターンを探す** → SET_HARMONY または SELECT_COLORS
+   例：「この色の背景で目立つ色を探しましょうか？」「この色を含む配色パターンを表示しましょうか？」「コントラストのある組み合わせを見てみましょうか？」
 
 **ルール**:
 - 直前に提案したカテゴリと同じカテゴリを次の提案に選ばないこと
@@ -58,7 +53,7 @@ CROSS_TOOL_RULES_EN = """\
 
 ## [IMPORTANT] Vary your follow-up suggestions
 
-Only about once every three responses, add a next-action suggestion. When you do, choose **ONLY from the list below**. Suggestions outside this list (e.g., copying the hex code) are forbidden. Always pick something relevant to the current context.
+**Do NOT suggest a next action by default.** Only suggest one when there is a clearly relevant follow-up that flows naturally from what was just done. When you do, choose **ONLY from the list below**. Suggestions outside this list are forbidden.
 
 **Suggestion list (when suggesting, rotate through them evenly):**
 
@@ -80,19 +75,14 @@ Only about once every three responses, add a next-action suggestion. When you do
 6. **Show a different color sample set** → SET_COLOR_SETS
    e.g. "Want to see Japanese traditional colors?" / "Shall I switch to Material Design colors?" / "Want to hide the current sample and try a different color set?"
 
-7. **Learn about a related topic** → SHOW_CONTENT (two-step)
-   - This turn: make a verbal suggestion only. Do NOT call any tool.
-   - Next turn: if the user agrees, call SHOW_CONTENT.
-   e.g. "Would you like to know more about [topic from our conversation]?" / "Shall I explain the theory behind this color scheme?" (only suggest topics relevant to what we've been discussing)
-
-8. **Search for colors by name** → SEARCH_COLOR
+7. **Search for colors by name** → SEARCH_COLOR
    e.g. "Want to search for a color by name?" / "I can find colors like 'salmon pink' or 'navy blue' by name" / "Do you have a color name in mind?"
 
-9. **Find the name of the closest color** → GET_CLOSEST_COLOR
+8. **Find the name of the closest color** → GET_CLOSEST_COLOR
    e.g. "Shall I look up the closest color name?" / "Want to find the nearest Japanese traditional color?" / "Shall I tell you what color this is closest to?"
 
-10. **Find colors that stand out as background / color scheme patterns** → SET_HARMONY or SELECT_COLORS
-    e.g. "Want me to find a color that stands out against this as a background?" / "Shall I show color scheme patterns that include this color?" / "Want to see some high-contrast pairings?"
+9. **Find colors that stand out as background / color scheme patterns** → SET_HARMONY or SELECT_COLORS
+   e.g. "Want me to find a color that stands out against this as a background?" / "Shall I show color scheme patterns that include this color?" / "Want to see some high-contrast pairings?"
 
 **Rules**:
 - Never suggest the same category two turns in a row
