@@ -4,6 +4,7 @@ import Cylinder from './Cylinder';
 import Quadrilateral from './Quadrilateral';
 import Disc from './Disc';
 import { hslCylinderHeight, hsbCylinderHeight, lchCylinderHeight, labCylinderHeight } from '../../utils/colorSpacePositions';
+import { getMunsellHVC } from '../../utils/munsellUtils';
 import type {
   StructureProps,
   PositionFunction,
@@ -193,19 +194,46 @@ const FocusPlane = (props: FocusPlaneProps) => {
 
       {props.shape === 'LCH' &&
         (() => {
-          const [L] = rgbToLab(props.focusR, props.focusG, props.focusB);
-          const discZ = (L / 100 - 0.5) * lchCylinderHeight;
-          const biconeScale = 1 - Math.abs((2 * L) / 100 - 1);
-          return (
-            <group rotation={[Math.PI / 2, 0, 0]}>
-              <Disc
+          const { hueNum, value, chroma } = getMunsellHVC(props.focusR, props.focusG, props.focusB);
+          const theta = hueNum !== null ? (hueNum / 100) * 2 * Math.PI - Math.PI / 3 : 0;
+          const discZ = (value / 10 - 0.5) * lchCylinderHeight;
+          const biconeScale = 1 - Math.abs(2 * value / 10 - 1);
+          const chromaRadius = (chroma / 20) * props.cylinderRadius;
+
+          if (props.lchMainElement === 'L') {
+            return (
+              <group rotation={[Math.PI / 2, 0, 0]}>
+                <Disc
+                  position={[0, discZ, 0]}
+                  radius={props.cylinderRadius * biconeScale}
+                  side={THREE.DoubleSide}
+                />
+              </group>
+            );
+          } else if (props.lchMainElement === 'C') {
+            // Cylinder at fixed chroma radius, spanning z symmetrically (center = 0)
+            const valueMin = chroma / 4; // Munsell value where bicone radius = chromaRadius
+            const valueMax = 10 - valueMin;
+            const cylHeight = ((valueMax - valueMin) / 10) * lchCylinderHeight;
+            return (
+              <group rotation={[Math.PI / 2, 0, 0]}>
+                <Cylinder radius={chromaRadius} height={Math.max(cylHeight, 0.01)} side={THREE.DoubleSide} />
+              </group>
+            );
+          } else {
+            // H fixed: triangle plane (equator-outer → white-tip → black-tip)
+            return (
+              <Quadrilateral
                 {...props}
-                position={[0, discZ, 0]}
-                radius={props.cylinderRadius * biconeScale}
-                side={THREE.DoubleSide}
+                points={[
+                  props.cylindricalToCartesian(theta, props.cylinderRadius, 0),
+                  props.cylindricalToCartesian(theta, 0, lchCylinderHeight / 2),
+                  props.cylindricalToCartesian(theta, 0, -lchCylinderHeight / 2),
+                  props.cylindricalToCartesian(theta, 0, -lchCylinderHeight / 2),
+                ]}
               />
-            </group>
-          );
+            );
+          }
         })()}
     </>
   );

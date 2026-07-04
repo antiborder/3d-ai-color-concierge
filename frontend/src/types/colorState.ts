@@ -34,6 +34,7 @@ export interface ColorState {
   hslMainElement: 'H' | 'S' | 'L';
   hsbMainElement: 'H' | 'S' | 'V';
   labMainElement: 'L' | 'a' | 'b';
+  lchMainElement: 'L' | 'C' | 'H';
 
   // Hex input
   hexInput: string;
@@ -158,6 +159,7 @@ function generateRandomInitialColorState(): ColorState {
     hslMainElement: hslMainElements[Math.floor(Math.random() * hslMainElements.length)],
     hsbMainElement: hsbMainElements[Math.floor(Math.random() * hsbMainElements.length)],
     labMainElement: 'L',
+    lchMainElement: 'L',
     hexInput: allFormats.hex.toUpperCase(),
     isLabelShown: false,
   };

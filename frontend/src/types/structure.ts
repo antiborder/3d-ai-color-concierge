@@ -41,6 +41,7 @@ export interface StructureProps {
   hslMainElement: 'H' | 'S' | 'L';
   hsbMainElement: 'H' | 'S' | 'V';
   labMainElement: 'L' | 'a' | 'b';
+  lchMainElement: 'L' | 'C' | 'H';
 
   // Color group filters
   cssColorsEnabled: boolean;

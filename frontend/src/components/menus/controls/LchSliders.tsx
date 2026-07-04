@@ -195,6 +195,21 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
       {isVisible && (
         <>
           <LchSliderRow>
+            <button
+              onClick={() => props.setLchMainElement('L')}
+              className={props.lchMainElement === 'L' && props.shape === 'LCH' ? 'mainElement labelOn' : 'mainElement labelOff'}
+            >
+              {props.lchMainElement === 'L' && props.shape === 'LCH' ? (
+                <svg width="14" height="14" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                  <circle cx="5" cy="5" r="7" fill="#555555" />
+                  <path d="M2 5L4 7.4L8 2.2" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                  <circle cx="5" cy="5" r="7" fill="#555555" />
+                </svg>
+              )}
+            </button>
             <Label>L</Label>
             <SliderTrack>
               <input
@@ -218,6 +233,21 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
             )}
           </LchSliderRow>
           <LchSliderRow>
+            <button
+              onClick={() => props.setLchMainElement('C')}
+              className={props.lchMainElement === 'C' && props.shape === 'LCH' ? 'mainElement labelOn' : 'mainElement labelOff'}
+            >
+              {props.lchMainElement === 'C' && props.shape === 'LCH' ? (
+                <svg width="14" height="14" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                  <circle cx="5" cy="5" r="7" fill="#555555" />
+                  <path d="M2 5L4 7.4L8 2.2" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                  <circle cx="5" cy="5" r="7" fill="#555555" />
+                </svg>
+              )}
+            </button>
             <Label>C</Label>
             <SliderTrack>
               <input
@@ -241,6 +271,21 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
             )}
           </LchSliderRow>
           <LchSliderRow>
+            <button
+              onClick={() => props.setLchMainElement('H')}
+              className={props.lchMainElement === 'H' && props.shape === 'LCH' ? 'mainElement labelOn' : 'mainElement labelOff'}
+            >
+              {props.lchMainElement === 'H' && props.shape === 'LCH' ? (
+                <svg width="14" height="14" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                  <circle cx="5" cy="5" r="7" fill="#555555" />
+                  <path d="M2 5L4 7.4L8 2.2" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                  <circle cx="5" cy="5" r="7" fill="#555555" />
+                </svg>
+              )}
+            </button>
             <Label>H</Label>
             <input
               type="range"

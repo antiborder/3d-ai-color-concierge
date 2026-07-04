@@ -27,6 +27,7 @@ export interface ControlPaneProps extends BridgeProps {
   hslMainElement: 'H' | 'S' | 'L';
   hsbMainElement: 'H' | 'S' | 'V';
   labMainElement: 'L' | 'a' | 'b';
+  lchMainElement: 'L' | 'C' | 'H';
 
   // Hex input
   hexInput: string;
@@ -52,6 +53,7 @@ export interface ControlPaneProps extends BridgeProps {
   setHslMainElement: (symbol: 'H' | 'S' | 'L') => void;
   setHsvMainElement: (symbol: 'H' | 'S' | 'V') => void;
   setLabMainElement: (symbol: 'L' | 'a' | 'b') => void;
+  setLchMainElement: (symbol: 'L' | 'C' | 'H') => void;
   setFocusR: (value: number) => void;
   setFocusG: (value: number) => void;
   setFocusB: (value: number) => void;

@@ -86,6 +86,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
       hsbMainElement,
       hslMainElement,
       labMainElement,
+      lchMainElement,
       focusR,
       focusG,
       focusB,
@@ -196,11 +197,29 @@ const TwoDPicker = (props: ControlPaneProps) => {
             else { [r, g, b] = labToRgb(labFixedL, aVal, bVal); }
           }
         } else if (shape === 'LCH') {
-          // x: H (0→360), y: C (LCH_MAX_C top → 0 bottom)
-          const H = xVal * 360;
-          const C = (1 - yVal) * LCH_MAX_C;
-          const Hrad = (H * Math.PI) / 180;
-          [r, g, b] = labToRgb(labFixedL, C * Math.cos(Hrad), C * Math.sin(Hrad));
+          const labCurrentC = Math.sqrt(labCurrentA * labCurrentA + labCurrentB * labCurrentB);
+          const labCurrentH = Math.atan2(labCurrentB, labCurrentA);
+          if (lchMainElement === 'L') {
+            // L fixed: x=H (0→360), y=C (LCH_MAX_C top → 0 bottom)
+            const H = xVal * 360;
+            const C = (1 - yVal) * LCH_MAX_C;
+            const Hrad = (H * Math.PI) / 180;
+            if (!labInGamut(labFixedL, C * Math.cos(Hrad), C * Math.sin(Hrad))) { alpha = 0; }
+            else { [r, g, b] = labToRgb(labFixedL, C * Math.cos(Hrad), C * Math.sin(Hrad)); }
+          } else if (lchMainElement === 'C') {
+            // C fixed: x=H (0→360), y=L (100 top → 0 bottom)
+            const H = xVal * 360;
+            const L = (1 - yVal) * 100;
+            const Hrad = (H * Math.PI) / 180;
+            if (!labInGamut(L, labCurrentC * Math.cos(Hrad), labCurrentC * Math.sin(Hrad))) { alpha = 0; }
+            else { [r, g, b] = labToRgb(L, labCurrentC * Math.cos(Hrad), labCurrentC * Math.sin(Hrad)); }
+          } else {
+            // H fixed: x=C (0→LCH_MAX_C), y=L (100 top → 0 bottom)
+            const C = xVal * LCH_MAX_C;
+            const L = (1 - yVal) * 100;
+            if (!labInGamut(L, C * Math.cos(labCurrentH), C * Math.sin(labCurrentH))) { alpha = 0; }
+            else { [r, g, b] = labToRgb(L, C * Math.cos(labCurrentH), C * Math.sin(labCurrentH)); }
+          }
         }
 
         const idx = (py * SIZE + px) * 4;
@@ -331,11 +350,26 @@ const TwoDPicker = (props: ControlPaneProps) => {
       }
     } else if (shape === 'LCH') {
       const labCurrentC = Math.sqrt(labCurrentA * labCurrentA + labCurrentB * labCurrentB);
-      const labCurrentH = ((Math.atan2(labCurrentB, labCurrentA) * 180) / Math.PI + 360) % 360;
-      const vX = (labCurrentH / 360) * SIZE;
-      const hY = (1 - Math.min(labCurrentC, LCH_MAX_C) / LCH_MAX_C) * SIZE;
-      line(systemColors['K'], vX, 0, vX, SIZE);
-      line(systemColors['W'], 0, hY, SIZE, hY);
+      const labCurrentHDeg = ((Math.atan2(labCurrentB, labCurrentA) * 180) / Math.PI + 360) % 360;
+      if (lchMainElement === 'L') {
+        // L fixed: x=H, y=C
+        const vX = (labCurrentHDeg / 360) * SIZE;
+        const hY = (1 - Math.min(labCurrentC, LCH_MAX_C) / LCH_MAX_C) * SIZE;
+        line(systemColors['K'], vX, 0, vX, SIZE);
+        line(systemColors['W'], 0, hY, SIZE, hY);
+      } else if (lchMainElement === 'C') {
+        // C fixed: x=H, y=L
+        const vX = (labCurrentHDeg / 360) * SIZE;
+        const hY = (1 - labFixedL / 100) * SIZE;
+        line(systemColors['K'], vX, 0, vX, SIZE);
+        line(systemColors['W'], 0, hY, SIZE, hY);
+      } else {
+        // H fixed: x=C, y=L
+        const vX = (Math.min(labCurrentC, LCH_MAX_C) / LCH_MAX_C) * SIZE;
+        const hY = (1 - labFixedL / 100) * SIZE;
+        line(systemColors['K'], vX, 0, vX, SIZE);
+        line(systemColors['W'], 0, hY, SIZE, hY);
+      }
     }
   }, [
     props.shape,
@@ -344,6 +378,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
     props.hsbMainElement,
     props.hslMainElement,
     props.labMainElement,
+    props.lchMainElement,
     props.focusR,
     props.focusG,
     props.focusB,
@@ -370,6 +405,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
       hsbMainElement,
       hslMainElement,
       labMainElement,
+      lchMainElement,
       focusR,
       focusG,
       focusB,
@@ -461,12 +497,29 @@ const TwoDPicker = (props: ControlPaneProps) => {
       }
       props.handleClick(r, g, b);
     } else if (shape === 'LCH') {
-      const [fixedL] = rgbToLab(focusR, focusG, focusB);
-      const H = xVal * 360;
-      const C = (1 - yVal) * LCH_MAX_C;
-      const Hrad = (H * Math.PI) / 180;
-      const [r, g, b] = labToRgb(fixedL, C * Math.cos(Hrad), C * Math.sin(Hrad));
-      props.handleClick(r, g, b);
+      const [fixedL, fixedA, fixedB] = rgbToLab(focusR, focusG, focusB);
+      const fixedC = Math.sqrt(fixedA * fixedA + fixedB * fixedB);
+      const fixedHrad = Math.atan2(fixedB, fixedA);
+      let r: number, g: number, b: number;
+      if (lchMainElement === 'L') {
+        const H = xVal * 360;
+        const C = (1 - yVal) * LCH_MAX_C;
+        const Hrad = (H * Math.PI) / 180;
+        if (!labInGamut(fixedL, C * Math.cos(Hrad), C * Math.sin(Hrad))) return;
+        [r, g, b] = labToRgb(fixedL, C * Math.cos(Hrad), C * Math.sin(Hrad));
+      } else if (lchMainElement === 'C') {
+        const H = xVal * 360;
+        const L = (1 - yVal) * 100;
+        const Hrad = (H * Math.PI) / 180;
+        if (!labInGamut(L, fixedC * Math.cos(Hrad), fixedC * Math.sin(Hrad))) return;
+        [r, g, b] = labToRgb(L, fixedC * Math.cos(Hrad), fixedC * Math.sin(Hrad));
+      } else {
+        const C = xVal * LCH_MAX_C;
+        const L = (1 - yVal) * 100;
+        if (!labInGamut(L, C * Math.cos(fixedHrad), C * Math.sin(fixedHrad))) return;
+        [r, g, b] = labToRgb(L, C * Math.cos(fixedHrad), C * Math.sin(fixedHrad));
+      }
+      props.handleClick(r!, g!, b!);
     }
   };
 
@@ -474,7 +527,7 @@ const TwoDPicker = (props: ControlPaneProps) => {
 
   const isHslTriangle = shape === 'HSL' && props.hslMainElement === 'H';
   const isHsbTriangle = shape === 'HSB' && props.hsbMainElement === 'H';
-  const isLabGamut = shape === 'Lab';
+  const isLabGamut = shape === 'Lab' || shape === 'LCH';
 
   return (
     <StyledTwoDPicker>

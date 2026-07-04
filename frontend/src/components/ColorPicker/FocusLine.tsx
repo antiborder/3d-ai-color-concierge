@@ -2,7 +2,8 @@ import React from 'react';
 import StraightLine from './StraightLine';
 import Circle from './Circle';
 import { systemColors } from '../../constants/systemColors';
-import { hslCylinderHeight, hsbCylinderHeight } from '../../utils/colorSpacePositions';
+import { hslCylinderHeight, hsbCylinderHeight, lchCylinderHeight } from '../../utils/colorSpacePositions';
+import { getMunsellHVC } from '../../utils/munsellUtils';
 import type {
   StructureProps,
   PositionFunction,
@@ -166,6 +167,51 @@ const FocusLine = (props: FocusLineProps) => {
                 ]}
                 color={systemColors['DEEP_GRAY']}
               />
+            )}
+          </>
+        );
+      })()}
+      {props.shape === 'LCH' && (() => {
+        const { hueNum, value, chroma } = getMunsellHVC(props.focusR, props.focusG, props.focusB);
+        const theta = hueNum !== null ? (hueNum / 100) * 2 * Math.PI - Math.PI / 3 : 0;
+        const biconeScale = 1 - Math.abs(2 * value / 10 - 1);
+        const chromaRadius = (chroma / 20) * props.cylinderRadius;
+        const z = (value / 10 - 0.5) * lchCylinderHeight;
+        return (
+          <>
+            {props.lchMainElement !== 'H' && (
+              <Circle
+                radius={chromaRadius * biconeScale}
+                position={[0, 0, z]}
+                color={systemColors['W']}
+              />
+            )}
+            {props.lchMainElement !== 'C' && (
+              <StraightLine
+                points={[
+                  props.cylindricalToCartesian(theta, 0, z),
+                  props.cylindricalToCartesian(theta, props.cylinderRadius * biconeScale, z),
+                ]}
+                color={systemColors['K']}
+              />
+            )}
+            {props.lchMainElement !== 'L' && (
+              <>
+                <StraightLine
+                  points={[
+                    props.cylindricalToCartesian(theta, 0, -lchCylinderHeight / 2),
+                    props.cylindricalToCartesian(theta, chromaRadius, 0),
+                  ]}
+                  color={systemColors['DEEP_GRAY']}
+                />
+                <StraightLine
+                  points={[
+                    props.cylindricalToCartesian(theta, chromaRadius, 0),
+                    props.cylindricalToCartesian(theta, 0, lchCylinderHeight / 2),
+                  ]}
+                  color={systemColors['DEEP_GRAY']}
+                />
+              </>
             )}
           </>
         );

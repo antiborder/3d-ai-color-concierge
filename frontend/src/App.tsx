@@ -68,6 +68,7 @@ function App() {
     setHslMainElement,
     setHsvMainElement,
     setLabMainElement,
+    setLchMainElement,
     toggleLabel,
     setHexInput,
     adjustHslValue,
@@ -291,6 +292,7 @@ function App() {
     hslMainElement: colorState.hslMainElement,
     hsbMainElement: colorState.hsbMainElement,
     labMainElement: colorState.labMainElement,
+    lchMainElement: colorState.lchMainElement,
   };
 
   const colorHandlers = {
@@ -307,6 +309,7 @@ function App() {
     setHslMainElement,
     setHsvMainElement,
     setLabMainElement,
+    setLchMainElement,
     setFocusR: (v: number) => updateRgbValue('R', v),
     setFocusG: (v: number) => updateRgbValue('G', v),
     setFocusB: (v: number) => updateRgbValue('B', v),
