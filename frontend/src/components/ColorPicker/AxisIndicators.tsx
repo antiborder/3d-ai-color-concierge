@@ -195,7 +195,7 @@ const AxisIndicators = ({ shape, focusL = 50 }: { shape: string; focusL?: number
 
       const aVertexColors = makeLabColors(halfS, fromDist, toDist, A_MIN, A_MAX,
         (a) => labToColor(AXIS_L, a, 0));
-      const bVertexColors = makeLabColors(halfS, fromDist, toDist, B_MAX, B_MIN,
+      const bVertexColors = makeLabColors(halfS, fromDist, toDist, B_MIN, B_MAX,
         (b) => labToColor(AXIS_L, 0, b));
 
       const axes = [
@@ -208,7 +208,7 @@ const AxisIndicators = ({ shape, focusL = 50 }: { shape: string; focusL?: number
           vertexColors: aVertexColors,
         },
         {
-          dir: [-Math.cos(Math.PI / 3), Math.sin(Math.PI / 3), 0] as [number, number, number],
+          dir: [Math.cos(Math.PI / 3), -Math.sin(Math.PI / 3), 0] as [number, number, number],
           label: 'b',
           color: xyzColor,
           fromDist,

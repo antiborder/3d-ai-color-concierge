@@ -1,9 +1,18 @@
 import { useState } from 'react';
 
+function detectInitialLanguage(): string {
+  const urlLang = new URLSearchParams(window.location.search).get('lang');
+  if (urlLang === 'ja' || urlLang === 'en') return urlLang;
+  const stored = localStorage.getItem('i18nextLng') ?? '';
+  if (stored.startsWith('ja')) return 'ja';
+  return 'en';
+}
+
 export function useDisplaySettings() {
-  const [cssColorsEnabled, setCssColorsEnabled] = useState(true);
-  const [materialColorsEnabled, setMaterialColorsEnabled] = useState(true);
-  const [japaneseColorsEnabled, setJapaneseColorsEnabled] = useState(false);
+  const isJa = detectInitialLanguage() === 'ja';
+  const [cssColorsEnabled, setCssColorsEnabled] = useState(!isJa);
+  const [materialColorsEnabled, setMaterialColorsEnabled] = useState(!isJa);
+  const [japaneseColorsEnabled, setJapaneseColorsEnabled] = useState(isJa);
   const [rgbGridColorsEnabled, setRgbGridColorsEnabled] = useState(false);
 
   const setColorSets = (

@@ -12,6 +12,9 @@ import type {
 } from '../../types/structure';
 
 const STRUCTURE_SIZE = 9;
+// Lab values that reach the cube wireframe edge (labCylinderHeight/2 in local space)
+const B_EXTENT = Math.sqrt(3) * 100.27 / 1.184;
+const A_EXTENT = Math.sqrt(3) * 91.39  / 1.184;
 
 function rgbToLab(r: number, g: number, b: number): [number, number, number] {
   const toLinear = (c: number) => {
@@ -33,9 +36,12 @@ function rgbToLab(r: number, g: number, b: number): [number, number, number] {
 
 function labToThreePosition(L: number, a: number, bLab: number): [number, number, number] {
   const half = STRUCTURE_SIZE / 2 * 1.184;
+  const x = (bLab / 100.27) * half;
+  const y = -(a / 91.39) * half;
+  const rot = Math.PI / 3;
   return [
-    (bLab / 100.27) * half,
-    (a / 91.39) * half,
+    x * Math.cos(rot) + y * Math.sin(rot),
+    -x * Math.sin(rot) + y * Math.cos(rot),
     (L / 100 - 0.5) * labCylinderHeight,
   ];
 }
@@ -157,13 +163,31 @@ const FocusPlane = (props: FocusPlaneProps) => {
 
       {props.shape === 'Lab' &&
         (() => {
-          const [currentL] = rgbToLab(props.focusR, props.focusG, props.focusB);
-          const labCorners: [number, number, number][] = [
-            labToThreePosition(currentL, -85.41, -106.9),
-            labToThreePosition(currentL, 97.36, -106.9),
-            labToThreePosition(currentL, 97.36, 93.63),
-            labToThreePosition(currentL, -85.41, 93.63),
-          ];
+          const [currentL, currentA, currentB] = rgbToLab(props.focusR, props.focusG, props.focusB);
+          const el = props.labMainElement;
+          let labCorners: [number, number, number][];
+          if (el === 'a') {
+            labCorners = [
+              labToThreePosition(0,   currentA, -B_EXTENT),
+              labToThreePosition(100, currentA, -B_EXTENT),
+              labToThreePosition(100, currentA,  B_EXTENT),
+              labToThreePosition(0,   currentA,  B_EXTENT),
+            ];
+          } else if (el === 'b') {
+            labCorners = [
+              labToThreePosition(0,   -A_EXTENT, currentB),
+              labToThreePosition(100, -A_EXTENT, currentB),
+              labToThreePosition(100,  A_EXTENT, currentB),
+              labToThreePosition(0,    A_EXTENT, currentB),
+            ];
+          } else {
+            labCorners = [
+              labToThreePosition(currentL, -A_EXTENT, -B_EXTENT),
+              labToThreePosition(currentL,  A_EXTENT, -B_EXTENT),
+              labToThreePosition(currentL,  A_EXTENT,  B_EXTENT),
+              labToThreePosition(currentL, -A_EXTENT,  B_EXTENT),
+            ];
+          }
           return <Quadrilateral {...props} points={labCorners} />;
         })()}
 

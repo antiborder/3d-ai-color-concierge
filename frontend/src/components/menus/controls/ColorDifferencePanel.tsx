@@ -17,14 +17,14 @@ interface Judgment {
 
 function getJudgment(dE: number): Judgment {
   if (dE < 1.0) return { en: 'Imperceptible to human eyes', ja: '人間の目では判別不可', color: '#22a06b' };
-  if (dE < 3.0)
+  if (dE < 2.0)
     return {
-      en: 'Subtle — noticeable on close inspection',
+      en: 'Perceptible through close observation',
       ja: '注意深く見ると感知できる',
       color: '#0052cc',
     };
-  if (dE < 6.0) return { en: 'Perceptible at a glance', ja: '一見して知覚できる差', color: '#ff8b00' };
-  if (dE < 12.0) return { en: 'Clearly different colors', ja: '明確に異なる色', color: '#de350b' };
+  if (dE < 10.0) return { en: 'Perceptible at a glance', ja: '一見して知覚できる差', color: '#ff8b00' };
+  if (dE < 50.0) return { en: 'Clearly different colors', ja: '明確に異なる色', color: '#de350b' };
   return { en: 'Very large difference', ja: '非常に大きな色差', color: '#403294' };
 }
 

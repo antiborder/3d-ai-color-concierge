@@ -40,6 +40,7 @@ export interface StructureProps {
   cmykMainElement: 'C' | 'M' | 'Y' | 'K';
   hslMainElement: 'H' | 'S' | 'L';
   hsbMainElement: 'H' | 'S' | 'V';
+  labMainElement: 'L' | 'a' | 'b';
 
   // Color group filters
   cssColorsEnabled: boolean;

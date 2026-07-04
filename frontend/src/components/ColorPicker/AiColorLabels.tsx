@@ -82,7 +82,7 @@ const AiColorLabels = ({
               <meshBasicMaterial color={hex} />
             </mesh>
             {/* Label bubble */}
-            <Html zIndexRange={[100, 5]}>
+            <Html zIndexRange={[300, 200]}>
               <LabelBubble
                 style={{ borderColor }}
                 onClick={() => onColorSelect(r, g, b)}

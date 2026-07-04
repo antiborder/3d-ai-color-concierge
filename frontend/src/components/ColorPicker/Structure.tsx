@@ -55,7 +55,7 @@ const CMY_ARROWS: AxisDef[] = [
 const LAB_ARROWS: AxisDef[] = [
   { dir: [0, 0, 1], label: 'L' },
   { dir: [-Math.sin(Math.PI / 3), -Math.cos(Math.PI / 3), 0], label: 'a' },
-  { dir: [-Math.cos(Math.PI / 3), Math.sin(Math.PI / 3), 0], label: 'b' },
+  { dir: [Math.cos(Math.PI / 3), -Math.sin(Math.PI / 3), 0], label: 'b' },
 ];
 const XYZ_ARROWS: AxisDef[] = [
   { dir: rv(-1, 0, 0), label: 'X' },
@@ -155,22 +155,6 @@ const Structure = (props: StructureProps) => {
         <group rotation={[-Math.PI / 2, 0, 0]}>
           <Particles {...props} filteredColors={filteredColors} {...positionProps} />
           <ColorCursor {...props} {...positionProps} />
-          {props.aiColorLabels && props.aiColorLabels.length > 0 && (
-            <AiColorLabels
-              labels={props.aiColorLabels}
-              shape={props.shape}
-              focusL={props.focusL}
-              getRgbPosition={getRgbPosition}
-              getHslPosition={getHslPosition}
-              getHsbPosition={getHsbPosition}
-              getMunsellPosition={getMunsellPosition}
-              getLabPosition={getLabPosition}
-              getXyzPosition={getXyzPosition}
-              getXyzChromaticityPosition={getXyzChromaticityPosition}
-              getXyChromaticityPosition={getXyChromaticityPosition}
-              onColorSelect={props.onParticleClick}
-            />
-          )}
           {props.harmonyColors && props.harmonyColors.length > 0 && (
             <HarmonyMarkers
               harmonyColors={props.harmonyColors}
@@ -310,6 +294,22 @@ const Structure = (props: StructureProps) => {
               focusL={props.focusL}
               getPosition={getXyChromaticityPosition}
               axes={xy_ARROWS}
+            />
+          )}
+          {props.aiColorLabels && props.aiColorLabels.length > 0 && (
+            <AiColorLabels
+              labels={props.aiColorLabels}
+              shape={props.shape}
+              focusL={props.focusL}
+              getRgbPosition={getRgbPosition}
+              getHslPosition={getHslPosition}
+              getHsbPosition={getHsbPosition}
+              getMunsellPosition={getMunsellPosition}
+              getLabPosition={getLabPosition}
+              getXyzPosition={getXyzPosition}
+              getXyzChromaticityPosition={getXyzChromaticityPosition}
+              getXyChromaticityPosition={getXyChromaticityPosition}
+              onColorSelect={props.onParticleClick}
             />
           )}
         </group>
