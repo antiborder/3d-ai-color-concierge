@@ -63,12 +63,14 @@ DECLARATIONS: list[dict] = [
         "name": "SEARCH_COLOR",
         "description": (
             "Search the color database by name (partial match). "
-            "Use this BEFORE SELECT_COLOR when the user mentions a color by name "
+            "Use this when the user asks about colors by name or requests to see color options "
             "(e.g., 'Pink 800', 'sky blue', '群青色', '青っぽい色'). "
             "Returns a list of matching colors with exact RGB values. "
-            "If multiple results are returned, present the options to the user and ask which one they want, "
-            "then call SELECT_COLOR with the chosen color's RGB values. "
-            "If one result is returned, call SELECT_COLOR immediately with that color's RGB values."
+            "DEFAULT behavior when multiple results are returned: "
+            "call SHOW_COLOR_LABELS with the top 3–5 results so the user can see them in 3D space. "
+            "Only call SELECT_COLOR (single color) when: "
+            "(a) the user explicitly says to select/set/apply a specific color, OR "
+            "(b) exactly one result is returned."
         ),
         "parameters": {
             "type": "object",
@@ -116,8 +118,9 @@ RULES_JA = """\
 
 ---
 
-- ユーザーが「どんな色がある？」「見せて」と聞いた場合（例：「青っぽい色にはどんな色がありますか？」「ピンク系を教えて」）：SEARCH_COLOR を呼び出し、結果から最大5件の色名を提示して「どれにしますか？」と聞いてから SELECT_COLOR を呼び出してください。
-- **「どんな青がお好みですか？」のような漠然とした質問を先にするのは禁止**。まず SEARCH_COLOR で検索し、「選んで」なら即実行、「見せて」なら選択肢提示、という判断をしてください。
+- ユーザーが色の名前を挙げた場合、または「どんな色がある？」「見せて」と聞いた場合（例：「青っぽい色にはどんな色がありますか？」「ピンク系を教えて」）：SEARCH_COLOR を呼び出し、**結果が複数あれば上位3〜5件を SHOW_COLOR_LABELS で 3D 空間に表示する**。ユーザーに「どれにしますか？」と聞かなくてよい（すでに 3D 空間に見えているので）。
+- **SELECT_COLOR（1色のみ）を呼ぶのは次の場合のみ**：(a) ユーザーが「これに決めて」「〇〇に設定して」など明示的に1色の選択・適用を指示した場合、または (b) 検索結果が1件のみだった場合。
+- **「どんな青がお好みですか？」のような漠然とした質問を先にするのは禁止**。まず SEARCH_COLOR で検索し、複数結果なら即 SHOW_COLOR_LABELS、1件なら即 SELECT_COLOR、「選んで」と言われていたら SELECT_COLOR という判断をしてください。
 - **SEARCH_COLOR の query 言語について**：色データベースは色の種類によって言語が異なります。日本の伝統色は name1 が漢字（例：「桜色」「群青色」）、name2 がひらがな。CSS・Material Design の色は name1 が英語（例：「skyblue」「Pink 800」）。クエリ言語を色の種類に合わせてください。「スカイブルー」→ query="sky blue"（英語）、「桜色」→ query="桜色"（日本語）。0件だった場合は別の言語や短いキーワードで再試行してください。
 - ユーザーが以前選んだ色について聞いたり、前の色に戻りたいと言ったり、どんな色を試したか聞いた場合は、GET_COLOR_HISTORY を呼び出してください。
 - ユーザーが「この色の名前は？」「この色に近い日本の伝統色は？」「何色に近い？」と聞いた場合は GET_CLOSEST_COLOR を呼び出してください。結果を伝える際は色名とともに所属コレクション名も必ず言ってください（"tags" フィールドを参照）：JAPANESE →「日本の伝統色」、MATERIAL →「マテリアルデザインカラー」、CSS →「CSSカラー」。例：「CSSカラーの Sky Blue に最も近いです。」「日本の伝統色の紅紫（べにむらさき）に最も近いです。」RGB値や距離の数値はユーザーに言わないでください。\
@@ -153,8 +156,9 @@ Use the returned data to make three decisions before generating your response:
 
 ---
 
-- **When the user asks what colors are available** (e.g., "what kinds of blue are there?", "show me options for pink"): call SEARCH_COLOR, then present up to 5 concrete color names and ask which one they want before calling SELECT_COLOR.
-- **Never ask vague open-ended questions like "What kind of blue do you prefer?" before acting** — search first, then either pick immediately (if user said "select") or present options (if user asked "what's available").
+- **When the user names a color or asks what colors are available** (e.g., "show me blues", "what pinks are there?", "sky blue"): call SEARCH_COLOR, then call SHOW_COLOR_LABELS with the top 3–5 results so the user can see them in 3D space. Do NOT ask "which one do you want?" first — just show them.
+- **Only call SELECT_COLOR (single color)** when: (a) the user explicitly says to select/set/apply a specific color (e.g., "set it to sky blue", "choose that one"), OR (b) exactly one result was returned from SEARCH_COLOR.
+- **Never ask vague open-ended questions like "What kind of blue do you prefer?" before acting** — search first, then show with SHOW_COLOR_LABELS immediately.
 - **For SEARCH_COLOR**: The color database uses English names (e.g. "skyblue", "Pink 800"). Always search in English. If 0 results are returned, try a shorter or simpler keyword (e.g. "blue" instead of "sky blue").
 - If the user asks about colors they have tried before, wants to go back to a previous color, or asks what colors they explored, call GET_COLOR_HISTORY first.
 - If the user asks what the current color is called, what color name is closest, or what Japanese traditional color this resembles, call GET_CLOSEST_COLOR. When describing results, always mention both the color name AND its collection (from the "tags" field): JAPANESE → "Japanese traditional color", MATERIAL → "Material Design color", CSS → "CSS color". Examples: "This is Sky Blue, a CSS color." / "The closest is Benimurasaki (紅紫), a Japanese traditional color." Never mention RGB values or distance numbers.\

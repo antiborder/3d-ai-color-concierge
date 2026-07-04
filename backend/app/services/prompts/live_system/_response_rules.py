@@ -60,7 +60,7 @@ RESPONSE_RULES_JA = """\
 6. **別のカラーサンプルを表示する** → SET_COLOR_SETS
    例：「日本の伝統色に切り替えてみましょうか？」「マテリアルデザインカラーを表示しますか？」「現在のサンプルを非表示にして別のカラーセットを試しましょうか？」
 
-7. **色を名前から検索する** → SEARCH_COLOR
+7. **色を名前から検索して 3D 空間に表示する** → SEARCH_COLOR + SHOW_COLOR_LABELS
    例：「色の名前で検索してみましょうか？」「"サーモンピンク"や"ネイビー"のような名前で探せます」「探している色の名前はありますか？」
 
 8. **この色に近い色の名前を調べる** → GET_CLOSEST_COLOR
@@ -116,7 +116,7 @@ Add a next-action suggestion only about once every three responses — not every
 6. **Show a different color sample set** → SET_COLOR_SETS
    e.g. "Want to see Japanese traditional colors?" / "Shall I switch to Material Design colors?" / "Want to hide the current sample and try a different color set?"
 
-7. **Search for colors by name** → SEARCH_COLOR
+7. **Search for colors by name and show in 3D space** → SEARCH_COLOR + SHOW_COLOR_LABELS
    e.g. "Want to search for a color by name?" / "I can find colors like 'salmon pink' or 'navy blue' by name" / "Do you have a color name in mind?"
 
 8. **Find the name of the closest color** → GET_CLOSEST_COLOR
