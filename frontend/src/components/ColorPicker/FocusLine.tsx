@@ -162,7 +162,7 @@ const FocusLine = (props: FocusLineProps) => {
               <StraightLine
                 points={[
                   props.cylindricalToCartesian(rescaledH, 0, -hsbCylinderHeight / 2),
-                  props.cylindricalToCartesian(rescaledH, props.cylinderRadius, hsbCylinderHeight / 2),
+                  props.cylindricalToCartesian(rescaledH, (props.focusHsvS / 100) * props.cylinderRadius, hsbCylinderHeight / 2),
                 ]}
                 color={systemColors['DEEP_GRAY']}
               />
