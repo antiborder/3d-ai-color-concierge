@@ -33,3 +33,8 @@ output "ecs_service_name" {
   value       = aws_ecs_service.backend.name
 }
 
+output "conv_log_s3_bucket_name" {
+  description = "S3 bucket name for LMOps conversation logs"
+  value       = aws_s3_bucket.conv_logs.id
+}
+

@@ -33,6 +33,47 @@ resource "random_id" "frontend_bucket_suffix" {
   byte_length = 4
 }
 
+# ============================================
+# LMOps: 会話ログ用S3バケット
+# ============================================
+
+resource "random_id" "conv_log_bucket_suffix" {
+  byte_length = 4
+}
+
+resource "aws_s3_bucket" "conv_logs" {
+  bucket = "${var.project_name}-conv-logs-${var.environment}-${random_id.conv_log_bucket_suffix.hex}"
+
+  tags = {
+    Environment = var.environment
+    Project     = var.project_name
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "conv_logs" {
+  bucket = aws_s3_bucket.conv_logs.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "conv_logs" {
+  bucket = aws_s3_bucket.conv_logs.id
+
+  rule {
+    id     = "expire-old-logs"
+    status = "Enabled"
+
+    filter {}
+
+    expiration {
+      days = 365
+    }
+  }
+}
+
 resource "aws_s3_bucket" "frontend" {
   bucket = "${var.project_name}-frontend-${var.environment}-${random_id.frontend_bucket_suffix.hex}"
 }

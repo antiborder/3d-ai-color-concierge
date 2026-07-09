@@ -50,6 +50,9 @@ class Settings(BaseSettings):
     WS_TOKEN_SECRET: str = ""
     WS_TOKEN_TTL_SEC: int = 60
 
+    # LMOps: 会話ログ保存先S3バケット名（空文字の場合はスキップ）
+    CONV_LOG_S3_BUCKET: str = ""
+
     class Config:
         env_file = ".env"
         case_sensitive = True

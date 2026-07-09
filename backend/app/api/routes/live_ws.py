@@ -31,6 +31,7 @@ import time
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from app.config.settings import settings
+from app.services.conversation_logger import ConversationLogger
 from app.services.gemini_live import (
     DEFAULT_INPUT_SAMPLE_RATE_HZ,
     DEFAULT_OUTPUT_SAMPLE_RATE_HZ,
@@ -166,6 +167,11 @@ async def live_voice_ws(ws: WebSocket):
 
     try:
         color_service = get_color_service_for_prompt()
+        conv_logger = ConversationLogger(
+            session_id=session_id,
+            language=language,
+            start_time=perf_timestamps["start"],
+        )
         async with GeminiLiveSession(cfg, color_service=color_service) as session:
             ctx = SessionContext(
                 session_id=session_id,
@@ -173,6 +179,7 @@ async def live_voice_ws(ws: WebSocket):
                 language=language,
                 color_service=color_service,
                 perf_timestamps=perf_timestamps,
+                conv_logger=conv_logger,
             )
             gemini_ws = GeminiWebSocket(session=session)
             user_ws = UserWebSocket(ws=ws)
@@ -215,6 +222,7 @@ async def live_voice_ws(ws: WebSocket):
             await asyncio.gather(*pending, return_exceptions=True)
             if intro_task:
                 await asyncio.gather(intro_task, return_exceptions=True)
+            await conv_logger.flush()
     except Exception as e:
         logger.exception("WS internal error", extra={"origin": origin, "client_ip": client_ip})
         # best-effort: send error to client before closing
