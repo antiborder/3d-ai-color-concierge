@@ -146,6 +146,16 @@ class GeminiCommandEventListener(AbstractEventListener):
                     elapsed,
                     action,
                 )
+        if event.tool_name == "ADJUST_VALUE":
+            await ctx.user_ws.send_text(
+                json.dumps(
+                    {
+                        "type": "executing",
+                        "tool_name": event.tool_name,
+                        "tool_call_id": event.tool_call_id,
+                    }
+                )
+            )
         await ctx.user_ws.send_text(
             json.dumps(
                 {

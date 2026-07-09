@@ -13,6 +13,7 @@ from app.services.ws.events import (
     UserColorStateEvent,
     UserStopEvent,
     UserTextMessageEvent,
+    UserToolResultEvent,
 )
 from app.services.ws.listeners.user_inbound import (
     UserAudioEventListener,
@@ -20,6 +21,7 @@ from app.services.ws.listeners.user_inbound import (
     UserColorStateEventListener,
     UserStopEventListener,
     UserTextMessageEventListener,
+    UserToolResultEventListener,
 )
 
 logger = logging.getLogger("uvicorn.error")
@@ -82,6 +84,7 @@ class UserWebSocket(AbstractWebSocket):
         UserColorStateEvent: UserColorStateEventListener,
         UserColorHistoryEvent: UserColorHistoryEventListener,
         UserStopEvent: UserStopEventListener,
+        UserToolResultEvent: UserToolResultEventListener,
     }
 
     def __init__(self, ws: WebSocket) -> None:
@@ -120,6 +123,18 @@ class UserWebSocket(AbstractWebSocket):
                             color = _normalize_color_state(payload.get("color"))
                             if color:
                                 await queue.put(UserColorStateEvent(color=color))
+                        if msg_type == "tool_result" and isinstance(payload, dict):
+                            tool_call_id = str(payload.get("tool_call_id", ""))
+                            success = bool(payload.get("success", True))
+                            data = payload.get("data") or {}
+                            if not isinstance(data, dict):
+                                data = {}
+                            if tool_call_id:
+                                await queue.put(UserToolResultEvent(
+                                    tool_call_id=tool_call_id,
+                                    success=success,
+                                    data=data,
+                                ))
                     except Exception:
                         continue
                 elif "bytes" in incoming and incoming["bytes"] is not None:

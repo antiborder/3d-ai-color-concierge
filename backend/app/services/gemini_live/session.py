@@ -70,6 +70,9 @@ class GeminiLiveSession:
         self.current_color_updated_at: float = 0.0
         self.color_history: list[dict] = []
 
+        # Pending futures for UI tool calls awaiting frontend confirmation
+        self.pending_tool_futures: dict[str, asyncio.Future] = {}
+
         # 実装の都合上、SDK依存の受信は内部タスクでqueueに流す
         self._event_q: asyncio.Queue[LiveEvent] = asyncio.Queue()
         self._recv_task: asyncio.Task[None] | None = None
@@ -404,6 +407,7 @@ class GeminiLiveSession:
                         self._text_part_segment_id,
                         self._text_part_seq,
                         self._color_service,
+                        self.pending_tool_futures,
                     )
                     msg_end = time.time()
                     logger.info(

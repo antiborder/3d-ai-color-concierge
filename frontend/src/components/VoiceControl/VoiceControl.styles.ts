@@ -43,7 +43,7 @@ export const waveAnim = keyframes`
   50% { transform: scaleY(1); }
 `;
 
-export type ButtonState = 'idle' | 'connecting' | 'listening' | 'responding';
+export type ButtonState = 'idle' | 'connecting' | 'waiting' | 'listening' | 'thinking' | 'responding' | 'executing';
 
 export const VoiceControlRoot = styled.div`
   position: fixed;
@@ -101,11 +101,17 @@ export const ChatButton = styled.button<{ $state: ButtonState }>`
   background-color: ${({ $state }) =>
     $state === 'connecting'
       ? '#8fa8c8'
-      : $state === 'listening'
-        ? '#ef5350'
-        : $state === 'responding'
-          ? '#7e57c2'
-          : '#4e8cee'};
+      : $state === 'waiting'
+        ? '#00897b'
+        : $state === 'listening'
+          ? '#ef5350'
+          : $state === 'thinking'
+            ? '#546e7a'
+            : $state === 'responding'
+              ? '#7e57c2'
+              : $state === 'executing'
+                ? '#f57c00'
+                : '#4e8cee'};
   color: white;
   cursor: pointer;
   display: flex;
@@ -124,11 +130,17 @@ export const ChatButton = styled.button<{ $state: ButtonState }>`
     background-color: ${({ $state }) =>
       $state === 'connecting'
         ? '#7d95b5'
-        : $state === 'listening'
-          ? '#cc0000'
-          : $state === 'responding'
-            ? '#6546a8'
-            : '#3d7bd6'};
+        : $state === 'waiting'
+          ? '#00695c'
+          : $state === 'listening'
+            ? '#cc0000'
+            : $state === 'thinking'
+              ? '#37474f'
+              : $state === 'responding'
+                ? '#6546a8'
+                : $state === 'executing'
+                  ? '#e65100'
+                  : '#3d7bd6'};
     transform: scale(1.02);
   }
 

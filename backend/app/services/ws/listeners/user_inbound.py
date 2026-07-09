@@ -9,6 +9,7 @@ from app.services.ws.events import (
     UserColorStateEvent,
     UserStopEvent,
     UserTextMessageEvent,
+    UserToolResultEvent,
 )
 from app.services.ws.listeners.base import AbstractEventListener
 
@@ -76,3 +77,11 @@ class UserColorHistoryEventListener(AbstractEventListener):
 class UserStopEventListener(AbstractEventListener):
     async def handle(self, event: UserStopEvent) -> None:
         self._ctx.stop_event.set()
+
+
+class UserToolResultEventListener(AbstractEventListener):
+    async def handle(self, event: UserToolResultEvent) -> None:
+        self._ctx.gemini_ws.resolve_tool_result(
+            tool_call_id=event.tool_call_id,
+            result={"result": "ok" if event.success else "error", "data": event.data},
+        )

@@ -26,3 +26,10 @@ class UserColorHistoryEvent:
 @dataclass
 class UserStopEvent:
     pass
+
+
+@dataclass
+class UserToolResultEvent:
+    tool_call_id: str
+    success: bool
+    data: dict

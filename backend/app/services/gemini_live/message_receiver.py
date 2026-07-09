@@ -100,6 +100,7 @@ async def process_live_message(
     text_part_segment_id: str | None,
     text_part_seq: int,
     color_service=None,
+    pending_tool_futures: dict | None = None,
 ) -> tuple[str, str | None, int, str, str | None, int, str, str | None, int]:
     """
     Process a single message from Gemini Live and emit events.
@@ -502,16 +503,33 @@ async def process_live_message(
                     cmd.get("action"),
                     cmd.get("parameters"),
                 )
+
+                # For ADJUST_VALUE: create future before emitting event so the future
+                # is in place by the time the frontend sends back a tool_result.
+                tool_resp: dict = {"result": "ok"}
+                if name == "ADJUST_VALUE" and call_id and pending_tool_futures is not None:
+                    loop = asyncio.get_running_loop()
+                    future: asyncio.Future = loop.create_future()
+                    pending_tool_futures[call_id] = future
+
                 await event_q.put(
                     LiveCommandEvent(command=cmd, tool_name=name, tool_call_id=call_id)
                 )
+
+                if name == "ADJUST_VALUE" and call_id and pending_tool_futures is not None:
+                    try:
+                        tool_resp = await asyncio.wait_for(asyncio.shield(future), timeout=0.5)
+                    except (asyncio.TimeoutError, asyncio.CancelledError):
+                        logger.info("ADJUST_VALUE: timeout waiting for frontend confirmation")
+                    finally:
+                        pending_tool_futures.pop(call_id, None)
 
                 # Send tool response back to Gemini Live
                 try:
                     if callable(send_tool) and FunctionResponse is not None:
                         fr = FunctionResponse(
                             name=name,
-                            response={"result": "ok"},
+                            response=tool_resp,
                             id=call_id,
                         )
                         maybe = send_tool(function_responses=fr)

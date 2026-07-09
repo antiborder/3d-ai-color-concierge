@@ -53,3 +53,8 @@ class GeminiWebSocket(AbstractWebSocket):
 
     def set_color_history(self, history: list[dict]) -> None:
         self._session.set_color_history(history)
+
+    def resolve_tool_result(self, tool_call_id: str, result: dict) -> None:
+        future = self._session.pending_tool_futures.pop(tool_call_id, None)
+        if future is not None and not future.done():
+            future.set_result(result)

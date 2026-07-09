@@ -93,6 +93,9 @@ const VoiceControl = ({
     isStreaming,
     isConnecting,
     isConnected,
+    isExecuting,
+    isUserSpeaking,
+    isThinking,
     isAISpeaking,
     audioCtxRef,
     playTimeRef,
@@ -216,8 +219,13 @@ const VoiceControl = ({
 
   const buttonState: ButtonState = (() => {
     if (!isStreaming && !isConnecting) return 'idle';
+    if (isExecuting) return 'executing';
     if (isAISpeaking) return 'responding';
-    if (isConnected) return 'listening';
+    if (isConnected) {
+      if (isUserSpeaking) return 'listening';
+      if (isThinking) return 'thinking';
+      return 'waiting';
+    }
     return 'connecting';
   })();
 
@@ -242,6 +250,14 @@ const VoiceControl = ({
                 Connecting...
               </>
             )}
+            {buttonState === 'executing' && (
+              <>
+                <Spinner />
+                Trying...
+              </>
+            )}
+            {buttonState === 'waiting' && 'Waiting...'}
+            {buttonState === 'thinking' && 'Thinking...'}
             {(buttonState === 'listening' || buttonState === 'responding') && (
               <>
                 <WaveBarsContainer>

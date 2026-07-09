@@ -81,8 +81,14 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [isUserSpeaking, setIsUserSpeaking] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [transcript, setTranscript] = useState<string>('');
+  const userSpeakingTimerRef = useRef<number | null>(null);
+  const thinkingTimerRef = useRef<number | null>(null);
+  const thinkingFallbackTimerRef = useRef<number | null>(null);
 
   // ─── Audio playback (usePcmPlayer) ──────────────────────────────────────────
 
@@ -197,6 +203,26 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           }
           ts.lastTranscriptReceived = now;
           setTranscript(msg.text);
+          if (msg.final) {
+            if (userSpeakingTimerRef.current != null) window.clearTimeout(userSpeakingTimerRef.current);
+            setIsUserSpeaking(false);
+          } else {
+            setIsUserSpeaking(true);
+            // Cancel any pending thinking transition while user is still speaking
+            if (thinkingTimerRef.current != null) { window.clearTimeout(thinkingTimerRef.current); thinkingTimerRef.current = null; }
+            if (thinkingFallbackTimerRef.current != null) { window.clearTimeout(thinkingFallbackTimerRef.current); thinkingFallbackTimerRef.current = null; }
+            setIsThinking(false);
+            // Reset the silence timer; when it fires (1.5s of silence), start the thinking timer
+            if (userSpeakingTimerRef.current != null) window.clearTimeout(userSpeakingTimerRef.current);
+            userSpeakingTimerRef.current = window.setTimeout(() => {
+              setIsUserSpeaking(false);
+              // 0.5s after user stops speaking → Thinking... (if AI hasn't responded yet)
+              thinkingTimerRef.current = window.setTimeout(() => {
+                setIsThinking(true);
+                thinkingFallbackTimerRef.current = window.setTimeout(() => setIsThinking(false), 30000);
+              }, 500);
+            }, 1500);
+          }
           if (onTranscriptUpdate) {
             onTranscriptUpdate(msg.text, {
               final: msg.final,
@@ -213,6 +239,9 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
             );
           }
           ts.lastAssistantTextReceived = now;
+          if (thinkingTimerRef.current != null) { window.clearTimeout(thinkingTimerRef.current); thinkingTimerRef.current = null; }
+          if (thinkingFallbackTimerRef.current != null) { window.clearTimeout(thinkingFallbackTimerRef.current); thinkingFallbackTimerRef.current = null; }
+          setIsThinking(false);
           if (msg.text && onAssistantMessage) {
             onAssistantMessage(msg.text, {
               source: msg.source,
@@ -220,6 +249,8 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
               final: msg.final,
             });
           }
+        } else if (msg.type === 'executing') {
+          setIsExecuting(true);
         } else if (msg.type === 'command') {
           if (!ts.lastCommandReceived) {
             const elapsed = ts.lastAudioSent ? now - ts.lastAudioSent : 0;
@@ -228,8 +259,25 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
             );
           }
           ts.lastCommandReceived = now;
+          if (thinkingTimerRef.current != null) { window.clearTimeout(thinkingTimerRef.current); thinkingTimerRef.current = null; }
+          if (thinkingFallbackTimerRef.current != null) { window.clearTimeout(thinkingFallbackTimerRef.current); thinkingFallbackTimerRef.current = null; }
+          setIsThinking(false);
           if (onCommand) onCommand(msg.command);
+          if (msg.tool_name === 'ADJUST_VALUE' && msg.tool_call_id) {
+            const toolCallId = msg.tool_call_id;
+            try {
+              wsRef.current?.send(
+                JSON.stringify({ type: 'tool_result', tool_call_id: toolCallId, success: true })
+              );
+            } catch {
+              /* best-effort */
+            }
+            setIsExecuting(false);
+          }
         } else if (msg.type === 'interrupted') {
+          if (thinkingTimerRef.current != null) { window.clearTimeout(thinkingTimerRef.current); thinkingTimerRef.current = null; }
+          if (thinkingFallbackTimerRef.current != null) { window.clearTimeout(thinkingFallbackTimerRef.current); thinkingFallbackTimerRef.current = null; }
+          setIsThinking(false);
           stopAIAudio();
         } else if (msg.type === 'error') {
           if (
@@ -250,6 +298,9 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           );
         }
         ts.lastResponseReceived = now;
+        if (thinkingTimerRef.current != null) { window.clearTimeout(thinkingTimerRef.current); thinkingTimerRef.current = null; }
+        if (thinkingFallbackTimerRef.current != null) { window.clearTimeout(thinkingFallbackTimerRef.current); thinkingFallbackTimerRef.current = null; }
+        setIsThinking(false);
         schedulePcmPlayback(evt.data, 24000);
       }
     },
@@ -262,6 +313,9 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
       t,
       schedulePcmPlayback,
       stopAIAudio,
+      setIsExecuting,
+      setIsUserSpeaking,
+      setIsThinking,
     ]
   );
 
@@ -275,6 +329,9 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     setIsStreaming(false);
     setIsConnecting(false);
     setIsConnected(false);
+    setIsThinking(false);
+    if (thinkingTimerRef.current != null) { window.clearTimeout(thinkingTimerRef.current); thinkingTimerRef.current = null; }
+    if (thinkingFallbackTimerRef.current != null) { window.clearTimeout(thinkingFallbackTimerRef.current); thinkingFallbackTimerRef.current = null; }
 
     try {
       wsRef.current?.send(JSON.stringify({ type: 'stop' }));
@@ -515,6 +572,9 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     isConnecting,
     isConnected,
     isStreaming,
+    isExecuting,
+    isUserSpeaking,
+    isThinking,
     isAISpeaking,
     audioCtxRef,
     playTimeRef,
