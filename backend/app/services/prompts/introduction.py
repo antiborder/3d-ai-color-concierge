@@ -1,6 +1,22 @@
 """
-初回接続時の自己紹介プロンプト生成
+初回接続時の自己紹介プロンプト生成、および2回目以降の再接続時の短い挨拶生成
 """
+
+
+def build_regreeting_prompt(language: str) -> str:
+    """2回目以降の接続時に短い挨拶を促すプロンプト。"""
+    if language == "ja":
+        return (
+            "ユーザーが再びチャットを開始しました。"
+            "一言だけ、短く自然に話しかけてください。説明や提案は不要です。"
+            "例：「お呼びでしょうか？」「今回はどうしましょうか？」「何かお困りですか？」など。"
+        )
+    else:
+        return (
+            "The user has restarted the chat. "
+            "Say just one short, natural greeting — nothing more. "
+            "e.g. 'May I help you?', 'What's on your mind?', 'How can I help?' etc."
+        )
 
 
 def build_introduction_prompt(language: str) -> str:

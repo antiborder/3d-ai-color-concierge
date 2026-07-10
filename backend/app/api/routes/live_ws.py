@@ -190,18 +190,24 @@ async def live_voice_ws(ws: WebSocket):
             ]
 
             intro_task = None
-            if is_first_time:
 
-                async def _send_intro() -> None:
-                    from app.services.prompts.introduction import build_introduction_prompt
+            async def _send_intro() -> None:
+                from app.services.prompts.introduction import (
+                    build_introduction_prompt,
+                    build_regreeting_prompt,
+                )
 
-                    introduction_prompt = build_introduction_prompt(language)
-                    try:
-                        await session.send_text(introduction_prompt)
-                    except Exception as e:
-                        logger.info("Failed to send introduction prompt: %s", str(e))
+                prompt = (
+                    build_introduction_prompt(language)
+                    if is_first_time
+                    else build_regreeting_prompt(language)
+                )
+                try:
+                    await session.send_text(prompt)
+                except Exception as e:
+                    logger.info("Failed to send intro/regreeting prompt: %s", str(e))
 
-                intro_task = asyncio.create_task(_send_intro())
+            intro_task = asyncio.create_task(_send_intro())
 
             done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
             if intro_task and not intro_task.done():
