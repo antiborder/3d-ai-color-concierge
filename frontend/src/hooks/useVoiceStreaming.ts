@@ -89,6 +89,8 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   const userSpeakingTimerRef = useRef<number | null>(null);
   const thinkingTimerRef = useRef<number | null>(null);
   const thinkingFallbackTimerRef = useRef<number | null>(null);
+  const pendingStopRef = useRef<boolean>(false);
+  const stopRef = useRef<(() => Promise<void>) | null>(null);
 
   // ─── Audio playback (usePcmPlayer) ──────────────────────────────────────────
 
@@ -262,6 +264,11 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           if (thinkingTimerRef.current != null) { window.clearTimeout(thinkingTimerRef.current); thinkingTimerRef.current = null; }
           if (thinkingFallbackTimerRef.current != null) { window.clearTimeout(thinkingFallbackTimerRef.current); thinkingFallbackTimerRef.current = null; }
           setIsThinking(false);
+          if (msg.command.action === 'DISABLE_CHAT') {
+            pendingStopRef.current = true;
+            if (!isAISpeakingRef.current) void stopRef.current?.();
+            return;
+          }
           if (onCommand) onCommand(msg.command);
           if (msg.tool_name === 'ADJUST_VALUE' && msg.tool_call_id) {
             const toolCallId = msg.tool_call_id;
@@ -548,6 +555,19 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
       startRef.current = null;
     };
   }, [start]);
+
+  // stopをrefで保持（handleWsMessage内からstale closureなしで呼ぶため）
+  useEffect(() => {
+    stopRef.current = stop;
+  }, [stop]);
+
+  // DISABLE_CHAT: AIの発話が終わり次第stopを呼ぶ
+  useEffect(() => {
+    if (pendingStopRef.current && !isAISpeaking) {
+      pendingStopRef.current = false;
+      void stopRef.current?.();
+    }
+  }, [isAISpeaking]);
 
   // cleanup on unmount
   useEffect(() => {

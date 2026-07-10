@@ -15,6 +15,7 @@ from . import (
     color_space,
     educational,
     hex_copy,
+    session_control,
 )
 
 # ── ツール宣言（Gemini Live API に渡す function_declarations）─────────────
@@ -29,6 +30,7 @@ _TOOL_MODULES = [
     color_bridge,
     color_labels,
     educational,
+    session_control,
 ]
 
 # ── フロントエンドコマンド変換ディスパッチテーブル ─────────────────────────

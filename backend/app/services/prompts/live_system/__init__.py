@@ -16,6 +16,7 @@ from app.services.gemini_live.tools import (
     color_space,
     educational,
     hex_copy,
+    session_control,
 )
 from app.services.prompts.common import (
     get_color_database_summary,
@@ -37,6 +38,7 @@ _TOOL_MODULES = [
     color_sets,
     hex_copy,
     educational,
+    session_control,
 ]
 
 

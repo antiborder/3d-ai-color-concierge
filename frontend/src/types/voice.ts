@@ -21,7 +21,8 @@ export interface Command {
     | 'SELECT_BRIDGE_POSITION'
     | 'SHOW_CONTENT'
     | 'DISMISS_CONTENT'
-    | 'SHOW_COLOR_LABELS';
+    | 'SHOW_COLOR_LABELS'
+    | 'DISABLE_CHAT';
   parameters: Record<string, unknown>;
 }
 
