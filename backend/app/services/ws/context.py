@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from app.services.conversation_logger import ConversationLogger
     from app.services.ws.gemini_websocket import GeminiWebSocket
     from app.services.ws.user_websocket import UserWebSocket
 
@@ -22,4 +21,3 @@ class SessionContext:
     color_state: dict | None = None
     color_updated_at: float = 0.0
     color_history: list[dict] = field(default_factory=list)
-    conv_logger: ConversationLogger | None = None

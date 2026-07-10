@@ -43,8 +43,6 @@ class UserAudioEventListener(AbstractEventListener):
 
 class UserTextMessageEventListener(AbstractEventListener):
     async def handle(self, event: UserTextMessageEvent) -> None:
-        if self._ctx.conv_logger:
-            self._ctx.conv_logger.add_user_text_message(event.text)
         await self._ctx.gemini_ws.send_text(event.text)
 
 

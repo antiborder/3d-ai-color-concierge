@@ -73,8 +73,6 @@ class GeminiTranscriptEventListener(AbstractEventListener):
                 }
             )
         )
-        if event.is_final and event.text and ctx.conv_logger:
-            ctx.conv_logger.add_user_transcript(event.text)
 
 
 class GeminiAssistantTextEventListener(AbstractEventListener):
@@ -113,8 +111,6 @@ class GeminiAssistantTextEventListener(AbstractEventListener):
                 }
             )
         )
-        if event.is_final and event.text and ctx.conv_logger:
-            ctx.conv_logger.add_assistant_text(event.text, segment_id=event.segment_id)
 
 
 class GeminiErrorEventListener(AbstractEventListener):
@@ -170,7 +166,3 @@ class GeminiCommandEventListener(AbstractEventListener):
                 }
             )
         )
-        if ctx.conv_logger:
-            ctx.conv_logger.add_tool_call(
-                event.tool_name, event.command, tool_call_id=event.tool_call_id
-            )

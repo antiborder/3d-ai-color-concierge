@@ -71,22 +71,6 @@ resource "aws_iam_role" "ecs_task_role" {
   })
 }
 
-resource "aws_iam_role_policy" "ecs_task_conv_log_s3" {
-  name = "${var.project_name}-ecs-task-conv-log-s3"
-  role = aws_iam_role.ecs_task_role.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect   = "Allow"
-        Action   = ["s3:PutObject"]
-        Resource = "${aws_s3_bucket.conv_logs.arn}/conversations/*"
-      }
-    ]
-  })
-}
-
 data "aws_ec2_managed_prefix_list" "cloudfront_origin_facing" {
   name = "com.amazonaws.global.cloudfront.origin-facing"
 }
@@ -168,8 +152,7 @@ resource "aws_ecs_task_definition" "backend" {
         { name = "GEMINI_LIVE_MODEL_NAME", value = var.gemini_live_model_name },
         { name = "DUCKDNS_DOMAIN", value = var.duckdns_domain },
         { name = "DUCKDNS_TOKEN", value = var.duckdns_token },
-        { name = "WS_TOKEN_SECRET", value = var.ws_token_secret },
-        { name = "CONV_LOG_S3_BUCKET", value = aws_s3_bucket.conv_logs.id }
+        { name = "WS_TOKEN_SECRET", value = var.ws_token_secret }
       ]
       logConfiguration = {
         logDriver = "awslogs"
