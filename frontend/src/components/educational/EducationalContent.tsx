@@ -26,23 +26,29 @@ const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => 
   if (!Slide) return null;
 
   return (
-    <Panel>
-      <CloseButton onClick={onClose}>✕</CloseButton>
-      <Slide />
-    </Panel>
+    <Overlay onClick={onClose}>
+      <Panel onClick={(e) => e.stopPropagation()}>
+        <CloseButton onClick={onClose}>✕</CloseButton>
+        <Slide />
+      </Panel>
+    </Overlay>
   );
 };
 
-const Panel = styled.div`
+const Overlay = styled.div`
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const Panel = styled.div`
   background: white;
   border-radius: 12px;
   padding: 16px;
   width: min(320px, 90vw);
-  z-index: 2000;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 `;
 
