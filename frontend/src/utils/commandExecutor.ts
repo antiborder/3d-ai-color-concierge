@@ -35,6 +35,7 @@ export interface VoiceCommandHandlers {
   openCIEPanel: () => void;
   setAiColorLabels: (labels: AiColorLabel[]) => void;
   addAllColorsToHistory: (colors: Array<{ r: number; g: number; b: number }>) => void;
+  resetCameraZoom: () => void;
 }
 
 /**
@@ -75,6 +76,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
       const validShapes: ColorSpace[] = ['RGB', 'CMYK', 'HSL', 'HSB', 'Lab', 'LCH', 'XYZ', 'xyz', 'xy'];
       const matched = validShapes.find((s) => s.toLowerCase() === colorSpace?.toLowerCase());
       if (matched) {
+        handlers.resetCameraZoom();
         handlers.setShape(matched);
         if (matched === 'xy' || matched === 'XYZ' || matched === 'xyz') {
           handlers.openCIEPanel();
@@ -277,6 +279,11 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
         handlers.addAllColorsToHistory(clamped);
         handlers.setAiColorLabels(clamped);
       }
+      break;
+    }
+
+    case 'RESET_ZOOM': {
+      handlers.resetCameraZoom();
       break;
     }
 

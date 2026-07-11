@@ -11,6 +11,7 @@ export interface AiColorLabel {
 
 export interface StructureProps {
   rotateCameraRef?: MutableRefObject<boolean>;
+  resetCameraZoomSignal?: number;
   bridgeColorA?: { r: number; g: number; b: number };
   bridgeColorB?: { r: number; g: number; b: number };
   isBridgeOpen?: boolean;

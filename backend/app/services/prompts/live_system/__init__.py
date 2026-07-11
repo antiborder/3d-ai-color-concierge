@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from app.services.gemini_live.tools import (
+    camera,
     color_adjust,
     color_bridge,
     color_harmony,
@@ -29,6 +30,7 @@ from app.services.prompts.live_system._response_rules import RESPONSE_RULES_EN, 
 # ツールファイルのルールを収集する順序（表示順）
 _TOOL_MODULES = [
     color_space,  # CHANGE_SHAPE — 「必ずtool call」ルールを先頭に
+    camera,
     color_adjust,
     color_query,
     color_select,

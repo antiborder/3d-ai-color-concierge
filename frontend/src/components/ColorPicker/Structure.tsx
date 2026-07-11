@@ -194,6 +194,8 @@ const Structure = (props: StructureProps) => {
           getHslPosition={getHslPosition}
           getHsbPosition={getHsbPosition}
           rotateCameraRef={props.rotateCameraRef}
+          resetCameraZoomSignal={props.resetCameraZoomSignal}
+          aiColorLabels={props.aiColorLabels}
           aiColorLabelPositions={aiLabelPositions}
         />
         <group rotation={[-Math.PI / 2, 0, 0]}>

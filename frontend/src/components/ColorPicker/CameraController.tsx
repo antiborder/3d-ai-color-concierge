@@ -3,7 +3,7 @@ import { useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { useEffect, useRef } from 'react';
 import type { MutableRefObject } from 'react';
-import type { PositionFunction } from '../../types/structure';
+import type { PositionFunction, AiColorLabel } from '../../types/structure';
 
 interface CameraControllerProps {
   r: number;
@@ -14,6 +14,8 @@ interface CameraControllerProps {
   getHslPosition: PositionFunction;
   getHsbPosition: PositionFunction;
   rotateCameraRef?: MutableRefObject<boolean>;
+  resetCameraZoomSignal?: number;
+  aiColorLabels?: AiColorLabel[];
   aiColorLabelPositions?: [number, number, number][];
 }
 
@@ -37,6 +39,8 @@ const CameraController = ({
   getHslPosition,
   getHsbPosition,
   rotateCameraRef,
+  resetCameraZoomSignal,
+  aiColorLabels,
   aiColorLabelPositions,
 }: CameraControllerProps) => {
   const controlsRef = useRef<any>(null);
@@ -45,8 +49,36 @@ const CameraController = ({
   const isAnimatingRef = useRef(false);
   const savedCameraRef = useRef<{ position: THREE.Vector3; target: THREE.Vector3 } | null>(null);
   const labelAnimFrameRef = useRef<number | null>(null);
+  const initialCameraRef = useRef<{ position: THREE.Vector3; target: THREE.Vector3 } | null>(null);
+
+  // Capture initial camera position once after mount
+  useEffect(() => {
+    initialCameraRef.current = {
+      position: camera.position.clone(),
+      target: new THREE.Vector3(0, 0, 0),
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // --- Camera zoom reset (RESET_ZOOM tool or CHANGE_SHAPE) ---
+  useEffect(() => {
+    if (!resetCameraZoomSignal) return; // 0 = initial render, skip
+    savedCameraRef.current = null;
+    if (initialCameraRef.current && controlsRef.current) {
+      animateCameraTo(
+        camera,
+        controlsRef.current,
+        initialCameraRef.current.position.clone(),
+        initialCameraRef.current.target.clone(),
+        labelAnimFrameRef,
+      );
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetCameraZoomSignal]);
 
   // --- Label focus effect ---
+  // Depends on aiColorLabels (the label SET), not aiColorLabelPositions.
+  // Shape changes reposition labels in 3D space but do not re-trigger this zoom.
   useEffect(() => {
     if (!controlsRef.current) return;
 
@@ -56,9 +88,9 @@ const CameraController = ({
       labelAnimFrameRef.current = null;
     }
 
-    const positions = aiColorLabelPositions ?? [];
+    const labels = aiColorLabels ?? [];
 
-    if (positions.length === 0) {
+    if (labels.length === 0) {
       // Restore saved camera state
       if (savedCameraRef.current) {
         const targetPos = savedCameraRef.current.position.clone();
@@ -76,6 +108,10 @@ const CameraController = ({
         target: controlsRef.current.target.clone(),
       };
     }
+
+    // Use current positions (same render as aiColorLabels update)
+    const positions = aiColorLabelPositions ?? [];
+    if (positions.length === 0) return;
 
     // Transform positions to world space (group rotation applied)
     const worldPositions = positions.map(localToWorld);
@@ -105,7 +141,7 @@ const CameraController = ({
 
     animateCameraTo(camera, controlsRef.current, newCameraPos, centroid, labelAnimFrameRef);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [aiColorLabelPositions]);
+  }, [aiColorLabels]);
 
   // --- Existing color-change rotation effect ---
   useEffect(() => {

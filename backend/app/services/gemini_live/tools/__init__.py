@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from . import (
+    camera,
     color_adjust,
     color_bridge,
     color_harmony,
@@ -23,6 +24,7 @@ _TOOL_MODULES = [
     color_select,
     color_adjust,
     color_space,
+    camera,
     color_query,
     hex_copy,
     color_harmony,

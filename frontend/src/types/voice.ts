@@ -22,7 +22,8 @@ export interface Command {
     | 'SHOW_CONTENT'
     | 'DISMISS_CONTENT'
     | 'SHOW_COLOR_LABELS'
-    | 'DISABLE_CHAT';
+    | 'DISABLE_CHAT'
+    | 'RESET_ZOOM';
   parameters: Record<string, unknown>;
 }
 
