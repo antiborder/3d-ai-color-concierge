@@ -81,6 +81,7 @@ function App() {
   // Set to true just before an AI tool call changes the color; CameraController reads and resets it
   const aiColorTriggerRef = useRef(false);
   const [resetCameraZoomSignal, setResetCameraZoomSignal] = useState(0);
+  const [harmonyZoomSignal, setHarmonyZoomSignal] = useState(0);
 
   // Add color to history when colorState changes
   useEffect(() => {
@@ -187,6 +188,7 @@ function App() {
       for (const c of colors) addColor(c.r, c.g, c.b);
     },
     resetCameraZoom: () => { setResetCameraZoomSignal((n) => n + 1); },
+    zoomToHarmony: () => { setHarmonyZoomSignal((n) => n + 1); },
   };
 
   const harmonyColors = useMemo(
@@ -373,6 +375,7 @@ function App() {
         aiColorLabels={aiColorLabels}
         rotateCameraRef={aiColorTriggerRef}
         resetCameraZoomSignal={resetCameraZoomSignal}
+        harmonyZoomSignal={harmonyZoomSignal}
       />
       <ControlPane
         isDesktopLayout={isDesktopLayout}

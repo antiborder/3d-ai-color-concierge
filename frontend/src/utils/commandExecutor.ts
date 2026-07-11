@@ -36,6 +36,7 @@ export interface VoiceCommandHandlers {
   setAiColorLabels: (labels: AiColorLabel[]) => void;
   addAllColorsToHistory: (colors: Array<{ r: number; g: number; b: number }>) => void;
   resetCameraZoom: () => void;
+  zoomToHarmony: () => void;
 }
 
 /**
@@ -189,6 +190,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
       ];
       if (validModes.includes(mode as HarmonyMode)) {
         handlers.setHarmonyMode(mode as HarmonyMode);
+        if (mode !== 'none') handlers.zoomToHarmony();
       } else {
         toast.error(`Invalid harmony mode: ${mode}`);
       }

@@ -15,6 +15,8 @@ interface CameraControllerProps {
   getHsbPosition: PositionFunction;
   rotateCameraRef?: MutableRefObject<boolean>;
   resetCameraZoomSignal?: number;
+  harmonyZoomSignal?: number;
+  harmonyColorPositions?: [number, number, number][];
   aiColorLabels?: AiColorLabel[];
   aiColorLabelPositions?: [number, number, number][];
 }
@@ -40,6 +42,8 @@ const CameraController = ({
   getHsbPosition,
   rotateCameraRef,
   resetCameraZoomSignal,
+  harmonyZoomSignal,
+  harmonyColorPositions,
   aiColorLabels,
   aiColorLabelPositions,
 }: CameraControllerProps) => {
@@ -75,6 +79,41 @@ const CameraController = ({
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetCameraZoomSignal]);
+
+  // --- Harmony zoom (fires when SET_HARMONY is called with a non-none mode) ---
+  useEffect(() => {
+    if (!harmonyZoomSignal || !controlsRef.current) return;
+    const positions = harmonyColorPositions ?? [];
+    if (positions.length === 0) return;
+
+    if (labelAnimFrameRef.current !== null) {
+      cancelAnimationFrame(labelAnimFrameRef.current);
+      labelAnimFrameRef.current = null;
+    }
+
+    const worldPositions = positions.map(localToWorld);
+    const centroid = new THREE.Vector3();
+    worldPositions.forEach((p) => centroid.add(p));
+    centroid.divideScalar(worldPositions.length);
+
+    let boundingRadius = 0;
+    worldPositions.forEach((p) => {
+      boundingRadius = Math.max(boundingRadius, p.distanceTo(centroid));
+    });
+
+    const halfFovRad = ((camera as THREE.PerspectiveCamera).fov * Math.PI) / 360;
+    const targetDist = Math.max(
+      MIN_LABEL_DISTANCE,
+      (boundingRadius + LABEL_PADDING) / Math.tan(halfFovRad),
+    );
+
+    const currentTarget = controlsRef.current.target.clone();
+    const currentDir = camera.position.clone().sub(currentTarget).normalize();
+    const newCameraPos = centroid.clone().add(currentDir.multiplyScalar(targetDist));
+
+    animateCameraTo(camera, controlsRef.current, newCameraPos, centroid, labelAnimFrameRef);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [harmonyZoomSignal]);
 
   // --- Label focus effect ---
   // Depends on aiColorLabels (the label SET), not aiColorLabelPositions.

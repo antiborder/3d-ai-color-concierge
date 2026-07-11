@@ -169,6 +169,37 @@ const Structure = (props: StructureProps) => {
     [props.aiColorLabels, props.shape],
   );
 
+  const harmonyColorPositions = useMemo(
+    () => {
+      const harmonyPositions = resolveLabelPositions(
+        props.harmonyColors as any,
+        props.shape,
+        getRgbPosition,
+        getHslPosition,
+        getHsbPosition,
+        getLchPosition,
+        getLabPosition,
+        getXyzPosition,
+        getXyzChromaticityPosition,
+        getXyChromaticityPosition,
+      );
+      const focusPosition = resolveLabelPositions(
+        [{ r: props.focusR, g: props.focusG, b: props.focusB }] as any,
+        props.shape,
+        getRgbPosition,
+        getHslPosition,
+        getHsbPosition,
+        getLchPosition,
+        getLabPosition,
+        getXyzPosition,
+        getXyzChromaticityPosition,
+        getXyChromaticityPosition,
+      );
+      return [...harmonyPositions, ...focusPosition];
+    },
+    [props.harmonyColors, props.shape, props.focusR, props.focusG, props.focusB],
+  );
+
   return (
     <div>
       <Canvas
@@ -195,6 +226,8 @@ const Structure = (props: StructureProps) => {
           getHsbPosition={getHsbPosition}
           rotateCameraRef={props.rotateCameraRef}
           resetCameraZoomSignal={props.resetCameraZoomSignal}
+          harmonyZoomSignal={props.harmonyZoomSignal}
+          harmonyColorPositions={harmonyColorPositions}
           aiColorLabels={props.aiColorLabels}
           aiColorLabelPositions={aiLabelPositions}
         />
