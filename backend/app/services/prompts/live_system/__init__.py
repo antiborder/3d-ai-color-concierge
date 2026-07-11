@@ -26,6 +26,7 @@ from app.services.prompts.common import (
 )
 from app.services.prompts.live_system._identity import IDENTITY_EN, IDENTITY_JA
 from app.services.prompts.live_system._response_rules import RESPONSE_RULES_EN, RESPONSE_RULES_JA
+from app.services.prompts.topics import build_topic_scripts_section
 
 # ツールファイルのルールを収集する順序（表示順）
 _TOOL_MODULES = [
@@ -71,6 +72,8 @@ def build_live_system_instruction(language: str) -> dict:
         response_rules = RESPONSE_RULES_JA
         tool_usage_header = "## tool call ルール"
 
+    topic_scripts = build_topic_scripts_section(language)
+
     text = (
         f"{identity}\n"
         f"{knowledge_base}\n"
@@ -81,6 +84,8 @@ def build_live_system_instruction(language: str) -> dict:
         f"\n"
         f"{tool_usage_header}\n"
         f"{tool_rules}\n"
+        f"\n"
+        f"{topic_scripts}\n"
     )
 
     return {"role": "system", "parts": [{"text": text}]}

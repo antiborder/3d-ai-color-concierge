@@ -74,6 +74,13 @@ def _normalize_color_state(color) -> dict | None:
             bb = _clamp_int(bc.get("b"), 0, 255)
             if br is not None and bg is not None and bb is not None:
                 out[bridge_key] = {"r": br, "g": bg, "b": bb}
+    if "shape" in color and isinstance(color["shape"], str):
+        out["shape"] = color["shape"]
+    if "mainElement" in color and isinstance(color["mainElement"], str):
+        out["mainElement"] = color["mainElement"]
+    ui = color.get("uiContext")
+    if isinstance(ui, dict):
+        out["uiContext"] = ui
     return out
 
 

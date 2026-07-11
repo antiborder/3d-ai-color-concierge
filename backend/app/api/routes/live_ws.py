@@ -130,6 +130,7 @@ async def live_voice_ws(ws: WebSocket):
             language = "ja"
         # 初回フラグを取得（デフォルトはTrueで後方互換性を保つ）
         is_first_time = msg.get("isFirstTime", True)
+        skip_greeting = msg.get("skipGreeting", False)
     except WebSocketDisconnect:
         # クライアント都合で切れた場合は何もしない
         return
@@ -192,6 +193,8 @@ async def live_voice_ws(ws: WebSocket):
             intro_task = None
 
             async def _send_intro() -> None:
+                if skip_greeting:
+                    return
                 from app.services.prompts.introduction import (
                     build_introduction_prompt,
                     build_regreeting_prompt,

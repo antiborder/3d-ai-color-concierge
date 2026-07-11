@@ -23,6 +23,7 @@ export interface VoiceCommandHandlers {
   ) => void;
   updateFromHex: (hex: string) => void;
   getCurrentHex: () => string;
+  getCurrentShape: () => ColorSpace;
   setHarmonyMode: (mode: HarmonyMode) => void;
   setColorSets: (
     sets: Partial<Record<'css' | 'material' | 'japanese' | 'rgbGrid', boolean>>
@@ -189,6 +190,11 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
         'nonagon',
       ];
       if (validModes.includes(mode as HarmonyMode)) {
+        const currentShape = handlers.getCurrentShape();
+        if (currentShape === 'xyz' || currentShape === 'xy') {
+          handlers.resetCameraZoom();
+          handlers.setShape('XYZ');
+        }
         handlers.setHarmonyMode(mode as HarmonyMode);
         if (mode !== 'none') handlers.zoomToHarmony();
       } else {
@@ -207,6 +213,11 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
         }
       }
       if (Object.keys(sets).length > 0) {
+        const currentShape = handlers.getCurrentShape();
+        if (currentShape === 'xyz' || currentShape === 'xy') {
+          handlers.resetCameraZoom();
+          handlers.setShape('XYZ');
+        }
         // If any set is being turned ON, exclusively show only those sets (hide all others)
         const hasAnyTrue = Object.values(sets).some((v) => v === true);
         if (hasAnyTrue) {

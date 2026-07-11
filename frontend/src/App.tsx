@@ -172,6 +172,7 @@ function App() {
     adjustHslValue,
     updateFromHex,
     getCurrentHex: () => `#${colorState.hexInput}`,
+    getCurrentShape: () => colorState.shape,
     setHarmonyMode,
     setColorSets,
     setBridgeColorA,

@@ -352,7 +352,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   }, [cancelPendingSync, cleanupAudio, cleanupWs, clearReconnectTimer]);
 
   const start = useCallback(
-    async (opts?: { skipIntro?: boolean }) => {
+    async (opts?: { skipIntro?: boolean; skipGreeting?: boolean }) => {
       if (isConnecting || isStreaming) return;
 
       const startTime = performance.now();
@@ -395,6 +395,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
               type: 'start',
               language: i18n.language === 'ja' ? 'ja' : 'en',
               isFirstTime: opts?.skipIntro ? false : isFirstTime,
+              skipGreeting: opts?.skipGreeting ?? false,
             })
           );
           if (isFirstTime) isFirstTimeRef.current = false;

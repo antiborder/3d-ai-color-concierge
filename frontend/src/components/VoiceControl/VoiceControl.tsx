@@ -187,7 +187,7 @@ const VoiceControl = ({
       sendTextMessage(helpRequest.text);
     } else {
       pendingHelpRef.current = helpRequest.text;
-      if (!isStreaming && !isConnecting) void start({ skipIntro: true });
+      if (!isStreaming && !isConnecting) void start({ skipIntro: true, skipGreeting: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [helpRequest]);
