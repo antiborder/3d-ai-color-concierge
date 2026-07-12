@@ -1,5 +1,4 @@
-import { useRef, useEffect, type MouseEvent } from 'react';
-import toast from 'react-hot-toast';
+import { useRef, useEffect, useState, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ControlPaneProps } from '../../../types/controlPane';
 import { LOCUS, CMF } from '../../../constants/cieLocus';
@@ -91,6 +90,7 @@ const CIExyDiagram = ({ focusR, focusG, focusB, onColorSelect, onHelpClick }: Pr
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const bgRef = useRef<ImageData | null>(null);
   const { i18n } = useTranslation();
+  const [outOfGamut, setOutOfGamut] = useState(false);
 
   const [cx, cy] = rgbToXY(focusR, focusG, focusB);
 
@@ -251,14 +251,10 @@ const CIExyDiagram = ({ focusR, focusG, focusB, onColorSelect, onHelpClick }: Pr
     const y = Y0 + (1 - (py - TM) / DH) * (YN - Y0);
 
     if (!inPoly(x, y, SRGB_TRIANGLE)) {
-      toast(
-        i18n.language === 'ja'
-          ? 'この色は画面上で表現できません。三角形の枠の中を選んでください。'
-          : 'This color cannot be displayed on the screen. Please select a color inside the triangle.',
-        { icon: '⚠️', style: { background: '#333', color: '#fff' } }
-      );
+      setOutOfGamut(true);
       return;
     }
+    setOutOfGamut(false);
     const [r, g, b] = xyToRGB(x, y);
     onColorSelect(r, g, b);
   };
@@ -282,13 +278,21 @@ const CIExyDiagram = ({ focusR, focusG, focusB, onColorSelect, onHelpClick }: Pr
         <div
           style={{
             fontSize: '11px',
-            color: '#555',
-            textAlign: 'center',
             marginTop: '2px',
-            fontFamily: 'monospace',
+            width: CW,
+            minHeight: '14px',
+            lineHeight: 1.4,
+            wordBreak: 'break-word',
+            ...(outOfGamut
+              ? { color: '#c00', textAlign: 'left' }
+              : { color: '#555', textAlign: 'center', fontFamily: 'monospace' }),
           }}
         >
-          x&nbsp;=&nbsp;{cx.toFixed(4)}&emsp;y&nbsp;=&nbsp;{cy.toFixed(4)}
+          {outOfGamut
+            ? (i18n.language === 'ja'
+                ? 'この色は画面上で表現できません。三角形の枠の中を選んでください。'
+                : 'This color cannot be displayed on screen. Please select a color inside the triangle.')
+            : <>x&nbsp;=&nbsp;{cx.toFixed(4)}&emsp;y&nbsp;=&nbsp;{cy.toFixed(4)}</>}
         </div>
       </>
     </div>
