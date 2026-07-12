@@ -63,6 +63,7 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
   );
 
   const sliderDrivenRef = useRef(false);
+  const isDraggingRef = useRef(false);
 
   // Refs to avoid stale closures in gamut-clamp effects
   const sliderLRef = useRef(sliderL);
@@ -90,9 +91,11 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
     if (clamped !== curr) {
       setSliderL(clamped);
       sliderDrivenRef.current = true;
-      const hueNum = sliderCRef.current === 0 ? null : (sliderHRef.current / 360) * 100;
-      const [r, g, b] = munsellHVCtoRgb(hueNum, clamped / 10, sliderCRef.current / 5);
-      handleClickRef.current(r, g, b);
+      if (!isDraggingRef.current) {
+        const hueNum = sliderCRef.current === 0 ? null : (sliderHRef.current / 360) * 100;
+        const [r, g, b] = munsellHVCtoRgb(hueNum, clamped / 10, sliderCRef.current / 5);
+        handleClickRef.current(r, g, b);
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gamutRanges.lRange[0], gamutRanges.lRange[1]]);
@@ -105,9 +108,11 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
     if (clamped !== curr) {
       setSliderC(clamped);
       sliderDrivenRef.current = true;
-      const hueNum = clamped === 0 ? null : (sliderHRef.current / 360) * 100;
-      const [r, g, b] = munsellHVCtoRgb(hueNum, sliderLRef.current / 10, clamped / 5);
-      handleClickRef.current(r, g, b);
+      if (!isDraggingRef.current) {
+        const hueNum = clamped === 0 ? null : (sliderHRef.current / 360) * 100;
+        const [r, g, b] = munsellHVCtoRgb(hueNum, sliderLRef.current / 10, clamped / 5);
+        handleClickRef.current(r, g, b);
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gamutRanges.cRange[0], gamutRanges.cRange[1]]);
@@ -124,31 +129,29 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
   }, [props.focusR, props.focusG, props.focusB]);
 
   const handleLChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const newL = Number(e.target.value);
-    setSliderL(newL);
+    setSliderL(Number(e.target.value));
     sliderDrivenRef.current = true;
-    const hueNum = sliderC === 0 ? null : (sliderH / 360) * 100;
-    const [r, g, b] = munsellHVCtoRgb(hueNum, newL / 10, sliderC / 5);
-    props.handleClick(r, g, b);
+    isDraggingRef.current = true;
   };
 
   const handleCChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const newC = Number(e.target.value);
-    setSliderC(newC);
+    setSliderC(Number(e.target.value));
     sliderDrivenRef.current = true;
-    const hueNum = newC === 0 ? null : (sliderH / 360) * 100;
-    const [r, g, b] = munsellHVCtoRgb(hueNum, sliderL / 10, newC / 5);
-    props.handleClick(r, g, b);
+    isDraggingRef.current = true;
   };
 
   const handleHChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const newH = Number(e.target.value);
-    setSliderH(newH);
+    setSliderH(Number(e.target.value));
     sliderDrivenRef.current = true;
-    const hueNum = (newH / 360) * 100;
-    const effectiveC = sliderC === 0 ? 10 : sliderC;
-    const [r, g, b] = munsellHVCtoRgb(hueNum, sliderL / 10, effectiveC / 5);
-    props.handleClick(r, g, b);
+    isDraggingRef.current = true;
+  };
+
+  const commitLch = () => {
+    isDraggingRef.current = false;
+    const hueNum = sliderCRef.current === 0 ? null : (sliderHRef.current / 360) * 100;
+    const effectiveC = sliderCRef.current === 0 ? 10 : sliderCRef.current;
+    const [r, g, b] = munsellHVCtoRgb(hueNum, sliderLRef.current / 10, effectiveC / 5);
+    handleClickRef.current(r, g, b);
   };
 
   const lLoP = gamutRanges.lRange[0]; // 0-100 range → already a percentage
@@ -219,6 +222,8 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
                 step="1"
                 value={clampedL}
                 onChange={handleLChange}
+                onPointerUp={commitLch}
+                onKeyUp={commitLch}
                 style={{
                   position: 'absolute',
                   margin: 0,
@@ -257,6 +262,8 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
                 step="1"
                 value={clampedC}
                 onChange={handleCChange}
+                onPointerUp={commitLch}
+                onKeyUp={commitLch}
                 style={{
                   position: 'absolute',
                   margin: 0,
@@ -294,6 +301,8 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
               step="1"
               value={sliderH}
               onChange={handleHChange}
+              onPointerUp={commitLch}
+              onKeyUp={commitLch}
             />
             <Value>{sliderH}</Value>
             {props.onHelpClick && (

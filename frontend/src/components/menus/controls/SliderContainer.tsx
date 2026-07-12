@@ -1,15 +1,23 @@
-import { useState, type ChangeEvent } from 'react';
+import { useState, useRef, type ChangeEvent } from 'react';
 import styled from 'styled-components';
 import type { SliderContainerProps } from '../../../types/controlPane';
 import HelpIcon from '../../common/HelpIcon';
 
 const SliderContainer = (props: SliderContainerProps) => {
-  const [, setValue] = useState(props.value);
+  const [draftValue, setDraftValue] = useState<number | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const isActive = props.mainElement === props.symbol && props.shape === props.panelShape;
+  const displayedValue = draftValue !== null ? draftValue : props.value;
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setValue(Number(event.target.value));
-    props.onChange(event);
+    setDraftValue(Number(event.target.value));
+  };
+
+  const commit = () => {
+    if (draftValue !== null && inputRef.current) {
+      props.onChange({ target: inputRef.current } as ChangeEvent<HTMLInputElement>);
+      setDraftValue(null);
+    }
   };
 
   return (
@@ -57,14 +65,17 @@ const SliderContainer = (props: SliderContainerProps) => {
       {props.symbol === 'K' && <div style={{ width: '22px' }}></div>}
       <span className="symbolLabel">{props.label ?? props.symbol}</span>
       <input
+        ref={inputRef}
         type="range"
         min="0"
         step="1"
         max={props.max}
-        value={props.value}
+        value={displayedValue}
         onChange={handleChange}
+        onPointerUp={commit}
+        onKeyUp={commit}
       />
-      <div className="value">{Math.round(props.value)}</div>
+      <div className="value">{Math.round(displayedValue)}</div>
       {props.onHelpClick && props.helpTopic && (
         <HelpIcon topic={props.helpTopic} onHelpClick={props.onHelpClick} size={20} />
       )}

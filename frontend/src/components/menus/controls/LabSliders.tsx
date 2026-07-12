@@ -21,6 +21,7 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
   const [sliderB, setSliderB] = useState(Math.round(b_init));
 
   const sliderDrivenRef = useRef(false);
+  const isDraggingRef = useRef(false);
 
   // Refs to avoid stale closures in gamut-clamp effects
   const sliderLRef = useRef(sliderL);
@@ -49,8 +50,10 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
     if (clamped !== curr) {
       setSliderL(clamped);
       sliderDrivenRef.current = true;
-      const [r, g, b] = labToRgb(clamped, sliderARef.current, sliderBRef.current);
-      handleClickRef.current(r, g, b);
+      if (!isDraggingRef.current) {
+        const [r, g, b] = labToRgb(clamped, sliderARef.current, sliderBRef.current);
+        handleClickRef.current(r, g, b);
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gamutRanges.lRange[0], gamutRanges.lRange[1]]);
@@ -63,8 +66,10 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
     if (clamped !== curr) {
       setSliderA(clamped);
       sliderDrivenRef.current = true;
-      const [r, g, b] = labToRgb(sliderLRef.current, clamped, sliderBRef.current);
-      handleClickRef.current(r, g, b);
+      if (!isDraggingRef.current) {
+        const [r, g, b] = labToRgb(sliderLRef.current, clamped, sliderBRef.current);
+        handleClickRef.current(r, g, b);
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gamutRanges.aRange[0], gamutRanges.aRange[1]]);
@@ -77,8 +82,10 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
     if (clamped !== curr) {
       setSliderB(clamped);
       sliderDrivenRef.current = true;
-      const [r, g, b] = labToRgb(sliderLRef.current, sliderARef.current, clamped);
-      handleClickRef.current(r, g, b);
+      if (!isDraggingRef.current) {
+        const [r, g, b] = labToRgb(sliderLRef.current, sliderARef.current, clamped);
+        handleClickRef.current(r, g, b);
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gamutRanges.bRange[0], gamutRanges.bRange[1]]);
@@ -102,24 +109,27 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
     const val = Number(e.target.value);
     setSliderL(val);
     sliderDrivenRef.current = true;
-    const [r, g, b] = labToRgb(val, sliderA, sliderB);
-    props.handleClick(r, g, b);
+    isDraggingRef.current = true;
   };
 
   const handleAChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = Number(e.target.value);
     setSliderA(val);
     sliderDrivenRef.current = true;
-    const [r, g, b] = labToRgb(sliderL, val, sliderB);
-    props.handleClick(r, g, b);
+    isDraggingRef.current = true;
   };
 
   const handleBChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = Number(e.target.value);
     setSliderB(val);
     sliderDrivenRef.current = true;
-    const [r, g, b] = labToRgb(sliderL, sliderA, val);
-    props.handleClick(r, g, b);
+    isDraggingRef.current = true;
+  };
+
+  const commitLab = () => {
+    isDraggingRef.current = false;
+    const [r, g, b] = labToRgb(sliderLRef.current, sliderARef.current, sliderBRef.current);
+    handleClickRef.current(r, g, b);
   };
 
   return (
@@ -217,6 +227,8 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
                     step="1"
                     value={clampedValue}
                     onChange={onChange}
+                    onPointerUp={commitLab}
+                    onKeyUp={commitLab}
                     style={{
                       position: 'absolute',
                       margin: 0,

@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import styled from 'styled-components';
 import ShapeButton from './ShapeButton';
 import HelpIcon from '../../common/HelpIcon';
@@ -13,13 +14,19 @@ const XyzSliders = (props: Props) => {
   const [yLo, yHi] = xyzGamutRange('Y', X, Y, Z);
   const [zLo, zHi] = xyzGamutRange('Z', X, Y, Z);
 
-  const handleChange = (channel: 'X' | 'Y' | 'Z', val: number) => {
-    const [r, g, b] = xyzToRgb(
-      channel === 'X' ? val : X,
-      channel === 'Y' ? val : Y,
-      channel === 'Z' ? val : Z
-    );
+  const [draft, setDraft] = useState<Partial<Record<'X' | 'Y' | 'Z', number>>>({});
+  const latestDraftRef = useRef<Partial<Record<'X' | 'Y' | 'Z', number>>>({});
+
+  const commit = (channel: 'X' | 'Y' | 'Z') => {
+    const val = latestDraftRef.current[channel];
+    if (val === undefined) return;
+    const cx = channel === 'X' ? val : (latestDraftRef.current.X ?? X);
+    const cy = channel === 'Y' ? val : (latestDraftRef.current.Y ?? Y);
+    const cz = channel === 'Z' ? val : (latestDraftRef.current.Z ?? Z);
+    const [r, g, b] = xyzToRgb(cx, cy, cz);
     props.handleClick(r, g, b);
+    latestDraftRef.current = {};
+    setDraft({});
   };
 
   const row = (
@@ -29,9 +36,10 @@ const XyzSliders = (props: Props) => {
     lo: number,
     hi: number
   ) => {
+    const displayValue = draft[label] ?? value;
     const loP = (lo / absMax) * 100;
     const hiP = (hi / absMax) * 100;
-    const clamped = Math.max(lo, Math.min(hi, value));
+    const clamped = Math.max(lo, Math.min(hi, displayValue));
     return (
       <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
         <Label>{label}</Label>
@@ -42,7 +50,13 @@ const XyzSliders = (props: Props) => {
             max={hi}
             step={0.001}
             value={clamped}
-            onChange={(e) => handleChange(label, Number(e.target.value))}
+            onChange={(e) => {
+              const val = Number(e.target.value);
+              latestDraftRef.current = { ...latestDraftRef.current, [label]: val };
+              setDraft(prev => ({ ...prev, [label]: val }));
+            }}
+            onPointerUp={() => commit(label)}
+            onKeyUp={() => commit(label)}
             style={{
               position: 'absolute',
               margin: 0,
@@ -62,7 +76,7 @@ const XyzSliders = (props: Props) => {
             color: '#444',
           }}
         >
-          {value.toFixed(4)}
+          {displayValue.toFixed(4)}
         </span>
       </div>
     );
