@@ -337,6 +337,9 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     setIsConnecting(false);
     setIsConnected(false);
     setIsThinking(false);
+    setIsUserSpeaking(false);
+    setIsExecuting(false);
+    if (userSpeakingTimerRef.current != null) { window.clearTimeout(userSpeakingTimerRef.current); userSpeakingTimerRef.current = null; }
     if (thinkingTimerRef.current != null) { window.clearTimeout(thinkingTimerRef.current); thinkingTimerRef.current = null; }
     if (thinkingFallbackTimerRef.current != null) { window.clearTimeout(thinkingFallbackTimerRef.current); thinkingFallbackTimerRef.current = null; }
 
@@ -570,12 +573,12 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     }
   }, [isAISpeaking]);
 
-  // cleanup on unmount
+  // cleanup on unmount — use stopRef so this effect runs only once (on unmount)
   useEffect(() => {
     return () => {
-      stop();
+      void stopRef.current?.();
     };
-  }, [stop]);
+  }, []);
 
   // ─── Public API ──────────────────────────────────────────────────────────────
 
