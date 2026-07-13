@@ -58,6 +58,10 @@ export interface ControlPaneProps extends BridgeProps {
   setFocusG: (value: number) => void;
   setFocusB: (value: number) => void;
 
+  // Live preview callbacks (called during slider drag, before commit)
+  onPreviewRgb?: (r: number, g: number, b: number) => void;
+  onClearPreviewRgb?: () => void;
+
   // Help
   onHelpClick?: (topic: string) => void;
 

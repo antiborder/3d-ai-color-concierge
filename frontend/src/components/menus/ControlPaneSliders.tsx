@@ -56,14 +56,18 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
       }
     : props;
 
-  const onDragEnd = () => setLiveRgb(null);
+  const onDragEnd = () => {
+    setLiveRgb(null);
+    props.onClearPreviewRgb?.();
+  };
 
-  const onRgbLiveDrag = (channel: string, value: number) =>
-    setLiveRgb({
-      r: channel === 'R' ? value : lr,
-      g: channel === 'G' ? value : lg,
-      b: channel === 'B' ? value : lb,
-    });
+  const onRgbLiveDrag = (channel: string, value: number) => {
+    const r = channel === 'R' ? value : lr;
+    const g = channel === 'G' ? value : lg;
+    const b = channel === 'B' ? value : lb;
+    setLiveRgb({ r, g, b });
+    props.onPreviewRgb?.(r, g, b);
+  };
 
   const onHslLiveDrag = (channel: string, value: number) => {
     const h = channel === 'H' ? value : lh;
@@ -71,6 +75,7 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
     const l = channel === 'L' ? value : ll;
     const [r, g, b] = convert.hsl.rgb([h, s, l]) as [number, number, number];
     setLiveRgb({ r, g, b });
+    props.onPreviewRgb?.(r, g, b);
   };
 
   const onHsbLiveDrag = (channel: string, value: number) => {
@@ -79,6 +84,7 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
     const v = channel === 'V' ? value : lv;
     const [r, g, b] = convert.hsv.rgb([h, s, v]) as [number, number, number];
     setLiveRgb({ r, g, b });
+    props.onPreviewRgb?.(r, g, b);
   };
 
   const onCmykLiveDrag = (channel: string, value: number) => {
@@ -88,6 +94,7 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
     const k = channel === 'K' ? value : lk;
     const [r, g, b] = convert.cmyk.rgb([c, m, y, k]) as [number, number, number];
     setLiveRgb({ r, g, b });
+    props.onPreviewRgb?.(r, g, b);
   };
 
   return (

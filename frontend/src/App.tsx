@@ -138,6 +138,7 @@ function App() {
 
   const isDesktopLayout = useMatchMedia('(min-width: 1000px)');
 
+  const [previewRgb, setPreviewRgb] = useState<{ r: number; g: number; b: number } | null>(null);
   const [harmonyMode, setHarmonyMode] = useState<HarmonyMode>('none');
   const [aiColorLabels, setAiColorLabels] = useState<AiColorLabel[]>([]);
   const [activeContentId, setActiveContentId] = useState<string | null>(null);
@@ -320,6 +321,8 @@ function App() {
     setFocusB: (v: number) => updateRgbValue('B', v),
     setHexInput,
     onHexUpdate: handleHexUpdate,
+    onPreviewRgb: (r: number, g: number, b: number) => setPreviewRgb({ r, g, b }),
+    onClearPreviewRgb: () => setPreviewRgb(null),
   };
 
   const bridgeForStructure = {
@@ -368,6 +371,9 @@ function App() {
       </LangSelectorWrapper>
       <Structure
         {...colorValues}
+        focusR={previewRgb?.r ?? colorValues.focusR}
+        focusG={previewRgb?.g ?? colorValues.focusG}
+        focusB={previewRgb?.b ?? colorValues.focusB}
         {...bridgeForStructure}
         {...displaySettings}
         isLabelShown={colorState.isLabelShown}

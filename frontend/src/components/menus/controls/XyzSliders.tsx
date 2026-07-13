@@ -29,6 +29,7 @@ const XyzSliders = (props: Props) => {
     const cz = channel === 'Z' ? val : (latestDraftRef.current.Z ?? Z);
     const [r, g, b] = xyzToRgb(cx, cy, cz);
     props.handleClick(r, g, b);
+    props.onClearPreviewRgb?.();
     latestDraftRef.current = {};
     setDraft({});
   };
@@ -115,6 +116,11 @@ const XyzSliders = (props: Props) => {
               const val = Math.max(lo, Math.min(hi, Number(e.target.value)));
               latestDraftRef.current = { ...latestDraftRef.current, [label]: val };
               setDraft((prev) => ({ ...prev, [label]: val }));
+              const px = latestDraftRef.current.X ?? X;
+              const py = latestDraftRef.current.Y ?? Y;
+              const pz = latestDraftRef.current.Z ?? Z;
+              const [pr, pg, pb] = xyzToRgb(px, py, pz);
+              props.onPreviewRgb?.(pr, pg, pb);
             }}
             onPointerUp={() => commit(label)}
             onKeyUp={() => commit(label)}
