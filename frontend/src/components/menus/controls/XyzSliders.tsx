@@ -10,11 +10,15 @@ type Props = ControlPaneProps;
 const XyzSliders = (props: Props) => {
   const [X, Y, Z] = rgbToXYZ(props.focusR, props.focusG, props.focusB);
 
-  const [xLo, xHi] = xyzGamutRange('X', X, Y, Z);
-  const [yLo, yHi] = xyzGamutRange('Y', X, Y, Z);
-  const [zLo, zHi] = xyzGamutRange('Z', X, Y, Z);
-
   const [draft, setDraft] = useState<Partial<Record<'X' | 'Y' | 'Z', number>>>({});
+
+  const liveX = draft.X ?? X;
+  const liveY = draft.Y ?? Y;
+  const liveZ = draft.Z ?? Z;
+
+  const [xLo, xHi] = xyzGamutRange('X', liveX, liveY, liveZ);
+  const [yLo, yHi] = xyzGamutRange('Y', liveX, liveY, liveZ);
+  const [zLo, zHi] = xyzGamutRange('Z', liveX, liveY, liveZ);
   const latestDraftRef = useRef<Partial<Record<'X' | 'Y' | 'Z', number>>>({});
 
   const commit = (channel: 'X' | 'Y' | 'Z') => {
@@ -39,19 +43,37 @@ const XyzSliders = (props: Props) => {
     const displayValue = draft[label] ?? value;
     const loP = (lo / absMax) * 100;
     const hiP = (hi / absMax) * 100;
-    const clamped = Math.max(lo, Math.min(hi, displayValue));
     return (
       <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
         <Label>{label}</Label>
         <SliderTrack>
+          {/* Fixed tick marks: ┣---+---┫ */}
+          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 1, background: '#c0c0c0', transform: 'translateY(-50%)' }} />
+            <div style={{ position: 'absolute', left: 0, top: '50%', width: 1, height: 10, background: '#c0c0c0', transform: 'translateY(-50%)' }} />
+            <div style={{ position: 'absolute', left: '50%', top: '50%', width: 1, height: 6, background: '#c0c0c0', transform: 'translate(-50%, -50%)' }} />
+            <div style={{ position: 'absolute', right: 0, top: '50%', width: 1, height: 10, background: '#c0c0c0', transform: 'translateY(-50%)' }} />
+          </div>
+          {/* Gamut range bar (informational only) */}
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: `${loP}%`,
+            width: `${Math.max(hiP - loP, 0.1)}%`,
+            height: 4,
+            borderRadius: 2,
+            background: '#a0a0a0',
+            transform: 'translateY(-50%)',
+            pointerEvents: 'none',
+          }} />
           <input
             type="range"
-            min={lo}
-            max={hi}
-            step={0.001}
-            value={clamped}
+            min={0}
+            max={absMax}
+            step={absMax / 1000}
+            value={Math.max(lo, Math.min(hi, displayValue))}
             onChange={(e) => {
-              const val = Number(e.target.value);
+              const val = Math.max(lo, Math.min(hi, Number(e.target.value)));
               latestDraftRef.current = { ...latestDraftRef.current, [label]: val };
               setDraft(prev => ({ ...prev, [label]: val }));
             }}
@@ -60,23 +82,15 @@ const XyzSliders = (props: Props) => {
             style={{
               position: 'absolute',
               margin: 0,
-              left: `${loP}%`,
-              width: `${Math.max(hiP - loP, 0.1)}%`,
+              left: 0,
+              width: '100%',
               height: '100%',
               boxSizing: 'border-box',
             }}
           />
         </SliderTrack>
-        <span
-          style={{
-            width: '42px',
-            fontSize: '11px',
-            textAlign: 'right',
-            fontFamily: 'monospace',
-            color: '#444',
-          }}
-        >
-          {displayValue.toFixed(4)}
+        <span style={{ width: '42px', fontSize: '11px', textAlign: 'right', fontFamily: 'monospace', color: '#444' }}>
+          {displayValue.toFixed(2)}
         </span>
       </div>
     );
@@ -126,6 +140,36 @@ const SliderTrack = styled.div`
   input[type='range'] {
     height: 100%;
     box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 7px;
+    height: 18px;
+    border-radius: 3px;
+    background: #4a90e2;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  input[type='range']::-moz-range-thumb {
+    width: 7px;
+    height: 18px;
+    border-radius: 3px;
+    background: #4a90e2;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  input[type='range']::-webkit-slider-runnable-track {
+    background: transparent;
+  }
+
+  input[type='range']::-moz-range-track {
+    background: transparent;
   }
 `;
 
