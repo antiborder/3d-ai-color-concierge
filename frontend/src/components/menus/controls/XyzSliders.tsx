@@ -33,39 +33,78 @@ const XyzSliders = (props: Props) => {
     setDraft({});
   };
 
-  const row = (
-    label: 'X' | 'Y' | 'Z',
-    value: number,
-    absMax: number,
-    lo: number,
-    hi: number
-  ) => {
+  const row = (label: 'X' | 'Y' | 'Z', value: number, absMax: number, lo: number, hi: number) => {
     const displayValue = draft[label] ?? value;
     const loP = (lo / absMax) * 100;
     const hiP = (hi / absMax) * 100;
     return (
-      <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+      <div
+        key={label}
+        style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}
+      >
         <Label>{label}</Label>
         <SliderTrack>
           {/* Fixed tick marks: ┣---+---┫ */}
           <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-            <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 1, background: '#c0c0c0', transform: 'translateY(-50%)' }} />
-            <div style={{ position: 'absolute', left: 0, top: '50%', width: 1, height: 10, background: '#c0c0c0', transform: 'translateY(-50%)' }} />
-            <div style={{ position: 'absolute', left: '50%', top: '50%', width: 1, height: 6, background: '#c0c0c0', transform: 'translate(-50%, -50%)' }} />
-            <div style={{ position: 'absolute', right: 0, top: '50%', width: 1, height: 10, background: '#c0c0c0', transform: 'translateY(-50%)' }} />
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: 0,
+                right: 0,
+                height: 1,
+                background: '#c0c0c0',
+                transform: 'translateY(-50%)',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: '50%',
+                width: 1,
+                height: 10,
+                background: '#c0c0c0',
+                transform: 'translateY(-50%)',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                width: 1,
+                height: 6,
+                background: '#c0c0c0',
+                transform: 'translate(-50%, -50%)',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                right: 0,
+                top: '50%',
+                width: 1,
+                height: 10,
+                background: '#c0c0c0',
+                transform: 'translateY(-50%)',
+              }}
+            />
           </div>
           {/* Gamut range bar (informational only) */}
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: `${loP}%`,
-            width: `${Math.max(hiP - loP, 0.1)}%`,
-            height: 4,
-            borderRadius: 2,
-            background: '#a0a0a0',
-            transform: 'translateY(-50%)',
-            pointerEvents: 'none',
-          }} />
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: `${loP}%`,
+              width: `${Math.max(hiP - loP, 0.1)}%`,
+              height: 4,
+              borderRadius: 2,
+              background: '#a0a0a0',
+              transform: 'translateY(-50%)',
+              pointerEvents: 'none',
+            }}
+          />
           <input
             type="range"
             min={0}
@@ -75,7 +114,7 @@ const XyzSliders = (props: Props) => {
             onChange={(e) => {
               const val = Math.max(lo, Math.min(hi, Number(e.target.value)));
               latestDraftRef.current = { ...latestDraftRef.current, [label]: val };
-              setDraft(prev => ({ ...prev, [label]: val }));
+              setDraft((prev) => ({ ...prev, [label]: val }));
             }}
             onPointerUp={() => commit(label)}
             onKeyUp={() => commit(label)}
@@ -89,7 +128,15 @@ const XyzSliders = (props: Props) => {
             }}
           />
         </SliderTrack>
-        <span style={{ width: '42px', fontSize: '11px', textAlign: 'right', fontFamily: 'monospace', color: '#444' }}>
+        <span
+          style={{
+            width: '30px',
+            fontSize: '11px',
+            textAlign: 'right',
+            fontFamily: 'monospace',
+            color: '#444',
+          }}
+        >
           {displayValue.toFixed(2)}
         </span>
       </div>
@@ -110,13 +157,11 @@ const XyzSliders = (props: Props) => {
         <ShapeButton {...props} setIsVisible={() => {}} shapeName="XYZ" content="" />
         <ShapeButton {...props} setIsVisible={() => {}} shapeName="xyz" content="" />
         <ShapeButton {...props} setIsVisible={() => {}} shapeName="xy" content="" />
-        {props.onHelpClick && (
-          <HelpIcon topic="xyz_space" onHelpClick={props.onHelpClick} />
-        )}
+        {props.onHelpClick && <HelpIcon topic="xyz_space" onHelpClick={props.onHelpClick} />}
       </div>
       <div style={{ paddingTop: '6px' }}>
         {row('X', X, 0.95047, xLo, xHi)}
-        {row('Y', Y, 1.0,     yLo, yHi)}
+        {row('Y', Y, 1.0, yLo, yHi)}
         {row('Z', Z, 1.08883, zLo, zHi)}
       </div>
     </div>
@@ -152,7 +197,7 @@ const SliderTrack = styled.div`
     height: 18px;
     border-radius: 3px;
     background: #4a90e2;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
 
   input[type='range']::-moz-range-thumb {
@@ -161,7 +206,7 @@ const SliderTrack = styled.div`
     border-radius: 3px;
     background: #4a90e2;
     border: none;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
 
   input[type='range']::-webkit-slider-runnable-track {

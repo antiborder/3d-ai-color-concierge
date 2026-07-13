@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import type { ControlPaneProps, BridgeProps } from '../../../types/controlPane';
 import ShapeButton from './ShapeButton';
 import HelpIcon from '../../common/HelpIcon';
-import { rgbToLab, labToRgb, isInGamut, computeGamutRange } from '../../../utils/gamutUtils';
+import { rgbToLab, labToRgb, computeGamutRange } from '../../../utils/gamutUtils';
 
 const LabSliders = (props: ControlPaneProps & BridgeProps) => {
   const [isVisible, setIsVisible] = useState(props.shape === 'Lab');
@@ -55,7 +55,7 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
         handleClickRef.current(r, g, b);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gamutRanges.lRange[0], gamutRanges.lRange[1]]);
 
   // Clamp A when aRange changes (due to L or B changing)
@@ -71,7 +71,7 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
         handleClickRef.current(r, g, b);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gamutRanges.aRange[0], gamutRanges.aRange[1]]);
 
   // Clamp B when bRange changes (due to L or A changing)
@@ -87,7 +87,7 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
         handleClickRef.current(r, g, b);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gamutRanges.bRange[0], gamutRanges.bRange[1]]);
 
   useEffect(() => {
@@ -106,21 +106,30 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
   }, [props.focusR, props.focusG, props.focusB]);
 
   const handleLChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const val = Number(e.target.value);
+    const val = Math.max(
+      gamutRanges.lRange[0],
+      Math.min(gamutRanges.lRange[1], Number(e.target.value))
+    );
     setSliderL(val);
     sliderDrivenRef.current = true;
     isDraggingRef.current = true;
   };
 
   const handleAChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const val = Number(e.target.value);
+    const val = Math.max(
+      gamutRanges.aRange[0],
+      Math.min(gamutRanges.aRange[1], Number(e.target.value))
+    );
     setSliderA(val);
     sliderDrivenRef.current = true;
     isDraggingRef.current = true;
   };
 
   const handleBChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const val = Number(e.target.value);
+    const val = Math.max(
+      gamutRanges.bRange[0],
+      Math.min(gamutRanges.bRange[1], Number(e.target.value))
+    );
     setSliderB(val);
     sliderDrivenRef.current = true;
     isDraggingRef.current = true;
@@ -208,22 +217,102 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
                   className={isActive ? 'mainElement labelOn' : 'mainElement labelOff'}
                 >
                   {isActive ? (
-                    <svg width="14" height="14" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 10 10"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden
+                    >
                       <circle cx="5" cy="5" r="7" fill="#555555" />
-                      <path d="M2 5L4 7.4L8 2.2" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <path
+                        d="M2 5L4 7.4L8 2.2"
+                        stroke="#ffffff"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   ) : (
-                    <svg width="14" height="14" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 10 10"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden
+                    >
                       <circle cx="5" cy="5" r="7" fill="#555555" />
                     </svg>
                   )}
                 </button>
                 <Label>{label}</Label>
                 <SliderTrack>
+                  {/* Fixed tick marks: ┣---+---┫ */}
+                  <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: 0,
+                        right: 0,
+                        height: 1,
+                        background: '#c0c0c0',
+                        transform: 'translateY(-50%)',
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: 0,
+                        top: '50%',
+                        width: 1,
+                        height: 10,
+                        background: '#c0c0c0',
+                        transform: 'translateY(-50%)',
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: '50%',
+                        top: '50%',
+                        width: 1,
+                        height: 6,
+                        background: '#c0c0c0',
+                        transform: 'translate(-50%, -50%)',
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        right: 0,
+                        top: '50%',
+                        width: 1,
+                        height: 10,
+                        background: '#c0c0c0',
+                        transform: 'translateY(-50%)',
+                      }}
+                    />
+                  </div>
+                  {/* Gamut range bar (informational only) */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: `${loP}%`,
+                      width: `${Math.max(hiP - loP, 0.1)}%`,
+                      height: 4,
+                      borderRadius: 2,
+                      background: '#a0a0a0',
+                      transform: 'translateY(-50%)',
+                      pointerEvents: 'none',
+                    }}
+                  />
                   <input
                     type="range"
-                    min={range[0]}
-                    max={range[1]}
+                    min={absMin}
+                    max={absMax}
                     step="1"
                     value={clampedValue}
                     onChange={onChange}
@@ -232,8 +321,10 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
                     style={{
                       position: 'absolute',
                       margin: 0,
-                      left: `${loP}%`,
-                      width: `${Math.max(hiP - loP, 1)}%`,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      boxSizing: 'border-box',
                     }}
                   />
                 </SliderTrack>
@@ -253,11 +344,9 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
 const LabSliderRow = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
   margin-top: 12px;
   margin-bottom: 8px;
-  width: 217px;
-  gap: 4px;
+  gap: 2px;
 `;
 
 const SliderTrack = styled.div`
@@ -269,13 +358,43 @@ const SliderTrack = styled.div`
   input[type='range'] {
     height: 100%;
     box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 7px;
+    height: 18px;
+    border-radius: 3px;
+    background: #4a90e2;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  input[type='range']::-moz-range-thumb {
+    width: 7px;
+    height: 18px;
+    border-radius: 3px;
+    background: #4a90e2;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  input[type='range']::-webkit-slider-runnable-track {
+    background: transparent;
+  }
+
+  input[type='range']::-moz-range-track {
+    background: transparent;
   }
 `;
 
 const Label = styled.span`
   font-weight: 600;
   font-size: 16px;
-  width: 24px;
+  width: 12px;
   text-align: right;
   flex-shrink: 0;
 `;

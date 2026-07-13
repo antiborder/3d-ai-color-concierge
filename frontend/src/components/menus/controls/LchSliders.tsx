@@ -48,6 +48,55 @@ function computeLchGamutRange(
   return [lo, hi];
 }
 
+const TickMarks = () => (
+  <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+    <div
+      style={{
+        position: 'absolute',
+        top: '50%',
+        left: 0,
+        right: 0,
+        height: 1,
+        background: '#c0c0c0',
+        transform: 'translateY(-50%)',
+      }}
+    />
+    <div
+      style={{
+        position: 'absolute',
+        left: 0,
+        top: '50%',
+        width: 1,
+        height: 10,
+        background: '#c0c0c0',
+        transform: 'translateY(-50%)',
+      }}
+    />
+    <div
+      style={{
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        width: 1,
+        height: 6,
+        background: '#c0c0c0',
+        transform: 'translate(-50%, -50%)',
+      }}
+    />
+    <div
+      style={{
+        position: 'absolute',
+        right: 0,
+        top: '50%',
+        width: 1,
+        height: 10,
+        background: '#c0c0c0',
+        transform: 'translateY(-50%)',
+      }}
+    />
+  </div>
+);
+
 const LchSliders = (props: ControlPaneProps & BridgeProps) => {
   const [isVisible, setIsVisible] = useState(props.shape === 'LCH');
   useEffect(() => {
@@ -65,7 +114,6 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
   const sliderDrivenRef = useRef(false);
   const isDraggingRef = useRef(false);
 
-  // Refs to avoid stale closures in gamut-clamp effects
   const sliderLRef = useRef(sliderL);
   const sliderCRef = useRef(sliderC);
   const sliderHRef = useRef(sliderH);
@@ -83,7 +131,6 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
     [sliderL, sliderC, sliderH]
   );
 
-  // Clamp L when lRange changes (due to C or H changing)
   useEffect(() => {
     const [lo, hi] = gamutRanges.lRange;
     const curr = sliderLRef.current;
@@ -97,10 +144,9 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
         handleClickRef.current(r, g, b);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gamutRanges.lRange[0], gamutRanges.lRange[1]]);
 
-  // Clamp C when cRange changes (due to L or H changing)
   useEffect(() => {
     const [lo, hi] = gamutRanges.cRange;
     const curr = sliderCRef.current;
@@ -114,7 +160,7 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
         handleClickRef.current(r, g, b);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gamutRanges.cRange[0], gamutRanges.cRange[1]]);
 
   useEffect(() => {
@@ -129,13 +175,21 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
   }, [props.focusR, props.focusG, props.focusB]);
 
   const handleLChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSliderL(Number(e.target.value));
+    const val = Math.max(
+      gamutRanges.lRange[0],
+      Math.min(gamutRanges.lRange[1], Number(e.target.value))
+    );
+    setSliderL(val);
     sliderDrivenRef.current = true;
     isDraggingRef.current = true;
   };
 
   const handleCChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSliderC(Number(e.target.value));
+    const val = Math.max(
+      gamutRanges.cRange[0],
+      Math.min(gamutRanges.cRange[1], Number(e.target.value))
+    );
+    setSliderC(val);
     sliderDrivenRef.current = true;
     isDraggingRef.current = true;
   };
@@ -154,13 +208,53 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
     handleClickRef.current(r, g, b);
   };
 
-  const lLoP = gamutRanges.lRange[0]; // 0-100 range → already a percentage
-  const lHiP = gamutRanges.lRange[1];
-  const cLoP = gamutRanges.cRange[0]; // 0-100 range → already a percentage
-  const cHiP = gamutRanges.cRange[1];
-
   const clampedL = Math.max(gamutRanges.lRange[0], Math.min(gamutRanges.lRange[1], sliderL));
   const clampedC = Math.max(gamutRanges.cRange[0], Math.min(gamutRanges.cRange[1], sliderC));
+
+  const lLoP = gamutRanges.lRange[0]; // 0-100 range → already a percentage
+  const lHiP = gamutRanges.lRange[1];
+  const cLoP = gamutRanges.cRange[0];
+  const cHiP = gamutRanges.cRange[1];
+
+  const mainBtn = (channel: 'L' | 'C' | 'H') => {
+    const isActive = props.lchMainElement === channel && props.shape === 'LCH';
+    return (
+      <button
+        onClick={() => props.setLchMainElement(channel)}
+        className={isActive ? 'mainElement labelOn' : 'mainElement labelOff'}
+      >
+        {isActive ? (
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 10 10"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden
+          >
+            <circle cx="5" cy="5" r="7" fill="#555555" />
+            <path
+              d="M2 5L4 7.4L8 2.2"
+              stroke="#ffffff"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        ) : (
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 10 10"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden
+          >
+            <circle cx="5" cy="5" r="7" fill="#555555" />
+          </svg>
+        )}
+      </button>
+    );
+  };
 
   return (
     <div className="controlPanel">
@@ -197,28 +291,29 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
       </div>
       {isVisible && (
         <>
+          {/* L slider */}
           <LchSliderRow>
-            <button
-              onClick={() => props.setLchMainElement('L')}
-              className={props.lchMainElement === 'L' && props.shape === 'LCH' ? 'mainElement labelOn' : 'mainElement labelOff'}
-            >
-              {props.lchMainElement === 'L' && props.shape === 'LCH' ? (
-                <svg width="14" height="14" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                  <circle cx="5" cy="5" r="7" fill="#555555" />
-                  <path d="M2 5L4 7.4L8 2.2" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              ) : (
-                <svg width="14" height="14" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                  <circle cx="5" cy="5" r="7" fill="#555555" />
-                </svg>
-              )}
-            </button>
+            {mainBtn('L')}
             <Label>L</Label>
             <SliderTrack>
+              <TickMarks />
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: `${lLoP}%`,
+                  width: `${Math.max(lHiP - lLoP, 0.1)}%`,
+                  height: 4,
+                  borderRadius: 2,
+                  background: '#a0a0a0',
+                  transform: 'translateY(-50%)',
+                  pointerEvents: 'none',
+                }}
+              />
               <input
                 type="range"
-                min={gamutRanges.lRange[0]}
-                max={gamutRanges.lRange[1]}
+                min={0}
+                max={100}
                 step="1"
                 value={clampedL}
                 onChange={handleLChange}
@@ -227,8 +322,10 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
                 style={{
                   position: 'absolute',
                   margin: 0,
-                  left: `${lLoP}%`,
-                  width: `${Math.max(lHiP - lLoP, 1)}%`,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  boxSizing: 'border-box',
                 }}
               />
             </SliderTrack>
@@ -237,28 +334,30 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
               <HelpIcon topic="lch_l" onHelpClick={props.onHelpClick} size={20} />
             )}
           </LchSliderRow>
+
+          {/* C slider */}
           <LchSliderRow>
-            <button
-              onClick={() => props.setLchMainElement('C')}
-              className={props.lchMainElement === 'C' && props.shape === 'LCH' ? 'mainElement labelOn' : 'mainElement labelOff'}
-            >
-              {props.lchMainElement === 'C' && props.shape === 'LCH' ? (
-                <svg width="14" height="14" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                  <circle cx="5" cy="5" r="7" fill="#555555" />
-                  <path d="M2 5L4 7.4L8 2.2" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              ) : (
-                <svg width="14" height="14" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                  <circle cx="5" cy="5" r="7" fill="#555555" />
-                </svg>
-              )}
-            </button>
+            {mainBtn('C')}
             <Label>C</Label>
             <SliderTrack>
+              <TickMarks />
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: `${cLoP}%`,
+                  width: `${Math.max(cHiP - cLoP, 0.1)}%`,
+                  height: 4,
+                  borderRadius: 2,
+                  background: '#a0a0a0',
+                  transform: 'translateY(-50%)',
+                  pointerEvents: 'none',
+                }}
+              />
               <input
                 type="range"
-                min={gamutRanges.cRange[0]}
-                max={gamutRanges.cRange[1]}
+                min={0}
+                max={100}
                 step="1"
                 value={clampedC}
                 onChange={handleCChange}
@@ -267,8 +366,10 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
                 style={{
                   position: 'absolute',
                   margin: 0,
-                  left: `${cLoP}%`,
-                  width: `${Math.max(cHiP - cLoP, 1)}%`,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  boxSizing: 'border-box',
                 }}
               />
             </SliderTrack>
@@ -277,33 +378,32 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
               <HelpIcon topic="lch_c" onHelpClick={props.onHelpClick} size={20} />
             )}
           </LchSliderRow>
+
+          {/* H slider — full 0-359, no gamut bar */}
           <LchSliderRow>
-            <button
-              onClick={() => props.setLchMainElement('H')}
-              className={props.lchMainElement === 'H' && props.shape === 'LCH' ? 'mainElement labelOn' : 'mainElement labelOff'}
-            >
-              {props.lchMainElement === 'H' && props.shape === 'LCH' ? (
-                <svg width="14" height="14" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                  <circle cx="5" cy="5" r="7" fill="#555555" />
-                  <path d="M2 5L4 7.4L8 2.2" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              ) : (
-                <svg width="14" height="14" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                  <circle cx="5" cy="5" r="7" fill="#555555" />
-                </svg>
-              )}
-            </button>
+            {mainBtn('H')}
             <Label>H</Label>
-            <input
-              type="range"
-              min="0"
-              max="359"
-              step="1"
-              value={sliderH}
-              onChange={handleHChange}
-              onPointerUp={commitLch}
-              onKeyUp={commitLch}
-            />
+            <SliderTrack>
+              <TickMarks />
+              <input
+                type="range"
+                min={0}
+                max={359}
+                step="1"
+                value={sliderH}
+                onChange={handleHChange}
+                onPointerUp={commitLch}
+                onKeyUp={commitLch}
+                style={{
+                  position: 'absolute',
+                  margin: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </SliderTrack>
             <Value>{sliderH}</Value>
             {props.onHelpClick && (
               <HelpIcon topic="lch_h" onHelpClick={props.onHelpClick} size={20} />
@@ -318,16 +418,9 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
 const LchSliderRow = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
   margin-top: 12px;
   margin-bottom: 8px;
-  width: 217px;
-  gap: 4px;
-
-  input[type='range'] {
-    flex: 1;
-    min-width: 80px;
-  }
+  gap: 2px;
 `;
 
 const SliderTrack = styled.div`
@@ -339,13 +432,43 @@ const SliderTrack = styled.div`
   input[type='range'] {
     height: 100%;
     box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 7px;
+    height: 18px;
+    border-radius: 3px;
+    background: #4a90e2;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  input[type='range']::-moz-range-thumb {
+    width: 7px;
+    height: 18px;
+    border-radius: 3px;
+    background: #4a90e2;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  input[type='range']::-webkit-slider-runnable-track {
+    background: transparent;
+  }
+
+  input[type='range']::-moz-range-track {
+    background: transparent;
   }
 `;
 
 const Label = styled.span`
   font-weight: 600;
   font-size: 16px;
-  width: 24px;
+  width: 12px;
   text-align: right;
   flex-shrink: 0;
 `;
