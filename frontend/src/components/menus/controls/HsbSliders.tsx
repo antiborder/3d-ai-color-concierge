@@ -11,6 +11,8 @@ interface HsbSlidersProps extends ControlPaneProps, BridgeProps {
   mainElement: 'H' | 'S' | 'V';
   setMainElement: (symbol: 'H' | 'S' | 'V') => void;
   panelShape: ColorSpace;
+  onLiveDrag?: (channel: string, value: number) => void;
+  onDragEnd?: () => void;
 }
 
 const HsbSliders = (props: HsbSlidersProps) => {
@@ -47,12 +49,7 @@ const HsbSliders = (props: HsbSlidersProps) => {
               }}
             />
           )}
-          <button
-            className="showSlidersButton"
-            onClick={() => {
-              setIsVisible(!isVisible);
-            }}
-          >
+          <button className="showSlidersButton" onClick={() => setIsVisible(!isVisible)}>
             {isVisible ? '▲' : '▼'}
           </button>
         </div>
@@ -77,6 +74,8 @@ const HsbSliders = (props: HsbSlidersProps) => {
             panelShape={props.panelShape}
             onHelpClick={props.onHelpClick}
             helpTopic="hsb_h"
+            onLiveDrag={(v) => props.onLiveDrag?.('H', v)}
+            onDragEnd={props.onDragEnd}
           />
           <SliderContainer
             {...props}
@@ -95,6 +94,8 @@ const HsbSliders = (props: HsbSlidersProps) => {
             panelShape={props.panelShape}
             onHelpClick={props.onHelpClick}
             helpTopic="hsb_s"
+            onLiveDrag={(v) => props.onLiveDrag?.('HsvS', v)}
+            onDragEnd={props.onDragEnd}
           />
           <SliderContainer
             {...props}
@@ -114,6 +115,8 @@ const HsbSliders = (props: HsbSlidersProps) => {
             panelShape={props.panelShape}
             onHelpClick={props.onHelpClick}
             helpTopic="hsb_v"
+            onLiveDrag={(v) => props.onLiveDrag?.('V', v)}
+            onDragEnd={props.onDragEnd}
           />
         </>
       )}

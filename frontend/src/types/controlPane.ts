@@ -104,4 +104,6 @@ export interface SliderContainerProps {
   panelShape: ColorSpace;
   onHelpClick?: (topic: string) => void;
   helpTopic?: string;
+  onLiveDrag?: (value: number) => void;
+  onDragEnd?: () => void;
 }

@@ -10,13 +10,16 @@ const SliderContainer = (props: SliderContainerProps) => {
   const displayedValue = draftValue !== null ? draftValue : props.value;
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setDraftValue(Number(event.target.value));
+    const value = Number(event.target.value);
+    setDraftValue(value);
+    props.onLiveDrag?.(value);
   };
 
   const commit = () => {
     if (draftValue !== null && inputRef.current) {
       props.onChange({ target: inputRef.current } as ChangeEvent<HTMLInputElement>);
       setDraftValue(null);
+      props.onDragEnd?.();
     }
   };
 
@@ -62,19 +65,90 @@ const SliderContainer = (props: SliderContainerProps) => {
           )}
         </button>
       )}
-      {props.symbol === 'K' && <div style={{ width: '22px' }}></div>}
+      {props.symbol === 'K' && <div style={{ width: '22px' }} />}
       <span className="symbolLabel">{props.label ?? props.symbol}</span>
-      <input
-        ref={inputRef}
-        type="range"
-        min="0"
-        step="1"
-        max={props.max}
-        value={displayedValue}
-        onChange={handleChange}
-        onPointerUp={commit}
-        onKeyUp={commit}
-      />
+      <SliderTrack>
+        {/* Fixed tick marks: ┣---+---┫ */}
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: 0,
+              right: 0,
+              height: 1,
+              background: '#c0c0c0',
+              transform: 'translateY(-50%)',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: '50%',
+              width: 1,
+              height: 10,
+              background: '#c0c0c0',
+              transform: 'translateY(-50%)',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              width: 1,
+              height: 6,
+              background: '#c0c0c0',
+              transform: 'translate(-50%, -50%)',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              right: 0,
+              top: '50%',
+              width: 1,
+              height: 10,
+              background: '#c0c0c0',
+              transform: 'translateY(-50%)',
+            }}
+          />
+        </div>
+        {/* Full-range bar */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: 0,
+            width: '100%',
+            height: 4,
+            borderRadius: 2,
+            background: '#a0a0a0',
+            transform: 'translateY(-50%)',
+            pointerEvents: 'none',
+          }}
+        />
+        <input
+          ref={inputRef}
+          type="range"
+          min="0"
+          step="1"
+          max={props.max}
+          value={displayedValue}
+          onChange={handleChange}
+          onPointerUp={commit}
+          onKeyUp={commit}
+          style={{
+            position: 'absolute',
+            margin: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            boxSizing: 'border-box',
+          }}
+        />
+      </SliderTrack>
       <div className="value">{Math.round(displayedValue)}</div>
       {props.onHelpClick && props.helpTopic && (
         <HelpIcon topic={props.helpTopic} onHelpClick={props.onHelpClick} size={20} />
@@ -83,25 +157,64 @@ const SliderContainer = (props: SliderContainerProps) => {
   );
 };
 
+const SliderTrack = styled.div`
+  position: relative;
+  flex: 1;
+  min-width: 80px;
+  height: 20px;
+
+  input[type='range'] {
+    height: 100%;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 7px;
+    height: 18px;
+    border-radius: 3px;
+    background: #4a90e2;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  input[type='range']::-moz-range-thumb {
+    width: 7px;
+    height: 18px;
+    border-radius: 3px;
+    background: #4a90e2;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  input[type='range']::-webkit-slider-runnable-track {
+    background: transparent;
+  }
+
+  input[type='range']::-moz-range-track {
+    background: transparent;
+  }
+`;
+
 const StyledSliderContainer = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
   margin-top: 12px;
   margin-bottom: 8px;
-  width: 217px;
+  gap: 2px;
 
-  padding: 0px;
   .symbolLabel {
     font-weight: 600;
     font-size: 18px;
-  }
-  input {
-    flex: 1;
-    min-width: 80px;
+    flex-shrink: 0;
+    text-align: right;
   }
   .value {
-    width: 20px;
+    width: 24px;
+    font-size: 13px;
     text-align: right;
     flex-shrink: 0;
   }

@@ -11,6 +11,8 @@ interface CmykSlidersProps extends ControlPaneProps, BridgeProps {
   mainElement: 'C' | 'M' | 'Y' | 'K';
   setMainElement: (symbol: 'C' | 'M' | 'Y' | 'K') => void;
   panelShape: ColorSpace;
+  onLiveDrag?: (channel: string, value: number) => void;
+  onDragEnd?: () => void;
 }
 
 const CmykSliders = (props: CmykSlidersProps) => {
@@ -47,12 +49,7 @@ const CmykSliders = (props: CmykSlidersProps) => {
               }}
             />
           )}
-          <button
-            className="showSlidersButton"
-            onClick={() => {
-              setIsVisible(!isVisible);
-            }}
-          >
+          <button className="showSlidersButton" onClick={() => setIsVisible(!isVisible)}>
             {isVisible ? '▲' : '▼'}
           </button>
         </div>
@@ -77,6 +74,8 @@ const CmykSliders = (props: CmykSlidersProps) => {
             panelShape={props.panelShape}
             onHelpClick={props.onHelpClick}
             helpTopic="cmyk_c"
+            onLiveDrag={(v) => props.onLiveDrag?.('C', v)}
+            onDragEnd={props.onDragEnd}
           />
           <SliderContainer
             {...props}
@@ -95,6 +94,8 @@ const CmykSliders = (props: CmykSlidersProps) => {
             panelShape={props.panelShape}
             onHelpClick={props.onHelpClick}
             helpTopic="cmyk_m"
+            onLiveDrag={(v) => props.onLiveDrag?.('M', v)}
+            onDragEnd={props.onDragEnd}
           />
           <SliderContainer
             {...props}
@@ -113,6 +114,8 @@ const CmykSliders = (props: CmykSlidersProps) => {
             panelShape={props.panelShape}
             onHelpClick={props.onHelpClick}
             helpTopic="cmyk_y"
+            onLiveDrag={(v) => props.onLiveDrag?.('Y', v)}
+            onDragEnd={props.onDragEnd}
           />
           <SliderContainer
             {...props}
@@ -131,6 +134,8 @@ const CmykSliders = (props: CmykSlidersProps) => {
             panelShape={props.panelShape}
             onHelpClick={props.onHelpClick}
             helpTopic="cmyk_k"
+            onLiveDrag={(v) => props.onLiveDrag?.('K', v)}
+            onDragEnd={props.onDragEnd}
           />
         </>
       )}

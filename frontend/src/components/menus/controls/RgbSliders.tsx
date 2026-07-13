@@ -11,6 +11,8 @@ interface RgbSlidersProps extends ControlPaneProps, BridgeProps {
   mainElement: 'R' | 'G' | 'B';
   setMainElement: (symbol: 'R' | 'G' | 'B') => void;
   panelShape: ColorSpace;
+  onLiveDrag?: (channel: string, value: number) => void;
+  onDragEnd?: () => void;
 }
 
 const RgbSliders = (props: RgbSlidersProps) => {
@@ -47,12 +49,7 @@ const RgbSliders = (props: RgbSlidersProps) => {
               }}
             />
           )}
-          <button
-            className="showSlidersButton"
-            onClick={() => {
-              setIsVisible(!isVisible);
-            }}
-          >
+          <button className="showSlidersButton" onClick={() => setIsVisible(!isVisible)}>
             {isVisible ? '▲' : '▼'}
           </button>
         </div>
@@ -77,6 +74,8 @@ const RgbSliders = (props: RgbSlidersProps) => {
             panelShape={props.panelShape}
             onHelpClick={props.onHelpClick}
             helpTopic="rgb_r"
+            onLiveDrag={(v) => props.onLiveDrag?.('R', v)}
+            onDragEnd={props.onDragEnd}
           />
           <SliderContainer
             {...props}
@@ -95,6 +94,8 @@ const RgbSliders = (props: RgbSlidersProps) => {
             panelShape={props.panelShape}
             onHelpClick={props.onHelpClick}
             helpTopic="rgb_g"
+            onLiveDrag={(v) => props.onLiveDrag?.('G', v)}
+            onDragEnd={props.onDragEnd}
           />
           <SliderContainer
             {...props}
@@ -113,6 +114,8 @@ const RgbSliders = (props: RgbSlidersProps) => {
             panelShape={props.panelShape}
             onHelpClick={props.onHelpClick}
             helpTopic="rgb_b"
+            onLiveDrag={(v) => props.onLiveDrag?.('B', v)}
+            onDragEnd={props.onDragEnd}
           />
         </>
       )}

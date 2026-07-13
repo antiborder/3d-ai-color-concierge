@@ -11,6 +11,8 @@ interface HslSlidersProps extends ControlPaneProps, BridgeProps {
   mainElement: 'H' | 'S' | 'L';
   setMainElement: (symbol: 'H' | 'S' | 'L') => void;
   panelShape: ColorSpace;
+  onLiveDrag?: (channel: string, value: number) => void;
+  onDragEnd?: () => void;
 }
 
 const HslSliders = (props: HslSlidersProps) => {
@@ -47,12 +49,7 @@ const HslSliders = (props: HslSlidersProps) => {
               }}
             />
           )}
-          <button
-            className="showSlidersButton"
-            onClick={() => {
-              setIsVisible(!isVisible);
-            }}
-          >
+          <button className="showSlidersButton" onClick={() => setIsVisible(!isVisible)}>
             {isVisible ? '▲' : '▼'}
           </button>
         </div>
@@ -76,6 +73,8 @@ const HslSliders = (props: HslSlidersProps) => {
             panelShape={props.panelShape}
             onHelpClick={props.onHelpClick}
             helpTopic="hsl_h"
+            onLiveDrag={(v) => props.onLiveDrag?.('H', v)}
+            onDragEnd={props.onDragEnd}
           />
           <SliderContainer
             {...props}
@@ -94,6 +93,8 @@ const HslSliders = (props: HslSlidersProps) => {
             panelShape={props.panelShape}
             onHelpClick={props.onHelpClick}
             helpTopic="hsl_s"
+            onLiveDrag={(v) => props.onLiveDrag?.('S', v)}
+            onDragEnd={props.onDragEnd}
           />
           <SliderContainer
             {...props}
@@ -112,6 +113,8 @@ const HslSliders = (props: HslSlidersProps) => {
             panelShape={props.panelShape}
             onHelpClick={props.onHelpClick}
             helpTopic="hsl_l"
+            onLiveDrag={(v) => props.onLiveDrag?.('L', v)}
+            onDragEnd={props.onDragEnd}
           />
         </>
       )}
