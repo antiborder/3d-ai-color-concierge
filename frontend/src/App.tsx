@@ -1,5 +1,6 @@
 import './App.css';
 import { useState, useEffect, useRef, useMemo } from 'react';
+import convert from 'color-convert';
 import { useTranslation } from 'react-i18next';
 import { Toaster } from 'react-hot-toast';
 import ControlPane from './components/common/ControlPane';
@@ -325,6 +326,16 @@ function App() {
     onClearPreviewRgb: () => setPreviewRgb(null),
   };
 
+  const previewColorValues = useMemo(() => {
+    if (!previewRgb) return null;
+    const ri = Math.round(previewRgb.r);
+    const gi = Math.round(previewRgb.g);
+    const bi = Math.round(previewRgb.b);
+    const [pH, pS, pL] = convert.rgb.hsl([ri, gi, bi]);
+    const [, pHsvS, pV] = convert.rgb.hsv([ri, gi, bi]);
+    return { focusH: pH, focusS: pS, focusL: pL, focusHsvS: pHsvS, focusV: pV };
+  }, [previewRgb]);
+
   const bridgeForStructure = {
     bridgeColorA: isBridgeOpen ? bridgeColorA : undefined,
     bridgeColorB: isBridgeOpen ? bridgeColorB : undefined,
@@ -374,6 +385,11 @@ function App() {
         focusR={previewRgb?.r ?? colorValues.focusR}
         focusG={previewRgb?.g ?? colorValues.focusG}
         focusB={previewRgb?.b ?? colorValues.focusB}
+        focusH={previewColorValues?.focusH ?? colorValues.focusH}
+        focusS={previewColorValues?.focusS ?? colorValues.focusS}
+        focusL={previewColorValues?.focusL ?? colorValues.focusL}
+        focusHsvS={previewColorValues?.focusHsvS ?? colorValues.focusHsvS}
+        focusV={previewColorValues?.focusV ?? colorValues.focusV}
         {...bridgeForStructure}
         {...displaySettings}
         isLabelShown={colorState.isLabelShown}
