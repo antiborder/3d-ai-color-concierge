@@ -38,7 +38,7 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
     [lc, lm, ly, lk] = convert.rgb.cmyk([ri, gi, bi]);
   }
 
-  const liveProps = liveRgb
+  const livePropsBase = liveRgb
     ? {
         ...props,
         focusR: lr,
@@ -55,6 +55,19 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
         focusK: lk,
       }
     : props;
+
+  // Allow TwoDPicker drags to also update liveRgb (and propagate to App.tsx wireframe)
+  const liveProps = {
+    ...livePropsBase,
+    onPreviewRgb: (r: number, g: number, b: number) => {
+      setLiveRgb({ r, g, b });
+      props.onPreviewRgb?.(r, g, b);
+    },
+    onClearPreviewRgb: () => {
+      setLiveRgb(null);
+      props.onClearPreviewRgb?.();
+    },
+  };
 
   const onDragEnd = () => {
     setLiveRgb(null);

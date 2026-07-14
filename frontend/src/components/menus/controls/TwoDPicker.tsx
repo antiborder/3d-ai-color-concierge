@@ -1,4 +1,4 @@
-import { useRef, useEffect, type MouseEvent } from 'react';
+import { useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import convert from 'color-convert';
 import { systemColors } from '../../../constants/systemColors';
@@ -72,6 +72,7 @@ const SUPPORTED = new Set(['RGB', 'CMYK', 'HSB', 'HSL', 'Lab', 'LCH']);
 const TwoDPicker = (props: ControlPaneProps) => {
   const { shape } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isDraggingRef = useRef(false);
 
   useEffect(() => {
     if (!SUPPORTED.has(shape)) return;
@@ -390,137 +391,98 @@ const TwoDPicker = (props: ControlPaneProps) => {
     props.isTwoDPickerOpen,
   ]);
 
-  const handleClick = (e: MouseEvent<HTMLCanvasElement>) => {
+  const resolveColor = (clientX: number, clientY: number): [number, number, number] | null => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) return null;
     const rect = canvas.getBoundingClientRect();
-    const px = ((e.clientX - rect.left) / rect.width) * SIZE;
-    const py = ((e.clientY - rect.top) / rect.height) * SIZE;
-    const xVal = px / SIZE;
-    const yVal = py / SIZE;
+    const px = ((clientX - rect.left) / rect.width) * SIZE;
+    const py = ((clientY - rect.top) / rect.height) * SIZE;
+    const xVal = Math.max(0, Math.min(1, px / SIZE));
+    const yVal = Math.max(0, Math.min(1, py / SIZE));
 
     const {
-      rgbMainElement,
-      cmykMainElement,
-      hsbMainElement,
-      hslMainElement,
-      labMainElement,
-      lchMainElement,
-      focusR,
-      focusG,
-      focusB,
-      focusH,
-      focusS,
-      focusL,
-      focusHsvS,
-      focusV,
+      rgbMainElement, cmykMainElement, hsbMainElement, hslMainElement,
+      labMainElement, lchMainElement,
+      focusR, focusG, focusB, focusH, focusS, focusL, focusHsvS, focusV,
     } = props;
 
     if (shape === 'RGB' || shape === 'CMYK') {
       const el = shape === 'RGB' ? rgbMainElement : cmykMainElement;
-      let r = focusR,
-        g = focusG,
-        b = focusB;
+      let r = focusR, g = focusG, b = focusB;
       if (el === 'R' || el === 'C') {
-        g = Math.round((1 - yVal) * 255);
-        b = Math.round(xVal * 255);
+        g = Math.round((1 - yVal) * 255); b = Math.round(xVal * 255);
       } else if (el === 'G' || el === 'M') {
-        r = Math.round(xVal * 255);
-        b = Math.round((1 - yVal) * 255);
+        r = Math.round(xVal * 255); b = Math.round((1 - yVal) * 255);
       } else {
-        r = Math.round((1 - yVal) * 255);
-        g = Math.round(xVal * 255);
+        r = Math.round((1 - yVal) * 255); g = Math.round(xVal * 255);
       }
-      props.handleClick(r, g, b);
+      return [r, g, b];
     } else if (shape === 'HSB') {
-      let h = focusH,
-        s = focusHsvS,
-        v = focusV;
+      let h = focusH, s = focusHsvS, v = focusV;
       if (hsbMainElement === 'H') {
-        if (!inHsbTriangle(xVal, yVal)) return;
-        s = xVal * 100;
-        v = (1 - yVal) * 100;
+        if (!inHsbTriangle(xVal, yVal)) return null;
+        s = xVal * 100; v = (1 - yVal) * 100;
       } else if (hsbMainElement === 'S') {
-        h = xVal * 360;
-        v = (1 - yVal) * 100;
+        h = xVal * 360; v = (1 - yVal) * 100;
       } else {
-        const cx = px - SIZE / 2,
-          cy = SIZE / 2 - py;
+        const cx = px - SIZE / 2, cy = SIZE / 2 - py;
         const radius = Math.sqrt(cx * cx + cy * cy);
-        if (radius > SIZE / 2) return;
+        if (radius > SIZE / 2) return null;
         const angle = (Math.PI / 2 - Math.atan2(cy, cx) + 2 * Math.PI) % (2 * Math.PI);
-        h = (angle * 180) / Math.PI;
-        s = (radius * 100) / (SIZE / 2);
+        h = (angle * 180) / Math.PI; s = (radius * 100) / (SIZE / 2);
       }
       const [r, g, b] = convert.hsv.rgb([h, s, v]);
-      props.handleClick(r, g, b);
+      return [r, g, b];
     } else if (shape === 'HSL') {
-      let h = focusH,
-        s = focusS,
-        l = focusL;
+      let h = focusH, s = focusS, l = focusL;
       if (hslMainElement === 'H') {
-        if (!inHslTriangle(xVal, yVal)) return;
-        s = xVal * 100;
-        l = (1 - yVal) * 100;
+        if (!inHslTriangle(xVal, yVal)) return null;
+        s = xVal * 100; l = (1 - yVal) * 100;
       } else if (hslMainElement === 'S') {
-        h = xVal * 360;
-        l = (1 - yVal) * 100;
+        h = xVal * 360; l = (1 - yVal) * 100;
       } else {
-        const cx = px - SIZE / 2,
-          cy = SIZE / 2 - py;
+        const cx = px - SIZE / 2, cy = SIZE / 2 - py;
         const radius = Math.sqrt(cx * cx + cy * cy);
-        if (radius > SIZE / 2) return;
+        if (radius > SIZE / 2) return null;
         const angle = (Math.PI / 2 - Math.atan2(cy, cx) + 2 * Math.PI) % (2 * Math.PI);
-        h = (angle * 180) / Math.PI;
-        s = (radius * 100) / (SIZE / 2);
+        h = (angle * 180) / Math.PI; s = (radius * 100) / (SIZE / 2);
       }
       const [r, g, b] = convert.hsl.rgb([h, s, l]);
-      props.handleClick(r, g, b);
+      return [r, g, b];
     } else if (shape === 'Lab') {
       const [fixedL, fixedA, fixedB] = rgbToLab(focusR, focusG, focusB);
-      let r: number, g: number, b: number;
       if (labMainElement === 'a') {
-        const bVal = -128 + xVal * 255;
-        const LVal = (1 - yVal) * 100;
-        if (!labInGamut(LVal, fixedA, bVal)) return;
-        [r, g, b] = labToRgb(LVal, fixedA, bVal);
+        const bVal = -128 + xVal * 255, LVal = (1 - yVal) * 100;
+        if (!labInGamut(LVal, fixedA, bVal)) return null;
+        return labToRgb(LVal, fixedA, bVal);
       } else if (labMainElement === 'b') {
-        const aVal = -128 + xVal * 255;
-        const LVal = (1 - yVal) * 100;
-        if (!labInGamut(LVal, aVal, fixedB)) return;
-        [r, g, b] = labToRgb(LVal, aVal, fixedB);
+        const aVal = -128 + xVal * 255, LVal = (1 - yVal) * 100;
+        if (!labInGamut(LVal, aVal, fixedB)) return null;
+        return labToRgb(LVal, aVal, fixedB);
       } else {
-        const aVal = -128 + xVal * 255;
-        const bVal = 127 - yVal * 255;
-        if (!labInGamut(fixedL, aVal, bVal)) return;
-        [r, g, b] = labToRgb(fixedL, aVal, bVal);
+        const aVal = -128 + xVal * 255, bVal = 127 - yVal * 255;
+        if (!labInGamut(fixedL, aVal, bVal)) return null;
+        return labToRgb(fixedL, aVal, bVal);
       }
-      props.handleClick(r, g, b);
     } else if (shape === 'LCH') {
       const [fixedL, fixedA, fixedB] = rgbToLab(focusR, focusG, focusB);
       const fixedC = Math.sqrt(fixedA * fixedA + fixedB * fixedB);
       const fixedHrad = Math.atan2(fixedB, fixedA);
-      let r: number, g: number, b: number;
       if (lchMainElement === 'L') {
-        const H = xVal * 360;
-        const C = (1 - yVal) * LCH_MAX_C;
-        const Hrad = (H * Math.PI) / 180;
-        if (!labInGamut(fixedL, C * Math.cos(Hrad), C * Math.sin(Hrad))) return;
-        [r, g, b] = labToRgb(fixedL, C * Math.cos(Hrad), C * Math.sin(Hrad));
+        const H = xVal * 360, C = (1 - yVal) * LCH_MAX_C, Hrad = (H * Math.PI) / 180;
+        if (!labInGamut(fixedL, C * Math.cos(Hrad), C * Math.sin(Hrad))) return null;
+        return labToRgb(fixedL, C * Math.cos(Hrad), C * Math.sin(Hrad));
       } else if (lchMainElement === 'C') {
-        const H = xVal * 360;
-        const L = (1 - yVal) * 100;
-        const Hrad = (H * Math.PI) / 180;
-        if (!labInGamut(L, fixedC * Math.cos(Hrad), fixedC * Math.sin(Hrad))) return;
-        [r, g, b] = labToRgb(L, fixedC * Math.cos(Hrad), fixedC * Math.sin(Hrad));
+        const H = xVal * 360, L = (1 - yVal) * 100, Hrad = (H * Math.PI) / 180;
+        if (!labInGamut(L, fixedC * Math.cos(Hrad), fixedC * Math.sin(Hrad))) return null;
+        return labToRgb(L, fixedC * Math.cos(Hrad), fixedC * Math.sin(Hrad));
       } else {
-        const C = xVal * LCH_MAX_C;
-        const L = (1 - yVal) * 100;
-        if (!labInGamut(L, C * Math.cos(fixedHrad), C * Math.sin(fixedHrad))) return;
-        [r, g, b] = labToRgb(L, C * Math.cos(fixedHrad), C * Math.sin(fixedHrad));
+        const C = xVal * LCH_MAX_C, L = (1 - yVal) * 100;
+        if (!labInGamut(L, C * Math.cos(fixedHrad), C * Math.sin(fixedHrad))) return null;
+        return labToRgb(L, C * Math.cos(fixedHrad), C * Math.sin(fixedHrad));
       }
-      props.handleClick(r!, g!, b!);
     }
+    return null;
   };
 
   if (!SUPPORTED.has(shape)) return null;
@@ -579,7 +541,24 @@ const TwoDPicker = (props: ControlPaneProps) => {
                   ? 'polygon(0% 0%, 100% 0%, 0% 100%)'
                   : undefined,
             }}
-            onClick={handleClick}
+            onPointerDown={(e) => {
+                isDraggingRef.current = true;
+                e.currentTarget.setPointerCapture(e.pointerId);
+                const c = resolveColor(e.clientX, e.clientY);
+                if (c) props.onPreviewRgb?.(c[0], c[1], c[2]);
+              }}
+              onPointerMove={(e) => {
+                if (!isDraggingRef.current) return;
+                const c = resolveColor(e.clientX, e.clientY);
+                if (c) props.onPreviewRgb?.(c[0], c[1], c[2]);
+              }}
+              onPointerUp={(e) => {
+                if (!isDraggingRef.current) return;
+                isDraggingRef.current = false;
+                const c = resolveColor(e.clientX, e.clientY);
+                if (c) props.handleClick(c[0], c[1], c[2]);
+                props.onClearPreviewRgb?.();
+              }}
           />
         )}
       </div>

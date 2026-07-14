@@ -34,7 +34,7 @@ const Scene = (props: SceneProps) => {
     <mesh geometry={props.geometry}>
       <meshBasicMaterial
         color={props.color}
-        opacity={0.3}
+        opacity={0.1}
         transparent={true}
         side={THREE.DoubleSide}
       />

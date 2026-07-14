@@ -393,12 +393,25 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
             )}
           </LchSliderRow>
 
-          {/* H slider — full 0-359, no gamut bar */}
+          {/* H slider — full 0-359 */}
           <LchSliderRow>
             {mainBtn('H')}
             <Label>H</Label>
             <SliderTrack>
               <TickMarks />
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: 0,
+                  width: '100%',
+                  height: 4,
+                  borderRadius: 2,
+                  background: '#a0a0a0',
+                  transform: 'translateY(-50%)',
+                  pointerEvents: 'none',
+                }}
+              />
               <input
                 type="range"
                 min={0}
