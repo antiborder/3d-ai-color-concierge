@@ -182,6 +182,10 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
     setSliderL(val);
     sliderDrivenRef.current = true;
     isDraggingRef.current = true;
+    const hueNum = sliderC === 0 ? null : (sliderH / 360) * 100;
+    const effectiveC = sliderC === 0 ? 10 : sliderC;
+    const [r, g, b] = munsellHVCtoRgb(hueNum, val / 10, effectiveC / 5);
+    props.onPreviewRgb?.(r, g, b);
   };
 
   const handleCChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -192,12 +196,21 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
     setSliderC(val);
     sliderDrivenRef.current = true;
     isDraggingRef.current = true;
+    const hueNum = val === 0 ? null : (sliderH / 360) * 100;
+    const effectiveC = val === 0 ? 10 : val;
+    const [r, g, b] = munsellHVCtoRgb(hueNum, sliderL / 10, effectiveC / 5);
+    props.onPreviewRgb?.(r, g, b);
   };
 
   const handleHChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSliderH(Number(e.target.value));
+    const val = Number(e.target.value);
+    setSliderH(val);
     sliderDrivenRef.current = true;
     isDraggingRef.current = true;
+    const hueNum = sliderC === 0 ? null : (val / 360) * 100;
+    const effectiveC = sliderC === 0 ? 10 : sliderC;
+    const [r, g, b] = munsellHVCtoRgb(hueNum, sliderL / 10, effectiveC / 5);
+    props.onPreviewRgb?.(r, g, b);
   };
 
   const commitLch = () => {
@@ -206,6 +219,7 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
     const effectiveC = sliderCRef.current === 0 ? 10 : sliderCRef.current;
     const [r, g, b] = munsellHVCtoRgb(hueNum, sliderLRef.current / 10, effectiveC / 5);
     handleClickRef.current(r, g, b);
+    props.onClearPreviewRgb?.();
   };
 
   const clampedL = Math.max(gamutRanges.lRange[0], Math.min(gamutRanges.lRange[1], sliderL));

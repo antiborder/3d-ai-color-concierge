@@ -113,6 +113,8 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
     setSliderL(val);
     sliderDrivenRef.current = true;
     isDraggingRef.current = true;
+    const [r, g, b] = labToRgb(val, sliderA, sliderB);
+    props.onPreviewRgb?.(r, g, b);
   };
 
   const handleAChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -123,6 +125,8 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
     setSliderA(val);
     sliderDrivenRef.current = true;
     isDraggingRef.current = true;
+    const [r, g, b] = labToRgb(sliderL, val, sliderB);
+    props.onPreviewRgb?.(r, g, b);
   };
 
   const handleBChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -133,12 +137,15 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
     setSliderB(val);
     sliderDrivenRef.current = true;
     isDraggingRef.current = true;
+    const [r, g, b] = labToRgb(sliderL, sliderA, val);
+    props.onPreviewRgb?.(r, g, b);
   };
 
   const commitLab = () => {
     isDraggingRef.current = false;
     const [r, g, b] = labToRgb(sliderLRef.current, sliderARef.current, sliderBRef.current);
     handleClickRef.current(r, g, b);
+    props.onClearPreviewRgb?.();
   };
 
   return (
