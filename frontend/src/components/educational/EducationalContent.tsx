@@ -45,6 +45,7 @@ const Overlay = styled.div`
 `;
 
 const Panel = styled.div`
+  position: relative;
   background: white;
   border-radius: 12px;
   padding: 16px;
