@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Line, Html } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { focusContrastColor } from '../../utils/colorConverter';
@@ -73,6 +73,10 @@ const CylindricalAxisArrows = ({
   const groupRef = useRef<THREE.Group>(null);
   const labelRefs = useRef<(HTMLSpanElement | null)[]>([null, null, null]);
   const dragRef = useRef<DragState | null>(null);
+  const isDraggingRef = useRef(false);
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
+  useEffect(() => () => { document.body.style.cursor = ''; }, []);
 
   const onPreviewRef = useRef(onPreviewRgb);
   const onClearRef = useRef(onClearPreviewRgb);
@@ -129,6 +133,8 @@ const CylindricalAxisArrows = ({
   function startDrag(e: PointerEvent, dir: [number, number, number], fn: DragFn | undefined) {
     if (!fn || !groupRef.current) return;
     if (controls) (controls as any).enabled = false;
+    isDraggingRef.current = true;
+    document.body.style.cursor = 'grabbing';
 
     // Transform local positions to world space via the parent group's matrixWorld.
     const wPos = new THREE.Vector3(...pos);
@@ -167,6 +173,9 @@ const CylindricalAxisArrows = ({
         onClearRef.current?.();
         dragRef.current = null;
       }
+      isDraggingRef.current = false;
+      setHoveredIdx(null);
+      document.body.style.cursor = '';
       if (controls) (controls as any).enabled = true;
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
@@ -190,21 +199,23 @@ const CylindricalAxisArrows = ({
       {/* Visual arrows (animated blink) */}
       <group ref={groupRef}>
         {arrows.map(({ dir, label, idx }) => {
+          const isHovered = hoveredIdx === idx;
           const shaftEnd = tip(pos, dir, ARROW_LEN - CONE_H);
           const coneCenter = tip(pos, dir, ARROW_LEN - CONE_H / 2);
           const labelPos = tip(pos, dir, ARROW_LEN + 0.32);
           const quat = dirQuat(dir);
+          const coneScale = isHovered ? 1.4 : 1.0;
           return (
             <group key={label}>
-              <Line points={[pos, shaftEnd]} color={focusHex} lineWidth={1.5} />
-              <mesh position={coneCenter} quaternion={quat}>
+              <Line points={[pos, shaftEnd]} color={focusHex} lineWidth={isHovered ? 3 : 1.5} />
+              <mesh position={coneCenter} quaternion={quat} scale={[coneScale, coneScale, coneScale]}>
                 <coneGeometry args={[CONE_R, CONE_H, 8]} />
                 <meshBasicMaterial color={focusHex} depthTest={false} />
               </mesh>
               <Html position={labelPos} zIndexRange={[100, 5]}>
                 <span
                   ref={(el) => { labelRefs.current[idx] = el; }}
-                  style={labelStyle}
+                  style={{ ...labelStyle, fontSize: isHovered ? '15px' : '13px' }}
                 >
                   {label}
                 </span>
@@ -223,6 +234,17 @@ const CylindricalAxisArrows = ({
             key={`hit-${idx}`}
             position={midPoint}
             quaternion={quat}
+            onPointerOver={(e) => {
+              e.stopPropagation();
+              setHoveredIdx(idx);
+              document.body.style.cursor = 'grab';
+            }}
+            onPointerOut={() => {
+              if (!isDraggingRef.current) {
+                setHoveredIdx(null);
+                document.body.style.cursor = '';
+              }
+            }}
             onPointerDown={(e) => {
               e.stopPropagation();
               startDrag(e.nativeEvent, dir, fn);
