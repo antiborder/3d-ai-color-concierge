@@ -195,8 +195,8 @@ function App() {
   };
 
   const harmonyColors = useMemo(
-    () => computeHarmonyColors(colorState.h, colorState.s, colorState.l, harmonyMode),
-    [colorState.h, colorState.s, colorState.l, harmonyMode]
+    () => computeHarmonyColors(colorState.r, colorState.g, colorState.b, harmonyMode),
+    [colorState.r, colorState.g, colorState.b, harmonyMode]
   );
 
   const handleParticleClick = (r: number, g: number, b: number) => {

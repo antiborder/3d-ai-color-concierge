@@ -2,8 +2,7 @@ import React from 'react';
 import StraightLine from './StraightLine';
 import Circle from './Circle';
 import { systemColors } from '../../constants/systemColors';
-import { hslCylinderHeight, hsbCylinderHeight, lchCylinderHeight } from '../../utils/colorSpacePositions';
-import { getMunsellHVC } from '../../utils/munsellUtils';
+import { structureSize, hslCylinderHeight, hsbCylinderHeight, lchCylinderHeight, rgbToLab } from '../../utils/colorSpacePositions';
 import type {
   StructureProps,
   PositionFunction,
@@ -172,16 +171,23 @@ const FocusLine = (props: FocusLineProps) => {
         );
       })()}
       {props.shape === 'LCH' && (() => {
-        const { hueNum, value, chroma } = getMunsellHVC(props.focusR, props.focusG, props.focusB);
-        const theta = hueNum !== null ? (hueNum / 100) * 2 * Math.PI - Math.PI / 3 : 0;
-        const biconeScale = 1 - Math.abs(2 * value / 10 - 1);
-        const chromaRadius = (chroma / 20) * props.cylinderRadius;
-        const z = (value / 10 - 0.5) * lchCylinderHeight;
+        // Use CIE Lab to match getLchPosition = getLabPosition exactly
+        const [L, a, bLab] = rgbToLab(props.focusR, props.focusG, props.focusB);
+        const half = structureSize / 2 * 1.184;
+        const x_u = (bLab / 100.27) * half;
+        const y_u = -(a / 91.39) * half;
+        const rot = Math.PI / 3;
+        const worldX = x_u * Math.cos(rot) + y_u * Math.sin(rot);
+        const worldY = -x_u * Math.sin(rot) + y_u * Math.cos(rot);
+        const r = Math.sqrt(worldX * worldX + worldY * worldY);
+        // cylindricalToCartesian uses [r*sin(θ), -r*cos(θ), z], so θ = atan2(worldX, -worldY)
+        const theta = Math.atan2(worldX, -worldY);
+        const z = (L / 100 - 0.5) * lchCylinderHeight;
         return (
           <>
             {props.lchMainElement !== 'H' && (
               <Circle
-                radius={chromaRadius * biconeScale}
+                radius={r}
                 position={[0, 0, z]}
                 color={systemColors['W']}
               />
@@ -190,7 +196,7 @@ const FocusLine = (props: FocusLineProps) => {
               <StraightLine
                 points={[
                   props.cylindricalToCartesian(theta, 0, z),
-                  props.cylindricalToCartesian(theta, props.cylinderRadius * biconeScale, z),
+                  props.cylindricalToCartesian(theta, r, z),
                 ]}
                 color={systemColors['K']}
               />
@@ -200,13 +206,13 @@ const FocusLine = (props: FocusLineProps) => {
                 <StraightLine
                   points={[
                     props.cylindricalToCartesian(theta, 0, -lchCylinderHeight / 2),
-                    props.cylindricalToCartesian(theta, chromaRadius, 0),
+                    props.cylindricalToCartesian(theta, r, z),
                   ]}
                   color={systemColors['DEEP_GRAY']}
                 />
                 <StraightLine
                   points={[
-                    props.cylindricalToCartesian(theta, chromaRadius, 0),
+                    props.cylindricalToCartesian(theta, r, z),
                     props.cylindricalToCartesian(theta, 0, lchCylinderHeight / 2),
                   ]}
                   color={systemColors['DEEP_GRAY']}

@@ -17,12 +17,7 @@ interface Judgment {
 
 function getJudgment(dE: number): Judgment {
   if (dE < 1.0) return { en: 'Imperceptible to human eyes', ja: '人間の目では判別不可', color: '#22a06b' };
-  if (dE < 2.0)
-    return {
-      en: 'Perceptible through close observation',
-      ja: '注意深く見ると感知できる',
-      color: '#0052cc',
-    };
+  if (dE < 2.0) return { en: 'Perceptible by close observation', ja: '近くで見ると分かる', color: '#0052cc' };
   if (dE < 10.0) return { en: 'Perceptible at a glance', ja: '一見して知覚できる差', color: '#ff8b00' };
   if (dE < 50.0) return { en: 'Clearly different colors', ja: '明確に異なる色', color: '#de350b' };
   return { en: 'Very large difference', ja: '非常に大きな色差', color: '#403294' };
@@ -99,12 +94,14 @@ export const ColorDifferencePanel = ({ currentColor, onHelpClick }: Props) => {
         <BreakdownRow>Δb* = {fmt(db)}</BreakdownRow>
       </Breakdown>
       <JudgmentRow>
-        <span style={{ color: '#222' }}>{isEn ? 'Judgment: ' : '判定結果：'}</span>
-        {dE < 0.001 ? (
-          <span style={{ color: '#aaa' }}>{isEn ? 'Same color' : '同一の色'}</span>
-        ) : (
-          <span style={{ color: judgment.color }}>{isEn ? judgment.en : judgment.ja}</span>
-        )}
+        <span style={{ color: '#222', fontWeight: 'normal' }}>{isEn ? 'Judgment: ' : '判定結果：'}</span>
+        <JudgmentValue>
+          {dE < 0.001 ? (
+            <span style={{ color: '#aaa' }}>{isEn ? 'Same color' : '同一の色'}</span>
+          ) : (
+            <span style={{ color: judgment.color }}>{isEn ? judgment.en : judgment.ja}</span>
+          )}
+        </JudgmentValue>
       </JudgmentRow>
     </div>
   );
@@ -202,11 +199,20 @@ const BreakdownRow = styled.div`
 `;
 
 const JudgmentRow = styled.div`
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 600;
-  line-height: 1.5;
-  text-align: center;
+  line-height: 1.2;
+  margin-top: 8px;
   padding-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+`;
+
+const JudgmentValue = styled.div`
+  text-align: right;
+  margin-top: 0;
+  line-height: 1;
 `;
 
 export default ColorDifferencePanel;

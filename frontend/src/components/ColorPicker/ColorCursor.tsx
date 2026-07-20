@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import { Line } from '@react-three/drei';
+import { Line, Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useRef, useEffect } from 'react';
+import styled from 'styled-components';
 import type { StructureProps, PositionFunction } from '../../types/structure';
 import { focusContrastColor } from '../../utils/colorConverter';
 
@@ -107,6 +108,13 @@ const ColorCursor = (props: ColorCursorProps) => {
 
   return (
     <group position={position} rotation={[0, 0, -Math.PI]}>
+      <Html zIndexRange={[100, 5]}>
+        <CurrentBubble>
+          <BubbleTitle>Current Color</BubbleTitle>
+          <ColorRect style={{ backgroundColor: focusHex }} />
+          <ColorCode>{focusHex}</ColorCode>
+        </CurrentBubble>
+      </Html>
       <group rotation={[Math.PI / 2, 0, 0]}>
         <group ref={frameGroupRef}>
           <group ref={meridianRef}>
@@ -126,5 +134,39 @@ const ColorCursor = (props: ColorCursorProps) => {
     </group>
   );
 };
+
+const CurrentBubble = styled.div`
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 120px;
+  background: #fff;
+  border-radius: 0px 24px 24px 24px;
+  font-size: 12px;
+  padding: 6px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+`;
+
+const BubbleTitle = styled.div`
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 6px;
+`;
+
+const ColorRect = styled.div`
+  height: 20px;
+  width: 90px;
+  margin: 0 auto 4px;
+  border: 1px solid #bbb;
+  border-radius: 3px;
+`;
+
+const ColorCode = styled.div`
+  font-family: monospace;
+  font-size: 12px;
+  color: #333;
+`;
 
 export default ColorCursor;
