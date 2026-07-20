@@ -45,6 +45,11 @@ export interface StructureProps {
   labMainElement: 'L' | 'a' | 'b';
   lchMainElement: 'L' | 'C' | 'H';
 
+  // Axis-arrow drag callbacks
+  onPreviewRgb?: (r: number, g: number, b: number) => void;
+  onClearPreviewRgb?: () => void;
+  onCommitRgb?: (r: number, g: number, b: number) => void;
+
   // Color group filters
   cssColorsEnabled: boolean;
   materialColorsEnabled: boolean;

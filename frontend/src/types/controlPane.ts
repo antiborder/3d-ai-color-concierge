@@ -61,6 +61,9 @@ export interface ControlPaneProps extends BridgeProps {
   // Live preview callbacks (called during slider drag, before commit)
   onPreviewRgb?: (r: number, g: number, b: number) => void;
   onClearPreviewRgb?: () => void;
+  // True while any external preview (axis-arrow drag, 2D picker drag) is active.
+  // Lab/LCH sliders use this to skip RGB→Lab re-sync during external drags.
+  isPreviewActive?: boolean;
 
   // Help
   onHelpClick?: (topic: string) => void;

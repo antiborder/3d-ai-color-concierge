@@ -324,6 +324,7 @@ function App() {
     onHexUpdate: handleHexUpdate,
     onPreviewRgb: (r: number, g: number, b: number) => setPreviewRgb({ r, g, b }),
     onClearPreviewRgb: () => setPreviewRgb(null),
+    isPreviewActive: previewRgb !== null,
   };
 
   const previewColorValues = useMemo(() => {
@@ -394,6 +395,9 @@ function App() {
         {...displaySettings}
         isLabelShown={colorState.isLabelShown}
         onParticleClick={handleParticleClick}
+        onPreviewRgb={(r, g, b) => setPreviewRgb({ r, g, b })}
+        onClearPreviewRgb={() => setPreviewRgb(null)}
+        onCommitRgb={handleClick}
         harmonyColors={harmonyColors}
         aiColorLabels={aiColorLabels}
         rotateCameraRef={aiColorTriggerRef}

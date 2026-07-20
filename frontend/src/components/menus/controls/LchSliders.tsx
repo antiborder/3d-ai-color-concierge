@@ -168,11 +168,12 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
       sliderDrivenRef.current = false;
       return;
     }
+    if (props.isPreviewActive) return;
     const { hueNum, value, chroma } = getMunsellHVC(props.focusR, props.focusG, props.focusB);
     setSliderL(Math.round(value * 10));
     setSliderC(Math.round(chroma * 5));
     setSliderH(hueNum !== null ? Math.round((hueNum / 100) * 360) : 0);
-  }, [props.focusR, props.focusG, props.focusB]);
+  }, [props.focusR, props.focusG, props.focusB, props.isPreviewActive]);
 
   const handleLChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = Math.max(

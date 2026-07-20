@@ -95,6 +95,7 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
       sliderDrivenRef.current = false;
       return;
     }
+    if (props.isPreviewActive) return;
     const [L2, a2, b2] = rgbToLab(
       Math.round(props.focusR),
       Math.round(props.focusG),
@@ -103,7 +104,7 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
     setSliderL(Math.round(L2));
     setSliderA(Math.round(a2));
     setSliderB(Math.round(b2));
-  }, [props.focusR, props.focusG, props.focusB]);
+  }, [props.focusR, props.focusG, props.focusB, props.isPreviewActive]);
 
   const handleLChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = Math.max(
