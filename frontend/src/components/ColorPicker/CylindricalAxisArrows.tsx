@@ -218,7 +218,6 @@ const CylindricalAxisArrows = ({
                   style={{ ...labelStyle, fontSize: isHovered ? '15px' : '13px' }}
                 >
                   {label}
-                  <span style={{ fontSize: '8px', marginLeft: '2px', opacity: isHovered ? 1 : 0.55, verticalAlign: 'middle' }}>⠿</span>
                 </span>
               </Html>
             </group>
