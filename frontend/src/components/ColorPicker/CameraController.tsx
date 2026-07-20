@@ -282,7 +282,7 @@ const CameraController = ({
     }
   }, [r, g, b, shape, getRgbPosition, getHslPosition, getHsbPosition, camera, rotateCameraRef]);
 
-  return <OrbitControls ref={controlsRef} />;
+  return <OrbitControls ref={controlsRef} makeDefault />;
 };
 
 function animateCameraTo(
