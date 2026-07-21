@@ -83,6 +83,47 @@ export function computeGamutRange(
 }
 
 // ---------------------------------------------------------------------------
+// CIE LCH utilities (polar form of Lab)
+// ---------------------------------------------------------------------------
+
+export function rgbToLch(r: number, g: number, b: number): [number, number, number] {
+  const [L, a, bv] = rgbToLab(r, g, b);
+  const C = Math.sqrt(a * a + bv * bv);
+  const H = ((Math.atan2(bv, a) * (180 / Math.PI)) + 360) % 360;
+  return [L, C, H];
+}
+
+export function lchToRgb(L: number, C: number, H: number): [number, number, number] {
+  const Hrad = H * (Math.PI / 180);
+  return labToRgb(L, C * Math.cos(Hrad), C * Math.sin(Hrad));
+}
+
+/** Converts LCH → RGB, reducing chroma via binary search if out of sRGB gamut. */
+export function lchToRgbGamutMapped(L: number, C: number, H: number): [number, number, number] {
+  const Hrad = H * (Math.PI / 180);
+  const inGamut = (c: number) => isInGamut(L, c * Math.cos(Hrad), c * Math.sin(Hrad));
+  if (inGamut(C)) return lchToRgb(L, C, H);
+  let lo = 0, hi = C;
+  for (let i = 0; i < 20; i++) {
+    const mid = (lo + hi) / 2;
+    if (inGamut(mid)) lo = mid; else hi = mid;
+  }
+  return lchToRgb(L, lo, H);
+}
+
+/** Returns the maximum sRGB-gamut chroma for the given L and hue angle H (degrees). */
+export function maxInGamutChroma(L: number, H: number): number {
+  const Hrad = H * (Math.PI / 180);
+  const inGamut = (c: number) => isInGamut(L, c * Math.cos(Hrad), c * Math.sin(Hrad));
+  let lo = 0, hi = 200;
+  for (let i = 0; i < 20; i++) {
+    const mid = (lo + hi) / 2;
+    if (inGamut(mid)) lo = mid; else hi = mid;
+  }
+  return lo;
+}
+
+// ---------------------------------------------------------------------------
 // CIE XYZ utilities (used by XyzSliders)
 // ---------------------------------------------------------------------------
 

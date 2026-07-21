@@ -283,7 +283,7 @@ const Structure = (props: StructureProps) => {
   return (
     <div>
       <Canvas
-        camera={{ position: cameraPosition }}
+        camera={{ position: cameraPosition, near: 2 }}
         style={{ height: '120vh', width: '120vw' }}
         flat
         onCreated={({ gl }) => {
