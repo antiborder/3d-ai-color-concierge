@@ -65,7 +65,7 @@ const ColorCursor = (props: ColorCursorProps) => {
         : props.shape === 'Lab'
           ? props.getLabPosition(props.focusR, props.focusG, props.focusB)
           : props.shape === 'LCH'
-            ? props.getMunsellPosition(props.focusR, props.focusG, props.focusB)
+            ? props.getLabPosition(props.focusR, props.focusG, props.focusB)
             : props.shape === 'XYZ'
               ? props.getXyzPosition(props.focusR, props.focusG, props.focusB)
               : props.shape === 'xyz'

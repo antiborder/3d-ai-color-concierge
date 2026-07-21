@@ -220,7 +220,7 @@ const HarmonyMarkers = ({
               : shape === 'Lab'
                 ? getLabPosition(color.r, color.g, color.b)
                 : shape === 'LCH'
-                  ? getMunsellPosition(color.r, color.g, color.b)
+                  ? getLabPosition(color.r, color.g, color.b)
                   : shape === 'XYZ'
                     ? getXyzPosition(color.r, color.g, color.b)
                     : shape === 'xyz'
