@@ -113,4 +113,5 @@ export interface SliderContainerProps {
   helpTopic?: string;
   onLiveDrag?: (value: number) => void;
   onDragEnd?: () => void;
+  gradient?: string;
 }

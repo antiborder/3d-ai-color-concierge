@@ -4,6 +4,7 @@ import type { ControlPaneProps, BridgeProps } from '../../../types/controlPane';
 import ShapeButton from './ShapeButton';
 import HelpIcon from '../../common/HelpIcon';
 import { getMunsellHVC, munsellHVCtoRgb } from '../../../utils/munsellUtils';
+import { lchToRgbGamutMapped } from '../../../utils/gamutUtils';
 
 // sliderL: 0-100 (= CIE L*), sliderC: 0-100 (= C* = chroma*5), sliderH: 0-359 degrees
 function isInGamutLCH(L: number, C: number, H: number): boolean {
@@ -223,6 +224,32 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
     props.onClearPreviewRgb?.();
   };
 
+  const lchGradients = useMemo(() => {
+    const N = 12;
+    const lStops = Array.from({length: N}, (_, i) => {
+      const t = i / (N - 1);
+      const Lv = gamutRanges.lRange[0] + t * (gamutRanges.lRange[1] - gamutRanges.lRange[0]);
+      const [r, g, b] = lchToRgbGamutMapped(Lv, sliderC, sliderH);
+      return `rgb(${r},${g},${b}) ${(t * 100).toFixed(1)}%`;
+    }).join(', ');
+    const cStops = Array.from({length: N}, (_, i) => {
+      const t = i / (N - 1);
+      const Cv = gamutRanges.cRange[0] + t * (gamutRanges.cRange[1] - gamutRanges.cRange[0]);
+      const [r, g, b] = lchToRgbGamutMapped(sliderL, Cv, sliderH);
+      return `rgb(${r},${g},${b}) ${(t * 100).toFixed(1)}%`;
+    }).join(', ');
+    const hStops = Array.from({length: 13}, (_, i) => {
+      const Hv = (i / 12) * 360;
+      const [r, g, b] = lchToRgbGamutMapped(sliderL, sliderC, Hv);
+      return `rgb(${r},${g},${b}) ${((i / 12) * 100).toFixed(1)}%`;
+    }).join(', ');
+    return {
+      L: `linear-gradient(to right, ${lStops})`,
+      C: `linear-gradient(to right, ${cStops})`,
+      H: `linear-gradient(to right, ${hStops})`,
+    };
+  }, [sliderL, sliderC, sliderH, gamutRanges]);
+
   const clampedL = Math.max(gamutRanges.lRange[0], Math.min(gamutRanges.lRange[1], sliderL));
   const clampedC = Math.max(gamutRanges.cRange[0], Math.min(gamutRanges.cRange[1], sliderC));
 
@@ -318,9 +345,9 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
                   top: '50%',
                   left: `${lLoP}%`,
                   width: `${Math.max(lHiP - lLoP, 0.1)}%`,
-                  height: 4,
-                  borderRadius: 2,
-                  background: '#a0a0a0',
+                  height: 8,
+                  borderRadius: 4,
+                  background: lchGradients.L,
                   transform: 'translateY(-50%)',
                   pointerEvents: 'none',
                 }}
@@ -362,9 +389,9 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
                   top: '50%',
                   left: `${cLoP}%`,
                   width: `${Math.max(cHiP - cLoP, 0.1)}%`,
-                  height: 4,
-                  borderRadius: 2,
-                  background: '#a0a0a0',
+                  height: 8,
+                  borderRadius: 4,
+                  background: lchGradients.C,
                   transform: 'translateY(-50%)',
                   pointerEvents: 'none',
                 }}
@@ -406,9 +433,9 @@ const LchSliders = (props: ControlPaneProps & BridgeProps) => {
                   top: '50%',
                   left: 0,
                   width: '100%',
-                  height: 4,
-                  borderRadius: 2,
-                  background: '#a0a0a0',
+                  height: 8,
+                  borderRadius: 4,
+                  background: lchGradients.H,
                   transform: 'translateY(-50%)',
                   pointerEvents: 'none',
                 }}

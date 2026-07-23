@@ -15,12 +15,22 @@ interface CmykSlidersProps extends ControlPaneProps, BridgeProps {
   onDragEnd?: () => void;
 }
 
+function cmykToRgbStr(c: number, m: number, y: number, k: number): string {
+  const kf = (100 - k) / 100;
+  return `rgb(${Math.round(255 * (1 - c / 100) * kf)},${Math.round(255 * (1 - m / 100) * kf)},${Math.round(255 * (1 - y / 100) * kf)})`;
+}
+
 const CmykSliders = (props: CmykSlidersProps) => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(props.shape === 'CMYK');
   useEffect(() => {
     if (props.shape === 'CMYK') setIsVisible(true);
   }, [props.shape]);
+  const { focusC: C, focusM: M, focusY: Y, focusK: K } = props;
+  const cGradient = `linear-gradient(to right, ${cmykToRgbStr(0, M, Y, K)}, ${cmykToRgbStr(100, M, Y, K)})`;
+  const mGradient = `linear-gradient(to right, ${cmykToRgbStr(C, 0, Y, K)}, ${cmykToRgbStr(C, 100, Y, K)})`;
+  const yGradient = `linear-gradient(to right, ${cmykToRgbStr(C, M, 0, K)}, ${cmykToRgbStr(C, M, 100, K)})`;
+  const kGradient = `linear-gradient(to right, ${cmykToRgbStr(C, M, Y, 0)}, ${cmykToRgbStr(C, M, Y, 100)})`;
   return (
     <div className="controlPanel">
       <div
@@ -76,6 +86,7 @@ const CmykSliders = (props: CmykSlidersProps) => {
             helpTopic="cmyk_c"
             onLiveDrag={(v) => props.onLiveDrag?.('C', v)}
             onDragEnd={props.onDragEnd}
+            gradient={cGradient}
           />
           <SliderContainer
             {...props}
@@ -96,6 +107,7 @@ const CmykSliders = (props: CmykSlidersProps) => {
             helpTopic="cmyk_m"
             onLiveDrag={(v) => props.onLiveDrag?.('M', v)}
             onDragEnd={props.onDragEnd}
+            gradient={mGradient}
           />
           <SliderContainer
             {...props}
@@ -116,6 +128,7 @@ const CmykSliders = (props: CmykSlidersProps) => {
             helpTopic="cmyk_y"
             onLiveDrag={(v) => props.onLiveDrag?.('Y', v)}
             onDragEnd={props.onDragEnd}
+            gradient={yGradient}
           />
           <SliderContainer
             {...props}
@@ -136,6 +149,7 @@ const CmykSliders = (props: CmykSlidersProps) => {
             helpTopic="cmyk_k"
             onLiveDrag={(v) => props.onLiveDrag?.('K', v)}
             onDragEnd={props.onDragEnd}
+            gradient={kGradient}
           />
         </>
       )}

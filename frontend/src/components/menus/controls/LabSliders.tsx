@@ -42,6 +42,24 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
     [sliderL, sliderA, sliderB]
   );
 
+  const labGradients = useMemo(() => {
+    const N = 12;
+    const stops = (axis: 'L' | 'a' | 'b', lo: number, hi: number) =>
+      Array.from({length: N}, (_, i) => {
+        const t = i / (N - 1);
+        const v = lo + t * (hi - lo);
+        const [r, g, b] = axis === 'L' ? labToRgb(v, sliderA, sliderB)
+                         : axis === 'a' ? labToRgb(sliderL, v, sliderB)
+                         : labToRgb(sliderL, sliderA, v);
+        return `rgb(${r},${g},${b}) ${(t * 100).toFixed(1)}%`;
+      }).join(', ');
+    return {
+      L: `linear-gradient(to right, ${stops('L', gamutRanges.lRange[0], gamutRanges.lRange[1])})`,
+      a: `linear-gradient(to right, ${stops('a', gamutRanges.aRange[0], gamutRanges.aRange[1])})`,
+      b: `linear-gradient(to right, ${stops('b', gamutRanges.bRange[0], gamutRanges.bRange[1])})`,
+    };
+  }, [sliderL, sliderA, sliderB, gamutRanges]);
+
   // Clamp L when lRange changes (due to A or B changing)
   useEffect(() => {
     const [lo, hi] = gamutRanges.lRange;
@@ -303,16 +321,16 @@ const LabSliders = (props: ControlPaneProps & BridgeProps) => {
                       }}
                     />
                   </div>
-                  {/* Gamut range bar (informational only) */}
+                  {/* Gamut range bar */}
                   <div
                     style={{
                       position: 'absolute',
                       top: '50%',
                       left: `${loP}%`,
                       width: `${Math.max(hiP - loP, 0.1)}%`,
-                      height: 4,
-                      borderRadius: 2,
-                      background: '#a0a0a0',
+                      height: 8,
+                      borderRadius: 4,
+                      background: labGradients[label as 'L' | 'a' | 'b'],
                       transform: 'translateY(-50%)',
                       pointerEvents: 'none',
                     }}

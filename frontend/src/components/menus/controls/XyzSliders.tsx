@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import styled from 'styled-components';
 import ShapeButton from './ShapeButton';
 import HelpIcon from '../../common/HelpIcon';
@@ -21,6 +21,24 @@ const XyzSliders = (props: Props) => {
   const [zLo, zHi] = xyzGamutRange('Z', liveX, liveY, liveZ);
   const latestDraftRef = useRef<Partial<Record<'X' | 'Y' | 'Z', number>>>({});
 
+  const xyzGradients = useMemo(() => {
+    const N = 12;
+    const stops = (axis: 'X' | 'Y' | 'Z', lo: number, hi: number) =>
+      Array.from({length: N}, (_, i) => {
+        const t = i / (N - 1);
+        const v = lo + t * (hi - lo);
+        const [r, g, b] = axis === 'X' ? xyzToRgb(v, liveY, liveZ)
+                         : axis === 'Y' ? xyzToRgb(liveX, v, liveZ)
+                         : xyzToRgb(liveX, liveY, v);
+        return `rgb(${r},${g},${b}) ${(t * 100).toFixed(1)}%`;
+      }).join(', ');
+    return {
+      X: `linear-gradient(to right, ${stops('X', xLo, xHi)})`,
+      Y: `linear-gradient(to right, ${stops('Y', yLo, yHi)})`,
+      Z: `linear-gradient(to right, ${stops('Z', zLo, zHi)})`,
+    };
+  }, [liveX, liveY, liveZ, xLo, xHi, yLo, yHi, zLo, zHi]);
+
   const commit = (channel: 'X' | 'Y' | 'Z') => {
     const val = latestDraftRef.current[channel];
     if (val === undefined) return;
@@ -34,7 +52,7 @@ const XyzSliders = (props: Props) => {
     setDraft({});
   };
 
-  const row = (label: 'X' | 'Y' | 'Z', value: number, absMax: number, lo: number, hi: number) => {
+  const row = (label: 'X' | 'Y' | 'Z', value: number, absMax: number, lo: number, hi: number, gradient: string) => {
     const displayValue = draft[label] ?? value;
     const loP = (lo / absMax) * 100;
     const hiP = (hi / absMax) * 100;
@@ -92,16 +110,16 @@ const XyzSliders = (props: Props) => {
               }}
             />
           </div>
-          {/* Gamut range bar (informational only) */}
+          {/* Gamut range bar */}
           <div
             style={{
               position: 'absolute',
               top: '50%',
               left: `${loP}%`,
               width: `${Math.max(hiP - loP, 0.1)}%`,
-              height: 4,
-              borderRadius: 2,
-              background: '#a0a0a0',
+              height: 8,
+              borderRadius: 4,
+              background: gradient,
               transform: 'translateY(-50%)',
               pointerEvents: 'none',
             }}
@@ -166,9 +184,9 @@ const XyzSliders = (props: Props) => {
         {props.onHelpClick && <HelpIcon topic="xyz_space" onHelpClick={props.onHelpClick} />}
       </div>
       <div style={{ paddingTop: '6px' }}>
-        {row('X', X, 0.95047, xLo, xHi)}
-        {row('Y', Y, 1.0, yLo, yHi)}
-        {row('Z', Z, 1.08883, zLo, zHi)}
+        {row('X', X, 0.95047, xLo, xHi, xyzGradients.X)}
+        {row('Y', Y, 1.0, yLo, yHi, xyzGradients.Y)}
+        {row('Z', Z, 1.08883, zLo, zHi, xyzGradients.Z)}
       </div>
     </div>
   );

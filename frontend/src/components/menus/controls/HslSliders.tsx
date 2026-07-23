@@ -21,6 +21,13 @@ const HslSliders = (props: HslSlidersProps) => {
   useEffect(() => {
     if (props.shape === 'HSL') setIsVisible(true);
   }, [props.shape]);
+  const { focusH: H, focusS: S, focusL: L } = props;
+  const hGradient = `linear-gradient(to right, ${Array.from({length: 13}, (_, i) => {
+    const hue = (i / 12) * 360;
+    return `hsl(${hue.toFixed(0)},${S}%,${L}%) ${((i / 12) * 100).toFixed(1)}%`;
+  }).join(', ')})`;
+  const sGradient = `linear-gradient(to right, hsl(${H},0%,${L}%), hsl(${H},100%,${L}%))`;
+  const lGradient = `linear-gradient(to right, hsl(${H},${S}%,0%), hsl(${H},${S}%,50%), hsl(${H},${S}%,100%))`;
   return (
     <div className="controlPanel">
       <div
@@ -75,6 +82,7 @@ const HslSliders = (props: HslSlidersProps) => {
             helpTopic="hsl_h"
             onLiveDrag={(v) => props.onLiveDrag?.('H', v)}
             onDragEnd={props.onDragEnd}
+            gradient={hGradient}
           />
           <SliderContainer
             {...props}
@@ -95,6 +103,7 @@ const HslSliders = (props: HslSlidersProps) => {
             helpTopic="hsl_s"
             onLiveDrag={(v) => props.onLiveDrag?.('S', v)}
             onDragEnd={props.onDragEnd}
+            gradient={sGradient}
           />
           <SliderContainer
             {...props}
@@ -115,6 +124,7 @@ const HslSliders = (props: HslSlidersProps) => {
             helpTopic="hsl_l"
             onLiveDrag={(v) => props.onLiveDrag?.('L', v)}
             onDragEnd={props.onDragEnd}
+            gradient={lGradient}
           />
         </>
       )}
