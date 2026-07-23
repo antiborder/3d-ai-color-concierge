@@ -15,12 +15,27 @@ interface HsbSlidersProps extends ControlPaneProps, BridgeProps {
   onDragEnd?: () => void;
 }
 
+function hsvToRgbStr(h: number, s: number, v: number): string {
+  const sn = s / 100, vn = v / 100;
+  const f = (n: number) => {
+    const k = (n + h / 60) % 6;
+    return Math.round(vn * (1 - sn * Math.max(0, Math.min(k, 4 - k, 1))) * 255);
+  };
+  return `rgb(${f(5)},${f(3)},${f(1)})`;
+}
+
 const HsbSliders = (props: HsbSlidersProps) => {
   const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(props.shape === 'HSB');
   useEffect(() => {
     if (props.shape === 'HSB') setIsVisible(true);
   }, [props.shape]);
+  const hGradient = `linear-gradient(to right, ${Array.from({length: 13}, (_, i) => {
+    const hue = (i / 12) * 360;
+    return `${hsvToRgbStr(hue, props.focusHsvS, props.focusV)} ${((i / 12) * 100).toFixed(1)}%`;
+  }).join(', ')})`;
+  const sGradient = `linear-gradient(to right, ${hsvToRgbStr(props.focusH, 0, props.focusV)}, ${hsvToRgbStr(props.focusH, 100, props.focusV)})`;
+  const vGradient = `linear-gradient(to right, ${hsvToRgbStr(props.focusH, props.focusHsvS, 0)}, ${hsvToRgbStr(props.focusH, props.focusHsvS, 100)})`;
   return (
     <div className="controlPanel">
       <div
@@ -76,6 +91,7 @@ const HsbSliders = (props: HsbSlidersProps) => {
             helpTopic="hsb_h"
             onLiveDrag={(v) => props.onLiveDrag?.('H', v)}
             onDragEnd={props.onDragEnd}
+            gradient={hGradient}
           />
           <SliderContainer
             {...props}
@@ -96,6 +112,7 @@ const HsbSliders = (props: HsbSlidersProps) => {
             helpTopic="hsb_s"
             onLiveDrag={(v) => props.onLiveDrag?.('HsvS', v)}
             onDragEnd={props.onDragEnd}
+            gradient={sGradient}
           />
           <SliderContainer
             {...props}
@@ -117,6 +134,7 @@ const HsbSliders = (props: HsbSlidersProps) => {
             helpTopic="hsb_v"
             onLiveDrag={(v) => props.onLiveDrag?.('V', v)}
             onDragEnd={props.onDragEnd}
+            gradient={vGradient}
           />
         </>
       )}

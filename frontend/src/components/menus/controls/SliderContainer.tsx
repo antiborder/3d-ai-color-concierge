@@ -122,9 +122,9 @@ const SliderContainer = (props: SliderContainerProps) => {
             top: '50%',
             left: 0,
             width: '100%',
-            height: 4,
-            borderRadius: 2,
-            background: '#a0a0a0',
+            height: 8,
+            borderRadius: 4,
+            background: props.gradient ?? '#a0a0a0',
             transform: 'translateY(-50%)',
             pointerEvents: 'none',
           }}

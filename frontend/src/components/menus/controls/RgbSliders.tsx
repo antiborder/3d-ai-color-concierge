@@ -21,6 +21,10 @@ const RgbSliders = (props: RgbSlidersProps) => {
   useEffect(() => {
     if (props.shape === 'RGB') setIsVisible(true);
   }, [props.shape]);
+  const r = Math.round(props.focusR), g = Math.round(props.focusG), b = Math.round(props.focusB);
+  const rGradient = `linear-gradient(to right, rgb(0,${g},${b}), rgb(255,${g},${b}))`;
+  const gGradient = `linear-gradient(to right, rgb(${r},0,${b}), rgb(${r},255,${b}))`;
+  const bGradient = `linear-gradient(to right, rgb(${r},${g},0), rgb(${r},${g},255))`;
   return (
     <div className="controlPanel">
       <div
@@ -76,6 +80,7 @@ const RgbSliders = (props: RgbSlidersProps) => {
             helpTopic="rgb_r"
             onLiveDrag={(v) => props.onLiveDrag?.('R', v)}
             onDragEnd={props.onDragEnd}
+            gradient={rGradient}
           />
           <SliderContainer
             {...props}
@@ -96,6 +101,7 @@ const RgbSliders = (props: RgbSlidersProps) => {
             helpTopic="rgb_g"
             onLiveDrag={(v) => props.onLiveDrag?.('G', v)}
             onDragEnd={props.onDragEnd}
+            gradient={gGradient}
           />
           <SliderContainer
             {...props}
@@ -116,6 +122,7 @@ const RgbSliders = (props: RgbSlidersProps) => {
             helpTopic="rgb_b"
             onLiveDrag={(v) => props.onLiveDrag?.('B', v)}
             onDragEnd={props.onDragEnd}
+            gradient={bGradient}
           />
         </>
       )}
