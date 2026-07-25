@@ -139,6 +139,7 @@ function App() {
 
   const isDesktopLayout = useMatchMedia('(min-width: 1000px)');
 
+  const [sceneBackgroundColor, setSceneBackgroundColor] = useState('#000000');
   const [previewRgb, setPreviewRgb] = useState<{ r: number; g: number; b: number } | null>(null);
   const [harmonyMode, setHarmonyMode] = useState<HarmonyMode>('none');
   const [aiColorLabels, setAiColorLabels] = useState<AiColorLabel[]>([]);
@@ -192,6 +193,7 @@ function App() {
     },
     resetCameraZoom: () => { setResetCameraZoomSignal((n) => n + 1); },
     zoomToHarmony: () => { setHarmonyZoomSignal((n) => n + 1); },
+    setSceneBackgroundColor,
   };
 
   const harmonyColors = useMemo(
@@ -400,6 +402,7 @@ function App() {
         onCommitRgb={handleClick}
         harmonyColors={harmonyColors}
         aiColorLabels={aiColorLabels}
+        sceneBackgroundColor={sceneBackgroundColor}
         rotateCameraRef={aiColorTriggerRef}
         resetCameraZoomSignal={resetCameraZoomSignal}
         harmonyZoomSignal={harmonyZoomSignal}
@@ -414,6 +417,8 @@ function App() {
         {...harmonyState}
         hexInput={colorState.hexInput}
         colorHistory={history}
+        sceneBackgroundColor={sceneBackgroundColor}
+        onBackgroundColorChange={setSceneBackgroundColor}
         onHelpClick={handleHelpClick}
         openCIEPanelSignal={openCIEPanelSignal}
       />

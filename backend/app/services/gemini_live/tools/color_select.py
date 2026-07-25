@@ -50,6 +50,24 @@ DECLARATIONS: list[dict] = [
             "required": ["hex"],
         },
     },
+    {
+        "name": "SET_BACKGROUND_COLOR",
+        "description": (
+            "Set the 3D canvas background color independently from the selected color. "
+            "Use this when the user asks to change the background color of the 3D view. "
+            "Accepts a 6-digit hex color code."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "hex": {
+                    "type": "string",
+                    "description": "6-digit hex color code for the background, with or without '#' prefix (e.g. '#1A1A2E' or '1A1A2E').",
+                }
+            },
+            "required": ["hex"],
+        },
+    },
 ]
 
 
@@ -68,10 +86,15 @@ def _set_hex(args: dict) -> dict:
     return {"hex": args.get("hex")}
 
 
+def _set_background_color(args: dict) -> dict:
+    return {"hex": args.get("hex")}
+
+
 COMMANDS: dict[str, object] = {
     "SELECT_COLOR": _select_color,
     "SET_COLOR": _set_color,
     "SET_HEX": _set_hex,
+    "SET_BACKGROUND_COLOR": _set_background_color,
 }
 
 RULES_JA = """\

@@ -44,9 +44,9 @@ export const SyncIcon = () => {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       fill="white"
-      height="32"
+      height="28"
       viewBox="0 -960 960 960"
-      width="32"
+      width="28"
     >
       <path d="M160-160v-80h110l-16-14q-52-46-73-105t-21-119q0-111 66.5-197.5T400-790v84q-72 26-116 88.5T240-478q0 45 17 87.5t53 78.5l10 10v-98h80v240H160Zm400-10v-84q72-26 116-88.5T720-482q0-45-17-87.5T650-648l-10-10v98h-80v-240h240v80H690l16 14q49 49 71.5 106.5T800-482q0 111-66.5 197.5T560-170Z" />
     </svg>
@@ -71,6 +71,34 @@ export const PlusIcon = () => {
     </svg>
   );
 };
+
+export const ChainLinkedIcon = () => (
+  <svg width="16" height="30" viewBox="0 0 16 30" fill="none" overflow="visible" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(4, 0)">
+      {/* bar drawn first so ring strokes appear on top */}
+      <rect x="4" y="7.5" width="3" height="16" rx="2" fill="currentColor"/>
+      {/* top ring (horizontal oval) */}
+      <rect x="1.5" y="0" width="8" height="12" rx="4.5" stroke="currentColor" strokeWidth="2"/>
+      {/* bottom ring (horizontal oval) */}
+      <rect x="1.5" y="18.5" width="8" height="12" rx="4.5" stroke="currentColor" strokeWidth="2"/>
+    </g>
+  </svg>
+);
+
+export const ChainBrokenIcon = () => (
+  <svg width="16" height="30" viewBox="0 0 16 30" fill="none" overflow="visible" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(4, 0)">
+      {/* top ring — same shape as ChainLinkedIcon */}
+      <rect x="1.5" y="0" width="8" height="12" rx="4.5" stroke="currentColor" strokeWidth="2"/>
+      {/* stub at bottom of top ring (where bar would exit) */}
+      <rect x="4" y="7.5" width="3" height="4" rx="1.5" fill="currentColor"/>
+      {/* stub at top of bottom ring (where bar would enter) */}
+      <rect x="4" y="18.5" width="3" height="4" rx="1.5" fill="currentColor"/>
+      {/* bottom ring — same shape as ChainLinkedIcon */}
+      <rect x="1.5" y="18.5" width="8" height="12" rx="4.5" stroke="currentColor" strokeWidth="2"/>
+    </g>
+  </svg>
+);
 
 export const MinusIcon = () => {
   return (

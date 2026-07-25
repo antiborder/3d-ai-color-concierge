@@ -23,7 +23,8 @@ export interface Command {
     | 'DISMISS_CONTENT'
     | 'SHOW_COLOR_LABELS'
     | 'DISABLE_CHAT'
-    | 'RESET_ZOOM';
+    | 'RESET_ZOOM'
+    | 'SET_BACKGROUND_COLOR';
   parameters: Record<string, unknown>;
 }
 

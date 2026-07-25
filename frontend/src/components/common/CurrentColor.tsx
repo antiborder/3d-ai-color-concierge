@@ -1,6 +1,7 @@
+import { useState, useEffect } from 'react';
 import convert from 'color-convert';
 import type { ControlPaneProps } from '../../types/controlPane';
-import { SyncIcon } from '../../assets/Icons.jsx';
+import { SyncIcon, ChainLinkedIcon, ChainBrokenIcon } from '../../assets/Icons.jsx';
 import styled from 'styled-components';
 
 const CurrentColor = (props: ControlPaneProps) => {
@@ -10,44 +11,108 @@ const CurrentColor = (props: ControlPaneProps) => {
     }
   };
 
-  const isUpdatable = () => {
-    return props.hexInput !== convert.rgb.hex([props.focusR, props.focusG, props.focusB]);
+  const isUpdatable = () =>
+    props.hexInput !== convert.rgb.hex([props.focusR, props.focusG, props.focusB]);
+
+  const isHexFormat = () => props.hexInput.match(/^[0-9A-Fa-f]{6}$/) !== null;
+
+  const [bgHexInput, setBgHexInput] = useState(
+    props.sceneBackgroundColor.replace('#', '')
+  );
+
+  useEffect(() => {
+    setBgHexInput(props.sceneBackgroundColor.replace('#', ''));
+  }, [props.sceneBackgroundColor]);
+
+  const isBgHexFormat = () => /^[0-9A-Fa-f]{6}$/.test(bgHexInput);
+  const isBgUpdatable = () =>
+    bgHexInput.toLowerCase() !== props.sceneBackgroundColor.replace('#', '').toLowerCase();
+
+  const handleBgUpdate = () => {
+    if (isBgHexFormat()) {
+      props.onBackgroundColorChange('#' + bgHexInput);
+    }
   };
 
-  const handleChange = (value: string) => {
-    props.setHexInput(value);
-  };
+  const [syncBgWithSelected, setSyncBgWithSelected] = useState(false);
 
-  const isHexFormat = () => {
-    return props.hexInput.match(/^[0-9A-Fa-f]{6}$/) !== null;
-  };
+  // sync background → selected color whenever selected color changes (when linked)
+  useEffect(() => {
+    if (!syncBgWithSelected) return;
+    const hex = convert.rgb.hex([
+      Math.round(props.focusR),
+      Math.round(props.focusG),
+      Math.round(props.focusB),
+    ]);
+    props.onBackgroundColorChange('#' + hex);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [syncBgWithSelected, props.focusR, props.focusG, props.focusB]);
 
   return (
     <CurrentColorPanel>
-      <CurrentColorTitle>Current Color</CurrentColorTitle>
-      <div className="currentColor">
-        <div
-          className="color-sample"
-          style={{
-            backgroundColor: '#' + convert.rgb.hex([props.focusR, props.focusG, props.focusB]),
-          }}
+      <CurrentColorTitle>Current Colors</CurrentColorTitle>
+      <ColorRowsWrapper>
+        <ConnectorTop />
+        <ConnectorBottom />
+        <ChainButton
+          onClick={() => setSyncBgWithSelected((v) => !v)}
+          $linked={syncBgWithSelected}
+          title={syncBgWithSelected ? 'Unlink background color' : 'Link background color to selected color'}
         >
-          &nbsp;{' '}
-        </div>
-        <div className="hex">#</div>
-        <input
-          className="hexInput"
-          type="text"
-          value={props.hexInput}
-          onChange={(event) => handleChange(event.target.value)}
-        />
-        <button
-          className={isUpdatable() && isHexFormat() ? 'activeUpdateButton' : 'inactiveUpdateButton'}
-          onClick={() => handleHexUpdate()}
-        >
-          <SyncIcon />
-        </button>
-      </div>
+          {syncBgWithSelected ? <ChainLinkedIcon /> : <ChainBrokenIcon />}
+        </ChainButton>
+        <ColorRowsContent>
+          <div className="currentColor">
+            <div
+              className="color-sample color-sample--circle"
+              style={{
+                backgroundColor:
+                  '#' + convert.rgb.hex([props.focusR, props.focusG, props.focusB]),
+              }}
+            />
+            <div className="hex">#</div>
+            <input
+              className="hexInput"
+              type="text"
+              value={props.hexInput}
+              onChange={(e) => props.setHexInput(e.target.value)}
+            />
+            <button
+              className={
+                isUpdatable() && isHexFormat() ? 'activeUpdateButton' : 'inactiveUpdateButton'
+              }
+              onClick={handleHexUpdate}
+            >
+              <SyncIcon />
+            </button>
+          </div>
+          <div className="currentColor" style={{ opacity: syncBgWithSelected ? 0.4 : 1 }}>
+            <div
+              className="color-sample color-sample--square"
+              style={{ backgroundColor: props.sceneBackgroundColor }}
+            />
+            <div className="hex">#</div>
+            <input
+              className="hexInput"
+              type="text"
+              value={bgHexInput}
+              onChange={(e) => setBgHexInput(e.target.value)}
+              disabled={syncBgWithSelected}
+            />
+            <button
+              className={
+                !syncBgWithSelected && isBgUpdatable() && isBgHexFormat()
+                  ? 'activeUpdateButton'
+                  : 'inactiveUpdateButton'
+              }
+              onClick={handleBgUpdate}
+              disabled={syncBgWithSelected}
+            >
+              <SyncIcon />
+            </button>
+          </div>
+        </ColorRowsContent>
+      </ColorRowsWrapper>
     </CurrentColorPanel>
   );
 };
@@ -61,14 +126,22 @@ const CurrentColorPanel = styled.div`
   min-height: 28px;
 
   .currentColor {
-    display: flex; /* 親要素をフレックスコンテナにする */
-    align-items: center; /* 要素を縦方向に中央寄せする */
+    display: flex;
+    align-items: center;
     font-size: 20px;
+
     .color-sample {
       margin: 8px 8px 8px 8px;
       border: solid 1px #aaaaaa;
       width: 100px;
       height: 24px;
+    }
+    .color-sample--circle {
+      width: 24px;
+      border-radius: 50%;
+    }
+    .color-sample--square {
+      width: 24px;
     }
     .hex {
       display: flex;
@@ -76,7 +149,6 @@ const CurrentColorPanel = styled.div`
       justify-content: center;
       color: #aaaaaa;
     }
-
     .hexInput {
       width: 80px;
       height: 24px;
@@ -84,13 +156,17 @@ const CurrentColorPanel = styled.div`
       border: solid 1px #999999;
       color: #000000;
       margin-right: 8px;
+      &:disabled {
+        background-color: #f0f0f0;
+        cursor: not-allowed;
+      }
     }
     .activeUpdateButton {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 40px;
-      height: 32px;
+      width: 24px;
+      height: 24px;
       padding: 0;
       background-color: #4e8cee;
       color: white;
@@ -98,27 +174,75 @@ const CurrentColorPanel = styled.div`
       border-radius: 4px;
       cursor: pointer;
       line-height: 0;
-
-      svg {
-        display: block;
-      }
+      svg { display: block; }
     }
     .inactiveUpdateButton {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 40px;
-      height: 32px;
+      width: 24px;
+      height: 24px;
       padding: 0;
       background-color: #cccccc;
       border: none;
       border-radius: 4px;
       line-height: 0;
-
-      svg {
-        display: block;
-      }
+      cursor: not-allowed;
+      svg { display: block; }
     }
+  }
+`;
+
+const ColorRowsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  position: relative;
+`;
+
+/* ┌ shape: chain top → UP to circle center → RIGHT to circle left edge */
+const ConnectorTop = styled.span`
+  position: absolute;
+  pointer-events: none;
+  left: 12px;
+  top: 20px;
+  width: 20px;
+  height: 5px;
+  border-left: 1.5px solid #cccccc;
+  border-top: 1.5px solid #cccccc;
+  border-radius: 2px 0 0 0;
+`;
+
+/* └ shape: chain bottom → DOWN to square center → RIGHT to square left edge */
+const ConnectorBottom = styled.span`
+  position: absolute;
+  pointer-events: none;
+  left: 12px;
+  top: 55px;
+  width: 20px;
+  height: 5px;
+  border-left: 1.5px solid #cccccc;
+  border-bottom: 1.5px solid #cccccc;
+  border-radius: 0 0 0 2px;
+`;
+
+const ColorRowsContent = styled.div`
+  flex: 1;
+`;
+
+const ChainButton = styled.button<{ $linked: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 6px 0 2px;
+  color: ${({ $linked }) => ($linked ? '#4e8cee' : '#bbbbbb')};
+  flex-shrink: 0;
+  transition: color 0.15s;
+
+  &:hover {
+    color: ${({ $linked }) => ($linked ? '#3a7de0' : '#888888')};
   }
 `;
 
