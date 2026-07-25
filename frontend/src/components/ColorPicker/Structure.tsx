@@ -214,12 +214,7 @@ const Structure = (props: StructureProps) => {
     ]
   );
 
-  const backgroundColor = useMemo(() => {
-    const r = Math.round(props.focusR).toString(16).padStart(2, '0');
-    const g = Math.round(props.focusG).toString(16).padStart(2, '0');
-    const b = Math.round(props.focusB).toString(16).padStart(2, '0');
-    return `#${r}${g}${b}`;
-  }, [props.focusR, props.focusG, props.focusB]);
+  const backgroundColor = props.sceneBackgroundColor ?? '#000000';
 
   const positionProps = {
     getRgbPosition,

@@ -65,6 +65,10 @@ export interface ControlPaneProps extends BridgeProps {
   // Lab/LCH sliders use this to skip RGB→Lab re-sync during external drags.
   isPreviewActive?: boolean;
 
+  // Background color
+  sceneBackgroundColor: string;
+  onBackgroundColorChange: (hex: string) => void;
+
   // Help
   onHelpClick?: (topic: string) => void;
 

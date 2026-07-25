@@ -38,6 +38,7 @@ export interface VoiceCommandHandlers {
   addAllColorsToHistory: (colors: Array<{ r: number; g: number; b: number }>) => void;
   resetCameraZoom: () => void;
   zoomToHarmony: () => void;
+  setSceneBackgroundColor: (hex: string) => void;
 }
 
 /**
@@ -297,6 +298,21 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
 
     case 'RESET_ZOOM': {
       handlers.resetCameraZoom();
+      break;
+    }
+
+    case 'SET_BACKGROUND_COLOR': {
+      const raw = command.parameters.hex as string;
+      if (!raw) {
+        toast.error('No hex code provided for background color.');
+        break;
+      }
+      const normalized = raw.replace(/^#/, '');
+      if (!/^[0-9A-Fa-f]{6}$/.test(normalized)) {
+        toast.error(`Invalid hex code for background: ${raw}`);
+        break;
+      }
+      handlers.setSceneBackgroundColor('#' + normalized);
       break;
     }
 

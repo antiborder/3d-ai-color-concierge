@@ -50,6 +50,9 @@ export interface StructureProps {
   onClearPreviewRgb?: () => void;
   onCommitRgb?: (r: number, g: number, b: number) => void;
 
+  // Canvas background
+  sceneBackgroundColor?: string;
+
   // Color group filters
   cssColorsEnabled: boolean;
   materialColorsEnabled: boolean;

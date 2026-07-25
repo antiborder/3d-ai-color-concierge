@@ -49,7 +49,15 @@ export const useColorState = () => {
 
   const updateFromCmyk = useCallback((c: number, m: number, y: number, k: number) => {
     const allFormats = ColorConverter.fromCmyk(c, m, y, k);
-    setColorState((prev) => ({
+    setColorState((prev) => {
+      if (
+        Math.round(prev.r) !== Math.round(allFormats.rgb[0]) ||
+        Math.round(prev.g) !== Math.round(allFormats.rgb[1]) ||
+        Math.round(prev.b) !== Math.round(allFormats.rgb[2])
+      ) {
+        playSelectSound();
+      }
+      return {
       ...prev,
       r: allFormats.rgb[0],
       g: allFormats.rgb[1],
@@ -64,67 +72,95 @@ export const useColorState = () => {
       hsbS: allFormats.hsb[1],
       v: allFormats.hsb[2],
       hexInput: allFormats.hex.toUpperCase(),
-    }));
+    };
+    });
   }, []);
 
   const updateFromHsl = useCallback((h: number, s: number, l: number) => {
     const allFormats = ColorConverter.fromHsl(h, s, l);
-    setColorState((prev) => ({
-      ...prev,
-      r: allFormats.rgb[0],
-      g: allFormats.rgb[1],
-      b: allFormats.rgb[2],
-      c: allFormats.cmyk[0],
-      m: allFormats.cmyk[1],
-      y: allFormats.cmyk[2],
-      k: allFormats.cmyk[3],
-      h,
-      s,
-      l,
-      hsbS: allFormats.hsb[1],
-      v: allFormats.hsb[2],
-      hexInput: allFormats.hex.toUpperCase(),
-    }));
+    setColorState((prev) => {
+      if (
+        Math.round(prev.r) !== Math.round(allFormats.rgb[0]) ||
+        Math.round(prev.g) !== Math.round(allFormats.rgb[1]) ||
+        Math.round(prev.b) !== Math.round(allFormats.rgb[2])
+      ) {
+        playSelectSound();
+      }
+      return {
+        ...prev,
+        r: allFormats.rgb[0],
+        g: allFormats.rgb[1],
+        b: allFormats.rgb[2],
+        c: allFormats.cmyk[0],
+        m: allFormats.cmyk[1],
+        y: allFormats.cmyk[2],
+        k: allFormats.cmyk[3],
+        h,
+        s,
+        l,
+        hsbS: allFormats.hsb[1],
+        v: allFormats.hsb[2],
+        hexInput: allFormats.hex.toUpperCase(),
+      };
+    });
   }, []);
 
   const updateFromHsb = useCallback((h: number, s: number, v: number) => {
     const allFormats = ColorConverter.fromHsb(h, s, v);
-    setColorState((prev) => ({
-      ...prev,
-      r: allFormats.rgb[0],
-      g: allFormats.rgb[1],
-      b: allFormats.rgb[2],
-      c: allFormats.cmyk[0],
-      m: allFormats.cmyk[1],
-      y: allFormats.cmyk[2],
-      k: allFormats.cmyk[3],
-      h: allFormats.hsl[0],
-      s: allFormats.hsl[1],
-      l: allFormats.hsl[2],
-      hsbS: s,
-      v,
-      hexInput: allFormats.hex.toUpperCase(),
-    }));
+    setColorState((prev) => {
+      if (
+        Math.round(prev.r) !== Math.round(allFormats.rgb[0]) ||
+        Math.round(prev.g) !== Math.round(allFormats.rgb[1]) ||
+        Math.round(prev.b) !== Math.round(allFormats.rgb[2])
+      ) {
+        playSelectSound();
+      }
+      return {
+        ...prev,
+        r: allFormats.rgb[0],
+        g: allFormats.rgb[1],
+        b: allFormats.rgb[2],
+        c: allFormats.cmyk[0],
+        m: allFormats.cmyk[1],
+        y: allFormats.cmyk[2],
+        k: allFormats.cmyk[3],
+        h: allFormats.hsl[0],
+        s: allFormats.hsl[1],
+        l: allFormats.hsl[2],
+        hsbS: s,
+        v,
+        hexInput: allFormats.hex.toUpperCase(),
+      };
+    });
   }, []);
 
   const updateFromHex = useCallback((hex: string) => {
     const allFormats = ColorConverter.fromHex(hex);
-    setColorState((prev) => ({
-      ...prev,
-      r: allFormats.rgb[0],
-      g: allFormats.rgb[1],
-      b: allFormats.rgb[2],
-      c: allFormats.cmyk[0],
-      m: allFormats.cmyk[1],
-      y: allFormats.cmyk[2],
-      k: allFormats.cmyk[3],
-      h: allFormats.hsl[0],
-      s: allFormats.hsl[1],
-      l: allFormats.hsl[2],
-      hsbS: allFormats.hsb[1],
-      v: allFormats.hsb[2],
-      hexInput: hex.toUpperCase(),
-    }));
+    setColorState((prev) => {
+      if (
+        Math.round(prev.r) !== Math.round(allFormats.rgb[0]) ||
+        Math.round(prev.g) !== Math.round(allFormats.rgb[1]) ||
+        Math.round(prev.b) !== Math.round(allFormats.rgb[2])
+      ) {
+        playSelectSound();
+      }
+      return {
+        ...prev,
+        r: allFormats.rgb[0],
+        g: allFormats.rgb[1],
+        b: allFormats.rgb[2],
+        c: allFormats.cmyk[0],
+        m: allFormats.cmyk[1],
+        y: allFormats.cmyk[2],
+        k: allFormats.cmyk[3],
+        h: allFormats.hsl[0],
+        s: allFormats.hsl[1],
+        l: allFormats.hsl[2],
+        hsbS: allFormats.hsb[1],
+        v: allFormats.hsb[2],
+        hexInput: hex.toUpperCase(),
+      };
+    });
   }, []);
 
   const updateRgbValue = useCallback(
