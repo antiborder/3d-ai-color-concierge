@@ -38,7 +38,7 @@ export const useColorHistory = () => {
 
     // Convert RGB to hex
     const allFormats = ColorConverter.fromRgb(r, g, b);
-    const hex = allFormats.hex.toUpperCase();
+    const hex = allFormats.hex.toLowerCase();
 
     // Create new history item
     const newItem: ColorHistoryItem = {
