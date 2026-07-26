@@ -10,6 +10,7 @@ import {
   getHsbPosition,
   getLchPosition,
   getLabPosition,
+  getOklchPosition,
   getXyzPosition,
   getXyzChromaticityPosition,
   getXyChromaticityPosition,
@@ -31,6 +32,7 @@ const SHAPE_TO_FN: Record<string, PositionFunction> = {
   xy: getXyChromaticityPosition,
   Lab: getLabPosition,
   LCH: getLchPosition,
+  OKLCH: getOklchPosition,
 };
 
 function computePos(segs: WireframeSegment[], fn: PositionFunction): THREE.Vector3[][] {

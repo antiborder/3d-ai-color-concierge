@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { PanelShell } from './PanelShell';
 import LabSliders from './controls/LabSliders';
 import LchSliders from './controls/LchSliders';
+import OklchSliders from './controls/OklchSliders';
 import TwoDPicker from './controls/TwoDPicker';
 import ColorDifferencePanel from './controls/ColorDifferencePanel';
 import type { ControlPaneProps } from '../../types/controlPane';
@@ -44,6 +45,8 @@ const LabLchPanel = (props: ControlPaneProps) => {
         {props.shape === 'Lab' && <TwoDPicker {...liveProps} />}
         <LchSliders {...interceptedProps} />
         {props.shape === 'LCH' && <TwoDPicker {...liveProps} />}
+        <OklchSliders {...interceptedProps} />
+        {props.shape === 'OKLCH' && <TwoDPicker {...liveProps} />}
         <ColorDifferencePanel
           currentColor={{ r: liveProps.focusR, g: liveProps.focusG, b: liveProps.focusB }}
           referenceColor={referenceColor}

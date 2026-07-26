@@ -5,6 +5,8 @@ import HsbSpace from './slides/HsbSpace';
 import HslSpace from './slides/HslSpace';
 import LabSpace from './slides/LabSpace';
 import XyzSpace from './slides/XyzSpace';
+import OklchLineage from './slides/OklchLineage';
+import OklchVsLch from './slides/OklchVsLch';
 
 interface EducationalContentProps {
   contentId: string | null;
@@ -18,6 +20,8 @@ const SLIDES: Record<string, React.ComponentType> = {
   hsl_space: HslSpace,
   lab_space: LabSpace,
   xyz_space: XyzSpace,
+  oklch_lineage: OklchLineage,
+  oklch_vs_lch: OklchVsLch,
 };
 
 const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => {

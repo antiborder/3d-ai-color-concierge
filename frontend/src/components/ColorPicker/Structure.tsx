@@ -3,7 +3,14 @@ import { Canvas } from '@react-three/fiber';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import convert from 'color-convert';
 import '../../App.css';
-import { rgbToLab, labToRgb, rgbToXYZ, xyzToRgb, computeGamutRange, xyzGamutRange } from '../../utils/gamutUtils';
+import {
+  rgbToLab,
+  labToRgb,
+  rgbToXYZ,
+  xyzToRgb,
+  computeGamutRange,
+  xyzGamutRange,
+} from '../../utils/gamutUtils';
 import { getMunsellHVC, munsellHVCtoRgb } from '../../utils/munsellUtils';
 import CameraController from './CameraController';
 import FocusPlane from './FocusPlane';
@@ -34,6 +41,7 @@ import {
   getMunsellPosition,
   getLchPosition,
   getLabPosition,
+  getOklchPosition,
   getXyzPosition,
   getXyzChromaticityPosition,
   getXyChromaticityPosition,
@@ -42,7 +50,11 @@ import {
 
 // Rotate a unit vector by the shared RGB/XYZ quaternion.
 function rv(x: number, y: number, z: number): [number, number, number] {
-  return new THREE.Vector3(x, y, z).applyQuaternion(RGB_XYZ_ROTATION).toArray() as [number, number, number];
+  return new THREE.Vector3(x, y, z).applyQuaternion(RGB_XYZ_ROTATION).toArray() as [
+    number,
+    number,
+    number,
+  ];
 }
 
 function clamp(v: number, lo: number, hi: number): number {
@@ -50,53 +62,101 @@ function clamp(v: number, lo: number, hi: number): number {
 }
 
 const RGB_ARROWS: AxisDef[] = [
-  { dir: rv(-1, 0, 0), label: 'R', getDragRgb: (r, g, b, nd) => [clamp(Math.round(r + nd * 255), 0, 255), g, b] },
-  { dir: rv(0, -1, 0), label: 'G', getDragRgb: (r, g, b, nd) => [r, clamp(Math.round(g + nd * 255), 0, 255), b] },
-  { dir: rv(0,  0, 1), label: 'B', getDragRgb: (r, g, b, nd) => [r, g, clamp(Math.round(b + nd * 255), 0, 255)] },
+  {
+    dir: rv(-1, 0, 0),
+    label: 'R',
+    getDragRgb: (r, g, b, nd) => [clamp(Math.round(r + nd * 255), 0, 255), g, b],
+  },
+  {
+    dir: rv(0, -1, 0),
+    label: 'G',
+    getDragRgb: (r, g, b, nd) => [r, clamp(Math.round(g + nd * 255), 0, 255), b],
+  },
+  {
+    dir: rv(0, 0, 1),
+    label: 'B',
+    getDragRgb: (r, g, b, nd) => [r, g, clamp(Math.round(b + nd * 255), 0, 255)],
+  },
 ];
 const CMY_ARROWS: AxisDef[] = [
-  { dir: rv(1,  0,  0), label: 'C', getDragRgb: (r, g, b, nd) => [clamp(Math.round(r - nd * 255), 0, 255), g, b] },
-  { dir: rv(0,  1,  0), label: 'M', getDragRgb: (r, g, b, nd) => [r, clamp(Math.round(g - nd * 255), 0, 255), b] },
-  { dir: rv(0,  0, -1), label: 'Y', getDragRgb: (r, g, b, nd) => [r, g, clamp(Math.round(b - nd * 255), 0, 255)] },
+  {
+    dir: rv(1, 0, 0),
+    label: 'C',
+    getDragRgb: (r, g, b, nd) => [clamp(Math.round(r - nd * 255), 0, 255), g, b],
+  },
+  {
+    dir: rv(0, 1, 0),
+    label: 'M',
+    getDragRgb: (r, g, b, nd) => [r, clamp(Math.round(g - nd * 255), 0, 255), b],
+  },
+  {
+    dir: rv(0, 0, -1),
+    label: 'Y',
+    getDragRgb: (r, g, b, nd) => [r, g, clamp(Math.round(b - nd * 255), 0, 255)],
+  },
 ];
 const LAB_ARROWS: AxisDef[] = [
-  { dir: [0, 0, 1], label: 'L', getDragRgb: (r, g, b, nd) => {
-    const [L, a, bv] = rgbToLab(r, g, b);
-    const [lo, hi] = computeGamutRange('L', L, a, bv, 0, 100);
-    return labToRgb(clamp(L + nd * 100, lo, hi), a, bv);
-  }},
-  { dir: [-Math.sin(Math.PI / 3), -Math.cos(Math.PI / 3), 0], label: 'a', getDragRgb: (r, g, b, nd) => {
-    const [L, a, bv] = rgbToLab(r, g, b);
-    const [lo, hi] = computeGamutRange('a', L, a, bv, -128, 127);
-    return labToRgb(L, clamp(a + nd * 200, lo, hi), bv);
-  }},
-  { dir: [Math.cos(Math.PI / 3), -Math.sin(Math.PI / 3), 0], label: 'b', getDragRgb: (r, g, b, nd) => {
-    const [L, a, bv] = rgbToLab(r, g, b);
-    const [lo, hi] = computeGamutRange('b', L, a, bv, -128, 127);
-    return labToRgb(L, a, clamp(bv + nd * 200, lo, hi));
-  }},
+  {
+    dir: [0, 0, 1],
+    label: 'L',
+    getDragRgb: (r, g, b, nd) => {
+      const [L, a, bv] = rgbToLab(r, g, b);
+      const [lo, hi] = computeGamutRange('L', L, a, bv, 0, 100);
+      return labToRgb(clamp(L + nd * 100, lo, hi), a, bv);
+    },
+  },
+  {
+    dir: [-Math.sin(Math.PI / 3), -Math.cos(Math.PI / 3), 0],
+    label: 'a',
+    getDragRgb: (r, g, b, nd) => {
+      const [L, a, bv] = rgbToLab(r, g, b);
+      const [lo, hi] = computeGamutRange('a', L, a, bv, -128, 127);
+      return labToRgb(L, clamp(a + nd * 200, lo, hi), bv);
+    },
+  },
+  {
+    dir: [Math.cos(Math.PI / 3), -Math.sin(Math.PI / 3), 0],
+    label: 'b',
+    getDragRgb: (r, g, b, nd) => {
+      const [L, a, bv] = rgbToLab(r, g, b);
+      const [lo, hi] = computeGamutRange('b', L, a, bv, -128, 127);
+      return labToRgb(L, a, clamp(bv + nd * 200, lo, hi));
+    },
+  },
 ];
 const XYZ_ARROWS: AxisDef[] = [
-  { dir: rv(-1, 0, 0), label: 'X', getDragRgb: (r, g, b, nd) => {
-    const [X, Y, Z] = rgbToXYZ(r, g, b);
-    const [lo, hi] = xyzGamutRange('X', X, Y, Z);
-    return xyzToRgb(clamp(X + nd * 0.95047, lo, hi), Y, Z);
-  }},
-  { dir: rv(0, -1, 0), label: 'Y', getDragRgb: (r, g, b, nd) => {
-    const [X, Y, Z] = rgbToXYZ(r, g, b);
-    const [lo, hi] = xyzGamutRange('Y', X, Y, Z);
-    return xyzToRgb(X, clamp(Y + nd * 1.0, lo, hi), Z);
-  }},
-  { dir: rv(0,  0, 1), label: 'Z', getDragRgb: (r, g, b, nd) => {
-    const [X, Y, Z] = rgbToXYZ(r, g, b);
-    const [lo, hi] = xyzGamutRange('Z', X, Y, Z);
-    return xyzToRgb(X, Y, clamp(Z + nd * 1.08883, lo, hi));
-  }},
+  {
+    dir: rv(-1, 0, 0),
+    label: 'X',
+    getDragRgb: (r, g, b, nd) => {
+      const [X, Y, Z] = rgbToXYZ(r, g, b);
+      const [lo, hi] = xyzGamutRange('X', X, Y, Z);
+      return xyzToRgb(clamp(X + nd * 0.95047, lo, hi), Y, Z);
+    },
+  },
+  {
+    dir: rv(0, -1, 0),
+    label: 'Y',
+    getDragRgb: (r, g, b, nd) => {
+      const [X, Y, Z] = rgbToXYZ(r, g, b);
+      const [lo, hi] = xyzGamutRange('Y', X, Y, Z);
+      return xyzToRgb(X, clamp(Y + nd * 1.0, lo, hi), Z);
+    },
+  },
+  {
+    dir: rv(0, 0, 1),
+    label: 'Z',
+    getDragRgb: (r, g, b, nd) => {
+      const [X, Y, Z] = rgbToXYZ(r, g, b);
+      const [lo, hi] = xyzGamutRange('Z', X, Y, Z);
+      return xyzToRgb(X, Y, clamp(Z + nd * 1.08883, lo, hi));
+    },
+  },
 ];
 const xyz_ARROWS: AxisDef[] = [
   { dir: rv(-1, 0, 0), label: 'x' },
   { dir: rv(0, -1, 0), label: 'y' },
-  { dir: rv(0,  0, 1), label: 'z' },
+  { dir: rv(0, 0, 1), label: 'z' },
 ];
 const xy_ARROWS: AxisDef[] = [
   { dir: rv(-1, 0, 0), label: 'x' },
@@ -109,7 +169,11 @@ type DragFn = (r: number, g: number, b: number, nd: number) => [number, number, 
 const HSB_DRAG_FNS: [DragFn, DragFn, DragFn] = [
   (r, g, b, nd) => {
     const [h, s, v] = convert.rgb.hsv([Math.round(r), Math.round(g), Math.round(b)]);
-    return convert.hsv.rgb([((h + nd * 360) % 360 + 360) % 360, s, v]) as [number, number, number];
+    return convert.hsv.rgb([(((h + nd * 360) % 360) + 360) % 360, s, v]) as [
+      number,
+      number,
+      number,
+    ];
   },
   (r, g, b, nd) => {
     const [h, s, v] = convert.rgb.hsv([Math.round(r), Math.round(g), Math.round(b)]);
@@ -124,7 +188,11 @@ const HSB_DRAG_FNS: [DragFn, DragFn, DragFn] = [
 const HSL_DRAG_FNS: [DragFn, DragFn, DragFn] = [
   (r, g, b, nd) => {
     const [h, s, l] = convert.rgb.hsl([Math.round(r), Math.round(g), Math.round(b)]);
-    return convert.hsl.rgb([((h + nd * 360) % 360 + 360) % 360, s, l]) as [number, number, number];
+    return convert.hsl.rgb([(((h + nd * 360) % 360) + 360) % 360, s, l]) as [
+      number,
+      number,
+      number,
+    ];
   },
   (r, g, b, nd) => {
     const [h, s, l] = convert.rgb.hsl([Math.round(r), Math.round(g), Math.round(b)]);
@@ -139,7 +207,7 @@ const HSL_DRAG_FNS: [DragFn, DragFn, DragFn] = [
 const LCH_DRAG_FNS: [DragFn, DragFn, DragFn] = [
   (r, g, b, nd) => {
     const { hueNum, value, chroma } = getMunsellHVC(r, g, b);
-    const newH = ((( hueNum ?? 0) + nd * 100) % 100 + 100) % 100;
+    const newH = ((((hueNum ?? 0) + nd * 100) % 100) + 100) % 100;
     return munsellHVCtoRgb(newH, value, chroma);
   },
   (r, g, b, nd) => {
@@ -157,22 +225,24 @@ import type { ColorSpace } from '../../types/color';
 const cameraPosition: [number, number, number] = [0, 15, 0];
 
 function resolveLabelPositions(
-  labels: StructureProps['aiColorLabels'],
+  labels: Array<{ r: number; g: number; b: number }> | undefined,
   shape: ColorSpace,
   getRgbPosition: (r: number, g: number, b: number) => [number, number, number],
   getHslPosition: (r: number, g: number, b: number) => [number, number, number],
   getHsbPosition: (r: number, g: number, b: number) => [number, number, number],
   getMunsellPosition: (r: number, g: number, b: number) => [number, number, number],
   getLabPosition: (r: number, g: number, b: number) => [number, number, number],
+  getOklchPosition: (r: number, g: number, b: number) => [number, number, number],
   getXyzPosition: (r: number, g: number, b: number) => [number, number, number],
   getXyzChromaticityPosition: (r: number, g: number, b: number) => [number, number, number],
-  getXyChromaticityPosition: (r: number, g: number, b: number) => [number, number, number],
+  getXyChromaticityPosition: (r: number, g: number, b: number) => [number, number, number]
 ): [number, number, number][] {
   if (!labels || labels.length === 0) return [];
   return labels.map(({ r, g, b }) => {
     if (shape === 'HSL') return getHslPosition(r, g, b);
     if (shape === 'HSB') return getHsbPosition(r, g, b);
     if (shape === 'LCH') return getMunsellPosition(r, g, b);
+    if (shape === 'OKLCH') return getOklchPosition(r, g, b);
     if (shape === 'Lab') return getLabPosition(r, g, b);
     if (shape === 'XYZ') return getXyzPosition(r, g, b);
     if (shape === 'xyz') return getXyzChromaticityPosition(r, g, b);
@@ -222,6 +292,7 @@ const Structure = (props: StructureProps) => {
     getHsbPosition,
     getMunsellPosition: getLchPosition,
     getLabPosition,
+    getOklchPosition,
     getXyzPosition,
     getXyzChromaticityPosition,
     getXyChromaticityPosition,
@@ -237,43 +308,43 @@ const Structure = (props: StructureProps) => {
         getHsbPosition,
         getLchPosition,
         getLabPosition,
+        getOklchPosition,
         getXyzPosition,
         getXyzChromaticityPosition,
-        getXyChromaticityPosition,
+        getXyChromaticityPosition
       ),
-    [props.aiColorLabels, props.shape],
+    [props.aiColorLabels, props.shape]
   );
 
-  const harmonyColorPositions = useMemo(
-    () => {
-      const harmonyPositions = resolveLabelPositions(
-        props.harmonyColors as any,
-        props.shape,
-        getRgbPosition,
-        getHslPosition,
-        getHsbPosition,
-        getLchPosition,
-        getLabPosition,
-        getXyzPosition,
-        getXyzChromaticityPosition,
-        getXyChromaticityPosition,
-      );
-      const focusPosition = resolveLabelPositions(
-        [{ r: props.focusR, g: props.focusG, b: props.focusB }] as any,
-        props.shape,
-        getRgbPosition,
-        getHslPosition,
-        getHsbPosition,
-        getLchPosition,
-        getLabPosition,
-        getXyzPosition,
-        getXyzChromaticityPosition,
-        getXyChromaticityPosition,
-      );
-      return [...harmonyPositions, ...focusPosition];
-    },
-    [props.harmonyColors, props.shape, props.focusR, props.focusG, props.focusB],
-  );
+  const harmonyColorPositions = useMemo(() => {
+    const harmonyPositions = resolveLabelPositions(
+      props.harmonyColors,
+      props.shape,
+      getRgbPosition,
+      getHslPosition,
+      getHsbPosition,
+      getLchPosition,
+      getLabPosition,
+      getOklchPosition,
+      getXyzPosition,
+      getXyzChromaticityPosition,
+      getXyChromaticityPosition
+    );
+    const focusPosition = resolveLabelPositions(
+      [{ r: props.focusR, g: props.focusG, b: props.focusB }],
+      props.shape,
+      getRgbPosition,
+      getHslPosition,
+      getHsbPosition,
+      getLchPosition,
+      getLabPosition,
+      getOklchPosition,
+      getXyzPosition,
+      getXyzChromaticityPosition,
+      getXyChromaticityPosition
+    );
+    return [...harmonyPositions, ...focusPosition];
+  }, [props.harmonyColors, props.shape, props.focusR, props.focusG, props.focusB]);
 
   return (
     <div>

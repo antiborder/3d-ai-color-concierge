@@ -98,6 +98,21 @@
       "title": "Lab色空間",
       "white": "白",
       "black": "黒"
+    },
+    "oklch_lineage": {
+      "title": "色科学の系統図",
+      "rgb_desc": "デバイス依存（表示値）",
+      "xyz_desc": "人の視覚に基づく（CIE 1931）",
+      "lab_desc": "知覚的に均等な距離（1976）",
+      "lch_desc": "Labの極座標形式・直感的な色相",
+      "oklch_desc": "色相回転のズレを解消（2020）",
+      "caption": "各ステップで色表現が人の知覚に近づいた。"
+    },
+    "oklch_vs_lch": {
+      "title": "LCH と OkLCH の色相回転",
+      "lch_label": "CIE LCH",
+      "oklch_label": "OkLCH",
+      "caption": "OkLCH では等間隔の色相ステップが明度も均等に見える。"
     }
   }
 }

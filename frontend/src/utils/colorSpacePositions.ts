@@ -159,6 +159,29 @@ export const getXyzChromaticityPosition: PositionFunction = (r, g, b) => {
     .toArray() as [number, number, number];
 };
 
+export const oklchCylinderHeight = structureSize * Math.sqrt(3);
+
+export const getOklchPosition: PositionFunction = (r, g, b) => {
+  const toLinear = (c: number) => {
+    const s = c / 255;
+    return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+  const rl = toLinear(r), gl = toLinear(g), bl = toLinear(b);
+  const lms_l = 0.4122214708 * rl + 0.5363325363 * gl + 0.0514459929 * bl;
+  const lms_m = 0.2119034982 * rl + 0.6806995451 * gl + 0.1073969566 * bl;
+  const lms_s = 0.0883024619 * rl + 0.2817188376 * gl + 0.6299787005 * bl;
+  const l_ = Math.cbrt(lms_l), m_ = Math.cbrt(lms_m), s_ = Math.cbrt(lms_s);
+  const L_ok = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_;
+  const a_ok = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
+  const b_ok = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
+  const C = Math.sqrt(a_ok * a_ok + b_ok * b_ok);
+  const H = ((Math.atan2(b_ok, a_ok) * (180 / Math.PI)) + 360) % 360;
+  const theta = (H / 360) * 2 * Math.PI - Math.PI / 3;
+  const radius = Math.min(C / 0.32, 1.0) * cylinderRadius;
+  const z = (L_ok - 0.5) * oklchCylinderHeight;
+  return cylindricalToCartesian(theta, radius, z);
+};
+
 export const getXyChromaticityPosition: PositionFunction = (r, g, b) => {
   const [X, Y, Z] = rgbToXyz(r, g, b);
   const sum = X + Y + Z;
