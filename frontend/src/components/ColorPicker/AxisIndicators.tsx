@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { Html, Line } from '@react-three/drei';
 import { RGB_XYZ_ROTATION, structureSize, labCylinderHeight } from '../../utils/colorSpacePositions';
 import { focusContrastColor } from '../../utils/colorConverter';
+import { oklabToRgb } from '../../utils/gamutUtils';
 
 const ARROW_LEN = 2.8;
 const CONE_H = 0.3;
@@ -13,6 +14,16 @@ const GRAD_SEGMENTS = 40;
 const AXIS_L = 50;
 const A_MIN = -85.41, A_MAX = 97.37;
 const B_MIN = -106.91, B_MAX = 93.63;
+
+// OkLab axis ranges: sRGB gamut extremes at mid-lightness (L_ok ≈ 0.5)
+const OKLAB_AXIS_L = 0.5;
+const OKLAB_A_MIN = -0.2338, OKLAB_A_MAX = 0.2743;  // green → magenta
+const OKLAB_B_MIN = -0.3117, OKLAB_B_MAX = 0.1986;  // blue → yellow
+
+function oklabToColor(L: number, a: number, b: number): THREE.Color {
+  const [r, g, bv] = oklabToRgb(L, a, b);
+  return new THREE.Color(r / 255, g / 255, bv / 255);
+}
 
 // Lab(L, a, b) → THREE.Color in sRGB (clamps out-of-gamut values)
 function labToColor(L: number, a: number, b: number): THREE.Color {
@@ -50,6 +61,11 @@ const XYZ_AXES: AxisConf[] = [
   { raw: [-1, 0, 0], label: 'X', color: AXIS_COLOR },
   { raw: [0, -1, 0], label: 'Y', color: AXIS_COLOR },
   { raw: [0, 0, 1],  label: 'Z', color: AXIS_COLOR },
+];
+const LMS_AXES: AxisConf[] = [
+  { raw: [-1, 0, 0], label: 'L', color: AXIS_COLOR },
+  { raw: [0, -1, 0], label: 'M', color: AXIS_COLOR },
+  { raw: [0, 0, 1],  label: 'S', color: AXIS_COLOR },
 ];
 const xyz_AXES: AxisConf[] = [
   { raw: [-1, 0, 0], label: 'x', color: AXIS_COLOR },
@@ -187,16 +203,27 @@ const AxisIndicators = ({ shape, focusL = 50 }: { shape: string; focusL?: number
   const data = useMemo(() => {
     const xyzColor = focusContrastColor(focusL);
 
-    if (shape === 'Lab') {
+    if (shape === 'Lab' || shape === 'OKLAB') {
       const origin: [number, number, number] = [0, 0, 0];
       const halfS = labCylinderHeight / 2;
       const fromDist = -halfS;
       const toDist   = halfS * 1.06;
 
-      const aVertexColors = makeLabColors(halfS, fromDist, toDist, A_MIN, A_MAX,
-        (a) => labToColor(AXIS_L, a, 0));
-      const bVertexColors = makeLabColors(halfS, fromDist, toDist, B_MIN, B_MAX,
-        (b) => labToColor(AXIS_L, 0, b));
+      const isOklab = shape === 'OKLAB';
+      const aVertexColors = makeLabColors(
+        halfS, fromDist, toDist,
+        isOklab ? OKLAB_A_MIN : A_MIN,
+        isOklab ? OKLAB_A_MAX : A_MAX,
+        isOklab ? (a) => oklabToColor(OKLAB_AXIS_L, a, 0)
+                : (a) => labToColor(AXIS_L, a, 0),
+      );
+      const bVertexColors = makeLabColors(
+        halfS, fromDist, toDist,
+        isOklab ? OKLAB_B_MIN : B_MIN,
+        isOklab ? OKLAB_B_MAX : B_MAX,
+        isOklab ? (b) => oklabToColor(OKLAB_AXIS_L, 0, b)
+                : (b) => labToColor(AXIS_L, 0, b),
+      );
 
       const axes = [
         {
@@ -224,7 +251,8 @@ const AxisIndicators = ({ shape, focusL = 50 }: { shape: string; focusL?: number
       shape === 'RGB' ? RGB_AXES
         : isCmyk ? CMY_AXES
           : shape === 'XYZ' ? XYZ_AXES
-            : shape === 'xyz' ? xyz_AXES
+            : shape === 'LMS' ? LMS_AXES
+              : shape === 'xyz' ? xyz_AXES
               : shape === 'xy' ? xy_AXES
                 : null;
     if (!baseConfs) return null;

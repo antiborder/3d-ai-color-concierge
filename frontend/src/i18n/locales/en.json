@@ -99,14 +99,23 @@
       "white": "White",
       "black": "Black"
     },
+    "oklab_space": {
+      "title": "OkLab Color Space",
+      "white": "White",
+      "black": "Black",
+      "desc1": "OkLab is a perceptually uniform Lab-like space proposed by Björn Ottosson in 2020.",
+      "desc2": "L is lightness (0–1), a is red-green axis, b is blue-yellow axis. Equal distances in OkLab correspond to equal perceived color differences."
+    },
     "oklch_lineage": {
       "title": "Color Science Lineage",
       "rgb_desc": "Device-dependent (display values)",
       "xyz_desc": "Based on human vision (CIE 1931)",
-      "lab_desc": "Perceptually uniform distance (1976)",
-      "lch_desc": "Polar form of Lab — intuitive hue",
-      "oklch_desc": "Fixes hue rotation artifacts (2020)",
-      "caption": "Each step made color more true to human perception."
+      "lab_desc": "Perceptually uniform (1976)",
+      "lch_desc": "Polar form of Lab",
+      "lms_desc": "Cone cell responses (L/M/S)",
+      "oklab_desc": "Perceptual via LMS (2020)",
+      "oklch_desc": "Polar form of OkLab",
+      "caption": "Two branches from XYZ: CIE Lab and OkLab via cone responses."
     },
     "oklch_vs_lch": {
       "title": "LCH vs OkLCH Hue Rotation",

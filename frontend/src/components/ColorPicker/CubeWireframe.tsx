@@ -66,14 +66,16 @@ const XYZ_ROT = (() => {
 const CubeWireframe = ({ shape, structureSize, visible, labBoxSize, focusL = 50 }: CubeWireframeProps) => {
   const shouldShow =
     shape === 'Lab' ||
+    shape === 'OKLAB' ||
     shape === 'XYZ' ||
+    shape === 'LMS' ||
     shape === 'xyz' ||
     shape === 'xy';
   const isVisible = shouldShow && visible;
 
   let vertices: [number, number, number][] = [];
 
-  if (shape === 'Lab' && labBoxSize) {
+  if ((shape === 'Lab' || shape === 'OKLAB') && labBoxSize) {
     const hx = labBoxSize.x / 2, hy = labBoxSize.y / 2, hz = labBoxSize.z / 2;
     // Same π/3 rotation as getLabPosition so the box aligns with the data
     const rot = Math.PI / 3;
@@ -274,7 +276,7 @@ const CubeWireframe = ({ shape, structureSize, visible, labBoxSize, focusL = 50 
     );
   }
 
-  if (shape === 'XYZ') {
+  if (shape === 'XYZ' || shape === 'LMS') {
     // XYZ axis-aligned bounding box: [0,1]³ in white-point-normalized XYZ space
     // sRGB parallelepiped fits inside this cube
     const s = structureSize;
@@ -315,7 +317,7 @@ const CubeWireframe = ({ shape, structureSize, visible, labBoxSize, focusL = 50 
     );
   }
 
-  const labColor = shape === 'Lab' ? '#888888' : '#ffffff';
+  const labColor = (shape === 'Lab' || shape === 'OKLAB') ? '#888888' : '#ffffff';
 
   return (
     <group>

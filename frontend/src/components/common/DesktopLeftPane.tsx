@@ -3,11 +3,12 @@ import styled from 'styled-components';
 import { ControlPaneSliders } from '../menus/ControlPaneSliders';
 import OneDPickerPanel from '../menus/OneDPickerPanel';
 import LabLchPanel from '../menus/LabLchPanel';
+import OklabPanel from '../menus/OklabPanel';
 import CIEPanel from '../menus/CIEPanel';
 import type { ControlPaneProps } from '../../types/controlPane';
-import { IconSliders, IconOneDPicker, IconLabLch, IconCIE } from './MenuIcons';
+import { IconSliders, IconOneDPicker, IconLabLch, IconOkLab, IconCIE } from './MenuIcons';
 
-type DesktopMenuId = 'sliders' | 'oneDPicker' | 'labLch' | 'cie';
+type DesktopMenuId = 'sliders' | 'oneDPicker' | 'labLch' | 'oklab' | 'cie';
 
 const DesktopLeftPane = (props: ControlPaneProps) => {
   const [activeMenu, setActiveMenu] = useState<DesktopMenuId | null>('sliders');
@@ -31,6 +32,7 @@ const DesktopLeftPane = (props: ControlPaneProps) => {
         {activeMenu === 'sliders' && <ControlPaneSliders {...props} />}
         {activeMenu === 'oneDPicker' && <OneDPickerPanel {...props} />}
         {activeMenu === 'labLch' && <LabLchPanel {...props} />}
+        {activeMenu === 'oklab' && <OklabPanel {...props} />}
         {activeMenu === 'cie' && <CIEPanel {...props} />}
       </PanelArea>
     </MenuAndContent>
@@ -70,6 +72,15 @@ const DesktopMenuBar = ({ activeMenu, onIconClick }: DesktopMenuBarProps) => (
       onClick={() => onIconClick('labLch')}
     >
       <IconLabLch />
+    </MenuIconButton>
+    <MenuIconButton
+      type="button"
+      aria-label="LMS / OkLab / OkLCH"
+      aria-pressed={activeMenu === 'oklab'}
+      $active={activeMenu === 'oklab'}
+      onClick={() => onIconClick('oklab')}
+    >
+      <IconOkLab />
     </MenuIconButton>
     <MenuIconButton
       type="button"

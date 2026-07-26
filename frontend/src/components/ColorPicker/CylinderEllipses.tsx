@@ -31,7 +31,7 @@ const CylinderEllipses = ({
   visible,
 }: CylinderEllipsesProps) => {
   // HSL/HSVの時のみ表示
-  const shouldShow = shape === 'HSL' || shape === 'HSB' || shape === 'LCH';
+  const shouldShow = shape === 'HSL' || shape === 'HSB' || shape === 'LCH' || shape === 'OKLCH';
 
   // 表示するかどうか
   const isVisible = shouldShow && visible;
@@ -148,25 +148,25 @@ const CylinderEllipses = ({
     );
   }
 
-  if (shape === 'LCH') {
-    // Single equatorial ring at L=50 (z=0), colored by CIE LCH hue (H*=atan2(b*,a*)).
-    // thetaCircle = π - H* (inverse of cylindricalToCartesian)
-    const lchMidPoints: [number, number, number][] = [];
-    const lchMidColors: THREE.Color[] = [];
+  if (shape === 'LCH' || shape === 'OKLCH') {
+    // Single equatorial ring at z=0 (L*=50 for LCH, L_ok=0.5 for OKLCH),
+    // colored by hue angle (thetaCircle = π - H + π/6, inverse of cylindricalToCartesian).
+    const ringPoints: [number, number, number][] = [];
+    const ringColors: THREE.Color[] = [];
     for (let i = 0; i <= segments; i++) {
       const thetaCircle = (i / segments) * Math.PI * 2;
-      lchMidPoints.push([
+      ringPoints.push([
         cylinderRadius * Math.sin(thetaCircle),
         cylinderRadius * Math.cos(thetaCircle),
         0,
       ]);
       const H_rad = Math.PI - thetaCircle + Math.PI / 6;
       const H_deg = ((H_rad * 180) / Math.PI + 360) % 360;
-      lchMidColors.push(hsvToColor(H_deg));
+      ringColors.push(hsvToColor(H_deg));
     }
     return (
       <group>
-        <Line points={lchMidPoints} vertexColors={lchMidColors} lineWidth={1.5} />
+        <Line points={ringPoints} vertexColors={ringColors} lineWidth={1.5} />
       </group>
     );
   }

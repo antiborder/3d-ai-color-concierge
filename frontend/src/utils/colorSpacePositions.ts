@@ -159,6 +159,14 @@ export const getXyzChromaticityPosition: PositionFunction = (r, g, b) => {
     .toArray() as [number, number, number];
 };
 
+// Symmetric chroma scale for OkLab/OkLCH (single value keeps both spaces position-consistent).
+// Derived the same way as Lab's norms: norm = max_sRGB_extent / overhang_factor.
+// Lab: 91.39 = 98.24(max a*, magenta) / 1.075,  100.27 = 107.86(max |b*|, blue) / 1.076
+// OkLab: a_norm = 0.2743(max a_ok, magenta)/1.075 = 0.2551
+//        b_norm = 0.3117(max |b_ok|, blue)  /1.076 = 0.2897
+// Symmetric: √(0.2551 × 0.2897) = 0.272  (geometric mean overhang = 1.075, same as Lab)
+export const OKLAB_SCALE = 0.272;
+
 export const oklchCylinderHeight = structureSize * Math.sqrt(3);
 
 export const getOklchPosition: PositionFunction = (r, g, b) => {
@@ -177,9 +185,41 @@ export const getOklchPosition: PositionFunction = (r, g, b) => {
   const C = Math.sqrt(a_ok * a_ok + b_ok * b_ok);
   const H = ((Math.atan2(b_ok, a_ok) * (180 / Math.PI)) + 360) % 360;
   const theta = (H / 360) * 2 * Math.PI - Math.PI / 3;
-  const radius = Math.min(C / 0.32, 1.0) * cylinderRadius;
+  // Use the same scale as getOklabPosition so OkLCH and OkLab map the same color to the same point.
+  const half = structureSize / 2 * 1.184;
+  const radius = (C / OKLAB_SCALE) * half;
   const z = (L_ok - 0.5) * oklchCylinderHeight;
   return cylindricalToCartesian(theta, radius, z);
+};
+
+export const getLmsPosition: PositionFunction = (r, g, b) => {
+  const rl = toLinear(r), gl = toLinear(g), bl = toLinear(b);
+  const L = 0.4122214708 * rl + 0.5363325363 * gl + 0.0514459929 * bl;
+  const M = 0.2119034982 * rl + 0.6806995451 * gl + 0.1073969566 * bl;
+  const S = 0.0883024619 * rl + 0.2817188376 * gl + 0.6299787005 * bl;
+  return new THREE.Vector3(
+    -(L - 0.5) * structureSize,
+    -(M - 0.5) * structureSize,
+    (S - 0.5) * structureSize
+  ).applyQuaternion(RGB_XYZ_ROTATION).toArray() as [number, number, number];
+};
+
+// OkLab: same spatial layout as CIE Lab, symmetric scale so OkLab ↔ OkLCH are identical.
+export const getOklabPosition: PositionFunction = (r, g, b) => {
+  const toLin = (c: number) => { const s = c / 255; return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4); };
+  const rl = toLin(r), gl = toLin(g), bl = toLin(b);
+  const lms_l = 0.4122214708 * rl + 0.5363325363 * gl + 0.0514459929 * bl;
+  const lms_m = 0.2119034982 * rl + 0.6806995451 * gl + 0.1073969566 * bl;
+  const lms_s = 0.0883024619 * rl + 0.2817188376 * gl + 0.6299787005 * bl;
+  const l_ = Math.cbrt(lms_l), m_ = Math.cbrt(lms_m), s_ = Math.cbrt(lms_s);
+  const L_ok = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_;
+  const a_ok = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
+  const b_ok = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
+  const half = structureSize / 2 * 1.184;
+  const x = (b_ok / OKLAB_SCALE) * half;
+  const y = -(a_ok / OKLAB_SCALE) * half;
+  const rot = Math.PI / 3;
+  return [x * Math.cos(rot) + y * Math.sin(rot), -x * Math.sin(rot) + y * Math.cos(rot), (L_ok - 0.5) * labCylinderHeight];
 };
 
 export const getXyChromaticityPosition: PositionFunction = (r, g, b) => {

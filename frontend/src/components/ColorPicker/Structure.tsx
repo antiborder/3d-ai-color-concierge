@@ -10,6 +10,10 @@ import {
   xyzToRgb,
   computeGamutRange,
   xyzGamutRange,
+  rgbToOklab,
+  oklabToRgb,
+  rgbToLms,
+  lmsToRgb,
 } from '../../utils/gamutUtils';
 import { getMunsellHVC, munsellHVCtoRgb } from '../../utils/munsellUtils';
 import CameraController from './CameraController';
@@ -41,7 +45,9 @@ import {
   getMunsellPosition,
   getLchPosition,
   getLabPosition,
+  getOklabPosition,
   getOklchPosition,
+  getLmsPosition,
   getXyzPosition,
   getXyzChromaticityPosition,
   getXyChromaticityPosition,
@@ -124,6 +130,32 @@ const LAB_ARROWS: AxisDef[] = [
     },
   },
 ];
+const OKLAB_ARROWS: AxisDef[] = [
+  {
+    dir: [0, 0, 1] as [number, number, number],
+    label: 'L',
+    getDragRgb: (r, g, b, nd) => {
+      const [L, a, bv] = rgbToOklab(r, g, b);
+      return oklabToRgb(clamp(L + nd, 0, 1), a, bv);
+    },
+  },
+  {
+    dir: [-Math.sin(Math.PI / 3), -Math.cos(Math.PI / 3), 0] as [number, number, number],
+    label: 'a',
+    getDragRgb: (r, g, b, nd) => {
+      const [L, a, bv] = rgbToOklab(r, g, b);
+      return oklabToRgb(L, a + nd * 0.5, bv);
+    },
+  },
+  {
+    dir: [Math.cos(Math.PI / 3), -Math.sin(Math.PI / 3), 0] as [number, number, number],
+    label: 'b',
+    getDragRgb: (r, g, b, nd) => {
+      const [L, a, bv] = rgbToOklab(r, g, b);
+      return oklabToRgb(L, a, bv + nd * 0.5);
+    },
+  },
+];
 const XYZ_ARROWS: AxisDef[] = [
   {
     dir: rv(-1, 0, 0),
@@ -150,6 +182,32 @@ const XYZ_ARROWS: AxisDef[] = [
       const [X, Y, Z] = rgbToXYZ(r, g, b);
       const [lo, hi] = xyzGamutRange('Z', X, Y, Z);
       return xyzToRgb(X, Y, clamp(Z + nd * 1.08883, lo, hi));
+    },
+  },
+];
+const LMS_ARROWS: AxisDef[] = [
+  {
+    dir: rv(-1, 0, 0),
+    label: 'L',
+    getDragRgb: (r, g, b, nd) => {
+      const [L, M, S] = rgbToLms(r, g, b);
+      return lmsToRgb(clamp(L + nd, 0, 1), M, S);
+    },
+  },
+  {
+    dir: rv(0, -1, 0),
+    label: 'M',
+    getDragRgb: (r, g, b, nd) => {
+      const [L, M, S] = rgbToLms(r, g, b);
+      return lmsToRgb(L, clamp(M + nd, 0, 1), S);
+    },
+  },
+  {
+    dir: rv(0, 0, 1),
+    label: 'S',
+    getDragRgb: (r, g, b, nd) => {
+      const [L, M, S] = rgbToLms(r, g, b);
+      return lmsToRgb(L, M, clamp(S + nd, 0, 1));
     },
   },
 ];
@@ -232,7 +290,9 @@ function resolveLabelPositions(
   getHsbPosition: (r: number, g: number, b: number) => [number, number, number],
   getMunsellPosition: (r: number, g: number, b: number) => [number, number, number],
   getLabPosition: (r: number, g: number, b: number) => [number, number, number],
+  getOklabPosition: (r: number, g: number, b: number) => [number, number, number],
   getOklchPosition: (r: number, g: number, b: number) => [number, number, number],
+  getLmsPosition: (r: number, g: number, b: number) => [number, number, number],
   getXyzPosition: (r: number, g: number, b: number) => [number, number, number],
   getXyzChromaticityPosition: (r: number, g: number, b: number) => [number, number, number],
   getXyChromaticityPosition: (r: number, g: number, b: number) => [number, number, number]
@@ -242,7 +302,9 @@ function resolveLabelPositions(
     if (shape === 'HSL') return getHslPosition(r, g, b);
     if (shape === 'HSB') return getHsbPosition(r, g, b);
     if (shape === 'LCH') return getMunsellPosition(r, g, b);
+    if (shape === 'OKLAB') return getOklabPosition(r, g, b);
     if (shape === 'OKLCH') return getOklchPosition(r, g, b);
+    if (shape === 'LMS') return getLmsPosition(r, g, b);
     if (shape === 'Lab') return getLabPosition(r, g, b);
     if (shape === 'XYZ') return getXyzPosition(r, g, b);
     if (shape === 'xyz') return getXyzChromaticityPosition(r, g, b);
@@ -292,7 +354,9 @@ const Structure = (props: StructureProps) => {
     getHsbPosition,
     getMunsellPosition: getLchPosition,
     getLabPosition,
+    getOklabPosition,
     getOklchPosition,
+    getLmsPosition,
     getXyzPosition,
     getXyzChromaticityPosition,
     getXyChromaticityPosition,
@@ -308,7 +372,9 @@ const Structure = (props: StructureProps) => {
         getHsbPosition,
         getLchPosition,
         getLabPosition,
+        getOklabPosition,
         getOklchPosition,
+        getLmsPosition,
         getXyzPosition,
         getXyzChromaticityPosition,
         getXyChromaticityPosition
@@ -325,7 +391,9 @@ const Structure = (props: StructureProps) => {
       getHsbPosition,
       getLchPosition,
       getLabPosition,
+      getOklabPosition,
       getOklchPosition,
+      getLmsPosition,
       getXyzPosition,
       getXyzChromaticityPosition,
       getXyChromaticityPosition
@@ -338,7 +406,9 @@ const Structure = (props: StructureProps) => {
       getHsbPosition,
       getLchPosition,
       getLabPosition,
+      getOklabPosition,
       getOklchPosition,
+      getLmsPosition,
       getXyzPosition,
       getXyzChromaticityPosition,
       getXyChromaticityPosition
@@ -437,6 +507,14 @@ const Structure = (props: StructureProps) => {
               visible={frameVisible}
             />
           )}
+          {props.shape === 'OKLCH' && (
+            <CylinderEllipses
+              shape="OKLCH"
+              cylinderRadius={cylinderRadius}
+              cylinderHeight={labCylinderHeight}
+              visible={frameVisible}
+            />
+          )}
           <AxisIndicators shape={displayShape} focusL={props.focusL} />
           {props.shape === 'HSB' && (
             <CylindricalAxisArrows
@@ -509,6 +587,19 @@ const Structure = (props: StructureProps) => {
               onCommitRgb={props.onCommitRgb}
             />
           )}
+          {props.shape === 'OKLAB' && (
+            <FocusAxisArrows
+              focusR={props.focusR}
+              focusG={props.focusG}
+              focusB={props.focusB}
+              focusL={props.focusL}
+              getPosition={getOklabPosition}
+              axes={OKLAB_ARROWS}
+              onPreviewRgb={props.onPreviewRgb}
+              onClearPreviewRgb={props.onClearPreviewRgb}
+              onCommitRgb={props.onCommitRgb}
+            />
+          )}
           {props.shape === 'XYZ' && (
             <FocusAxisArrows
               focusR={props.focusR}
@@ -517,6 +608,19 @@ const Structure = (props: StructureProps) => {
               focusL={props.focusL}
               getPosition={getXyzPosition}
               axes={XYZ_ARROWS}
+              onPreviewRgb={props.onPreviewRgb}
+              onClearPreviewRgb={props.onClearPreviewRgb}
+              onCommitRgb={props.onCommitRgb}
+            />
+          )}
+          {props.shape === 'LMS' && (
+            <FocusAxisArrows
+              focusR={props.focusR}
+              focusG={props.focusG}
+              focusB={props.focusB}
+              focusL={props.focusL}
+              getPosition={getLmsPosition}
+              axes={LMS_ARROWS}
               onPreviewRgb={props.onPreviewRgb}
               onClearPreviewRgb={props.onClearPreviewRgb}
               onCommitRgb={props.onCommitRgb}

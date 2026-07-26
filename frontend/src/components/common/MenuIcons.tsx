@@ -111,6 +111,26 @@ export function IconLabLch() {
   );
 }
 
+export function IconOkLab() {
+  return (
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
+      {/* L axis — vertical */}
+      <line x1="12" y1="3" x2="12" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <polyline points="10,5.5 12,3 14,5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      {/* a axis — horizontal */}
+      <line x1="12" y1="13" x2="21" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <polyline points="18.5,11 21,13 18.5,15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      {/* b axis — diagonal */}
+      <line x1="12" y1="13" x2="5" y2="20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <polyline points="4.5,17.5 5,20 7.5,19.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      {/* Origin dot — filled circle to distinguish from IconLabLch */}
+      <circle cx="12" cy="13" r="2" fill="currentColor" />
+      {/* "Ok" label — small arc to suggest "Ok" branding */}
+      <path d="M15 6 Q18 3 21 6" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function IconSearch() {
   return (
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>

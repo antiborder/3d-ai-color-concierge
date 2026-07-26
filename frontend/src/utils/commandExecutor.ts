@@ -107,7 +107,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
 
     case 'CHANGE_SHAPE': {
       const colorSpace = command.parameters.colorSpace as string;
-      const validShapes: ColorSpace[] = ['RGB', 'CMYK', 'HSL', 'HSB', 'Lab', 'LCH', 'OKLCH', 'XYZ', 'xyz', 'xy'];
+      const validShapes: ColorSpace[] = ['RGB', 'CMYK', 'HSL', 'HSB', 'Lab', 'LCH', 'OKLAB', 'OKLCH', 'LMS', 'XYZ', 'xyz', 'xy'];
       const matched = validShapes.find((s) => s.toLowerCase() === colorSpace?.toLowerCase());
       if (matched) {
         handlers.resetCameraZoom();

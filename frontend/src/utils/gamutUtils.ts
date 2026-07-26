@@ -208,6 +208,30 @@ export function maxInGamutChromaOklch(L: number, H: number): number {
 }
 
 // ---------------------------------------------------------------------------
+// LMS (cone response) utilities
+// ---------------------------------------------------------------------------
+
+export function rgbToLms(r: number, g: number, b: number): [number, number, number] {
+  const rl = _toLinearOk(r), gl = _toLinearOk(g), bl = _toLinearOk(b);
+  return [
+    0.4122214708 * rl + 0.5363325363 * gl + 0.0514459929 * bl,
+    0.2119034982 * rl + 0.6806995451 * gl + 0.1073969566 * bl,
+    0.0883024619 * rl + 0.2817188376 * gl + 0.6299787005 * bl,
+  ];
+}
+
+export function lmsToRgb(L: number, M: number, S: number): [number, number, number] {
+  const rl =  4.0767416621 * L - 3.3077115913 * M + 0.2309699292 * S;
+  const gl = -1.2684380046 * L + 2.6097574011 * M - 0.3413193965 * S;
+  const bl = -0.0041960863 * L - 0.7034186147 * M + 1.7076147010 * S;
+  const toSrgb = (c: number) => {
+    const v = Math.max(0, Math.min(1, c));
+    return Math.round((v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1 / 2.4) - 0.055) * 255);
+  };
+  return [toSrgb(rl), toSrgb(gl), toSrgb(bl)];
+}
+
+// ---------------------------------------------------------------------------
 // CIE XYZ utilities (used by XyzSliders)
 // ---------------------------------------------------------------------------
 

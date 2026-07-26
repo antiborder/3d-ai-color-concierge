@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { ControlPaneSliders } from '../menus/ControlPaneSliders';
 import OneDPickerPanel from '../menus/OneDPickerPanel';
 import LabLchPanel from '../menus/LabLchPanel';
+import OklabPanel from '../menus/OklabPanel';
 import CIEPanel from '../menus/CIEPanel';
 import DisplayedColorsPanel from '../menus/DisplayedColorsPanel';
 import ColorHarmonyPanel from '../menus/ColorHarmonyPanel';
@@ -13,6 +14,7 @@ import {
   IconSliders,
   IconOneDPicker,
   IconLabLch,
+  IconOkLab,
   IconCIE,
   IconPalette,
   IconHarmony,
@@ -24,6 +26,7 @@ export type MobileSheetId =
   | 'control'
   | 'cie'
   | 'labLch'
+  | 'oklab'
   | 'oneDPicker'
   | 'displayed'
   | 'harmony'
@@ -103,6 +106,11 @@ const MobilePane = (props: MobilePaneProps) => {
           <LabLchPanel {...controlPaneProps} />
         </SheetBlock>
       )}
+      {activeSheet === 'oklab' && (
+        <SheetBlock>
+          <OklabPanel {...controlPaneProps} />
+        </SheetBlock>
+      )}
       {activeSheet === 'oneDPicker' && (
         <SheetBlock>
           <OneDPickerPanel {...controlPaneProps} />
@@ -172,6 +180,15 @@ const MobileMenuBar = ({ activeSheet, onIconClick }: MobileMenuBarProps) => (
       onClick={() => onIconClick('labLch')}
     >
       <IconLabLch />
+    </IconButton>
+    <IconButton
+      type="button"
+      aria-label="LMS / OkLab / OkLCH"
+      aria-pressed={activeSheet === 'oklab'}
+      $active={activeSheet === 'oklab'}
+      onClick={() => onIconClick('oklab')}
+    >
+      <IconOkLab />
     </IconButton>
     <IconButton
       type="button"
