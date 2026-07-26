@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import type { ColorState } from '../types/colorState';
 import { initialColorState } from '../types/colorState';
 import { ColorConverter } from '../utils/colorConverter';
+import { rgbToOklch, oklchToRgbGamutMapped } from '../utils/gamutUtils';
 import type { ColorSpace } from '../types/color';
 import { playTransformSound, playSelectSound } from '../utils/soundEffects';
 
@@ -247,6 +248,12 @@ export const useColorState = () => {
     []
   );
 
+  const setOklchMainElement = useCallback(
+    (element: 'L' | 'C' | 'H') =>
+      setColorState((p) => applyShapeAndElement(p, 'OKLCH', 'oklchMainElement', element)),
+    []
+  );
+
   const toggleLabel = useCallback(() => {
     setColorState((prev) => ({ ...prev, isLabelShown: !prev.isLabelShown }));
   }, []);
@@ -255,45 +262,45 @@ export const useColorState = () => {
     setColorState((prev) => ({ ...prev, hexInput: hex.toUpperCase() }));
   }, []);
 
-  const adjustHslValue = useCallback(
+  const adjustOklchValue = useCallback(
     (property: 'brightness' | 'saturation' | 'hue', direction: 'up' | 'down', amount?: number) => {
       setColorState((prev) => {
-        const { h: currentH, s: currentS, l: currentL } = prev;
-        const adjustmentAmount = amount ?? 10;
-        const delta = direction === 'up' ? adjustmentAmount : -adjustmentAmount;
+        const [okL, okC, okH] = rgbToOklch(prev.r, prev.g, prev.b);
 
         if (property === 'brightness') {
-          if (direction === 'up' && currentL >= 100) return prev;
-          if (direction === 'down' && currentL <= 0) return prev;
+          if (direction === 'up' && okL >= 1) return prev;
+          if (direction === 'down' && okL <= 0) return prev;
         } else if (property === 'saturation') {
-          if (direction === 'up' && currentS >= 100) return prev;
-          if (direction === 'down' && currentS <= 0) return prev;
+          if (direction === 'down' && okC <= 0) return prev;
         }
 
-        let newH = currentH,
-          newS = currentS,
-          newL = currentL;
+        const sign = direction === 'up' ? 1 : -1;
+        let newL = okL, newC = okC, newH = okH;
         if (property === 'brightness') {
-          newL = Math.max(0, Math.min(100, currentL + delta));
+          const delta = sign * (amount ?? 10) / 100;
+          newL = Math.max(0, Math.min(1, okL + delta));
         } else if (property === 'saturation') {
-          newS = Math.max(0, Math.min(100, currentS + delta));
+          const delta = sign * (amount ?? 10) / 250;
+          newC = Math.max(0, okC + delta);
         } else {
-          newH = (((currentH + delta) % 360) + 360) % 360;
+          const delta = sign * (amount ?? 10);
+          newH = (((okH + delta) % 360) + 360) % 360;
         }
 
-        const allFormats = ColorConverter.fromHsl(newH, newS, newL);
+        const [r, g, b] = oklchToRgbGamutMapped(newL, newC, newH);
+        const allFormats = ColorConverter.fromRgb(r, g, b);
         return {
           ...prev,
-          r: allFormats.rgb[0],
-          g: allFormats.rgb[1],
-          b: allFormats.rgb[2],
+          r,
+          g,
+          b,
           c: allFormats.cmyk[0],
           m: allFormats.cmyk[1],
           y: allFormats.cmyk[2],
           k: allFormats.cmyk[3],
-          h: newH,
-          s: newS,
-          l: newL,
+          h: allFormats.hsl[0],
+          s: allFormats.hsl[1],
+          l: allFormats.hsl[2],
           hsbS: allFormats.hsb[1],
           v: allFormats.hsb[2],
           hexInput: allFormats.hex.toUpperCase(),
@@ -321,8 +328,9 @@ export const useColorState = () => {
     setHsvMainElement,
     setLabMainElement,
     setLchMainElement,
+    setOklchMainElement,
     toggleLabel,
     setHexInput,
-    adjustHslValue,
+    adjustOklchValue,
   };
 };

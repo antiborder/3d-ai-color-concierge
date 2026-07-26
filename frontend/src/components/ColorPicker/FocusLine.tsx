@@ -2,7 +2,8 @@ import React from 'react';
 import StraightLine from './StraightLine';
 import Circle from './Circle';
 import { systemColors } from '../../constants/systemColors';
-import { structureSize, hslCylinderHeight, hsbCylinderHeight, lchCylinderHeight, rgbToLab } from '../../utils/colorSpacePositions';
+import { structureSize, hslCylinderHeight, hsbCylinderHeight, lchCylinderHeight, oklchCylinderHeight, rgbToLab } from '../../utils/colorSpacePositions';
+import { rgbToOklch } from '../../utils/gamutUtils';
 import type {
   StructureProps,
   PositionFunction,
@@ -214,6 +215,51 @@ const FocusLine = (props: FocusLineProps) => {
                   points={[
                     props.cylindricalToCartesian(theta, r, z),
                     props.cylindricalToCartesian(theta, 0, lchCylinderHeight / 2),
+                  ]}
+                  color={systemColors['DEEP_GRAY']}
+                />
+              </>
+            )}
+          </>
+        );
+      })()}
+      {props.shape === 'OKLCH' && (() => {
+        const [okL, okC, okH] = rgbToOklch(props.focusR, props.focusG, props.focusB);
+        const theta = (okH / 360) * 2 * Math.PI - Math.PI / 6;
+        const { cylinderRadius } = props;
+        const r = Math.min(okC / 0.32, 1.0) * cylinderRadius;
+        const z = (okL - 0.5) * oklchCylinderHeight;
+        return (
+          <>
+            {props.oklchMainElement !== 'H' && (
+              <Circle
+                radius={r}
+                position={[0, 0, z]}
+                color={systemColors['W']}
+              />
+            )}
+            {props.oklchMainElement !== 'C' && (
+              <StraightLine
+                points={[
+                  props.cylindricalToCartesian(theta, 0, z),
+                  props.cylindricalToCartesian(theta, r, z),
+                ]}
+                color={systemColors['K']}
+              />
+            )}
+            {props.oklchMainElement !== 'L' && (
+              <>
+                <StraightLine
+                  points={[
+                    props.cylindricalToCartesian(theta, 0, -oklchCylinderHeight / 2),
+                    props.cylindricalToCartesian(theta, r, z),
+                  ]}
+                  color={systemColors['DEEP_GRAY']}
+                />
+                <StraightLine
+                  points={[
+                    props.cylindricalToCartesian(theta, r, z),
+                    props.cylindricalToCartesian(theta, 0, oklchCylinderHeight / 2),
                   ]}
                   color={systemColors['DEEP_GRAY']}
                 />

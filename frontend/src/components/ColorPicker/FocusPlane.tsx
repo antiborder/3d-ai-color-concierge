@@ -3,8 +3,9 @@ import * as THREE from 'three';
 import Cylinder from './Cylinder';
 import Quadrilateral from './Quadrilateral';
 import Disc from './Disc';
-import { hslCylinderHeight, hsbCylinderHeight, lchCylinderHeight, labCylinderHeight } from '../../utils/colorSpacePositions';
+import { hslCylinderHeight, hsbCylinderHeight, lchCylinderHeight, labCylinderHeight, oklchCylinderHeight } from '../../utils/colorSpacePositions';
 import { getMunsellHVC } from '../../utils/munsellUtils';
+import { rgbToOklch, maxInGamutChromaOklch } from '../../utils/gamutUtils';
 import type {
   StructureProps,
   PositionFunction,
@@ -230,6 +231,45 @@ const FocusPlane = (props: FocusPlaneProps) => {
                   props.cylindricalToCartesian(theta, 0, lchCylinderHeight / 2),
                   props.cylindricalToCartesian(theta, 0, -lchCylinderHeight / 2),
                   props.cylindricalToCartesian(theta, 0, -lchCylinderHeight / 2),
+                ]}
+              />
+            );
+          }
+        })()}
+
+      {props.shape === 'OKLCH' &&
+        (() => {
+          const [okL, okC, okH] = rgbToOklch(props.focusR, props.focusG, props.focusB);
+          const theta = (okH / 360) * 2 * Math.PI - Math.PI / 6;
+          const discZ = (okL - 0.5) * oklchCylinderHeight;
+          const chromaRadius = Math.min(okC / 0.32, 1.0) * props.cylinderRadius;
+          const maxC = maxInGamutChromaOklch(okL, okH);
+
+          if (props.oklchMainElement === 'L') {
+            return (
+              <group rotation={[Math.PI / 2, 0, 0]}>
+                <Disc
+                  position={[0, discZ, 0]}
+                  radius={Math.min(maxC / 0.32, 1.0) * props.cylinderRadius}
+                  side={THREE.DoubleSide}
+                />
+              </group>
+            );
+          } else if (props.oklchMainElement === 'C') {
+            return (
+              <group rotation={[Math.PI / 2, 0, 0]}>
+                <Cylinder radius={chromaRadius} height={Math.max(oklchCylinderHeight * 0.8, 0.01)} side={THREE.DoubleSide} />
+              </group>
+            );
+          } else {
+            return (
+              <Quadrilateral
+                {...props}
+                points={[
+                  props.cylindricalToCartesian(theta, props.cylinderRadius, 0),
+                  props.cylindricalToCartesian(theta, 0, oklchCylinderHeight / 2),
+                  props.cylindricalToCartesian(theta, 0, -oklchCylinderHeight / 2),
+                  props.cylindricalToCartesian(theta, 0, -oklchCylinderHeight / 2),
                 ]}
               />
             );

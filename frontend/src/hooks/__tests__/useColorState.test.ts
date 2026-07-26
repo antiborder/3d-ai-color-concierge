@@ -9,6 +9,7 @@ vi.mock('../../utils/soundEffects', () => ({
 
 // Import hook after mocking
 import { useColorState } from '../useColorState';
+import { rgbToOklch } from '../../utils/gamutUtils';
 
 describe('useColorState – updateFromRgb', () => {
   it('updates r, g, b values', () => {
@@ -136,61 +137,73 @@ describe('useColorState – updateRgbValue', () => {
   });
 });
 
-describe('useColorState – adjustHslValue', () => {
-  it('increases lightness by 10 when adjusting brightness up', () => {
+describe('useColorState – adjustOklchValue', () => {
+  it('increases OkLCH lightness when adjusting brightness up', () => {
     const { result } = renderHook(() => useColorState());
     act(() => {
-      result.current.updateFromHsl(0, 100, 40);
+      result.current.updateFromRgb(180, 60, 60); // mid-tone red
     });
+    const [lBefore] = rgbToOklch(result.current.colorState.r, result.current.colorState.g, result.current.colorState.b);
     act(() => {
-      result.current.adjustHslValue('brightness', 'up');
+      result.current.adjustOklchValue('brightness', 'up');
     });
-    expect(result.current.colorState.l).toBe(50);
+    const [lAfter] = rgbToOklch(result.current.colorState.r, result.current.colorState.g, result.current.colorState.b);
+    expect(lAfter).toBeGreaterThan(lBefore);
   });
 
-  it('decreases lightness by 10 when adjusting brightness down', () => {
+  it('decreases OkLCH lightness when adjusting brightness down', () => {
     const { result } = renderHook(() => useColorState());
     act(() => {
-      result.current.updateFromHsl(0, 100, 40);
+      result.current.updateFromRgb(180, 60, 60);
     });
+    const [lBefore] = rgbToOklch(result.current.colorState.r, result.current.colorState.g, result.current.colorState.b);
     act(() => {
-      result.current.adjustHslValue('brightness', 'down');
+      result.current.adjustOklchValue('brightness', 'down');
     });
-    expect(result.current.colorState.l).toBe(30);
+    const [lAfter] = rgbToOklch(result.current.colorState.r, result.current.colorState.g, result.current.colorState.b);
+    expect(lAfter).toBeLessThan(lBefore);
   });
 
-  it('does not go below 0 for brightness', () => {
+  it('does not change black when adjusting brightness down', () => {
     const { result } = renderHook(() => useColorState());
     act(() => {
-      result.current.updateFromHsl(0, 100, 0);
+      result.current.updateFromRgb(0, 0, 0);
     });
     act(() => {
-      result.current.adjustHslValue('brightness', 'down');
+      result.current.adjustOklchValue('brightness', 'down');
     });
-    expect(result.current.colorState.l).toBe(0);
+    expect(result.current.colorState.r).toBe(0);
+    expect(result.current.colorState.g).toBe(0);
+    expect(result.current.colorState.b).toBe(0);
   });
 
-  it('does not go above 100 for brightness', () => {
+  it('does not change white when adjusting brightness up', () => {
     const { result } = renderHook(() => useColorState());
     act(() => {
-      result.current.updateFromHsl(0, 100, 100);
+      result.current.updateFromRgb(255, 255, 255);
     });
     act(() => {
-      result.current.adjustHslValue('brightness', 'up');
+      result.current.adjustOklchValue('brightness', 'up');
     });
-    expect(result.current.colorState.l).toBe(100);
+    expect(result.current.colorState.r).toBe(255);
+    expect(result.current.colorState.g).toBe(255);
+    expect(result.current.colorState.b).toBe(255);
   });
 
-  it('wraps hue around 360 when adjusting hue up past 360', () => {
+  it('shifts OkLCH hue angle when adjusting hue up', () => {
     const { result } = renderHook(() => useColorState());
     act(() => {
-      result.current.updateFromHsl(355, 100, 50);
+      result.current.updateFromRgb(180, 60, 60); // red-ish
     });
+    const [, , hBefore] = rgbToOklch(result.current.colorState.r, result.current.colorState.g, result.current.colorState.b);
     act(() => {
-      result.current.adjustHslValue('hue', 'up');
+      result.current.adjustOklchValue('hue', 'up', 30);
     });
-    // 355 + 10 = 365 → 365 % 360 = 5
-    expect(result.current.colorState.h).toBe(5);
+    const [, , hAfter] = rgbToOklch(result.current.colorState.r, result.current.colorState.g, result.current.colorState.b);
+    // hue should have shifted by ~30°, wrapping if needed
+    const diff = ((hAfter - hBefore) + 360) % 360;
+    expect(diff).toBeGreaterThan(25);
+    expect(diff).toBeLessThan(35);
   });
 });
 

@@ -16,7 +16,7 @@ export interface VoiceCommandHandlers {
   updateFromRgb: (r: number, g: number, b: number) => void;
   updateRgbValue: (colorParam: 'R' | 'G' | 'B', value: number) => void;
   setShape: (shape: ColorSpace) => void;
-  adjustHslValue: (
+  adjustOklchValue: (
     property: 'brightness' | 'saturation' | 'hue',
     direction: 'up' | 'down',
     amount?: number
@@ -107,7 +107,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
 
     case 'CHANGE_SHAPE': {
       const colorSpace = command.parameters.colorSpace as string;
-      const validShapes: ColorSpace[] = ['RGB', 'CMYK', 'HSL', 'HSB', 'Lab', 'LCH', 'XYZ', 'xyz', 'xy'];
+      const validShapes: ColorSpace[] = ['RGB', 'CMYK', 'HSL', 'HSB', 'Lab', 'LCH', 'OKLCH', 'XYZ', 'xyz', 'xy'];
       const matched = validShapes.find((s) => s.toLowerCase() === colorSpace?.toLowerCase());
       if (matched) {
         handlers.resetCameraZoom();
@@ -144,7 +144,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
 
       handlers.rotateCameraOnColorChange();
       try {
-        handlers.adjustHslValue(
+        handlers.adjustOklchValue(
           property as 'brightness' | 'saturation' | 'hue',
           direction as 'up' | 'down',
           amount

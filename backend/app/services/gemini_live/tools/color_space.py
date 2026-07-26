@@ -7,7 +7,8 @@ DECLARATIONS: list[dict] = [
         "name": "CHANGE_SHAPE",
         "description": (
             "Switch color space / UI shape. "
-            "Available: RGB, CMYK, HSL, HSB, Lab (CIE Lab), LCH, XYZ, xyz (CIE xyz chromaticity 3D), xy (CIE xy chromaticity 2D). "
+            "Available: RGB, CMYK, HSL, HSB, Lab (CIE Lab), LCH, OKLCH (OkLCH — perceptually uniform LCH), "
+            "XYZ, xyz (CIE xyz chromaticity 3D), xy (CIE xy chromaticity 2D). "
             "Use 'xy' when the user asks about the CIE chromaticity diagram — it projects the 3D color space "
             "onto the 2D horseshoe shape by ignoring the lightness axis."
         ),
@@ -16,7 +17,7 @@ DECLARATIONS: list[dict] = [
             "properties": {
                 "colorSpace": {
                     "type": "string",
-                    "enum": ["RGB", "CMYK", "HSL", "HSB", "Lab", "LCH", "XYZ", "xyz", "xy"],
+                    "enum": ["RGB", "CMYK", "HSL", "HSB", "Lab", "LCH", "OKLCH", "XYZ", "xyz", "xy"],
                 }
             },
             "required": ["colorSpace"],
@@ -54,7 +55,13 @@ RULES_JA = """\
 - XYZ色空間・CIE XYZに関する質問では CHANGE_SHAPE("XYZ") を呼び出し、以下の内容を音声で説明してください：
   「XYZ色空間は、人が光を認知する仕組みを元に考案された色空間です。
   XYZ空間はディスプレイで再現できない色も含んでいます。
-  XYZ空間をxy平面に射影するとCIE色度図になります。みてみますか？」\
+  XYZ空間をxy平面に射影するとCIE色度図になります。みてみますか？」
+- OkLCH・OkLabに関する概念的な質問（例：「OkLCHとは何ですか」）では CHANGE_SHAPE("OKLCH") と SHOW_CONTENT("oklch_lineage") を両方呼び出し、以下の内容を音声で説明してください：
+  「OkLCHはBjörn Ottossonが2020年に提案した知覚的に均等な色空間です。
+  RGBからXYZ、Lab、LCHと進化した色空間の最新版で、色相回転のズレを解消しています。」
+- OkLCHとLCHの比較・違いに関する質問（例：「なぜOkLCHの方が優れているのですか」）では CHANGE_SHAPE("OKLCH") と SHOW_CONTENT("oklch_vs_lch") を両方呼び出し、以下の内容を音声で説明してください：
+  「OkLCHでは色相を均等に変化させたとき、明度も均等に見えます。
+  CIE LCHでは色相によって知覚的な明度がばらつく問題がありましたが、OkLCHはそれを解消しています。」\
 """
 
 RULES_EN = """\
@@ -76,5 +83,11 @@ RULES_EN = """\
 - When asked about the XYZ color space or CIE XYZ, call CHANGE_SHAPE("XYZ") and explain:
   "The CIE XYZ color space was designed based on how humans perceive light.
   XYZ includes colors that cannot be reproduced on any display.
-  Projecting the XYZ space onto the xy plane gives you the CIE chromaticity diagram. Would you like to see it?"\
+  Projecting the XYZ space onto the xy plane gives you the CIE chromaticity diagram. Would you like to see it?"
+- When asked conceptual questions about OkLCH or OkLab (e.g., "what is OkLCH"), call both CHANGE_SHAPE("OKLCH") and SHOW_CONTENT("oklch_lineage"), then explain:
+  "OkLCH is a perceptually uniform color space proposed by Björn Ottosson in 2020.
+  It is the latest evolution from RGB → XYZ → Lab → LCH, fixing hue rotation artifacts."
+- When asked comparison questions about OkLCH vs LCH (e.g., "why is OkLCH better"), call both CHANGE_SHAPE("OKLCH") and SHOW_CONTENT("oklch_vs_lch"), then explain:
+  "In OkLCH, equal hue steps look equally bright, which is not the case in CIE LCH.
+  OkLCH fixes the uneven perceived lightness that varies with hue in standard LCH."\
 """

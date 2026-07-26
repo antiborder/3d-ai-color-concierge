@@ -44,6 +44,7 @@ export interface StructureProps {
   hsbMainElement: 'H' | 'S' | 'V';
   labMainElement: 'L' | 'a' | 'b';
   lchMainElement: 'L' | 'C' | 'H';
+  oklchMainElement: 'L' | 'C' | 'H';
 
   // Axis-arrow drag callbacks
   onPreviewRgb?: (r: number, g: number, b: number) => void;

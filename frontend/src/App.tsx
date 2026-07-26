@@ -70,9 +70,10 @@ function App() {
     setHsvMainElement,
     setLabMainElement,
     setLchMainElement,
+    setOklchMainElement,
     toggleLabel,
     setHexInput,
-    adjustHslValue,
+    adjustOklchValue,
   } = useColorState();
 
   // Color history hook
@@ -199,7 +200,7 @@ function App() {
     updateRgbValue,
     setShape,
     toggleLabel,
-    adjustHslValue,
+    adjustOklchValue,
     updateFromHex,
     getCurrentHex: () => `#${colorState.hexInput}`,
     getCurrentShape: () => colorState.shape,
@@ -336,6 +337,7 @@ function App() {
     hsbMainElement: colorState.hsbMainElement,
     labMainElement: colorState.labMainElement,
     lchMainElement: colorState.lchMainElement,
+    oklchMainElement: colorState.oklchMainElement,
   };
 
   // In background mode, sliders display & edit background color values
@@ -420,6 +422,7 @@ function App() {
     setHsvMainElement,
     setLabMainElement,
     setLchMainElement,
+    setOklchMainElement,
     setFocusR: isBg ? bgSliderHandlers.setFocusR : (v: number) => updateRgbValue('R', v),
     setFocusG: isBg ? bgSliderHandlers.setFocusG : (v: number) => updateRgbValue('G', v),
     setFocusB: isBg ? bgSliderHandlers.setFocusB : (v: number) => updateRgbValue('B', v),

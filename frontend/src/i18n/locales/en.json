@@ -98,6 +98,21 @@
       "title": "Lab Color Space",
       "white": "White",
       "black": "Black"
+    },
+    "oklch_lineage": {
+      "title": "Color Science Lineage",
+      "rgb_desc": "Device-dependent (display values)",
+      "xyz_desc": "Based on human vision (CIE 1931)",
+      "lab_desc": "Perceptually uniform distance (1976)",
+      "lch_desc": "Polar form of Lab — intuitive hue",
+      "oklch_desc": "Fixes hue rotation artifacts (2020)",
+      "caption": "Each step made color more true to human perception."
+    },
+    "oklch_vs_lch": {
+      "title": "LCH vs OkLCH Hue Rotation",
+      "lch_label": "CIE LCH",
+      "oklch_label": "OkLCH",
+      "caption": "Equal hue steps in OkLCH appear more uniform in brightness."
     }
   }
 }

@@ -123,6 +123,12 @@ export function getWireframeSegments(shape: string): WireframeSegment[] {
         grayAxisSegment(),
       ];
 
+    case 'OKLCH':
+      return [
+        ...cubeEdgeSegments(1.2),
+        grayAxisSegment(),
+      ];
+
     case 'HSL':
       return [
         hslRingSegment(1.5),
