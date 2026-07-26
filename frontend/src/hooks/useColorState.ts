@@ -43,7 +43,7 @@ export const useColorState = () => {
         l: allFormats.hsl[2],
         hsbS: allFormats.hsb[1],
         v: allFormats.hsb[2],
-        hexInput: allFormats.hex.toUpperCase(),
+        hexInput: allFormats.hex.toLowerCase(),
       };
     });
   }, []);
@@ -72,7 +72,7 @@ export const useColorState = () => {
       l: allFormats.hsl[2],
       hsbS: allFormats.hsb[1],
       v: allFormats.hsb[2],
-      hexInput: allFormats.hex.toUpperCase(),
+      hexInput: allFormats.hex.toLowerCase(),
     };
     });
   }, []);
@@ -101,7 +101,7 @@ export const useColorState = () => {
         l,
         hsbS: allFormats.hsb[1],
         v: allFormats.hsb[2],
-        hexInput: allFormats.hex.toUpperCase(),
+        hexInput: allFormats.hex.toLowerCase(),
       };
     });
   }, []);
@@ -130,7 +130,7 @@ export const useColorState = () => {
         l: allFormats.hsl[2],
         hsbS: s,
         v,
-        hexInput: allFormats.hex.toUpperCase(),
+        hexInput: allFormats.hex.toLowerCase(),
       };
     });
   }, []);
@@ -159,7 +159,7 @@ export const useColorState = () => {
         l: allFormats.hsl[2],
         hsbS: allFormats.hsb[1],
         v: allFormats.hsb[2],
-        hexInput: hex.toUpperCase(),
+        hexInput: hex.toLowerCase(),
       };
     });
   }, []);
@@ -259,7 +259,7 @@ export const useColorState = () => {
   }, []);
 
   const setHexInput = useCallback((hex: string) => {
-    setColorState((prev) => ({ ...prev, hexInput: hex.toUpperCase() }));
+    setColorState((prev) => ({ ...prev, hexInput: hex.toLowerCase() }));
   }, []);
 
   const adjustOklchValue = useCallback(
@@ -303,7 +303,7 @@ export const useColorState = () => {
           l: allFormats.hsl[2],
           hsbS: allFormats.hsb[1],
           v: allFormats.hsb[2],
-          hexInput: allFormats.hex.toUpperCase(),
+          hexInput: allFormats.hex.toLowerCase(),
         };
       });
     },
