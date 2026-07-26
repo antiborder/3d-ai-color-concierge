@@ -148,7 +148,7 @@ const ColorCursor = (props: ColorCursorProps) => {
     <>
       {/* Background color cursor */}
       <group position={bgPosition} rotation={[0, 0, -Math.PI]}>
-        <Html zIndexRange={[99, 4]}>
+        <Html zIndexRange={[9999, 8999]}>
           <CurrentBubble>
             <BubbleTitle>Background Color</BubbleTitle>
             <ColorRect style={{ backgroundColor: bgHex }} />
@@ -166,7 +166,7 @@ const ColorCursor = (props: ColorCursorProps) => {
             </group>
             {parallelLines.map((points, index) =>
               index % 2 === 1 ? (
-                <Line key={`bg-parallel-${index}`} points={points} color="#CCCCCC" lineWidth={1} />
+                <Line key={`bg-parallel-${index}`} points={points} color="#cccccc" lineWidth={1} />
               ) : null
             )}
           </group>
@@ -175,7 +175,7 @@ const ColorCursor = (props: ColorCursorProps) => {
 
       {/* Focused color cursor */}
       <group position={position} rotation={[0, 0, -Math.PI]}>
-        <Html zIndexRange={[100, 5]}>
+        <Html zIndexRange={[10000, 9000]}>
           <CurrentBubble>
             <BubbleTitle>Focused Color</BubbleTitle>
             <ColorRect style={{ backgroundColor: focusHex }} />
@@ -193,7 +193,7 @@ const ColorCursor = (props: ColorCursorProps) => {
             </group>
             {parallelLines.map((points, index) =>
               index % 2 === 1 ? (
-                <Line key={`parallel-${index}`} points={points} color="#CCCCCC" lineWidth={1} />
+                <Line key={`parallel-${index}`} points={points} color="#cccccc" lineWidth={1} />
               ) : null
             )}
           </group>

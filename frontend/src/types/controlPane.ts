@@ -75,6 +75,8 @@ export interface ControlPaneProps extends BridgeProps {
   selectedRgb: { r: number; g: number; b: number };
   colorTarget: 'focused' | 'background';
   onColorTargetChange: (target: 'focused' | 'background') => void;
+  isColorsLinked: boolean;
+  onColorsLinkedChange: (linked: boolean) => void;
 
   // Help
   onHelpClick?: (topic: string) => void;

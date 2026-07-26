@@ -5,6 +5,7 @@ import LmsSliders from './controls/LmsSliders';
 import OkLabSliders from './controls/OkLabSliders';
 import OklchSliders from './controls/OklchSliders';
 import TwoDPicker from './controls/TwoDPicker';
+import ColorDifferencePanel from './controls/ColorDifferencePanel';
 import type { ControlPaneProps } from '../../types/controlPane';
 
 const OklabPanel = (props: ControlPaneProps) => {
@@ -30,6 +31,13 @@ const OklabPanel = (props: ControlPaneProps) => {
     ? { ...interceptedProps, focusR: liveRgb.r, focusG: liveRgb.g, focusB: liveRgb.b }
     : interceptedProps;
 
+  const bgHex = (props.sceneBackgroundColor ?? '#000000').replace('#', '');
+  const referenceColor = {
+    r: parseInt(bgHex.slice(0, 2), 16),
+    g: parseInt(bgHex.slice(2, 4), 16),
+    b: parseInt(bgHex.slice(4, 6), 16),
+  };
+
   return (
     <PanelShell>
       <Section>
@@ -37,6 +45,14 @@ const OklabPanel = (props: ControlPaneProps) => {
         <OkLabSliders {...interceptedProps} />
         <OklchSliders {...interceptedProps} />
         {props.shape === 'OKLCH' && <TwoDPicker {...liveProps} />}
+        <ColorDifferencePanel
+          currentColor={{ r: liveProps.focusR, g: liveProps.focusG, b: liveProps.focusB }}
+          referenceColor={referenceColor}
+          colorTarget={props.colorTarget}
+          onColorTargetChange={props.onColorTargetChange}
+          onUnlinkColors={() => props.onColorsLinkedChange(false)}
+          onHelpClick={props.onHelpClick}
+        />
       </Section>
     </PanelShell>
   );

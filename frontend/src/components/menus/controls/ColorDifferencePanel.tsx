@@ -1,12 +1,15 @@
 import { useMemo } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { rgbToLab } from '../../../utils/gamutUtils';
+import { rgbToOklab } from '../../../utils/gamutUtils';
 import HelpIcon from '../../common/HelpIcon';
 
 interface Props {
   currentColor: { r: number; g: number; b: number };
   referenceColor: { r: number; g: number; b: number };
+  colorTarget: 'focused' | 'background';
+  onColorTargetChange: (target: 'focused' | 'background') => void;
+  onUnlinkColors?: () => void;
   onHelpClick?: (topic: string) => void;
 }
 
@@ -16,29 +19,31 @@ interface Judgment {
   color: string;
 }
 
+// Thresholds scaled to OkLab Euclidean distance (L∈[0,1], a/b∈[±0.4]).
+// Approximately 1/100 of CIE Lab 1976 scale: JND ≈ 0.01.
 function getJudgment(dE: number): Judgment {
-  if (dE < 1.0) return { en: 'Imperceptible to human eyes', ja: '人間の目では判別不可', color: '#22a06b' };
-  if (dE < 2.0) return { en: 'Perceptible by close observation', ja: '近くで見ると分かる', color: '#0052cc' };
-  if (dE < 10.0) return { en: 'Perceptible at a glance', ja: '一見して知覚できる差', color: '#ff8b00' };
-  if (dE < 50.0) return { en: 'Clearly different colors', ja: '明確に異なる色', color: '#de350b' };
+  if (dE < 0.01) return { en: 'Imperceptible to human eyes', ja: '人間の目では判別不可', color: '#22a06b' };
+  if (dE < 0.02) return { en: 'Perceptible by close observation', ja: '近くで見ると分かる', color: '#0052cc' };
+  if (dE < 0.10) return { en: 'Perceptible at a glance', ja: '一見して知覚できる差', color: '#ff8b00' };
+  if (dE < 0.50) return { en: 'Clearly different colors', ja: '明確に異なる色', color: '#de350b' };
   return { en: 'Very large difference', ja: '非常に大きな色差', color: '#403294' };
 }
 
 function fmt(n: number): string {
-  return (n >= 0 ? '+' : '') + n.toFixed(1);
+  return (n >= 0 ? '+' : '') + n.toFixed(3);
 }
 
-export const ColorDifferencePanel = ({ currentColor, referenceColor, onHelpClick }: Props) => {
+export const ColorDifferencePanel = ({ currentColor, referenceColor, colorTarget, onColorTargetChange, onUnlinkColors, onHelpClick }: Props) => {
   const { i18n } = useTranslation();
   const isEn = i18n.language === 'en';
 
   const { dE, dL, da, db } = useMemo(() => {
-    const [L1, a1, b1] = rgbToLab(
+    const [L1, a1, b1] = rgbToOklab(
       Math.round(referenceColor.r),
       Math.round(referenceColor.g),
       Math.round(referenceColor.b)
     );
-    const [L2, a2, b2] = rgbToLab(
+    const [L2, a2, b2] = rgbToOklab(
       Math.round(currentColor.r),
       Math.round(currentColor.g),
       Math.round(currentColor.b)
@@ -71,9 +76,13 @@ export const ColorDifferencePanel = ({ currentColor, referenceColor, onHelpClick
         <SwatchLabel>Focused Color</SwatchLabel>
       </LabelsRow>
       <ConnectorRow>
-        <RefSwatch
-          style={{
-            background: `rgb(${referenceColor.r},${referenceColor.g},${referenceColor.b})`,
+        <ColorSwatch
+          $shape="square"
+          $active={colorTarget === 'background'}
+          style={{ background: `rgb(${referenceColor.r},${referenceColor.g},${referenceColor.b})` }}
+          onClick={() => {
+            onUnlinkColors?.();
+            onColorTargetChange('background');
           }}
         />
         <ArrowConnect>
@@ -81,15 +90,18 @@ export const ColorDifferencePanel = ({ currentColor, referenceColor, onHelpClick
           <ArrowLineBody />
           <ArrowHead $dir="right" />
         </ArrowConnect>
-        <Swatch
+        <ColorSwatch
+          $shape="circle"
+          $active={colorTarget === 'focused'}
           style={{ background: `rgb(${currentColor.r},${currentColor.g},${currentColor.b})` }}
+          onClick={() => onColorTargetChange('focused')}
         />
       </ConnectorRow>
-      <DeltaE>ΔE = {dE.toFixed(1)}</DeltaE>
+      <DeltaE>ΔE = {dE.toFixed(3)}</DeltaE>
       <Breakdown>
-        <BreakdownRow>ΔL* = {fmt(dL)}</BreakdownRow>
-        <BreakdownRow>Δa* = {fmt(da)}</BreakdownRow>
-        <BreakdownRow>Δb* = {fmt(db)}</BreakdownRow>
+        <BreakdownRow>ΔL = {fmt(dL)}</BreakdownRow>
+        <BreakdownRow>Δa = {fmt(da)}</BreakdownRow>
+        <BreakdownRow>Δb = {fmt(db)}</BreakdownRow>
       </Breakdown>
       <JudgmentRow>
         <span style={{ color: '#222', fontWeight: 'normal' }}>{isEn ? 'Judgment: ' : '判定結果：'}</span>
@@ -128,20 +140,14 @@ const ConnectorRow = styled.div`
   margin-bottom: 8px;
 `;
 
-const Swatch = styled.div`
-  width: 48px;
+const ColorSwatch = styled.div<{ $shape: 'circle' | 'square'; $active: boolean }>`
+  width: 24px;
   height: 24px;
-  border-radius: 4px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border: 1px solid #aaaaaa;
   flex-shrink: 0;
-`;
-
-const RefSwatch = styled.div`
-  width: 48px;
-  height: 24px;
-  border-radius: 4px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  flex-shrink: 0;
+  cursor: pointer;
+  border-radius: ${({ $shape }) => ($shape === 'circle' ? '50%' : '0')};
+  box-shadow: ${({ $active }) => ($active ? '0 0 0 1px white, 0 0 0 4px #4e8cee' : 'none')};
 `;
 
 const ArrowConnect = styled.div`

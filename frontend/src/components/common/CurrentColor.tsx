@@ -14,7 +14,7 @@ const CurrentColor = (props: ControlPaneProps) => {
   };
 
   const isUpdatable = () =>
-    props.hexInput !== convert.rgb.hex([Math.round(selR), Math.round(selG), Math.round(selB)]);
+    props.hexInput !== convert.rgb.hex([Math.round(selR), Math.round(selG), Math.round(selB)]).toLowerCase();
 
   const isHexFormat = () => props.hexInput.match(/^[0-9A-Fa-f]{6}$/) !== null;
 
@@ -36,7 +36,8 @@ const CurrentColor = (props: ControlPaneProps) => {
     }
   };
 
-  const [syncBgWithSelected, setSyncBgWithSelected] = useState(true);
+  const syncBgWithSelected = props.isColorsLinked;
+  const setSyncBgWithSelected = props.onColorsLinkedChange;
 
   // sync background → selected color whenever selected color changes (when linked)
   useEffect(() => {
@@ -45,10 +46,16 @@ const CurrentColor = (props: ControlPaneProps) => {
       Math.round(selR),
       Math.round(selG),
       Math.round(selB),
-    ]);
+    ]).toLowerCase();
     props.onBackgroundColorChange('#' + hex);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [syncBgWithSelected, selR, selG, selB]);
+
+  // while linked, color selection mode must stay on 'focused'
+  useEffect(() => {
+    if (syncBgWithSelected) props.onColorTargetChange('focused');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [syncBgWithSelected]);
 
   return (
     <CurrentColorPanel>
@@ -57,7 +64,7 @@ const CurrentColor = (props: ControlPaneProps) => {
         <ConnectorTop />
         <ConnectorBottom />
         <ChainButton
-          onClick={() => setSyncBgWithSelected((v) => !v)}
+          onClick={() => setSyncBgWithSelected(!syncBgWithSelected)}
           $linked={syncBgWithSelected}
           title={syncBgWithSelected ? 'Unlink background color' : 'Link background color to selected color'}
         >
@@ -69,7 +76,7 @@ const CurrentColor = (props: ControlPaneProps) => {
               className="color-sample color-sample--circle"
               style={{
                 backgroundColor:
-                  '#' + convert.rgb.hex([Math.round(selR), Math.round(selG), Math.round(selB)]),
+                  '#' + convert.rgb.hex([Math.round(selR), Math.round(selG), Math.round(selB)]).toLowerCase(),
                 boxShadow:
                   props.colorTarget === 'focused'
                     ? '0 0 0 1px white, 0 0 0 4px #4e8cee'

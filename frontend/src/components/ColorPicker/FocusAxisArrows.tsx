@@ -83,7 +83,7 @@ const FocusAxisArrows = ({
       new THREE.Color(contrastColorRef.current),
       factor
     );
-    const hexStr = '#' + blended.getHexString();
+    const hexStr = '#' + blended.getHexString().toLowerCase();
 
     groupRef.current?.traverse((child) => {
       const mat = (child as THREE.Mesh).material as THREE.Material & { color?: THREE.Color };
