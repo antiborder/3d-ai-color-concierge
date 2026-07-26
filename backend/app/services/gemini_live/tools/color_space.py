@@ -8,6 +8,7 @@ DECLARATIONS: list[dict] = [
         "description": (
             "Switch color space / UI shape. "
             "Available: RGB, CMYK, HSL, HSB, Lab (CIE Lab), LCH, OKLCH (OkLCH — perceptually uniform LCH), "
+            "LMS (cone cell responses — intermediate step toward OkLab), "
             "XYZ, xyz (CIE xyz chromaticity 3D), xy (CIE xy chromaticity 2D). "
             "Use 'xy' when the user asks about the CIE chromaticity diagram — it projects the 3D color space "
             "onto the 2D horseshoe shape by ignoring the lightness axis."
@@ -17,7 +18,7 @@ DECLARATIONS: list[dict] = [
             "properties": {
                 "colorSpace": {
                     "type": "string",
-                    "enum": ["RGB", "CMYK", "HSL", "HSB", "Lab", "LCH", "OKLCH", "XYZ", "xyz", "xy"],
+                    "enum": ["RGB", "CMYK", "HSL", "HSB", "Lab", "LCH", "OKLAB", "OKLCH", "LMS", "XYZ", "xyz", "xy"],
                 }
             },
             "required": ["colorSpace"],
@@ -56,6 +57,13 @@ RULES_JA = """\
   「XYZ色空間は、人が光を認知する仕組みを元に考案された色空間です。
   XYZ空間はディスプレイで再現できない色も含んでいます。
   XYZ空間をxy平面に射影するとCIE色度図になります。みてみますか？」
+- LMS色空間・錐体細胞の応答に関する質問では CHANGE_SHAPE("LMS") と SHOW_CONTENT("oklch_lineage") を両方呼び出し、以下の内容を音声で説明してください：
+  「LMSは人間の目の錐体細胞の応答を表した色空間です。
+  L（長波長・赤）・M（中波長・緑）・S（短波長・青）の3成分で、XYZからOkLabへの中間ステップです。」
+- OkLab色空間に関する質問では CHANGE_SHAPE("OKLAB") と SHOW_CONTENT("oklab_space") を両方呼び出し、以下の内容を音声で説明してください：
+  「OkLabは2020年にBjörn Ottossonが提案した知覚的に均等な色空間です。
+  LMSの立方根（cbrt）を取った後、行列変換でL・a・bを求めます。
+  Lは明度、aは赤-緑軸、bは青-黄軸で、OkLab上の距離が知覚的な色差に対応します。」
 - OkLCH・OkLabに関する概念的な質問（例：「OkLCHとは何ですか」）では CHANGE_SHAPE("OKLCH") と SHOW_CONTENT("oklch_lineage") を両方呼び出し、以下の内容を音声で説明してください：
   「OkLCHはBjörn Ottossonが2020年に提案した知覚的に均等な色空間です。
   RGBからXYZ、Lab、LCHと進化した色空間の最新版で、色相回転のズレを解消しています。」
@@ -84,6 +92,14 @@ RULES_EN = """\
   "The CIE XYZ color space was designed based on how humans perceive light.
   XYZ includes colors that cannot be reproduced on any display.
   Projecting the XYZ space onto the xy plane gives you the CIE chromaticity diagram. Would you like to see it?"
+- When asked about LMS color space or cone cell responses, call both CHANGE_SHAPE("LMS") and SHOW_CONTENT("oklch_lineage"), then explain:
+  "LMS represents the response of the three cone cell types in the human eye.
+  L is long-wavelength (red), M is medium-wavelength (green), S is short-wavelength (blue).
+  It sits between XYZ and OkLab — OkLab applies a cube root and linear mix to LMS to achieve perceptual uniformity."
+- When asked about the OkLab color space, call both CHANGE_SHAPE("OKLAB") and SHOW_CONTENT("oklab_space"), then explain:
+  "OkLab is a perceptually uniform color space proposed by Björn Ottosson in 2020.
+  It is computed by taking the cube root of the LMS cone responses, then applying a linear mix.
+  L is lightness, a is the red-green axis, and b is the blue-yellow axis. Equal distances in OkLab correspond to equal perceived color differences."
 - When asked conceptual questions about OkLCH or OkLab (e.g., "what is OkLCH"), call both CHANGE_SHAPE("OKLCH") and SHOW_CONTENT("oklch_lineage"), then explain:
   "OkLCH is a perceptually uniform color space proposed by Björn Ottosson in 2020.
   It is the latest evolution from RGB → XYZ → Lab → LCH, fixing hue rotation artifacts."

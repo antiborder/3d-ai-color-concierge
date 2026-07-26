@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { PanelShell } from './PanelShell';
-import LabSliders from './controls/LabSliders';
-import LchSliders from './controls/LchSliders';
+import LmsSliders from './controls/LmsSliders';
+import OkLabSliders from './controls/OkLabSliders';
+import OklchSliders from './controls/OklchSliders';
 import TwoDPicker from './controls/TwoDPicker';
-import ColorDifferencePanel from './controls/ColorDifferencePanel';
 import type { ControlPaneProps } from '../../types/controlPane';
 
-const LabLchPanel = (props: ControlPaneProps) => {
+const OklabPanel = (props: ControlPaneProps) => {
   const [liveRgb, setLiveRgb] = useState<{ r: number; g: number; b: number } | null>(null);
 
   const handlePreviewRgb = (r: number, g: number, b: number) => {
@@ -30,25 +30,13 @@ const LabLchPanel = (props: ControlPaneProps) => {
     ? { ...interceptedProps, focusR: liveRgb.r, focusG: liveRgb.g, focusB: liveRgb.b }
     : interceptedProps;
 
-  const bgHex = (props.sceneBackgroundColor ?? '#000000').replace('#', '');
-  const referenceColor = {
-    r: parseInt(bgHex.slice(0, 2), 16),
-    g: parseInt(bgHex.slice(2, 4), 16),
-    b: parseInt(bgHex.slice(4, 6), 16),
-  };
-
   return (
     <PanelShell>
       <Section>
-        <LabSliders {...interceptedProps} />
-        {props.shape === 'Lab' && <TwoDPicker {...liveProps} />}
-        <LchSliders {...interceptedProps} />
-        {props.shape === 'LCH' && <TwoDPicker {...liveProps} />}
-        <ColorDifferencePanel
-          currentColor={{ r: liveProps.focusR, g: liveProps.focusG, b: liveProps.focusB }}
-          referenceColor={referenceColor}
-          onHelpClick={props.onHelpClick}
-        />
+        <LmsSliders {...interceptedProps} />
+        <OkLabSliders {...interceptedProps} />
+        <OklchSliders {...interceptedProps} />
+        {props.shape === 'OKLCH' && <TwoDPicker {...liveProps} />}
       </Section>
     </PanelShell>
   );
@@ -56,4 +44,4 @@ const LabLchPanel = (props: ControlPaneProps) => {
 
 const Section = styled.div``;
 
-export default LabLchPanel;
+export default OklabPanel;

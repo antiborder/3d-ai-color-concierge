@@ -129,6 +129,12 @@ export function getWireframeSegments(shape: string): WireframeSegment[] {
         grayAxisSegment(),
       ];
 
+    case 'OKLAB':
+      return cubeEdgeSegments(1.2);
+
+    case 'LMS':
+      return cubeEdgeSegments(1.2);
+
     case 'HSL':
       return [
         hslRingSegment(1.5),

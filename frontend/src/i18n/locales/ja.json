@@ -99,14 +99,23 @@
       "white": "白",
       "black": "黒"
     },
+    "oklab_space": {
+      "title": "OkLab色空間",
+      "white": "白",
+      "black": "黒",
+      "desc1": "OkLabは2020年にBjörn Ottossonが提案した知覚的に均等なLab型色空間です。",
+      "desc2": "Lは明度（0〜1）、aは赤-緑軸、bは青-黄軸。OkLab上での距離が知覚的な色差に対応します。"
+    },
     "oklch_lineage": {
       "title": "色科学の系統図",
       "rgb_desc": "デバイス依存（表示値）",
       "xyz_desc": "人の視覚に基づく（CIE 1931）",
-      "lab_desc": "知覚的に均等な距離（1976）",
-      "lch_desc": "Labの極座標形式・直感的な色相",
-      "oklch_desc": "色相回転のズレを解消（2020）",
-      "caption": "各ステップで色表現が人の知覚に近づいた。"
+      "lab_desc": "知覚的に均等（1976）",
+      "lch_desc": "Labの極座標形式",
+      "lms_desc": "錐体細胞の応答（L/M/S）",
+      "oklab_desc": "LMS経由の知覚空間（2020）",
+      "oklch_desc": "OkLabの極座標形式",
+      "caption": "XYZから2つの流れ：CIE LabとLMS経由のOkLab。"
     },
     "oklch_vs_lch": {
       "title": "LCH と OkLCH の色相回転",

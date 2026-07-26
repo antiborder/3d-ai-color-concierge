@@ -12,6 +12,9 @@ interface ColorCursorProps extends StructureProps {
   getHsbPosition: PositionFunction;
   getMunsellPosition: PositionFunction;
   getLabPosition: PositionFunction;
+  getOklabPosition: PositionFunction;
+  getOklchPosition: PositionFunction;
+  getLmsPosition: PositionFunction;
   getXyzPosition: PositionFunction;
   getXyzChromaticityPosition: PositionFunction;
   getXyChromaticityPosition: PositionFunction;
@@ -90,13 +93,19 @@ const ColorCursor = (props: ColorCursorProps) => {
           ? props.getLabPosition(r, g, b)
           : props.shape === 'LCH'
             ? props.getLabPosition(r, g, b)
-            : props.shape === 'XYZ'
-              ? props.getXyzPosition(r, g, b)
-              : props.shape === 'xyz'
-                ? props.getXyzChromaticityPosition(r, g, b)
-                : props.shape === 'xy'
-                  ? props.getXyChromaticityPosition(r, g, b)
-                  : props.getHsbPosition(r, g, b);
+            : props.shape === 'OKLAB'
+              ? props.getOklabPosition(r, g, b)
+              : props.shape === 'OKLCH'
+                ? props.getOklchPosition(r, g, b)
+                : props.shape === 'LMS'
+                  ? props.getLmsPosition(r, g, b)
+                  : props.shape === 'XYZ'
+                    ? props.getXyzPosition(r, g, b)
+                    : props.shape === 'xyz'
+                      ? props.getXyzChromaticityPosition(r, g, b)
+                      : props.shape === 'xy'
+                        ? props.getXyChromaticityPosition(r, g, b)
+                        : props.getHsbPosition(r, g, b);
 
   const position = getPosition(props.focusR, props.focusG, props.focusB);
   const bgPosition = getPosition(bgR, bgG, bgB);
