@@ -130,7 +130,7 @@ const SingleMarker = ({
           new THREE.Color(flashColorRef.current),
           factor
         );
-        targetHex = '#' + blended.getHexString();
+        targetHex = '#' + blended.getHexString().toLowerCase();
       }
 
       sphereGroupRef.current.traverse((child) => {

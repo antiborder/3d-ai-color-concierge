@@ -17,12 +17,12 @@ const LABELS = [
 // Background and text color for each color badge.
 // Text color chosen for highest WCAG contrast ratio against the background.
 const COLOR_BADGE: Record<string, { bg: string; textColor: string }> = {
-  cyan:    { bg: '#00FFFF', textColor: '#000' }, // contrast 16.5:1
-  magenta: { bg: '#FF00FF', textColor: '#000' }, // contrast  6.7:1
-  yellow:  { bg: '#FFFF00', textColor: '#000' }, // contrast 19.6:1
-  blue:    { bg: '#0000FF', textColor: '#fff' }, // contrast  8.6:1
-  green:   { bg: '#00FF00', textColor: '#000' }, // contrast 15.3:1
-  red:     { bg: '#FF0000', textColor: '#000' }, // contrast  5.3:1 (black > white on red)
+  cyan:    { bg: '#00ffff', textColor: '#000' }, // contrast 16.5:1
+  magenta: { bg: '#ff00ff', textColor: '#000' }, // contrast  6.7:1
+  yellow:  { bg: '#ffff00', textColor: '#000' }, // contrast 19.6:1
+  blue:    { bg: '#0000ff', textColor: '#fff' }, // contrast  8.6:1
+  green:   { bg: '#00ff00', textColor: '#000' }, // contrast 15.3:1
+  red:     { bg: '#ff0000', textColor: '#000' }, // contrast  5.3:1 (black > white on red)
   black:   { bg: '#000000', textColor: '#fff' }, // contrast 21.0:1
 };
 

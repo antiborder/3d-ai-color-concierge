@@ -48,14 +48,14 @@ type AxisConf = { raw: [number, number, number]; label: string; color: string };
 const AXIS_COLOR = '#ffffff';
 
 const RGB_AXES: AxisConf[] = [
-  { raw: [-1, 0, 0], label: 'R', color: '#FF0000' },
-  { raw: [0, -1, 0], label: 'G', color: '#00FF00' },
-  { raw: [0, 0, 1],  label: 'B', color: '#0000FF' },
+  { raw: [-1, 0, 0], label: 'R', color: '#ff0000' },
+  { raw: [0, -1, 0], label: 'G', color: '#00ff00' },
+  { raw: [0, 0, 1],  label: 'B', color: '#0000ff' },
 ];
 const CMY_AXES: AxisConf[] = [
-  { raw: [1, 0, 0],  label: 'C', color: '#00FFFF' },
-  { raw: [0, 1, 0],  label: 'M', color: '#FF00FF' },
-  { raw: [0, 0, -1], label: 'Y', color: '#FFFF00' },
+  { raw: [1, 0, 0],  label: 'C', color: '#00ffff' },
+  { raw: [0, 1, 0],  label: 'M', color: '#ff00ff' },
+  { raw: [0, 0, -1], label: 'Y', color: '#ffff00' },
 ];
 const XYZ_AXES: AxisConf[] = [
   { raw: [-1, 0, 0], label: 'X', color: AXIS_COLOR },
@@ -119,7 +119,7 @@ const SingleAxis = ({
 
   // Tip color: last vertex color converted to hex string, or the plain color prop
   const tipColor = vertexColors
-    ? '#' + vertexColors[vertexColors.length - 1].getHexString()
+    ? '#' + vertexColors[vertexColors.length - 1].getHexString().toLowerCase()
     : color;
 
   const quaternion = useMemo(

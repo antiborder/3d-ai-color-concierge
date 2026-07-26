@@ -142,6 +142,7 @@ function App() {
 
   const [sceneBackgroundColor, setSceneBackgroundColor] = useState('#000000');
   const [colorTarget, setColorTarget] = useState<'focused' | 'background'>('focused');
+  const [isColorsLinked, setIsColorsLinked] = useState(true);
 
   // Background color as RGB components (for slider display in background mode)
   const bgRgb = useMemo(() => {
@@ -189,7 +190,7 @@ function App() {
 
   const routeColorToBackground = (r: number, g: number, b: number) => {
     const ri = Math.round(r), gi = Math.round(g), bi = Math.round(b);
-    setSceneBackgroundColor('#' + convert.rgb.hex([ri, gi, bi]));
+    setSceneBackgroundColor('#' + convert.rgb.hex([ri, gi, bi]).toLowerCase());
     addColor(ri, gi, bi);
   };
 
@@ -526,6 +527,8 @@ function App() {
         selectedRgb={{ r: colorState.r, g: colorState.g, b: colorState.b }}
         colorTarget={colorTarget}
         onColorTargetChange={setColorTarget}
+        isColorsLinked={isColorsLinked}
+        onColorsLinkedChange={setIsColorsLinked}
         onHelpClick={handleHelpClick}
         openCIEPanelSignal={openCIEPanelSignal}
       />

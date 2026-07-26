@@ -108,10 +108,10 @@ const Particle = ({
   const [hovered, setHovered] = useState(false);
   const [bubbleHovered, setBubbleHovered] = useState(false);
   const particleColor =
-    '#' + convert.rgb.hex([Math.round(props.r), Math.round(props.g), Math.round(props.b)]);
+    '#' + convert.rgb.hex([Math.round(props.r), Math.round(props.g), Math.round(props.b)]).toLowerCase();
   const currentColorHex =
     '#' +
-    convert.rgb.hex([Math.round(props.focusR), Math.round(props.focusG), Math.round(props.focusB)]);
+    convert.rgb.hex([Math.round(props.focusR), Math.round(props.focusG), Math.round(props.focusB)]).toLowerCase();
   const isSelected = particleColor.toLowerCase() === currentColorHex.toLowerCase();
 
   const { position } = useSpring({
@@ -240,9 +240,9 @@ const ParticleBubble = (props: ParticleBubbleProps) => {
       <div
         className="colorRectangle"
         onClick={props.onParticleClick}
-        style={{ backgroundColor: '#' + convert.rgb.hex([props.r, props.g, props.b]) }}
+        style={{ backgroundColor: '#' + convert.rgb.hex([props.r, props.g, props.b]).toLowerCase() }}
       />
-      {'#' + convert.rgb.hex([props.r, props.g, props.b])}
+      {'#' + convert.rgb.hex([props.r, props.g, props.b]).toLowerCase()}
       {/* <div onClick={props.onParticleClick}>
         <span className="modalLink">この色を選ぶ</span>
       </div> */}

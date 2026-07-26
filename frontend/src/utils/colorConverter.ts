@@ -26,7 +26,7 @@ export class ColorConverter {
       cmyk: convert.rgb.cmyk(rgb),
       hsl: convert.rgb.hsl(rgb),
       hsb: convert.rgb.hsv(rgb),
-      hex: convert.rgb.hex(rgb),
+      hex: convert.rgb.hex(rgb).toLowerCase(),
     };
   }
 
@@ -48,7 +48,7 @@ export class ColorConverter {
     const rgb = convert.hsl.rgb(hsl);
     const cmyk = convert.rgb.cmyk(rgb);
     const hsvValues = convert.rgb.hsv(rgb);
-    const hex = convert.rgb.hex(rgb);
+    const hex = convert.rgb.hex(rgb).toLowerCase();
 
     // Preserve input HSL values instead of recalculating from RGB
     return {

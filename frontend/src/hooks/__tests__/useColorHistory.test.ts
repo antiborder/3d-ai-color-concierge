@@ -24,7 +24,7 @@ describe('useColorHistory', () => {
     act(() => {
       result.current.addColor(255, 0, 0);
     });
-    expect(result.current.history[0].hex).toBe('#FF0000');
+    expect(result.current.history[0].hex).toBe('#ff0000');
   });
 
   it('adds new colors to the beginning of history (most recent first)', () => {
