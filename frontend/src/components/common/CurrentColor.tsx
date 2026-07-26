@@ -5,6 +5,8 @@ import { SyncIcon, ChainLinkedIcon, ChainBrokenIcon } from '../../assets/Icons.j
 import styled from 'styled-components';
 
 const CurrentColor = (props: ControlPaneProps) => {
+  const { r: selR, g: selG, b: selB } = props.selectedRgb;
+
   const handleHexUpdate = () => {
     if (props.hexInput.match(/^[0-9A-Fa-f]{6}$/)) {
       props.onHexUpdate();
@@ -12,7 +14,7 @@ const CurrentColor = (props: ControlPaneProps) => {
   };
 
   const isUpdatable = () =>
-    props.hexInput !== convert.rgb.hex([props.focusR, props.focusG, props.focusB]);
+    props.hexInput !== convert.rgb.hex([Math.round(selR), Math.round(selG), Math.round(selB)]);
 
   const isHexFormat = () => props.hexInput.match(/^[0-9A-Fa-f]{6}$/) !== null;
 
@@ -34,19 +36,19 @@ const CurrentColor = (props: ControlPaneProps) => {
     }
   };
 
-  const [syncBgWithSelected, setSyncBgWithSelected] = useState(false);
+  const [syncBgWithSelected, setSyncBgWithSelected] = useState(true);
 
   // sync background → selected color whenever selected color changes (when linked)
   useEffect(() => {
     if (!syncBgWithSelected) return;
     const hex = convert.rgb.hex([
-      Math.round(props.focusR),
-      Math.round(props.focusG),
-      Math.round(props.focusB),
+      Math.round(selR),
+      Math.round(selG),
+      Math.round(selB),
     ]);
     props.onBackgroundColorChange('#' + hex);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [syncBgWithSelected, props.focusR, props.focusG, props.focusB]);
+  }, [syncBgWithSelected, selR, selG, selB]);
 
   return (
     <CurrentColorPanel>
@@ -67,8 +69,14 @@ const CurrentColor = (props: ControlPaneProps) => {
               className="color-sample color-sample--circle"
               style={{
                 backgroundColor:
-                  '#' + convert.rgb.hex([props.focusR, props.focusG, props.focusB]),
+                  '#' + convert.rgb.hex([Math.round(selR), Math.round(selG), Math.round(selB)]),
+                boxShadow:
+                  props.colorTarget === 'focused'
+                    ? '0 0 0 1px white, 0 0 0 4px #4e8cee'
+                    : 'none',
+                cursor: 'pointer',
               }}
+              onClick={() => props.onColorTargetChange('focused')}
             />
             <div className="hex">#</div>
             <input
@@ -86,14 +94,37 @@ const CurrentColor = (props: ControlPaneProps) => {
               <SyncIcon />
             </button>
           </div>
-          <div className="currentColor" style={{ opacity: syncBgWithSelected ? 0.4 : 1 }}>
+          <div className="currentColor" style={{ position: 'relative' }}>
+            {syncBgWithSelected && (
+              <RowClickOverlay
+                onClick={() => {
+                  setSyncBgWithSelected(false);
+                  props.onColorTargetChange('background');
+                }}
+                title="Click to unlink and edit background color"
+              />
+            )}
             <div
               className="color-sample color-sample--square"
-              style={{ backgroundColor: props.sceneBackgroundColor }}
+              style={{
+                backgroundColor: props.sceneBackgroundColor,
+                boxShadow:
+                  props.colorTarget === 'background'
+                    ? '0 0 0 1px white, 0 0 0 4px #4e8cee'
+                    : 'none',
+                cursor: 'pointer',
+              }}
+              onClick={() => {
+                if (syncBgWithSelected) setSyncBgWithSelected(false);
+                props.onColorTargetChange('background');
+              }}
             />
-            <div className="hex">#</div>
+            <div className="hex" style={{ opacity: syncBgWithSelected ? 0.4 : 1 }}>
+              #
+            </div>
             <input
               className="hexInput"
+              style={{ opacity: syncBgWithSelected ? 0.4 : 1 }}
               type="text"
               value={bgHexInput}
               onChange={(e) => setBgHexInput(e.target.value)}
@@ -105,6 +136,7 @@ const CurrentColor = (props: ControlPaneProps) => {
                   ? 'activeUpdateButton'
                   : 'inactiveUpdateButton'
               }
+              style={{ opacity: syncBgWithSelected ? 0.4 : 1 }}
               onClick={handleBgUpdate}
               disabled={syncBgWithSelected}
             >
@@ -174,7 +206,9 @@ const CurrentColorPanel = styled.div`
       border-radius: 4px;
       cursor: pointer;
       line-height: 0;
-      svg { display: block; }
+      svg {
+        display: block;
+      }
     }
     .inactiveUpdateButton {
       display: flex;
@@ -188,7 +222,9 @@ const CurrentColorPanel = styled.div`
       border-radius: 4px;
       line-height: 0;
       cursor: not-allowed;
-      svg { display: block; }
+      svg {
+        display: block;
+      }
     }
   }
 `;
@@ -227,6 +263,13 @@ const ConnectorBottom = styled.span`
 
 const ColorRowsContent = styled.div`
   flex: 1;
+`;
+
+const RowClickOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  z-index: 1;
 `;
 
 const ChainButton = styled.button<{ $linked: boolean }>`

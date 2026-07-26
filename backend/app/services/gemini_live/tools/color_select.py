@@ -1,6 +1,20 @@
-"""SELECT_COLOR / SET_COLOR / SET_HEX — 色の選択・直接指定ツール群。"""
+"""SELECT_COLOR / SET_COLOR / SET_HEX / SWITCH_CURSOR — 色の選択・直接指定・カーソル切替ツール群。"""
 
 from __future__ import annotations
+
+_TARGET_PROP = {
+    "target": {
+        "type": "string",
+        "enum": ["focused", "background"],
+        "description": (
+            "Which cursor to apply the color to. "
+            "'focused' = the Focused Color cursor (default when uiContext.colorTarget is 'focused'). "
+            "'background' = the Background Color cursor. "
+            "When the user explicitly mentions 'background' or 'background color', use 'background'. "
+            "When ambiguous, use the current uiContext.colorTarget value."
+        ),
+    }
+}
 
 DECLARATIONS: list[dict] = [
     {
@@ -8,7 +22,9 @@ DECLARATIONS: list[dict] = [
         "description": (
             "Select a specific RGB color by name or description. You MUST provide all three RGB values (r, g, b). "
             "For example: white = (255, 255, 255), black = (0, 0, 0), red = (255, 0, 0). "
-            "Use this tool when the user asks to select a color by name or description."
+            "Use this tool when the user asks to select a color by name or description. "
+            "Set 'target' to 'background' when the user explicitly refers to the background color, "
+            "otherwise use the current uiContext.colorTarget value."
         ),
         "parameters": {
             "type": "object",
@@ -16,8 +32,9 @@ DECLARATIONS: list[dict] = [
                 "r": {"type": "integer", "minimum": 0, "maximum": 255},
                 "g": {"type": "integer", "minimum": 0, "maximum": 255},
                 "b": {"type": "integer", "minimum": 0, "maximum": 255},
+                **_TARGET_PROP,
             },
-            "required": ["r", "g", "b"],
+            "required": ["r", "g", "b", "target"],
         },
     },
     {
@@ -25,7 +42,8 @@ DECLARATIONS: list[dict] = [
         "description": (
             "Set one or more RGB channels directly for fine-tuning. "
             "This is for adjusting individual channels (r/g/b), NOT for selecting colors by name. "
-            "For color selection by name (e.g., 'white', 'black'), use SELECT_COLOR instead."
+            "For color selection by name (e.g., 'white', 'black'), use SELECT_COLOR instead. "
+            "Set 'target' based on uiContext.colorTarget or explicit user mention."
         ),
         "parameters": {
             "type": "object",
@@ -33,29 +51,36 @@ DECLARATIONS: list[dict] = [
                 "r": {"type": "integer", "minimum": 0, "maximum": 255},
                 "g": {"type": "integer", "minimum": 0, "maximum": 255},
                 "b": {"type": "integer", "minimum": 0, "maximum": 255},
+                **_TARGET_PROP,
             },
+            "required": ["target"],
         },
     },
     {
         "name": "SET_HEX",
-        "description": "Set the current color directly from a HEX code (e.g. '#FF5733' or 'FF5733'). Use this when the user specifies a color by its hex code.",
+        "description": (
+            "Set the color directly from a HEX code (e.g. '#FF5733' or 'FF5733'). "
+            "Use this when the user specifies a color by its hex code. "
+            "Set 'target' based on uiContext.colorTarget or explicit user mention."
+        ),
         "parameters": {
             "type": "object",
             "properties": {
                 "hex": {
                     "type": "string",
                     "description": "6-digit hex color code, with or without '#' prefix (e.g. '#FF5733' or 'FF5733').",
-                }
+                },
+                **_TARGET_PROP,
             },
-            "required": ["hex"],
+            "required": ["hex", "target"],
         },
     },
     {
         "name": "SET_BACKGROUND_COLOR",
         "description": (
-            "Set the 3D canvas background color independently from the selected color. "
-            "Use this when the user asks to change the background color of the 3D view. "
-            "Accepts a 6-digit hex color code."
+            "Set the Background Color cursor directly via a hex code. "
+            "Use this as a shortcut when the user provides a hex code explicitly for the background. "
+            "For color names or descriptions targeting the background, prefer SELECT_COLOR with target='background'."
         ),
         "parameters": {
             "type": "object",
@@ -68,6 +93,27 @@ DECLARATIONS: list[dict] = [
             "required": ["hex"],
         },
     },
+    {
+        "name": "SWITCH_CURSOR",
+        "description": (
+            "Switch the active cursor between 'focused' and 'background'. "
+            "After switching, all subsequent color operations will target the new cursor "
+            "unless they specify 'target' explicitly. "
+            "Use this when the user says things like 'switch to background cursor', "
+            "'edit the background now', or 'go back to focused color'."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "target": {
+                    "type": "string",
+                    "enum": ["focused", "background"],
+                    "description": "The cursor to activate.",
+                }
+            },
+            "required": ["target"],
+        },
+    },
 ]
 
 
@@ -75,19 +121,26 @@ def _select_color(args: dict) -> dict:
     r = int(args.get("r", 0))
     g = int(args.get("g", 0))
     b = int(args.get("b", 0))
-    return {"color": {"r": r, "g": g, "b": b}}
+    target = args.get("target", "focused")
+    return {"color": {"r": r, "g": g, "b": b}, "target": target}
 
 
 def _set_color(args: dict) -> dict:
-    return {k: int(args[k]) for k in ("r", "g", "b") if k in args}
+    result = {k: int(args[k]) for k in ("r", "g", "b") if k in args}
+    result["target"] = args.get("target", "focused")
+    return result
 
 
 def _set_hex(args: dict) -> dict:
-    return {"hex": args.get("hex")}
+    return {"hex": args.get("hex"), "target": args.get("target", "focused")}
 
 
 def _set_background_color(args: dict) -> dict:
     return {"hex": args.get("hex")}
+
+
+def _switch_cursor(args: dict) -> dict:
+    return {"target": args.get("target", "focused")}
 
 
 COMMANDS: dict[str, object] = {
@@ -95,9 +148,21 @@ COMMANDS: dict[str, object] = {
     "SET_COLOR": _set_color,
     "SET_HEX": _set_hex,
     "SET_BACKGROUND_COLOR": _set_background_color,
+    "SWITCH_CURSOR": _switch_cursor,
 }
 
 RULES_JA = """\
+- **カーソルの概念**: このアプリには2つのカーソルがあります。
+  - **Focused Color カーソル**（円形のワイヤーフレーム）: ユーザーが選んでいる主たる色。
+  - **Background Color カーソル**（別の球体のワイヤーフレーム）: 3Dキャンバスの背景色。
+  - 現在どちらが選択されているかは `uiContext.colorTarget`（"focused" または "background"）で確認できます。
+  - 起動直後は Focused Color と Background Color が連動しています（同じ色）。
+
+- **色変更コマンドの target 決定ルール**:
+  - ユーザーが「背景」「背景色」「background」と明示 → `target: "background"`
+  - ユーザーが「フォーカス」「選択色」「focused color」と明示 → `target: "focused"`
+  - 曖昧な場合（例：「緑にして」）→ `uiContext.colorTarget` の値をそのまま使う
+
 - **ユーザーが色を指定した場合、まず SEARCH_COLOR を呼び出し、その後以下の判断をしてください。逆質問は絶対にしないこと。**
 
   **① 一意に特定できる色 → SELECT_COLOR**
@@ -120,6 +185,17 @@ RULES_JA = """\
 """
 
 RULES_EN = """\
+- **Cursor concept**: This app has two cursors, each tracked by a wireframe sphere in 3D space.
+  - **Focused Color cursor** (circle wireframe): the user's primary selected color.
+  - **Background Color cursor** (separate sphere wireframe): the 3D canvas background color.
+  - Check `uiContext.colorTarget` ("focused" or "background") to know which is currently active.
+  - On startup, Focused Color and Background Color are linked (same color).
+
+- **Target resolution rules for color commands**:
+  - User explicitly mentions "background", "background color" → `target: "background"`
+  - User explicitly mentions "focused", "selected color", "focused color" → `target: "focused"`
+  - Ambiguous (e.g., "make it green") → use the current `uiContext.colorTarget` value
+
 - **When the user specifies a color, first call SEARCH_COLOR, then apply the following decision. Never ask a follow-up question.**
 
   **① A uniquely identifiable color → SELECT_COLOR**

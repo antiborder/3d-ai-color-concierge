@@ -51,9 +51,9 @@ const ControlPane = (props: ControlPaneProps & LayoutExtraProps) => {
           <DesktopRightPane
             {...colorPanelProps}
             onColorSelect={controlPaneProps.handleClick}
-            currentR={controlPaneProps.focusR}
-            currentG={controlPaneProps.focusG}
-            currentB={controlPaneProps.focusB}
+            currentR={controlPaneProps.selectedRgb.r}
+            currentG={controlPaneProps.selectedRgb.g}
+            currentB={controlPaneProps.selectedRgb.b}
             onHelpClick={controlPaneProps.onHelpClick}
           />
         </RightPanel>

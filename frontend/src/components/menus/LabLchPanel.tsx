@@ -30,6 +30,13 @@ const LabLchPanel = (props: ControlPaneProps) => {
     ? { ...interceptedProps, focusR: liveRgb.r, focusG: liveRgb.g, focusB: liveRgb.b }
     : interceptedProps;
 
+  const bgHex = (props.sceneBackgroundColor ?? '#000000').replace('#', '');
+  const referenceColor = {
+    r: parseInt(bgHex.slice(0, 2), 16),
+    g: parseInt(bgHex.slice(2, 4), 16),
+    b: parseInt(bgHex.slice(4, 6), 16),
+  };
+
   return (
     <PanelShell>
       <Section>
@@ -39,6 +46,7 @@ const LabLchPanel = (props: ControlPaneProps) => {
         {props.shape === 'LCH' && <TwoDPicker {...liveProps} />}
         <ColorDifferencePanel
           currentColor={{ r: liveProps.focusR, g: liveProps.focusG, b: liveProps.focusB }}
+          referenceColor={referenceColor}
           onHelpClick={props.onHelpClick}
         />
       </Section>

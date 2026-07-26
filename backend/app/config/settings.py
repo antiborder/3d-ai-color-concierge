@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     # CORS設定（環境変数から読み込む場合はカンマ区切り文字列）
     CORS_ORIGINS: list[str] | str = [
         "http://localhost:3000",
+        "http://localhost:3001",
         "http://localhost:5173",  # Vite default port
         "https://*.cloudfront.net",  # CloudFront経由のアクセス
     ]
