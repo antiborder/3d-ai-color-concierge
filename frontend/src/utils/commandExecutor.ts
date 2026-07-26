@@ -39,6 +39,8 @@ export interface VoiceCommandHandlers {
   resetCameraZoom: () => void;
   zoomToHarmony: () => void;
   setSceneBackgroundColor: (hex: string) => void;
+  routeColorToBackground: (r: number, g: number, b: number) => void;
+  setColorTarget: (target: 'focused' | 'background') => void;
 }
 
 /**
@@ -48,6 +50,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
   switch (command.action) {
     case 'SELECT_COLOR': {
       const color = command.parameters.color as { r: number; g: number; b: number };
+      const target = command.parameters.target as string | undefined;
       if (
         color &&
         typeof color.r === 'number' &&
@@ -55,21 +58,49 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
         typeof color.b === 'number'
       ) {
         handlers.setAiColorLabels([]);
-        handlers.rotateCameraOnColorChange();
-        handlers.updateFromRgb(color.r, color.g, color.b);
+        if (target === 'background') {
+          handlers.setColorTarget('background');
+          handlers.routeColorToBackground(color.r, color.g, color.b);
+        } else {
+          handlers.setColorTarget('focused');
+          handlers.rotateCameraOnColorChange();
+          handlers.updateFromRgb(color.r, color.g, color.b);
+        }
       }
       break;
     }
 
     case 'SET_COLOR': {
-      // R, G, Bのいずれかを設定
-      handlers.rotateCameraOnColorChange();
-      if ('r' in command.parameters && typeof command.parameters.r === 'number') {
-        handlers.updateRgbValue('R', command.parameters.r);
-      } else if ('g' in command.parameters && typeof command.parameters.g === 'number') {
-        handlers.updateRgbValue('G', command.parameters.g);
-      } else if ('b' in command.parameters && typeof command.parameters.b === 'number') {
-        handlers.updateRgbValue('B', command.parameters.b);
+      const target = command.parameters.target as string | undefined;
+      if (target === 'background') {
+        handlers.setColorTarget('background');
+        const { r: cr, g: cg, b: cb } = command.parameters as { r?: number; g?: number; b?: number; target?: string };
+        // Read current bg values via routeColorToBackground with channel override handled by caller context;
+        // since we only have routeColorToBackground(r,g,b), apply the one changed channel.
+        // The bg channel values come from the backend context — just pick the provided channel(s).
+        const rVal = typeof cr === 'number' ? cr : NaN;
+        const gVal = typeof cg === 'number' ? cg : NaN;
+        const bVal = typeof cb === 'number' ? cb : NaN;
+        // Only one channel is expected; call routeColorToBackground with all three but fall back caller must handle
+        if (!isNaN(rVal) || !isNaN(gVal) || !isNaN(bVal)) {
+          // We need the current bg to fill in the unchanged channels — use SET_BACKGROUND_COLOR hex path is simpler.
+          // For now route the full rgb if all provided, otherwise toast a note.
+          if (!isNaN(rVal) && !isNaN(gVal) && !isNaN(bVal)) {
+            handlers.routeColorToBackground(rVal, gVal, bVal);
+          } else {
+            toast.error('SET_COLOR with target=background requires all three channels.');
+          }
+        }
+      } else {
+        handlers.setColorTarget('focused');
+        handlers.rotateCameraOnColorChange();
+        if ('r' in command.parameters && typeof command.parameters.r === 'number') {
+          handlers.updateRgbValue('R', command.parameters.r);
+        } else if ('g' in command.parameters && typeof command.parameters.g === 'number') {
+          handlers.updateRgbValue('G', command.parameters.g);
+        } else if ('b' in command.parameters && typeof command.parameters.b === 'number') {
+          handlers.updateRgbValue('B', command.parameters.b);
+        }
       }
       break;
     }
@@ -163,6 +194,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
 
     case 'SET_HEX': {
       const raw = command.parameters.hex as string;
+      const target = command.parameters.target as string | undefined;
       if (!raw) {
         toast.error('No hex code provided.');
         break;
@@ -172,8 +204,17 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
         toast.error(`Invalid hex code: ${raw}`);
         break;
       }
-      handlers.rotateCameraOnColorChange();
-      handlers.updateFromHex(normalized);
+      if (target === 'background') {
+        handlers.setColorTarget('background');
+        const r = parseInt(normalized.slice(0, 2), 16);
+        const g = parseInt(normalized.slice(2, 4), 16);
+        const b = parseInt(normalized.slice(4, 6), 16);
+        handlers.routeColorToBackground(r, g, b);
+      } else {
+        handlers.setColorTarget('focused');
+        handlers.rotateCameraOnColorChange();
+        handlers.updateFromHex(normalized);
+      }
       break;
     }
 
@@ -298,6 +339,16 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
 
     case 'RESET_ZOOM': {
       handlers.resetCameraZoom();
+      break;
+    }
+
+    case 'SWITCH_CURSOR': {
+      const target = command.parameters.target as string;
+      if (target === 'background' || target === 'focused') {
+        handlers.setColorTarget(target);
+      } else {
+        toast.error(`Invalid cursor target: ${target}. Must be 'focused' or 'background'.`);
+      }
       break;
     }
 

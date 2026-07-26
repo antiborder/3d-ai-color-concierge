@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { rgbToLab } from '../../../utils/gamutUtils';
@@ -6,6 +6,7 @@ import HelpIcon from '../../common/HelpIcon';
 
 interface Props {
   currentColor: { r: number; g: number; b: number };
+  referenceColor: { r: number; g: number; b: number };
   onHelpClick?: (topic: string) => void;
 }
 
@@ -27,10 +28,9 @@ function fmt(n: number): string {
   return (n >= 0 ? '+' : '') + n.toFixed(1);
 }
 
-export const ColorDifferencePanel = ({ currentColor, onHelpClick }: Props) => {
+export const ColorDifferencePanel = ({ currentColor, referenceColor, onHelpClick }: Props) => {
   const { i18n } = useTranslation();
   const isEn = i18n.language === 'en';
-  const [referenceColor, setReferenceColor] = useState(() => ({ ...currentColor }));
 
   const { dE, dL, da, db } = useMemo(() => {
     const [L1, a1, b1] = rgbToLab(
@@ -67,16 +67,14 @@ export const ColorDifferencePanel = ({ currentColor, onHelpClick }: Props) => {
         {onHelpClick && <HelpIcon topic="color-difference" onHelpClick={onHelpClick} size={20} />}
       </TitleRow>
       <LabelsRow>
-        <SwatchLabel>Reference</SwatchLabel>
-        <SwatchLabel>Current</SwatchLabel>
+        <SwatchLabel>Background</SwatchLabel>
+        <SwatchLabel>Focused Color</SwatchLabel>
       </LabelsRow>
       <ConnectorRow>
         <RefSwatch
           style={{
             background: `rgb(${referenceColor.r},${referenceColor.g},${referenceColor.b})`,
           }}
-          title="Click to set current color as reference"
-          onClick={() => setReferenceColor({ ...currentColor })}
         />
         <ArrowConnect>
           <ArrowHead $dir="left" />
@@ -144,12 +142,6 @@ const RefSwatch = styled.div`
   border-radius: 4px;
   border: 1px solid rgba(0, 0, 0, 0.15);
   flex-shrink: 0;
-  cursor: pointer;
-
-  &:hover {
-    border-color: #4e8cee;
-    box-shadow: 0 0 0 1px #4e8cee;
-  }
 `;
 
 const ArrowConnect = styled.div`
@@ -165,7 +157,8 @@ const ArrowHead = styled.div<{ $dir: 'left' | 'right' }>`
   flex-shrink: 0;
   border-top: 7px solid transparent;
   border-bottom: 7px solid transparent;
-  ${({ $dir }) => $dir === 'left' ? 'border-right: 10px solid #bbb;' : 'border-left: 10px solid #bbb;'}
+  ${({ $dir }) =>
+    $dir === 'left' ? 'border-right: 10px solid #bbb;' : 'border-left: 10px solid #bbb;'}
 `;
 
 const ArrowLineBody = styled.div`

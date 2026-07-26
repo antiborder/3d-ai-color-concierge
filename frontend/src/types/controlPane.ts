@@ -69,6 +69,11 @@ export interface ControlPaneProps extends BridgeProps {
   sceneBackgroundColor: string;
   onBackgroundColorChange: (hex: string) => void;
 
+  // Color target mode and true focused color (circle swatch always shows this)
+  selectedRgb: { r: number; g: number; b: number };
+  colorTarget: 'focused' | 'background';
+  onColorTargetChange: (target: 'focused' | 'background') => void;
+
   // Help
   onHelpClick?: (topic: string) => void;
 

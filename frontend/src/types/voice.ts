@@ -24,7 +24,8 @@ export interface Command {
     | 'SHOW_COLOR_LABELS'
     | 'DISABLE_CHAT'
     | 'RESET_ZOOM'
-    | 'SET_BACKGROUND_COLOR';
+    | 'SET_BACKGROUND_COLOR'
+    | 'SWITCH_CURSOR';
   parameters: Record<string, unknown>;
 }
 

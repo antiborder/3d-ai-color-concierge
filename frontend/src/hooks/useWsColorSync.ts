@@ -12,6 +12,7 @@ export interface UiContext {
   };
   activeSlide: string | null;
   harmony: string;
+  colorTarget: 'focused' | 'background';
 }
 
 interface UseWsColorSyncParams {

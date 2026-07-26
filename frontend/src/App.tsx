@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, type ChangeEvent } from 'react';
 import convert from 'color-convert';
 import { useTranslation } from 'react-i18next';
 import { Toaster } from 'react-hot-toast';
@@ -140,6 +140,27 @@ function App() {
   const isDesktopLayout = useMatchMedia('(min-width: 1000px)');
 
   const [sceneBackgroundColor, setSceneBackgroundColor] = useState('#000000');
+  const [colorTarget, setColorTarget] = useState<'focused' | 'background'>('focused');
+
+  // Background color as RGB components (for slider display in background mode)
+  const bgRgb = useMemo(() => {
+    const hex = sceneBackgroundColor.replace('#', '');
+    return {
+      r: parseInt(hex.slice(0, 2), 16),
+      g: parseInt(hex.slice(2, 4), 16),
+      b: parseInt(hex.slice(4, 6), 16),
+    };
+  }, [sceneBackgroundColor]);
+
+  const bgColorFormats = useMemo(() => {
+    const { r, g, b } = bgRgb;
+    const ri = Math.round(r), gi = Math.round(g), bi = Math.round(b);
+    const [c, m, y, k] = convert.rgb.cmyk([ri, gi, bi]);
+    const [h, s, l] = convert.rgb.hsl([ri, gi, bi]);
+    const [, hsvS, v] = convert.rgb.hsv([ri, gi, bi]);
+    return { c, m, y, k, h, s, l, hsvS, v };
+  }, [bgRgb]);
+
   const [previewRgb, setPreviewRgb] = useState<{ r: number; g: number; b: number } | null>(null);
   const [harmonyMode, setHarmonyMode] = useState<HarmonyMode>('none');
   const [aiColorLabels, setAiColorLabels] = useState<AiColorLabel[]>([]);
@@ -164,6 +185,12 @@ function App() {
   });
 
   const { helpRequest, handleHelpClick } = useHelpRequest(i18n.language);
+
+  const routeColorToBackground = (r: number, g: number, b: number) => {
+    const ri = Math.round(r), gi = Math.round(g), bi = Math.round(b);
+    setSceneBackgroundColor('#' + convert.rgb.hex([ri, gi, bi]));
+    addColor(ri, gi, bi);
+  };
 
   // Voice command handlers
   const voiceCommandHandlers = {
@@ -194,6 +221,8 @@ function App() {
     resetCameraZoom: () => { setResetCameraZoomSignal((n) => n + 1); },
     zoomToHarmony: () => { setHarmonyZoomSignal((n) => n + 1); },
     setSceneBackgroundColor,
+    routeColorToBackground,
+    setColorTarget,
   };
 
   const harmonyColors = useMemo(
@@ -211,7 +240,11 @@ function App() {
       );
       if (!isAiSelected) setAiColorLabels([]);
     }
-    handleClick(r, g, b);
+    if (colorTarget === 'background') {
+      routeColorToBackground(r, g, b);
+    } else {
+      handleClick(r, g, b);
+    }
   };
 
   const handleWsCommand = (command: VoiceCommand) => {
@@ -282,6 +315,7 @@ function App() {
 
   // ── Prop groups ────────────────────────────────────────────────────────────
 
+  // True focused color – always from colorState, never overridden by background mode
   const colorValues = {
     shape: colorState.shape,
     focusR: colorState.r,
@@ -304,24 +338,91 @@ function App() {
     lchMainElement: colorState.lchMainElement,
   };
 
+  // In background mode, sliders display & edit background color values
+  const controlPaneColorValues = colorTarget === 'background' ? {
+    ...colorValues,
+    focusR: bgRgb.r,
+    focusG: bgRgb.g,
+    focusB: bgRgb.b,
+    focusC: bgColorFormats.c,
+    focusM: bgColorFormats.m,
+    focusY: bgColorFormats.y,
+    focusK: bgColorFormats.k,
+    focusH: bgColorFormats.h,
+    focusS: bgColorFormats.s,
+    focusL: bgColorFormats.l,
+    focusHsvS: bgColorFormats.hsvS,
+    focusV: bgColorFormats.v,
+  } : colorValues;
+
+  // Background-mode slider handlers: compute result, update background, and add to history
+  const bgSliderHandlers = {
+    onRgbChange: (e: ChangeEvent<HTMLInputElement>, param: 'R' | 'G' | 'B') => {
+      const val = Number(e.target.value);
+      routeColorToBackground(
+        param === 'R' ? val : bgRgb.r,
+        param === 'G' ? val : bgRgb.g,
+        param === 'B' ? val : bgRgb.b,
+      );
+    },
+    onCmykChange: (e: ChangeEvent<HTMLInputElement>, param: 'C' | 'M' | 'Y' | 'K') => {
+      const val = Number(e.target.value);
+      const [r, g, b] = convert.cmyk.rgb([
+        param === 'C' ? val : bgColorFormats.c,
+        param === 'M' ? val : bgColorFormats.m,
+        param === 'Y' ? val : bgColorFormats.y,
+        param === 'K' ? val : bgColorFormats.k,
+      ]);
+      routeColorToBackground(r, g, b);
+    },
+    onHslChange: (e: ChangeEvent<HTMLInputElement>, param: 'H' | 'S' | 'L') => {
+      const val = Number(e.target.value);
+      const [r, g, b] = convert.hsl.rgb([
+        param === 'H' ? val : bgColorFormats.h,
+        param === 'S' ? val : bgColorFormats.s,
+        param === 'L' ? val : bgColorFormats.l,
+      ]);
+      routeColorToBackground(r, g, b);
+    },
+    onHsvChange: (e: ChangeEvent<HTMLInputElement>, param: 'H' | 'HsvS' | 'V') => {
+      const val = Number(e.target.value);
+      const [r, g, b] = convert.hsv.rgb([
+        param === 'H' ? val : bgColorFormats.h,
+        param === 'HsvS' ? val : bgColorFormats.hsvS,
+        param === 'V' ? val : bgColorFormats.v,
+      ]);
+      routeColorToBackground(r, g, b);
+    },
+    handleClick: routeColorToBackground,
+    handleHsvElementClick: (h: number, s: number, v: number) => {
+      const [r, g, b] = convert.hsv.rgb([h, s, v]);
+      routeColorToBackground(r, g, b);
+    },
+    setFocusR: (v: number) => routeColorToBackground(Math.round(v), bgRgb.g, bgRgb.b),
+    setFocusG: (v: number) => routeColorToBackground(bgRgb.r, Math.round(v), bgRgb.b),
+    setFocusB: (v: number) => routeColorToBackground(bgRgb.r, bgRgb.g, Math.round(v)),
+  };
+
+  const isBg = colorTarget === 'background';
+
   const colorHandlers = {
     handleLabel: toggleLabel,
-    handleClick,
-    handleHsvElementClick,
+    handleClick: isBg ? bgSliderHandlers.handleClick : handleClick,
+    handleHsvElementClick: isBg ? bgSliderHandlers.handleHsvElementClick : handleHsvElementClick,
     onShapeClick: setShape,
-    onRgbChange: handleRgbChange,
-    onCmykChange: handleCmykChange,
-    onHslChange: handleHslChange,
-    onHsvChange: handleHsvChange,
+    onRgbChange: isBg ? bgSliderHandlers.onRgbChange : handleRgbChange,
+    onCmykChange: isBg ? bgSliderHandlers.onCmykChange : handleCmykChange,
+    onHslChange: isBg ? bgSliderHandlers.onHslChange : handleHslChange,
+    onHsvChange: isBg ? bgSliderHandlers.onHsvChange : handleHsvChange,
     setRgbMainElement,
     setCmykMainElement,
     setHslMainElement,
     setHsvMainElement,
     setLabMainElement,
     setLchMainElement,
-    setFocusR: (v: number) => updateRgbValue('R', v),
-    setFocusG: (v: number) => updateRgbValue('G', v),
-    setFocusB: (v: number) => updateRgbValue('B', v),
+    setFocusR: isBg ? bgSliderHandlers.setFocusR : (v: number) => updateRgbValue('R', v),
+    setFocusG: isBg ? bgSliderHandlers.setFocusG : (v: number) => updateRgbValue('G', v),
+    setFocusB: isBg ? bgSliderHandlers.setFocusB : (v: number) => updateRgbValue('B', v),
     setHexInput,
     onHexUpdate: handleHexUpdate,
     onPreviewRgb: (r: number, g: number, b: number) => setPreviewRgb({ r, g, b }),
@@ -399,7 +500,7 @@ function App() {
         onParticleClick={handleParticleClick}
         onPreviewRgb={(r, g, b) => setPreviewRgb({ r, g, b })}
         onClearPreviewRgb={() => setPreviewRgb(null)}
-        onCommitRgb={handleClick}
+        onCommitRgb={isBg ? routeColorToBackground : handleClick}
         harmonyColors={harmonyColors}
         aiColorLabels={aiColorLabels}
         sceneBackgroundColor={sceneBackgroundColor}
@@ -409,7 +510,7 @@ function App() {
       />
       <ControlPane
         isDesktopLayout={isDesktopLayout}
-        {...colorValues}
+        {...controlPaneColorValues}
         {...colorHandlers}
         {...bridgeForControlPane}
         {...displaySettings}
@@ -419,6 +520,9 @@ function App() {
         colorHistory={history}
         sceneBackgroundColor={sceneBackgroundColor}
         onBackgroundColorChange={setSceneBackgroundColor}
+        selectedRgb={{ r: colorState.r, g: colorState.g, b: colorState.b }}
+        colorTarget={colorTarget}
+        onColorTargetChange={setColorTarget}
         onHelpClick={handleHelpClick}
         openCIEPanelSignal={openCIEPanelSignal}
       />
@@ -436,6 +540,7 @@ function App() {
           },
           activeSlide: activeContentId,
           harmony: harmonyMode,
+          colorTarget,
         }}
         onTranscript={handleVoiceTranscript}
         onTranscriptUpdate={handleTranscriptUpdate}
