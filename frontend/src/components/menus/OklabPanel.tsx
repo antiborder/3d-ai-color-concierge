@@ -46,7 +46,11 @@ const OklabPanel = (props: ControlPaneProps) => {
         <OklchSliders {...interceptedProps} />
         {props.shape === 'OKLCH' && <TwoDPicker {...liveProps} />}
         <ColorDifferencePanel
-          currentColor={{ r: liveProps.focusR, g: liveProps.focusG, b: liveProps.focusB }}
+          currentColor={
+            props.colorTarget === 'background'
+              ? props.selectedRgb
+              : { r: liveProps.focusR, g: liveProps.focusG, b: liveProps.focusB }
+          }
           referenceColor={referenceColor}
           colorTarget={props.colorTarget}
           onColorTargetChange={props.onColorTargetChange}
