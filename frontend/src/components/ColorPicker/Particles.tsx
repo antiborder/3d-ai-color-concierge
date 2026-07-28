@@ -27,6 +27,11 @@ const Particles = (props: ParticlesProps) => {
   const division = 6;
   const colorsToDisplay = props.filteredColors || sampleColors;
 
+  const bgHexRaw = (props.sceneBackgroundColor ?? '#000000').replace('#', '');
+  const bgR = parseInt(bgHexRaw.slice(0, 2), 16);
+  const bgG = parseInt(bgHexRaw.slice(2, 4), 16);
+  const bgB = parseInt(bgHexRaw.slice(4, 6), 16);
+
   return (
     <>
       {colorsToDisplay.map((c, i) => {
@@ -52,6 +57,10 @@ const Particles = (props: ParticlesProps) => {
             focusR={props.focusR}
             focusG={props.focusG}
             focusB={props.focusB}
+            bgR={bgR}
+            bgG={bgG}
+            bgB={bgB}
+            colorTarget={props.colorTarget}
             name1={c.name1}
             name2={c.name2}
             name3={c.name3}
@@ -77,6 +86,10 @@ interface ParticleProps {
   focusR: number;
   focusG: number;
   focusB: number;
+  bgR: number;
+  bgG: number;
+  bgB: number;
+  colorTarget?: 'focused' | 'background';
   name1?: string;
   name2?: string;
   name3?: string;
@@ -112,7 +125,17 @@ const Particle = ({
   const currentColorHex =
     '#' +
     convert.rgb.hex([Math.round(props.focusR), Math.round(props.focusG), Math.round(props.focusB)]).toLowerCase();
-  const isSelected = particleColor.toLowerCase() === currentColorHex.toLowerCase();
+  const bgColorHex =
+    '#' + convert.rgb.hex([Math.round(props.bgR), Math.round(props.bgG), Math.round(props.bgB)]).toLowerCase();
+  const isSelected = particleColor === currentColorHex;
+  const isBgSelected = particleColor === bgColorHex;
+
+  let cursorTitle: string | undefined;
+  if (isSelected) {
+    cursorTitle = props.colorTarget === 'background' ? 'Background Color' : 'Focused Color';
+  } else if (isBgSelected) {
+    cursorTitle = 'Background Color';
+  }
 
   const { position } = useSpring({
     from: {
@@ -186,13 +209,14 @@ const Particle = ({
           onPointerOver={() => handleBubblePointerOver()}
           onPointerOut={() => handleBubblePointerOut()}
         >
-          {(hovered || bubbleHovered || isSelected) && (
+          {(hovered || bubbleHovered || isSelected || isBgSelected) && (
             <ParticleBubble
               {...props}
               type={props.shape}
               backgroundColor={particleColor}
               textColor={particleColor}
               onClick={props.onParticleClick}
+              cursorTitle={cursorTitle}
             />
           )}
         </div>
@@ -214,6 +238,7 @@ interface ParticleBubbleProps {
   textColor: string;
   onClick: () => void;
   onParticleClick: () => void;
+  cursorTitle?: string;
 }
 
 const ParticleBubble = (props: ParticleBubbleProps) => {
@@ -233,6 +258,7 @@ const ParticleBubble = (props: ParticleBubbleProps) => {
 
   return (
     <StyledNodeBubble style={{}}>
+      {props.cursorTitle && <CursorTitle>{props.cursorTitle}</CursorTitle>}
       <div className={fontClass}>{props.name1}</div>
       <div style={{ textAlign: 'center', fontSize: '11px', marginBottom: '8px' }}>
         {props.name2}
@@ -249,6 +275,13 @@ const ParticleBubble = (props: ParticleBubbleProps) => {
     </StyledNodeBubble>
   );
 };
+
+const CursorTitle = styled.div`
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 4px;
+`;
 
 const StyledNodeBubble = styled.div`
   position: absolute;

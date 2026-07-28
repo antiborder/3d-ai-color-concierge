@@ -449,7 +449,7 @@ const Structure = (props: StructureProps) => {
         />
         <group rotation={[-Math.PI / 2, 0, 0]}>
           <Particles {...props} filteredColors={filteredColors} {...positionProps} />
-          <ColorCursor {...props} {...positionProps} />
+          <ColorCursor {...props} {...positionProps} filteredColors={filteredColors} />
           {props.harmonyColors && props.harmonyColors.length > 0 && (
             <HarmonyMarkers
               harmonyColors={props.harmonyColors}

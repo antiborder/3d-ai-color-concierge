@@ -5,6 +5,7 @@ import { useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import type { StructureProps, PositionFunction } from '../../types/structure';
 import { focusContrastColor } from '../../utils/colorConverter';
+import sampleColors from '../../constants/sampleColors';
 
 interface ColorCursorProps extends StructureProps {
   getRgbPosition: PositionFunction;
@@ -18,6 +19,7 @@ interface ColorCursorProps extends StructureProps {
   getXyzPosition: PositionFunction;
   getXyzChromaticityPosition: PositionFunction;
   getXyChromaticityPosition: PositionFunction;
+  filteredColors?: typeof sampleColors;
 }
 
 const BLINK_HZ = 0.5;
@@ -110,6 +112,10 @@ const ColorCursor = (props: ColorCursorProps) => {
   const position = getPosition(props.focusR, props.focusG, props.focusB);
   const bgPosition = getPosition(bgR, bgG, bgB);
 
+  const particles = props.filteredColors ?? [];
+  const focusIsParticle = particles.some(c => c.hex.toLowerCase() === focusHex.toLowerCase());
+  const bgIsParticle = particles.some(c => c.hex.toLowerCase() === bgHex.toLowerCase());
+
   const radius = 0.124;
   const meridians = 12;
   const parallels = 8;
@@ -148,13 +154,15 @@ const ColorCursor = (props: ColorCursorProps) => {
     <>
       {/* Background color cursor */}
       <group position={bgPosition} rotation={[0, 0, -Math.PI]}>
-        <Html zIndexRange={[9999, 8999]}>
-          <CurrentBubble>
-            <BubbleTitle>Background Color</BubbleTitle>
-            <ColorRect style={{ backgroundColor: bgHex }} />
-            <ColorCode>{bgHex}</ColorCode>
-          </CurrentBubble>
-        </Html>
+        {!bgIsParticle && (
+          <Html zIndexRange={[9999, 8999]}>
+            <CurrentBubble>
+              <BubbleTitle>Background Color</BubbleTitle>
+              <ColorRect style={{ backgroundColor: bgHex }} />
+              <ColorCode>{bgHex}</ColorCode>
+            </CurrentBubble>
+          </Html>
+        )}
         <group rotation={[Math.PI / 2, 0, 0]}>
           <group ref={bgFrameGroupRef}>
             <group ref={bgMeridianRef}>
@@ -175,13 +183,15 @@ const ColorCursor = (props: ColorCursorProps) => {
 
       {/* Focused color cursor */}
       <group position={position} rotation={[0, 0, -Math.PI]}>
-        <Html zIndexRange={[10000, 9000]}>
-          <CurrentBubble>
-            <BubbleTitle>Focused Color</BubbleTitle>
-            <ColorRect style={{ backgroundColor: focusHex }} />
-            <ColorCode>{focusHex}</ColorCode>
-          </CurrentBubble>
-        </Html>
+        {!focusIsParticle && (
+          <Html zIndexRange={[10000, 9000]}>
+            <CurrentBubble>
+              <BubbleTitle>Focused Color</BubbleTitle>
+              <ColorRect style={{ backgroundColor: focusHex }} />
+              <ColorCode>{focusHex}</ColorCode>
+            </CurrentBubble>
+          </Html>
+        )}
         <group rotation={[Math.PI / 2, 0, 0]}>
           <group ref={frameGroupRef}>
             <group ref={meridianRef}>

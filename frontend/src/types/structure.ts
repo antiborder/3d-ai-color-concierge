@@ -54,6 +54,9 @@ export interface StructureProps {
   // Canvas background
   sceneBackgroundColor?: string;
 
+  // Color target mode
+  colorTarget?: 'focused' | 'background';
+
   // Color group filters
   cssColorsEnabled: boolean;
   materialColorsEnabled: boolean;
