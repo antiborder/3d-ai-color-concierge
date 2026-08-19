@@ -85,32 +85,30 @@ def build_topic_scripts_section(language: str) -> str:
         header = """\
 ## 教育スライド スクリプトガイド
 
-ユーザーが以下のトピックについて質問したとき、または SHOW_CONTENT を呼んだとき:
-1. まず SHOW_CONTENT を呼ぶ（まだ呼んでいなければ）。
-2. 文1・文2・文3を**1回の連続した発話**としてすべて話す。途中で止めない。文1だけで終わらないこと。
-3. 文1→文2→文3 の順序を守り、自然につなげて話す。
+トピックについて質問された、または SHOW_CONTENT を呼んだとき:
+1. まず SHOW_CONTENT を呼ぶ（未呼び出しなら）。
+2. 文1・文2・文3を**1回の連続した発話**としてすべて話す（文1だけで終わらない）。
+3. 文1→文2→文3の順で自然につなげる。
 
 ルール:
-- 文1は必ず言う。
-- 文2・文3は指定の確率でスキップ。スキップのときはその文を完全に省いて次へ進む。
-- 選択肢は状況に合わせて1つ選ぶ。選んだことを宣言しない。
-- 文3で leads_to のある選択肢を選んだ場合: 口頭で提案し、ユーザーが同意したら次のターンで SHOW_CONTENT を呼ぶ。
+- 文1は必ず言う。文2・文3は指定の確率でスキップ（スキップ時は完全に省く）。
+- 選択肢は状況に合わせて1つ選ぶ（選んだことは宣言しない）。
+- 文3でleads_toのある選択肢を選んだ場合: 口頭で提案し、ユーザーが同意したら次のターンでSHOW_CONTENTを呼ぶ。
 
 """
     else:
         header = """\
 ## Educational slide speaking scripts
 
-When the user asks about one of these topics, or after calling SHOW_CONTENT:
+When asked about a topic, or after calling SHOW_CONTENT:
 1. Call SHOW_CONTENT first (if not already shown).
-2. Deliver sentences 1, 2, and 3 as **one continuous response** — do not stop after sentence 1.
+2. Deliver sentences 1, 2, 3 as **one continuous response** — do not stop after sentence 1.
 3. Follow the s1→s2→s3 order, connecting them naturally.
 
 Rules:
-- Sentence 1 is always said.
-- Sentences 2 and 3 are skipped at the stated probability. If skipping, omit entirely.
+- Sentence 1 is always said. Sentences 2/3 are skipped at the stated probability (omit entirely if skipping).
 - Choose options naturally; do not announce your choice.
-- For s3 options with leads_to: propose it verbally. If the user agrees, call SHOW_CONTENT in the next turn.
+- For s3 options with leads_to: propose it verbally; if the user agrees, call SHOW_CONTENT next turn.
 
 """
 

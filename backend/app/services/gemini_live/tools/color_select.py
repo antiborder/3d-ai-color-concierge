@@ -152,67 +152,41 @@ COMMANDS: dict[str, object] = {
 }
 
 RULES_JA = """\
-- **カーソルの概念**: このアプリには2つのカーソルがあります。
-  - **Focused Color カーソル**（円形のワイヤーフレーム）: ユーザーが選んでいる主たる色。
-  - **Background Color カーソル**（別の球体のワイヤーフレーム）: 3Dキャンバスの背景色。
-  - 現在どちらが選択されているかは `uiContext.colorTarget`（"focused" または "background"）で確認できます。
-  - 起動直後は Focused Color と Background Color が連動しています（同じ色）。
+- **カーソルの概念**: 2つのカーソルがある — **Focused Color**（円形ワイヤーフレーム、主たる選択色）と **Background Color**（別の球体ワイヤーフレーム、3D背景色）。現在どちらが選択中かは `uiContext.colorTarget`（"focused"/"background"）で確認。起動直後は両者が連動（同色）。
 
-- **色変更コマンドの target 決定ルール**:
-  - ユーザーが「背景」「背景色」「background」と明示 → `target: "background"`
-  - ユーザーが「フォーカス」「選択色」「focused color」と明示 → `target: "focused"`
-  - 曖昧な場合（例：「緑にして」）→ `uiContext.colorTarget` の値をそのまま使う
+- **target決定ルール**: 「背景/background」を明示→`target: "background"`。「フォーカス/選択色/focused」を明示→`target: "focused"`。曖昧なら `uiContext.colorTarget` の値をそのまま使う。
 
-- **ユーザーが色を指定した場合、まず SEARCH_COLOR を呼び出し、その後以下の判断をしてください。逆質問は絶対にしないこと。**
+- **色指定時はまず SEARCH_COLOR を呼び、以下で判断する（逆質問は絶対にしない）**：
 
-  **① 一意に特定できる色 → SELECT_COLOR**
-  固有の色名・具体的な形容詞+色名・HEXコードを指定した場合（例：「クリムゾンにして」「深い緑を選んで」「スカーレット」）：
-  SEARCH_COLOR の結果から最も適切な1色を選んで SELECT_COLOR を実行してください。選んだ後に「〇〇を選びました」と一言添えてください。
+  **① 一意に特定できる色 → SELECT_COLOR**（例：「クリムゾンにして」「深い緑を選んで」）
+  SEARCH_COLOR の結果から最適な1色を選んで SELECT_COLOR を実行し、「〇〇を選びました」と一言添える。
 
-  **② 色カテゴリ・色系統 → SHOW_COLOR_LABELS**
-  色の系統・カテゴリを指定した場合（例：「赤い色をお願いします」「青系の色」「暖かい色」「緑っぽい色」）：
-  SEARCH_COLOR の結果から代表的な色を **3〜5色** 選んで SHOW_COLOR_LABELS で表示してください。
+  **② 色カテゴリ・系統 → SHOW_COLOR_LABELS**（例：「赤い色をお願いします」「青系の色」「暖かい色」）
+  SEARCH_COLOR の結果から代表色を **3〜5色** 選んで SHOW_COLOR_LABELS で表示する。
 
-- **SELECT_COLOR の直後に、必ず CHANGE_SHAPE を呼んで色空間を切り替えてください。** 色の特性に応じて以下の色空間を選んでください：
-  - ほぼ白（明度90%以上）・グレー系 → HSL
-  - 純粋な原色（R/G/Bのいずれか1チャンネルのみ）→ RGB
-  - シアン・マゼンタ・イエローの純粋な二次色 → CMYK
-  - それ以外（大多数の色）→ HSB
-- **純粋な三原色（#FF0000, #0000FF, #00FF00 など）は、三原色の説明をしている文脈以外では選ばないこと。**
-- ユーザーが HEX コードで色を指定した場合（例：「#FF5733 にして」）は、SET_HEX を呼び出し、その後 CHANGE_SHAPE を呼んでください。
-- 明度・彩度・色相の調整には絶対に SELECT_COLOR を使用しないでください。SELECT_COLOR は色名や説明で新しい色を選ぶ場合のみ使用してください。
-- SET_COLOR は r/g/b の個別チャンネルを直接調整する場合のみ使用してください。色名での選択には使わないこと。\
+- **SELECT_COLOR の直後は必ず CHANGE_SHAPE で色空間を切り替える**：ほぼ白（明度90%以上）・グレー系 → HSL、純粋な原色（R/G/Bいずれか1チャンネルのみ）→ RGB、シアン/マゼンタ/イエローの純粋二次色 → CMYK、それ以外（大多数）→ HSB。
+- **純粋な三原色（#FF0000, #0000FF, #00FF00 等）は三原色の説明文脈以外で選ばないこと。**
+- HEXコード指定（例：「#FF5733にして」）は SET_HEX を呼び、続けて CHANGE_SHAPE を呼ぶ。
+- 明度・彩度・色相の調整に SELECT_COLOR は絶対に使わない（色名・説明での新規選択専用）。
+- SET_COLOR は r/g/b の個別チャンネル直接調整専用。色名での選択には使わない。\
 """
 
 RULES_EN = """\
-- **Cursor concept**: This app has two cursors, each tracked by a wireframe sphere in 3D space.
-  - **Focused Color cursor** (circle wireframe): the user's primary selected color.
-  - **Background Color cursor** (separate sphere wireframe): the 3D canvas background color.
-  - Check `uiContext.colorTarget` ("focused" or "background") to know which is currently active.
-  - On startup, Focused Color and Background Color are linked (same color).
+- **Cursor concept**: two cursors — **Focused Color** (circle wireframe, primary selected color) and **Background Color** (separate sphere wireframe, 3D canvas background). Check `uiContext.colorTarget` ("focused"/"background") for the active one. On startup both are linked (same color).
 
-- **Target resolution rules for color commands**:
-  - User explicitly mentions "background", "background color" → `target: "background"`
-  - User explicitly mentions "focused", "selected color", "focused color" → `target: "focused"`
-  - Ambiguous (e.g., "make it green") → use the current `uiContext.colorTarget` value
+- **Target resolution**: explicit "background"/"background color" → `target: "background"`. Explicit "focused"/"selected color" → `target: "focused"`. Ambiguous (e.g. "make it green") → use current `uiContext.colorTarget`.
 
-- **When the user specifies a color, first call SEARCH_COLOR, then apply the following decision. Never ask a follow-up question.**
+- **When the user specifies a color, first call SEARCH_COLOR, then decide (never ask a follow-up question)**:
 
-  **① A uniquely identifiable color → SELECT_COLOR**
-  When the user names a specific color or uses a precise description (e.g., "crimson", "deep green", "scarlet", "#FF5733"):
-  Pick the single best match from SEARCH_COLOR results and call SELECT_COLOR. Announce what you picked after selecting.
+  **① Uniquely identifiable color → SELECT_COLOR** (e.g. "crimson", "deep green", "#FF5733")
+  Pick the single best match from SEARCH_COLOR results, call SELECT_COLOR, and announce what you picked.
 
-  **② A color category or family → SHOW_COLOR_LABELS**
-  When the user specifies a broad color category (e.g., "a red color", "something blue", "warm colors", "show me some greens", "I want red"):
-  Pick **3–5 representative colors** from SEARCH_COLOR results and display them with SHOW_COLOR_LABELS.
+  **② Color category/family → SHOW_COLOR_LABELS** (e.g. "a red color", "warm colors")
+  Pick **3–5 representative colors** from SEARCH_COLOR results and display with SHOW_COLOR_LABELS.
 
-- **Immediately after SELECT_COLOR, always call CHANGE_SHAPE** to switch to the best color space for that color:
-  - Near-white (lightness ≥ 90%) or grays → HSL
-  - Pure primaries (only one of R/G/B dominant) → RGB
-  - Pure CMY secondaries (cyan, magenta, yellow) → CMYK
-  - Everything else (the majority of colors) → HSB
-- **Never pick pure primaries (#FF0000, #0000FF, #00FF00, etc.) outside of a color theory explanation context.**
-- If the user specifies a color by its hex code (e.g. "set color to #FF5733"), call SET_HEX followed by CHANGE_SHAPE.
-- NEVER use SELECT_COLOR for brightness/saturation/hue adjustments. SELECT_COLOR is ONLY for selecting a new color by name or description.
-- SET_COLOR is ONLY for adjusting individual RGB channels (r/g/b). Never use it to select a color by name.\
+- **Immediately after SELECT_COLOR, always call CHANGE_SHAPE**: near-white (lightness ≥90%)/grays → HSL, pure primaries (one of R/G/B dominant) → RGB, pure CMY secondaries → CMYK, everything else (majority) → HSB.
+- **Never pick pure primaries (#FF0000, #0000FF, #00FF00, etc.) outside a color theory context.**
+- Hex code specified (e.g. "#FF5733") → SET_HEX, then CHANGE_SHAPE.
+- NEVER use SELECT_COLOR for brightness/saturation/hue adjustments — it's ONLY for selecting a new color by name or description.
+- SET_COLOR is ONLY for adjusting individual RGB channels — never for selecting by name.\
 """

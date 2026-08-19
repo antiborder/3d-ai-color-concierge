@@ -67,51 +67,35 @@ COMMANDS: dict[str, object] = {
 RULES_JA = """\
 ## SHOW_CONTENT — スライド表示ルール
 
-利用可能なスライド（**5種類のみ**）:
-- rgb_primary（光の三原色・加法混色）
-- cmy_primary（色材の三原色・減法混色）
-- hsb_space（HSB色空間）
-- hsl_space（HSL色空間）
-- lab_space（Lab色空間）
+利用可能なスライド（**5種類のみ**）: rgb_primary（光の三原色・加法混色）、cmy_primary（色材の三原色・減法混色）、hsb_space（HSB色空間）、hsl_space（HSL色空間）、lab_space（Lab色空間）。
 
-**呼び出すタイミング（これらのいずれかに当てはまれば毎回呼ぶ）:**
-1. ユーザーが上記トピックについて明示的に質問した場合 → 即座に SHOW_CONTENT を呼ぶ。
-2. 会話の中で上記トピックに自然に触れた場合 → 提案は**3回に1回程度**のみ。「〇〇についてスライドで確認してみますか？」と口頭で提案し、次のターンでユーザーが同意したら SHOW_CONTENT を呼ぶ。毎回提案しないこと。
+**呼ぶタイミング**:
+1. 上記トピックへの明示的な質問 → 即座に SHOW_CONTENT を呼ぶ。
+2. 会話中に自然に触れた場合 → 提案は**3回に1回程度**。「〇〇をスライドで確認しますか？」と口頭提案し、同意されたら次ターンで呼ぶ（毎回提案しない）。
 
-**スライドがないトピック**（LCH・補色・トーン・XYZ等）では SHOW_CONTENT を呼ばないこと。
+**スライドがないトピック**（LCH・補色・トーン・XYZ等）では SHOW_CONTENT を呼ばない。
 
-**呼び方のルール:**
-- SHOW_CONTENT を呼ぶとスライドが自動表示されます。「スライドを表示します」「見てみましょう」などの文言は言わないこと。
-- スライドを表示するときは、まず SHOW_CONTENT を呼び、その後で音声で簡潔に説明する（定義1文＋補足1文）。
-- CHANGE_SHAPE と SHOW_CONTENT は同じレスポンスで呼び出してよい。SELECT_COLOR は呼ばないこと。
+**呼び方**: SHOW_CONTENT でスライドは自動表示される。「表示します」「見てみましょう」等は言わない。まず SHOW_CONTENT を呼び、その後音声で簡潔に説明（定義1文＋補足1文）。CHANGE_SHAPE と同じレスポンスで呼んでよいが、SELECT_COLOR は呼ばない。
 
 ## DISMISS_CONTENT
 
-GET_UI_STATE の結果で activeSlide が null 以外のとき、そのスライドが今の話題と無関係なら呼び出すこと。「スライドを閉じます」などの言及は不要。\
+GET_UI_STATE で activeSlide が null 以外かつ話題と無関係なら呼ぶ。「閉じます」等の言及は不要。\
 """
 
 RULES_EN = """\
 ## SHOW_CONTENT — Slide display rules
 
-Available slides (**exactly 5**):
-- rgb_primary (primary colors of light / additive mixing)
-- cmy_primary (primary colors of pigment / subtractive mixing)
-- hsb_space (HSB color space)
-- hsl_space (HSL color space)
-- lab_space (Lab color space)
+Available slides (**exactly 5**): rgb_primary (light primaries / additive mixing), cmy_primary (pigment primaries / subtractive mixing), hsb_space, hsl_space, lab_space.
 
-**When to call (trigger on ANY of these — no throttle):**
-1. The user explicitly asks about one of the above topics → call SHOW_CONTENT immediately.
-2. The conversation naturally touches on one of these topics → verbally offer it in that same response: "Would you like to see a visual on [topic]?" If the user agrees in the next turn, call SHOW_CONTENT then.
+**When to call (trigger on either — no throttle):**
+1. The user explicitly asks about one of these topics → call SHOW_CONTENT immediately.
+2. The conversation naturally touches on one → offer it verbally in that same response: "Would you like to see a visual on [topic]?" If the user agrees next turn, call SHOW_CONTENT then.
 
 **Topics without slides** (LCH, complementary colors, tones, XYZ, etc.): do NOT call SHOW_CONTENT.
 
-**How to call:**
-- SHOW_CONTENT displays the slide automatically — do NOT say "let me show you a slide" or "here's a diagram". Call the tool, then explain directly.
-- When showing a slide, call SHOW_CONTENT first, then give a verbal explanation in 2 sentences.
-- CHANGE_SHAPE and SHOW_CONTENT may be called together. Do NOT call SELECT_COLOR.
+**How to call:** SHOW_CONTENT displays the slide automatically — do NOT say "let me show you a slide". Call it first, then give a 2-sentence verbal explanation (definition + follow-up). May be called together with CHANGE_SHAPE. Do NOT call SELECT_COLOR.
 
 ## DISMISS_CONTENT
 
-Call when GET_UI_STATE returns a non-null activeSlide and the current topic is unrelated to that slide. Do not verbally mention closing it.\
+Call when GET_UI_STATE returns a non-null activeSlide unrelated to the current topic. Do not verbally mention closing it.\
 """
