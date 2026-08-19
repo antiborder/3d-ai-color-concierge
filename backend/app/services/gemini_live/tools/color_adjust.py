@@ -9,10 +9,8 @@ DECLARATIONS: list[dict] = [
             "Adjust the current color's brightness, saturation, or hue while preserving the current color. "
             "All adjustments are performed in OkLCH color space "
             "(brightness = perceptual lightness 'L', saturation = chroma 'C', hue = hue angle 'H'). "
-            "OkLCH ranges: L is 0–1, C is 0–~0.4 (maximum varies by hue), H is 0–360. "
             "IMPORTANT: Before using this tool, you should call GET_UI_STATE to get the current color state. "
             "This tool modifies the current color in place, NOT selecting a new color. "
-            "Direction: 'up' means increase (brighter, more vibrant), 'down' means decrease (darker, less vibrant). "
             "For selecting a new color by name or description, use SELECT_COLOR instead."
         ),
         "parameters": {

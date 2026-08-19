@@ -7,12 +7,7 @@ DECLARATIONS: list[dict] = [
         "name": "SET_HARMONY",
         "description": (
             "Show or hide color harmony markers in 3D space. "
-            "PROACTIVELY call this tool whenever you: "
-            "(1) recommend or mention complementary colors, "
-            "(2) suggest changing hue dramatically, "
-            "(3) explain any color harmony theory (triadic, tetradic, etc.), "
-            "(4) want to visually demonstrate color relationships. "
-            "Use mode='none' to hide harmony markers when the topic is no longer about harmony. "
+            "Use mode='none' to hide markers when the topic is no longer about harmony. "
             "Modes: 'complementary' (2 colors, 180°), 'triangle' (3, 120°), 'square' (4, 90°), "
             "'pentagon' (5, 72°), 'hexagon' (6, 60°), 'heptagon' (7), 'octagon' (8, 45°), 'nonagon' (9, 40°)."
         ),

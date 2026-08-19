@@ -19,13 +19,8 @@ DECLARATIONS: list[dict] = [
             "    (null means none is shown); "
             "(6) color.uiContext.harmony — current harmony mode "
             "    ('none' means off, 'complementary', 'triangle', 'square', 'pentagon', 'hexagon', etc.). "
-            "Use this information to decide: what to say, what to dismiss (DISMISS_CONTENT), "
-            "and what to show (SHOW_CONTENT, SET_COLOR_SETS, CHANGE_SHAPE). "
-            "IMPORTANT: Never suggest activating something already active — "
-            "e.g. do not suggest showing complementary colors if harmony is already 'complementary', "
-            "do not suggest enabling Japanese colors if colorSamples.japanese is already true. "
-            "Describe colors using natural expressions or color names only — "
-            "NEVER mention raw RGB values like 255,79,24 to the user."
+            "Use this to decide what to say, what to dismiss (DISMISS_CONTENT), and what to show "
+            "(SHOW_CONTENT, SET_COLOR_SETS, CHANGE_SHAPE)."
         ),
         "parameters": {
             "type": "object",
@@ -65,12 +60,7 @@ DECLARATIONS: list[dict] = [
             "Search the color database by name (partial match). "
             "Use this when the user asks about colors by name or requests to see color options "
             "(e.g., 'Pink 800', 'sky blue', '群青色', '青っぽい色'). "
-            "Returns a list of matching colors with exact RGB values. "
-            "DEFAULT behavior when multiple results are returned: "
-            "call SHOW_COLOR_LABELS with the top 3–5 results so the user can see them in 3D space. "
-            "Only call SELECT_COLOR (single color) when: "
-            "(a) the user explicitly says to select/set/apply a specific color, OR "
-            "(b) exactly one result is returned."
+            "Returns a list of matching colors with exact RGB values."
         ),
         "parameters": {
             "type": "object",

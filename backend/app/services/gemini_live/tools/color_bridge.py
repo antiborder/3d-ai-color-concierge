@@ -10,7 +10,6 @@ DECLARATIONS: list[dict] = [
             "The gradient runs from bridgeColorA (left, position=0.0) to bridgeColorB (right, position=1.0). "
             "Use this when the user says 'select the middle color', 'pick a right-leaning color', etc. "
             "The frontend will linearly interpolate the RGB values and select the resulting color. "
-            "Example positions: 0.0=left endpoint, 0.5=exact center, 0.75=right-leaning, 1.0=right endpoint. "
             "Before calling this, you can call GET_UI_STATE to see the current bridgeColorA and bridgeColorB values."
         ),
         "parameters": {

@@ -6,17 +6,10 @@ DECLARATIONS: list[dict] = [
     {
         "name": "SHOW_COLOR_LABELS",
         "description": (
-            "Display up to 12 colors as labeled markers in the 3D color space. "
-            "All colors are added to the color history. "
-            "The current background color and focus position do NOT change. "
-            "IMPORTANT: You must ONLY use colors that exist in the color database. "
-            "Before calling this tool, always call SEARCH_COLOR to find the actual registered "
-            "colors and their exact names. Use the RGB values and name (name1 or name2) returned "
-            "by SEARCH_COLOR as-is — do NOT invent RGB values or create new label names. "
-            "Use this to visually explain: primary colors (三原色), analogous colors (類似色), "
-            "neighboring colors (近隣色), tone-matching colors (トンマナ), "
-            "background/text color suggestions, contrasting colors (対照的な色), "
-            "or colors with adjusted saturation or brightness. "
+            "Display up to 12 colors as labeled markers in the 3D color space "
+            "(does not change the background color or focus position). "
+            "IMPORTANT: colors must come from SEARCH_COLOR results — use the exact RGB values and "
+            "name (name1 or name2) as returned, do NOT invent RGB values or create new label names. "
             "Pass an empty array for 'colors' to clear all labels."
         ),
         "parameters": {

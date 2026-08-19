@@ -7,11 +7,8 @@ _TARGET_PROP = {
         "type": "string",
         "enum": ["focused", "background"],
         "description": (
-            "Which cursor to apply the color to. "
-            "'focused' = the Focused Color cursor (default when uiContext.colorTarget is 'focused'). "
-            "'background' = the Background Color cursor. "
-            "When the user explicitly mentions 'background' or 'background color', use 'background'. "
-            "When ambiguous, use the current uiContext.colorTarget value."
+            "Which cursor to apply to. 'background' if the user explicitly says 'background'/'background color', "
+            "otherwise use the current uiContext.colorTarget."
         ),
     }
 }
@@ -22,9 +19,7 @@ DECLARATIONS: list[dict] = [
         "description": (
             "Select a specific RGB color by name or description. You MUST provide all three RGB values (r, g, b). "
             "For example: white = (255, 255, 255), black = (0, 0, 0), red = (255, 0, 0). "
-            "Use this tool when the user asks to select a color by name or description. "
-            "Set 'target' to 'background' when the user explicitly refers to the background color, "
-            "otherwise use the current uiContext.colorTarget value."
+            "Use this tool when the user asks to select a color by name or description."
         ),
         "parameters": {
             "type": "object",
@@ -42,8 +37,7 @@ DECLARATIONS: list[dict] = [
         "description": (
             "Set one or more RGB channels directly for fine-tuning. "
             "This is for adjusting individual channels (r/g/b), NOT for selecting colors by name. "
-            "For color selection by name (e.g., 'white', 'black'), use SELECT_COLOR instead. "
-            "Set 'target' based on uiContext.colorTarget or explicit user mention."
+            "For color selection by name (e.g., 'white', 'black'), use SELECT_COLOR instead."
         ),
         "parameters": {
             "type": "object",
@@ -60,8 +54,7 @@ DECLARATIONS: list[dict] = [
         "name": "SET_HEX",
         "description": (
             "Set the color directly from a HEX code (e.g. '#FF5733' or 'FF5733'). "
-            "Use this when the user specifies a color by its hex code. "
-            "Set 'target' based on uiContext.colorTarget or explicit user mention."
+            "Use this when the user specifies a color by its hex code."
         ),
         "parameters": {
             "type": "object",
