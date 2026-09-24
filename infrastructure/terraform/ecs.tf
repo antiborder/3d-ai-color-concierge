@@ -197,6 +197,9 @@ resource "aws_ecs_service" "backend" {
 
   enable_execute_command = false
 
+  # サービスのタグ（app など）を起動するタスクに伝播させ、Fargate 料金をコスト配分タグで集計できるようにする
+  propagate_tags = "SERVICE"
+
   tags = {
     Environment = var.environment
     Project     = var.project_name

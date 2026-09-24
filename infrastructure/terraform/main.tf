@@ -22,6 +22,13 @@ terraform {
 
 provider "aws" {
   region = var.aws_region
+
+  # コスト配分タグ（同一アカウント内の他アプリと Cost Explorer で区別するため）
+  default_tags {
+    tags = {
+      app = "3d-color-picker"
+    }
+  }
 }
 
 # ============================================
