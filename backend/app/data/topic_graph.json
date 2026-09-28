@@ -1,0 +1,1621 @@
+{
+  "version": 1,
+  "clusters": {
+    "physics": {
+      "ja": "物理",
+      "en": "Physics"
+    },
+    "machine": {
+      "ja": "機械",
+      "en": "Machine"
+    },
+    "human": {
+      "ja": "人体",
+      "en": "Human body"
+    },
+    "psychology": {
+      "ja": "感覚心理",
+      "en": "Perception & psychology"
+    }
+  },
+  "nodes": [
+    {
+      "id": "sky_blue_reason",
+      "cluster": "physics",
+      "label": {
+        "ja": "空が青い理由",
+        "en": "Why the sky is blue"
+      }
+    },
+    {
+      "id": "sunset_red_reason",
+      "cluster": "physics",
+      "label": {
+        "ja": "夕焼けが赤い理由",
+        "en": "Why sunsets are red"
+      }
+    },
+    {
+      "id": "rainbow_mechanism",
+      "cluster": "physics",
+      "label": {
+        "ja": "虹が見える仕組み",
+        "en": "How rainbows form"
+      }
+    },
+    {
+      "id": "nature_of_light",
+      "cluster": "physics",
+      "label": {
+        "ja": "光の正体",
+        "en": "What light is"
+      }
+    },
+    {
+      "id": "electromagnetic_wave",
+      "cluster": "physics",
+      "label": {
+        "ja": "電磁波とは",
+        "en": "What electromagnetic waves are"
+      }
+    },
+    {
+      "id": "light_visible_reason",
+      "cluster": "human",
+      "label": {
+        "ja": "光が見える理由",
+        "en": "Why we can see light"
+      }
+    },
+    {
+      "id": "lms_space",
+      "cluster": "human",
+      "label": {
+        "ja": "LMS座標系",
+        "en": "LMS color space"
+      }
+    },
+    {
+      "id": "visible_gamut",
+      "cluster": "human",
+      "label": {
+        "ja": "人が知覚可能な範囲",
+        "en": "Colors humans can perceive"
+      }
+    },
+    {
+      "id": "rgb_primary",
+      "cluster": "machine",
+      "label": {
+        "ja": "光の三原色",
+        "en": "Primary colors of light"
+      }
+    },
+    {
+      "id": "cmy_primary",
+      "cluster": "machine",
+      "label": {
+        "ja": "色材の三原色",
+        "en": "Primary colors of pigment"
+      }
+    },
+    {
+      "id": "cmyk_space",
+      "cluster": "machine",
+      "label": {
+        "ja": "CMYK色空間",
+        "en": "CMYK color space"
+      }
+    },
+    {
+      "id": "light_pigment_primary_relation",
+      "cluster": null,
+      "label": {
+        "ja": "光の三原色と色の三原色の関係",
+        "en": "Light primaries vs. pigment primaries"
+      }
+    },
+    {
+      "id": "additive_mixing",
+      "cluster": null,
+      "label": {
+        "ja": "加法混色",
+        "en": "Additive color mixing"
+      }
+    },
+    {
+      "id": "blue_green_cyan",
+      "cluster": null,
+      "label": {
+        "ja": "青と緑を混ぜると水色になるのはなぜ",
+        "en": "Why blue + green makes cyan"
+      }
+    },
+    {
+      "id": "red_blue_magenta",
+      "cluster": null,
+      "label": {
+        "ja": "赤と青を混ぜるとマゼンタになるのはなぜ",
+        "en": "Why red + blue makes magenta"
+      }
+    },
+    {
+      "id": "red_green_yellow",
+      "cluster": null,
+      "label": {
+        "ja": "赤と緑を混ぜると黄色になるのは何故",
+        "en": "Why red + green makes yellow"
+      }
+    },
+    {
+      "id": "screen_mechanism",
+      "cluster": "machine",
+      "label": {
+        "ja": "画面の仕組み",
+        "en": "How screens show color"
+      }
+    },
+    {
+      "id": "rgb_space",
+      "cluster": "machine",
+      "label": {
+        "ja": "RGB色空間",
+        "en": "RGB color space"
+      }
+    },
+    {
+      "id": "rgb_cube_grid",
+      "cluster": "machine",
+      "label": {
+        "ja": "RGB Cube Grid",
+        "en": "RGB cube grid"
+      }
+    },
+    {
+      "id": "hex_code",
+      "cluster": "machine",
+      "label": {
+        "ja": "HEXコードとは",
+        "en": "What HEX codes are"
+      }
+    },
+    {
+      "id": "xyz_space",
+      "cluster": "machine",
+      "label": {
+        "ja": "XYZ空間",
+        "en": "XYZ color space"
+      }
+    },
+    {
+      "id": "color_matching_experiment",
+      "cluster": "machine",
+      "label": {
+        "ja": "等色実験とは",
+        "en": "Color matching experiments"
+      }
+    },
+    {
+      "id": "chromaticity_diagram",
+      "cluster": "machine",
+      "label": {
+        "ja": "色度図",
+        "en": "Chromaticity diagram"
+      }
+    },
+    {
+      "id": "display_gamut",
+      "cluster": null,
+      "label": {
+        "ja": "画面で表示可能な範囲",
+        "en": "Colors a screen can show"
+      }
+    },
+    {
+      "id": "hsl_space",
+      "cluster": "machine",
+      "label": {
+        "ja": "HSL色空間",
+        "en": "HSL color space"
+      }
+    },
+    {
+      "id": "hsb_space",
+      "cluster": "machine",
+      "label": {
+        "ja": "HSB色空間",
+        "en": "HSB color space"
+      }
+    },
+    {
+      "id": "hsb_vs_hsl",
+      "cluster": "machine",
+      "label": {
+        "ja": "HSBとHSLの違い",
+        "en": "HSB vs. HSL"
+      }
+    },
+    {
+      "id": "brightness",
+      "cluster": "machine",
+      "label": {
+        "ja": "明度",
+        "en": "Brightness"
+      }
+    },
+    {
+      "id": "lightness",
+      "cluster": "machine",
+      "label": {
+        "ja": "輝度",
+        "en": "Lightness"
+      }
+    },
+    {
+      "id": "saturation",
+      "cluster": null,
+      "label": {
+        "ja": "彩度",
+        "en": "Saturation"
+      }
+    },
+    {
+      "id": "hue",
+      "cluster": null,
+      "label": {
+        "ja": "色相",
+        "en": "Hue"
+      }
+    },
+    {
+      "id": "hue_circle",
+      "cluster": null,
+      "label": {
+        "ja": "色相環",
+        "en": "Color wheel"
+      }
+    },
+    {
+      "id": "complementary_colors",
+      "cluster": null,
+      "label": {
+        "ja": "補色",
+        "en": "Complementary colors"
+      }
+    },
+    {
+      "id": "triadic_colors",
+      "cluster": null,
+      "label": {
+        "ja": "三角配色",
+        "en": "Triadic color schemes"
+      }
+    },
+    {
+      "id": "tetradic_colors",
+      "cluster": null,
+      "label": {
+        "ja": "四角配色",
+        "en": "Tetradic color schemes"
+      }
+    },
+    {
+      "id": "lab_space",
+      "cluster": null,
+      "label": {
+        "ja": "Lab空間",
+        "en": "Lab color space"
+      }
+    },
+    {
+      "id": "lch_space",
+      "cluster": null,
+      "label": {
+        "ja": "LCH空間",
+        "en": "LCH color space"
+      }
+    },
+    {
+      "id": "oklab_space",
+      "cluster": "psychology",
+      "label": {
+        "ja": "OKLab空間",
+        "en": "OKLab color space"
+      }
+    },
+    {
+      "id": "oklch_space",
+      "cluster": "psychology",
+      "label": {
+        "ja": "OKLCH空間",
+        "en": "OKLCH color space"
+      }
+    },
+    {
+      "id": "various_color_spaces",
+      "cluster": null,
+      "label": {
+        "ja": "様々な色空間",
+        "en": "The family of color spaces"
+      }
+    },
+    {
+      "id": "color_size",
+      "cluster": "psychology",
+      "label": {
+        "ja": "色の大きさ",
+        "en": "Perceived size of colors"
+      }
+    },
+    {
+      "id": "color_weight",
+      "cluster": "psychology",
+      "label": {
+        "ja": "色の重み",
+        "en": "Perceived weight of colors"
+      }
+    },
+    {
+      "id": "color_temperature",
+      "cluster": "psychology",
+      "label": {
+        "ja": "色温度",
+        "en": "Color temperature"
+      }
+    },
+    {
+      "id": "color_distortion",
+      "cluster": null,
+      "label": {
+        "ja": "色の歪み",
+        "en": "Color distortion"
+      }
+    },
+    {
+      "id": "css_color",
+      "cluster": null,
+      "label": {
+        "ja": "CSS Color",
+        "en": "CSS color"
+      }
+    },
+    {
+      "id": "material_design_color",
+      "cluster": null,
+      "label": {
+        "ja": "Material Design Color",
+        "en": "Material Design colors"
+      }
+    },
+    {
+      "id": "color_samples",
+      "cluster": null,
+      "label": {
+        "ja": "様々なColor Samples",
+        "en": "Color sample collections"
+      }
+    },
+    {
+      "id": "oklch_lineage",
+      "cluster": null,
+      "label": {
+        "ja": "色科学の系統図",
+        "en": "Lineage of color science"
+      }
+    },
+    {
+      "id": "oklch_vs_lch",
+      "cluster": null,
+      "label": {
+        "ja": "LCHとOKLCHの色相回転",
+        "en": "Hue rotation in LCH vs. OKLCH"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "sunset_red_reason",
+      "to": "sky_blue_reason",
+      "suggest": {
+        "forward": {
+          "ja": "夕焼けと同じ光の散乱で、空が青い理由も説明できます。見てみますか？",
+          "en": "The same scattering of light also explains why the sky is blue. Want to see?"
+        },
+        "backward": {
+          "ja": "同じ仕組みで、夕焼けが赤くなる理由もわかります。見てみますか？",
+          "en": "The same mechanism explains why sunsets turn red. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "sky_blue_reason",
+      "to": "nature_of_light",
+      "suggest": {
+        "forward": {
+          "ja": "空の色は光の波長で決まります。そもそも光とは何か、見てみますか？",
+          "en": "The sky's color comes down to the wavelength of light. Want to see what light actually is?"
+        },
+        "backward": {
+          "ja": "光の波長の性質で、空が青い理由も説明できます。見てみますか？",
+          "en": "The wavelength of light explains why the sky is blue. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "rainbow_mechanism",
+      "to": "nature_of_light",
+      "suggest": {
+        "forward": {
+          "ja": "虹は光が波長ごとに分かれた姿です。光の正体も見てみますか？",
+          "en": "A rainbow is light split up by wavelength. Want to see what light really is?"
+        },
+        "backward": {
+          "ja": "光が波長ごとに分かれると、虹が見えます。虹の仕組みも見てみますか？",
+          "en": "When light splits by wavelength, you get a rainbow. Want to see how rainbows form?"
+        }
+      }
+    },
+    {
+      "from": "nature_of_light",
+      "to": "sunset_red_reason",
+      "suggest": {
+        "forward": {
+          "ja": "光の波長の性質で、夕焼けが赤い理由も説明できます。見てみますか？",
+          "en": "The wavelength of light explains why sunsets are red. Want to see?"
+        },
+        "backward": {
+          "ja": "夕焼けの色は光の波長で決まります。光の正体も見てみますか？",
+          "en": "Sunset colors come down to the wavelength of light. Want to see what light really is?"
+        }
+      }
+    },
+    {
+      "from": "nature_of_light",
+      "to": "electromagnetic_wave",
+      "suggest": {
+        "forward": {
+          "ja": "光は電磁波の一種です。電磁波についても見てみますか？",
+          "en": "Light is a kind of electromagnetic wave. Want to learn about electromagnetic waves?"
+        },
+        "backward": {
+          "ja": "電磁波のうち、目に見える範囲が光です。光の正体も見てみますか？",
+          "en": "Light is the part of the electromagnetic spectrum we can see. Want to see what light is?"
+        }
+      }
+    },
+    {
+      "from": "rgb_primary",
+      "to": "nature_of_light",
+      "suggest": {
+        "forward": {
+          "ja": "赤・緑・青の違いは、光の波長の違いです。光の正体も見てみますか？",
+          "en": "Red, green and blue differ in wavelength. Want to see what light really is?"
+        },
+        "backward": {
+          "ja": "光を混ぜると色が作れます。光の三原色も見てみますか？",
+          "en": "Mixing light creates colors. Want to see the three primary colors of light?"
+        }
+      }
+    },
+    {
+      "from": "light_visible_reason",
+      "to": "nature_of_light",
+      "suggest": {
+        "forward": {
+          "ja": "目が捉えているのは、光という電磁波です。光の正体も見てみますか？",
+          "en": "Our eyes detect light, an electromagnetic wave. Want to see what light is?"
+        },
+        "backward": {
+          "ja": "私たちは光をどうやって見ているのでしょう。光が見える理由も見てみますか？",
+          "en": "How do we actually see light? Want to find out?"
+        }
+      }
+    },
+    {
+      "from": "lms_space",
+      "to": "light_visible_reason",
+      "suggest": {
+        "forward": {
+          "ja": "LMSは目の3種類の細胞の反応です。光が見える仕組みも見てみますか？",
+          "en": "LMS describes the eye's three types of cells. Want to see how we see light?"
+        },
+        "backward": {
+          "ja": "目には色を感じる3種類の細胞があり、その反応をLMSで表します。見てみますか？",
+          "en": "The eye has three types of color-sensing cells, described by LMS. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "lms_space",
+      "to": "xyz_space",
+      "suggest": {
+        "forward": {
+          "ja": "目の反応をもとに、標準の色空間XYZが作られました。見てみますか？",
+          "en": "The standard XYZ color space was built on the eye's responses. Want to see?"
+        },
+        "backward": {
+          "ja": "XYZのもとになったのは、目の細胞の反応を表すLMSです。見てみますか？",
+          "en": "XYZ is based on LMS, the response of the eye's cells. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "color_matching_experiment",
+      "to": "xyz_space",
+      "suggest": {
+        "forward": {
+          "ja": "等色実験の結果から、XYZ色空間が作られました。見てみますか？",
+          "en": "The XYZ color space was built from these experiments. Want to see?"
+        },
+        "backward": {
+          "ja": "XYZは等色実験という実験から作られました。どんな実験か見てみますか？",
+          "en": "XYZ was built from color matching experiments. Want to see how they worked?"
+        }
+      }
+    },
+    {
+      "from": "cmyk_space",
+      "to": "light_pigment_primary_relation",
+      "suggest": {
+        "forward": {
+          "ja": "CMYKのシアン・マゼンタ・黄は、光の三原色の補色です。両者の関係を見てみますか？",
+          "en": "Cyan, magenta and yellow are the complements of the light primaries. Want to see how they relate?"
+        },
+        "backward": {
+          "ja": "この関係は、印刷で使うCMYKにも表れています。CMYK色空間も見てみますか？",
+          "en": "This relationship shows up in CMYK, used for printing. Want to see the CMYK color space?"
+        }
+      }
+    },
+    {
+      "from": "cmy_primary",
+      "to": "light_pigment_primary_relation",
+      "suggest": {
+        "forward": {
+          "ja": "色材の三原色は、光の三原色と補色の関係にあります。見てみますか？",
+          "en": "Pigment primaries are complements of the light primaries. Want to see how?"
+        },
+        "backward": {
+          "ja": "絵の具やインクの三原色も見てみますか？",
+          "en": "Want to see the primaries of paints and inks?"
+        }
+      }
+    },
+    {
+      "from": "cmyk_space",
+      "to": "cmy_primary",
+      "suggest": {
+        "forward": {
+          "ja": "CMYKは色材の三原色に黒を加えたものです。色材の三原色も見てみますか？",
+          "en": "CMYK is the pigment primaries plus black. Want to see the pigment primaries?"
+        },
+        "backward": {
+          "ja": "色材の三原色に黒を加えると、印刷で使うCMYKになります。見てみますか？",
+          "en": "Add black to the pigment primaries and you get CMYK for printing. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "light_pigment_primary_relation",
+      "to": "rgb_primary",
+      "suggest": {
+        "forward": {
+          "ja": "まず光の三原色を確認してみますか？",
+          "en": "Want to review the primary colors of light first?"
+        },
+        "backward": {
+          "ja": "光の三原色は、色材の三原色と補色の関係にあります。見てみますか？",
+          "en": "Light primaries and pigment primaries are complements. Want to see how they relate?"
+        }
+      }
+    },
+    {
+      "from": "cmy_primary",
+      "to": "rgb_primary",
+      "suggest": {
+        "forward": {
+          "ja": "色材は混ぜるほど暗く、光は混ぜるほど明るくなります。光の三原色も見てみますか？",
+          "en": "Pigments get darker as you mix; light gets brighter. Want to see the primaries of light?"
+        },
+        "backward": {
+          "ja": "光とは逆に、混ぜるほど暗くなるのが色材の三原色です。見てみますか？",
+          "en": "Unlike light, pigments get darker as you mix. Want to see the pigment primaries?"
+        }
+      }
+    },
+    {
+      "from": "rgb_space",
+      "to": "cmyk_space",
+      "suggest": {
+        "forward": {
+          "ja": "印刷ではRGBではなくCMYKが使われます。CMYK色空間も見てみますか？",
+          "en": "Printing uses CMYK instead of RGB. Want to see the CMYK color space?"
+        },
+        "backward": {
+          "ja": "画面ではCMYKではなくRGBが使われます。RGB色空間も見てみますか？",
+          "en": "Screens use RGB instead of CMYK. Want to see the RGB color space?"
+        }
+      }
+    },
+    {
+      "from": "rgb_primary",
+      "to": "rgb_space",
+      "suggest": {
+        "forward": {
+          "ja": "光の三原色を3つの軸にすると、RGB色空間になります。見てみますか？",
+          "en": "Use the three light primaries as axes and you get the RGB color space. Want to see?"
+        },
+        "backward": {
+          "ja": "RGBの3つの軸は光の三原色です。光の三原色も見てみますか？",
+          "en": "RGB's three axes are the primary colors of light. Want to see them?"
+        }
+      }
+    },
+    {
+      "from": "rgb_primary",
+      "to": "additive_mixing",
+      "suggest": {
+        "forward": {
+          "ja": "光は重ねるほど明るくなります。これが加法混色です。見てみますか？",
+          "en": "Light gets brighter as you overlap it—that's additive mixing. Want to see?"
+        },
+        "backward": {
+          "ja": "加法混色で混ぜるのは、光の三原色です。見てみますか？",
+          "en": "Additive mixing combines the three primaries of light. Want to see them?"
+        }
+      }
+    },
+    {
+      "from": "additive_mixing",
+      "to": "blue_green_cyan",
+      "suggest": {
+        "forward": {
+          "ja": "たとえば青と緑の光を混ぜると水色になります。なぜか見てみますか？",
+          "en": "For example, blue and green light make cyan. Want to see why?"
+        },
+        "backward": {
+          "ja": "これは加法混色という仕組みによるものです。見てみますか？",
+          "en": "This happens through additive mixing. Want to see how it works?"
+        }
+      }
+    },
+    {
+      "from": "blue_green_cyan",
+      "to": "red_blue_magenta",
+      "suggest": {
+        "forward": {
+          "ja": "同じ仕組みで、赤と青はマゼンタになります。見てみますか？",
+          "en": "By the same rule, red and blue make magenta. Want to see?"
+        },
+        "backward": {
+          "ja": "同じ仕組みで、青と緑は水色になります。見てみますか？",
+          "en": "By the same rule, blue and green make cyan. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "additive_mixing",
+      "to": "red_green_yellow",
+      "suggest": {
+        "forward": {
+          "ja": "意外なことに、赤と緑の光を混ぜると黄色になります。なぜか見てみますか？",
+          "en": "Surprisingly, red and green light make yellow. Want to see why?"
+        },
+        "backward": {
+          "ja": "これは加法混色という仕組みによるものです。見てみますか？",
+          "en": "This happens through additive mixing. Want to see how it works?"
+        }
+      }
+    },
+    {
+      "from": "red_green_yellow",
+      "to": "red_blue_magenta",
+      "suggest": {
+        "forward": {
+          "ja": "同じ仕組みで、赤と青はマゼンタになります。見てみますか？",
+          "en": "By the same rule, red and blue make magenta. Want to see?"
+        },
+        "backward": {
+          "ja": "同じ仕組みで、赤と緑は黄色になります。見てみますか？",
+          "en": "By the same rule, red and green make yellow. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "screen_mechanism",
+      "to": "additive_mixing",
+      "suggest": {
+        "forward": {
+          "ja": "画面は赤・緑・青の光を混ぜて色を作っています。加法混色も見てみますか？",
+          "en": "Screens mix red, green and blue light. Want to see how additive mixing works?"
+        },
+        "backward": {
+          "ja": "加法混色は、画面が色を表示する仕組みそのものです。画面の仕組みも見てみますか？",
+          "en": "Additive mixing is exactly how screens display color. Want to see how screens work?"
+        }
+      }
+    },
+    {
+      "from": "screen_mechanism",
+      "to": "rgb_space",
+      "suggest": {
+        "forward": {
+          "ja": "画面の色は、RGBの3つの値で決まります。RGB色空間も見てみますか？",
+          "en": "A screen's colors are set by three RGB values. Want to see the RGB color space?"
+        },
+        "backward": {
+          "ja": "RGBの値は、画面の光の強さに対応しています。画面の仕組みも見てみますか？",
+          "en": "RGB values match the intensity of a screen's lights. Want to see how screens work?"
+        }
+      }
+    },
+    {
+      "from": "rgb_space",
+      "to": "xyz_space",
+      "suggest": {
+        "forward": {
+          "ja": "RGBは機器によって変わりますが、人の目を基準にしたXYZという色空間もあります。見てみますか？",
+          "en": "RGB varies by device, but XYZ is based on human vision. Want to see it?"
+        },
+        "backward": {
+          "ja": "画面で使われるRGBも、XYZを基準に定義されています。RGB色空間も見てみますか？",
+          "en": "Even screen RGB is defined relative to XYZ. Want to see the RGB color space?"
+        }
+      }
+    },
+    {
+      "from": "rgb_space",
+      "to": "hsl_space",
+      "suggest": {
+        "forward": {
+          "ja": "RGBを、人が扱いやすい形に変えたのがHSLです。見てみますか？",
+          "en": "HSL rearranges RGB into a more intuitive form. Want to see?"
+        },
+        "backward": {
+          "ja": "HSLはRGBから計算されています。RGB色空間も見てみますか？",
+          "en": "HSL is computed from RGB. Want to see the RGB color space?"
+        }
+      }
+    },
+    {
+      "from": "hsb_space",
+      "to": "rgb_space",
+      "suggest": {
+        "forward": {
+          "ja": "HSBの値はRGBから計算されています。RGB色空間も見てみますか？",
+          "en": "HSB is computed from RGB. Want to see the RGB color space?"
+        },
+        "backward": {
+          "ja": "RGBを、色相・彩度・明度で表し直したのがHSBです。見てみますか？",
+          "en": "HSB re-expresses RGB as hue, saturation and brightness. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "rgb_cube_grid",
+      "to": "rgb_space",
+      "suggest": {
+        "forward": {
+          "ja": "このColor SampleはRGBを元に作られています。RGB色空間も見てみますか？",
+          "en": "These color samples are built from RGB. Want to see the RGB color space?"
+        },
+        "backward": {
+          "ja": "この空間で等間隔に並ぶColor Sampleも表示できます。見てみますか？",
+          "en": "I can also show color samples evenly spaced in this space. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "rgb_cube_grid",
+      "to": "hex_code",
+      "suggest": {
+        "forward": {
+          "ja": "格子の各点の色は、HEXコードで表せます。HEXコードについても見てみますか？",
+          "en": "Each color on the grid can be written as a HEX code. Want to learn about HEX codes?"
+        },
+        "backward": {
+          "ja": "HEXコードの色を、RGBの格子状に並べたColor Sampleもあります。見てみますか？",
+          "en": "There's a sample set that lays out HEX colors on an RGB grid. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "hex_code",
+      "to": "rgb_space",
+      "suggest": {
+        "forward": {
+          "ja": "HEXコードは、RGBの3つの値を16進数で書いたものです。RGB色空間も見てみますか？",
+          "en": "A HEX code is three RGB values in hexadecimal. Want to see the RGB color space?"
+        },
+        "backward": {
+          "ja": "RGBの値は、HEXコードという形でもよく書かれます。見てみますか？",
+          "en": "RGB values are often written as HEX codes. Want to see how?"
+        }
+      }
+    },
+    {
+      "from": "hex_code",
+      "to": "material_design_color",
+      "suggest": {
+        "forward": {
+          "ja": "Material DesignのパレットもHEXコードで指定されています。見てみますか？",
+          "en": "The Material Design palette is also given in HEX codes. Want to see it?"
+        },
+        "backward": {
+          "ja": "パレットの色はHEXコードで指定されています。HEXコードについても見てみますか？",
+          "en": "These palette colors are specified as HEX codes. Want to learn about HEX codes?"
+        }
+      }
+    },
+    {
+      "from": "hex_code",
+      "to": "css_color",
+      "suggest": {
+        "forward": {
+          "ja": "Webページでは、CSSでHEXコードを使って色を指定できます。CSSの色指定も見てみますか？",
+          "en": "On web pages, CSS can use HEX codes for color. Want to see how CSS specifies colors?"
+        },
+        "backward": {
+          "ja": "CSSで最もよく使われる色の書き方がHEXコードです。見てみますか？",
+          "en": "HEX codes are the most common way to write colors in CSS. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "color_samples",
+      "to": "rgb_cube_grid",
+      "suggest": {
+        "forward": {
+          "ja": "色見本の中には、RGBの格子状に色を並べたものもあります。見てみますか？",
+          "en": "Some sample sets lay colors out on an RGB grid. Want to see one?"
+        },
+        "backward": {
+          "ja": "他にもいろいろな色見本があります。見てみますか？",
+          "en": "There are many other color sample sets. Want to see them?"
+        }
+      }
+    },
+    {
+      "from": "material_design_color",
+      "to": "color_samples",
+      "suggest": {
+        "forward": {
+          "ja": "他にもいろいろな色見本があります。見てみますか？",
+          "en": "There are many other color sample sets. Want to see them?"
+        },
+        "backward": {
+          "ja": "代表的な色見本のひとつに、Material Designのパレットがあります。見てみますか？",
+          "en": "One well-known sample set is the Material Design palette. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "css_color",
+      "to": "color_samples",
+      "suggest": {
+        "forward": {
+          "ja": "CSSには名前付きの色が用意されています。いろいろな色見本も見てみますか？",
+          "en": "CSS includes a set of named colors. Want to see various color samples?"
+        },
+        "backward": {
+          "ja": "CSSにも名前付きの色見本があります。CSSの色指定も見てみますか？",
+          "en": "CSS has its own named colors too. Want to see how CSS specifies colors?"
+        }
+      }
+    },
+    {
+      "from": "color_distortion",
+      "to": "material_design_color",
+      "suggest": {
+        "forward": {
+          "ja": "Material Designは、色の歪みを抑える工夫をしたパレットです。見てみますか？",
+          "en": "Material Design's palette is designed to reduce color distortion. Want to see?"
+        },
+        "backward": {
+          "ja": "このパレットは、色の歪みを抑えるように作られています。色の歪みについても見てみますか？",
+          "en": "This palette is built to reduce color distortion. Want to learn about color distortion?"
+        }
+      }
+    },
+    {
+      "from": "material_design_color",
+      "to": "css_color",
+      "suggest": {
+        "forward": {
+          "ja": "パレットの色は、CSSで指定して使います。CSSの色指定も見てみますか？",
+          "en": "Palette colors are applied with CSS. Want to see how CSS specifies colors?"
+        },
+        "backward": {
+          "ja": "CSSでよく使われる色の一例が、Material Designのパレットです。見てみますか？",
+          "en": "Material Design's palette is a common source of CSS colors. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "material_design_color",
+      "to": "oklch_space",
+      "suggest": {
+        "forward": {
+          "ja": "見た目が均一な色を作る仕組みとして、OKLCHという色空間もあります。見てみますか？",
+          "en": "OKLCH is another way to get perceptually even colors. Want to see it?"
+        },
+        "backward": {
+          "ja": "見た目が均一な色を揃えたパレットの例に、Material Designがあります。見てみますか？",
+          "en": "Material Design is an example of a perceptually even palette. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "color_distortion",
+      "to": "css_color",
+      "suggest": {
+        "forward": {
+          "ja": "CSSでは、oklchという書き方を使うと色の歪みを避けやすくなります。見てみますか？",
+          "en": "In CSS, oklch() helps avoid color distortion. Want to see?"
+        },
+        "backward": {
+          "ja": "CSSで色を選ぶときは、色の歪みに注意が必要です。色の歪みについても見てみますか？",
+          "en": "When picking colors in CSS, color distortion matters. Want to learn about it?"
+        }
+      }
+    },
+    {
+      "from": "oklch_space",
+      "to": "css_color",
+      "suggest": {
+        "forward": {
+          "ja": "OKLCHは、CSSでもそのまま使えます。CSSの色指定も見てみますか？",
+          "en": "OKLCH can be used directly in CSS. Want to see how?"
+        },
+        "backward": {
+          "ja": "CSSでは、OKLCHという新しい色空間も使えます。見てみますか？",
+          "en": "CSS also supports OKLCH, a newer color space. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "oklch_space",
+      "to": "color_distortion",
+      "suggest": {
+        "forward": {
+          "ja": "OKLCHは、色の歪みを減らすために作られました。色の歪みとは何か、見てみますか？",
+          "en": "OKLCH was made to reduce color distortion. Want to see what that means?"
+        },
+        "backward": {
+          "ja": "色の歪みを減らすために作られたのがOKLCHです。見てみますか？",
+          "en": "OKLCH was designed to reduce color distortion. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "oklch_space",
+      "to": "hue",
+      "suggest": {
+        "forward": {
+          "ja": "OKLCHのHは色相です。色相についても見てみますか？",
+          "en": "The H in OKLCH is hue. Want to learn about hue?"
+        },
+        "backward": {
+          "ja": "OKLCHでは、色相を変えても明るさが揃って見えます。見てみますか？",
+          "en": "In OKLCH, changing hue keeps brightness looking even. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "lch_space",
+      "to": "oklch_space",
+      "suggest": {
+        "forward": {
+          "ja": "LCHを改良したのがOKLCHです。見てみますか？",
+          "en": "OKLCH is an improved LCH. Want to see it?"
+        },
+        "backward": {
+          "ja": "OKLCHのもとになったのがLCHです。見てみますか？",
+          "en": "OKLCH grew out of LCH. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "oklab_space",
+      "to": "oklch_space",
+      "suggest": {
+        "forward": {
+          "ja": "OKLabを極座標で表したのがOKLCHです。見てみますか？",
+          "en": "OKLCH is OKLab in polar form. Want to see it?"
+        },
+        "backward": {
+          "ja": "OKLCHは、OKLabという色空間から作られています。見てみますか？",
+          "en": "OKLCH is built from the OKLab color space. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "lab_space",
+      "to": "oklab_space",
+      "suggest": {
+        "forward": {
+          "ja": "Labの考え方を改良した、OKLabという新しい色空間があります。見てみますか？",
+          "en": "OKLab is a newer space that refines Lab. Want to see it?"
+        },
+        "backward": {
+          "ja": "OKLabのもとになった考え方がLab色空間です。見てみますか？",
+          "en": "OKLab builds on the ideas of Lab. Want to see Lab?"
+        }
+      }
+    },
+    {
+      "from": "lab_space",
+      "to": "lch_space",
+      "suggest": {
+        "forward": {
+          "ja": "Labを極座標で表したのがLCHです。見てみますか？",
+          "en": "LCH is Lab in polar form. Want to see it?"
+        },
+        "backward": {
+          "ja": "LCHは、Lab色空間を極座標で表したものです。Labも見てみますか？",
+          "en": "LCH is Lab in polar form. Want to see Lab?"
+        }
+      }
+    },
+    {
+      "from": "lab_space",
+      "to": "various_color_spaces",
+      "suggest": {
+        "forward": {
+          "ja": "Lab以外にも、いろいろな色空間があります。見てみますか？",
+          "en": "There are many color spaces besides Lab. Want to see them?"
+        },
+        "backward": {
+          "ja": "その中でも、人の見え方に近づけた色空間がLabです。見てみますか？",
+          "en": "Among them, Lab is designed to match human perception. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "oklab_space",
+      "to": "various_color_spaces",
+      "suggest": {
+        "forward": {
+          "ja": "OKLab以外にも、いろいろな色空間があります。見てみますか？",
+          "en": "There are many color spaces besides OKLab. Want to see them?"
+        },
+        "backward": {
+          "ja": "その中でも比較的新しい色空間がOKLabです。見てみますか？",
+          "en": "One of the newest among them is OKLab. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "xyz_space",
+      "to": "various_color_spaces",
+      "suggest": {
+        "forward": {
+          "ja": "XYZを基準に、いろいろな色空間が定義されています。見てみますか？",
+          "en": "Many color spaces are defined relative to XYZ. Want to see them?"
+        },
+        "backward": {
+          "ja": "多くの色空間の基準になっているのがXYZです。見てみますか？",
+          "en": "XYZ is the reference for many color spaces. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "xyz_space",
+      "to": "lab_space",
+      "suggest": {
+        "forward": {
+          "ja": "XYZから、人の見え方に近いLab色空間が計算されます。見てみますか？",
+          "en": "From XYZ we can compute Lab, closer to human perception. Want to see it?"
+        },
+        "backward": {
+          "ja": "LabはXYZという色空間から計算されています。見てみますか？",
+          "en": "Lab is computed from the XYZ color space. Want to see XYZ?"
+        }
+      }
+    },
+    {
+      "from": "xyz_space",
+      "to": "chromaticity_diagram",
+      "suggest": {
+        "forward": {
+          "ja": "XYZを平面に描いたのが色度図です。見てみますか？",
+          "en": "The chromaticity diagram is XYZ drawn on a flat plane. Want to see it?"
+        },
+        "backward": {
+          "ja": "色度図のもとになっているのがXYZ色空間です。見てみますか？",
+          "en": "The chromaticity diagram comes from the XYZ color space. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "chromaticity_diagram",
+      "to": "display_gamut",
+      "suggest": {
+        "forward": {
+          "ja": "色度図の上に、画面で表示できる範囲を描くことができます。見てみますか？",
+          "en": "You can mark on this diagram which colors a screen can show. Want to see?"
+        },
+        "backward": {
+          "ja": "画面の表示範囲は、色度図の上で比べられます。色度図も見てみますか？",
+          "en": "Screen color ranges are compared on the chromaticity diagram. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "visible_gamut",
+      "to": "display_gamut",
+      "suggest": {
+        "forward": {
+          "ja": "人が見える色のうち、画面で表示できるのは一部だけです。見てみますか？",
+          "en": "Screens can show only part of what humans can see. Want to see how much?"
+        },
+        "backward": {
+          "ja": "そもそも人はどこまでの色を見分けられるのでしょう。見てみますか？",
+          "en": "How many colors can humans actually perceive? Want to see?"
+        }
+      }
+    },
+    {
+      "from": "lightness",
+      "to": "hsl_space",
+      "suggest": {
+        "forward": {
+          "ja": "輝度はHSLのLの軸です。HSL色空間も見てみますか？",
+          "en": "Lightness is HSL's L axis. Want to see the HSL color space?"
+        },
+        "backward": {
+          "ja": "HSLのLは輝度です。輝度についても見てみますか？",
+          "en": "The L in HSL is lightness. Want to learn more about it?"
+        }
+      }
+    },
+    {
+      "from": "lightness",
+      "to": "hsb_vs_hsl",
+      "suggest": {
+        "forward": {
+          "ja": "HSLの輝度とHSBの明度は、似ていますが定義が違います。違いを見てみますか？",
+          "en": "HSL lightness and HSB brightness look alike but differ. Want to compare them?"
+        },
+        "backward": {
+          "ja": "違いのポイントのひとつが輝度です。輝度についても見てみますか？",
+          "en": "One key difference is lightness. Want to learn more about it?"
+        }
+      }
+    },
+    {
+      "from": "brightness",
+      "to": "hsb_space",
+      "suggest": {
+        "forward": {
+          "ja": "明度はHSBのBの軸です。HSB色空間も見てみますか？",
+          "en": "Brightness is HSB's B axis. Want to see the HSB color space?"
+        },
+        "backward": {
+          "ja": "HSBのBは明度です。明度についても見てみますか？",
+          "en": "The B in HSB is brightness. Want to learn more about it?"
+        }
+      }
+    },
+    {
+      "from": "brightness",
+      "to": "hsb_vs_hsl",
+      "suggest": {
+        "forward": {
+          "ja": "HSBの明度とHSLの輝度は、似ていますが定義が違います。違いを見てみますか？",
+          "en": "HSB brightness and HSL lightness look alike but differ. Want to compare them?"
+        },
+        "backward": {
+          "ja": "違いのポイントのひとつが明度です。明度についても見てみますか？",
+          "en": "One key difference is brightness. Want to learn more about it?"
+        }
+      }
+    },
+    {
+      "from": "hsl_space",
+      "to": "hsb_vs_hsl",
+      "suggest": {
+        "forward": {
+          "ja": "HSLとよく似た、HSBという色空間もあります。違いを見てみますか？",
+          "en": "HSB is very similar to HSL. Want to see how they differ?"
+        },
+        "backward": {
+          "ja": "HSL色空間そのものも見てみますか？",
+          "en": "Want to see the HSL color space itself?"
+        }
+      }
+    },
+    {
+      "from": "hsb_space",
+      "to": "hsb_vs_hsl",
+      "suggest": {
+        "forward": {
+          "ja": "HSBとよく似た、HSLという色空間もあります。違いを見てみますか？",
+          "en": "HSL is very similar to HSB. Want to see how they differ?"
+        },
+        "backward": {
+          "ja": "HSB色空間そのものも見てみますか？",
+          "en": "Want to see the HSB color space itself?"
+        }
+      }
+    },
+    {
+      "from": "hsb_space",
+      "to": "saturation",
+      "suggest": {
+        "forward": {
+          "ja": "HSBのSは彩度、つまり色の鮮やかさです。彩度についても見てみますか？",
+          "en": "The S in HSB is saturation, a color's vividness. Want to learn about it?"
+        },
+        "backward": {
+          "ja": "彩度はHSBの軸のひとつです。HSB色空間も見てみますか？",
+          "en": "Saturation is one of HSB's axes. Want to see the HSB color space?"
+        }
+      }
+    },
+    {
+      "from": "saturation",
+      "to": "hsl_space",
+      "suggest": {
+        "forward": {
+          "ja": "HSLにも彩度がありますが、HSBとは少し意味が違います。HSL色空間も見てみますか？",
+          "en": "HSL has saturation too, with a slightly different meaning. Want to see HSL?"
+        },
+        "backward": {
+          "ja": "HSLのSは彩度です。彩度についても見てみますか？",
+          "en": "The S in HSL is saturation. Want to learn about it?"
+        }
+      }
+    },
+    {
+      "from": "saturation",
+      "to": "color_distortion",
+      "suggest": {
+        "forward": {
+          "ja": "彩度が同じでも、色によって鮮やかさが違って見えます。色の歪みを見てみますか？",
+          "en": "Equal saturation can still look unequally vivid. Want to see color distortion?"
+        },
+        "backward": {
+          "ja": "色の歪みは彩度にも表れます。彩度についても見てみますか？",
+          "en": "Distortion also shows up in saturation. Want to learn about saturation?"
+        }
+      }
+    },
+    {
+      "from": "hsl_space",
+      "to": "hue",
+      "suggest": {
+        "forward": {
+          "ja": "HSLのHは色相です。色相についても見てみますか？",
+          "en": "The H in HSL is hue. Want to learn about hue?"
+        },
+        "backward": {
+          "ja": "色相はHSLの軸のひとつです。HSL色空間も見てみますか？",
+          "en": "Hue is one of HSL's axes. Want to see the HSL color space?"
+        }
+      }
+    },
+    {
+      "from": "hsb_space",
+      "to": "hue",
+      "suggest": {
+        "forward": {
+          "ja": "HSBのHは色相です。色相についても見てみますか？",
+          "en": "The H in HSB is hue. Want to learn about hue?"
+        },
+        "backward": {
+          "ja": "色相はHSBの軸のひとつです。HSB色空間も見てみますか？",
+          "en": "Hue is one of HSB's axes. Want to see the HSB color space?"
+        }
+      }
+    },
+    {
+      "from": "hsb_space",
+      "to": "color_distortion",
+      "suggest": {
+        "forward": {
+          "ja": "HSBで明度を揃えても、色相によって明るさが違って見えます。色の歪みを見てみますか？",
+          "en": "Even at equal HSB brightness, hues look unequally bright. Want to see color distortion?"
+        },
+        "backward": {
+          "ja": "色の歪みは、HSBで色を並べるとよくわかります。HSB色空間も見てみますか？",
+          "en": "Distortion is easy to spot when colors are laid out in HSB. Want to see HSB?"
+        }
+      }
+    },
+    {
+      "from": "lch_space",
+      "to": "hue",
+      "suggest": {
+        "forward": {
+          "ja": "LCHのHは色相です。色相についても見てみますか？",
+          "en": "The H in LCH is hue. Want to learn about hue?"
+        },
+        "backward": {
+          "ja": "色相を軸に持つ色空間のひとつがLCHです。見てみますか？",
+          "en": "LCH is one color space with a hue axis. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "color_temperature",
+      "to": "hue",
+      "suggest": {
+        "forward": {
+          "ja": "暖かい・冷たいという印象は、色相と深く関係しています。色相についても見てみますか？",
+          "en": "Warm and cool impressions are closely tied to hue. Want to learn about hue?"
+        },
+        "backward": {
+          "ja": "色相によって、暖かさや冷たさの印象が変わります。色温度も見てみますか？",
+          "en": "Hue changes how warm or cool a color feels. Want to see color temperature?"
+        }
+      }
+    },
+    {
+      "from": "hue",
+      "to": "color_size",
+      "suggest": {
+        "forward": {
+          "ja": "色によって、同じ大きさでも大きく見えたり小さく見えたりします。見てみますか？",
+          "en": "Same-sized shapes can look bigger or smaller depending on color. Want to see?"
+        },
+        "backward": {
+          "ja": "大きさの印象には、色相や明るさが関係しています。色相についても見てみますか？",
+          "en": "Hue and brightness affect perceived size. Want to learn about hue?"
+        }
+      }
+    },
+    {
+      "from": "hue",
+      "to": "color_weight",
+      "suggest": {
+        "forward": {
+          "ja": "色によって、重く感じたり軽く感じたりします。見てみますか？",
+          "en": "Colors can feel heavy or light. Want to see?"
+        },
+        "backward": {
+          "ja": "重さの印象には、色相や明るさが関係しています。色相についても見てみますか？",
+          "en": "Hue and brightness affect how heavy a color feels. Want to learn about hue?"
+        }
+      }
+    },
+    {
+      "from": "hue",
+      "to": "color_distortion",
+      "suggest": {
+        "forward": {
+          "ja": "色相によって、見た目の明るさが変わってしまうことがあります。色の歪みを見てみますか？",
+          "en": "Different hues can look unequally bright. Want to see color distortion?"
+        },
+        "backward": {
+          "ja": "色の歪みの現れ方は、色相によって違います。色相についても見てみますか？",
+          "en": "Distortion varies with hue. Want to learn about hue?"
+        }
+      }
+    },
+    {
+      "from": "hue_circle",
+      "to": "hue",
+      "suggest": {
+        "forward": {
+          "ja": "色相環に並んでいるのが色相です。色相についても見てみますか？",
+          "en": "The wheel is made of hues. Want to learn about hue?"
+        },
+        "backward": {
+          "ja": "色相を円状に並べたのが色相環です。見てみますか？",
+          "en": "Arranging hues in a circle gives the color wheel. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "hue_circle",
+      "to": "triadic_colors",
+      "suggest": {
+        "forward": {
+          "ja": "色相環を3等分した3色の組み合わせが三角配色です。見てみますか？",
+          "en": "A triadic scheme uses three colors evenly spaced on the wheel. Want to see?"
+        },
+        "backward": {
+          "ja": "三角配色は色相環をもとに作ります。色相環も見てみますか？",
+          "en": "Triadic schemes are built from the color wheel. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "hue_circle",
+      "to": "tetradic_colors",
+      "suggest": {
+        "forward": {
+          "ja": "色相環上で四角形をなす4色の組み合わせが四角配色です。見てみますか？",
+          "en": "A tetradic scheme uses four colors forming a rectangle on the wheel. Want to see?"
+        },
+        "backward": {
+          "ja": "四角配色は色相環をもとに作ります。色相環も見てみますか？",
+          "en": "Tetradic schemes are built from the color wheel. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "complementary_colors",
+      "to": "hue_circle",
+      "suggest": {
+        "forward": {
+          "ja": "補色は色相環で正反対にある色です。色相環も見てみますか？",
+          "en": "Complementary colors sit opposite each other on the wheel. Want to see the wheel?"
+        },
+        "backward": {
+          "ja": "色相環で正反対にある色の組み合わせが補色です。見てみますか？",
+          "en": "Colors opposite each other on the wheel are complementary. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "complementary_colors",
+      "to": "triadic_colors",
+      "suggest": {
+        "forward": {
+          "ja": "色相環上の位置で決まる配色には、三角配色もあります。見てみますか？",
+          "en": "Another scheme based on wheel positions is the triadic scheme. Want to see?"
+        },
+        "backward": {
+          "ja": "色相環上の位置で決まる配色には、補色もあります。見てみますか？",
+          "en": "Another scheme based on wheel positions is complementary colors. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "tetradic_colors",
+      "to": "triadic_colors",
+      "suggest": {
+        "forward": {
+          "ja": "色相環を3等分する、三角配色もあります。見てみますか？",
+          "en": "There's also the triadic scheme, splitting the wheel in three. Want to see?"
+        },
+        "backward": {
+          "ja": "4色を組み合わせる、四角配色もあります。見てみますか？",
+          "en": "There's also the four-color tetradic scheme. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "tetradic_colors",
+      "to": "complementary_colors",
+      "suggest": {
+        "forward": {
+          "ja": "四角配色は、補色の組を2つ合わせたものです。補色も見てみますか？",
+          "en": "A tetradic scheme is two complementary pairs. Want to see complementary colors?"
+        },
+        "backward": {
+          "ja": "補色の組を2つ合わせると、四角配色になります。見てみますか？",
+          "en": "Combine two complementary pairs and you get a tetradic scheme. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "triadic_colors",
+      "to": "color_distortion",
+      "suggest": {
+        "forward": {
+          "ja": "HSLで三角配色を作ると、明るさがバラついて見えます。色の歪みを見てみますか？",
+          "en": "Triadic schemes made in HSL often look uneven in brightness. Want to see why?"
+        },
+        "backward": {
+          "ja": "色の歪みは、三角配色を作るとよくわかります。見てみますか？",
+          "en": "Distortion shows clearly in triadic schemes. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "tetradic_colors",
+      "to": "color_distortion",
+      "suggest": {
+        "forward": {
+          "ja": "HSLで四角配色を作ると、明るさがバラついて見えます。色の歪みを見てみますか？",
+          "en": "Tetradic schemes made in HSL often look uneven in brightness. Want to see why?"
+        },
+        "backward": {
+          "ja": "色の歪みは、四角配色を作るとよくわかります。見てみますか？",
+          "en": "Distortion shows clearly in tetradic schemes. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "lab_space",
+      "to": "oklch_lineage",
+      "suggest": {
+        "forward": {
+          "ja": "色科学の系統図の中で、Labの位置を見てみますか？",
+          "en": "Want to see where Lab sits in the family tree of color science?"
+        },
+        "backward": {
+          "ja": "系統図にあるLab色空間も見てみますか？",
+          "en": "Want to see Lab from the family tree?"
+        }
+      }
+    },
+    {
+      "from": "lch_space",
+      "to": "oklch_lineage",
+      "suggest": {
+        "forward": {
+          "ja": "色科学の系統図の中で、LCHの位置を見てみますか？",
+          "en": "Want to see where LCH sits in the family tree of color science?"
+        },
+        "backward": {
+          "ja": "系統図にあるLCH色空間も見てみますか？",
+          "en": "Want to see LCH from the family tree?"
+        }
+      }
+    },
+    {
+      "from": "lms_space",
+      "to": "oklch_lineage",
+      "suggest": {
+        "forward": {
+          "ja": "LMSからOKLabへつながる、色科学の系統図を見てみますか？",
+          "en": "Want to see the family tree where LMS leads to OKLab?"
+        },
+        "backward": {
+          "ja": "系統図にあるLMS座標系も見てみますか？",
+          "en": "Want to see LMS from the family tree?"
+        }
+      }
+    },
+    {
+      "from": "oklab_space",
+      "to": "oklch_lineage",
+      "suggest": {
+        "forward": {
+          "ja": "色科学の系統図の中で、OKLabの位置を見てみますか？",
+          "en": "Want to see where OKLab sits in the family tree of color science?"
+        },
+        "backward": {
+          "ja": "系統図にあるOKLab色空間も見てみますか？",
+          "en": "Want to see OKLab from the family tree?"
+        }
+      }
+    },
+    {
+      "from": "oklch_space",
+      "to": "oklch_lineage",
+      "suggest": {
+        "forward": {
+          "ja": "色科学の系統図の中で、OKLCHの位置を見てみますか？",
+          "en": "Want to see where OKLCH sits in the family tree of color science?"
+        },
+        "backward": {
+          "ja": "系統図にあるOKLCH色空間も見てみますか？",
+          "en": "Want to see OKLCH from the family tree?"
+        }
+      }
+    },
+    {
+      "from": "oklch_space",
+      "to": "oklch_vs_lch",
+      "suggest": {
+        "forward": {
+          "ja": "LCHとOKLCHでは、色相を回したときの見え方が違います。比べてみますか？",
+          "en": "Rotating hue looks different in LCH and OKLCH. Want to compare?"
+        },
+        "backward": {
+          "ja": "OKLCH色空間そのものも見てみますか？",
+          "en": "Want to see the OKLCH color space itself?"
+        }
+      }
+    },
+    {
+      "from": "lch_space",
+      "to": "oklch_vs_lch",
+      "suggest": {
+        "forward": {
+          "ja": "LCHとOKLCHでは、色相を回したときの見え方が違います。比べてみますか？",
+          "en": "Rotating hue looks different in LCH and OKLCH. Want to compare?"
+        },
+        "backward": {
+          "ja": "LCH色空間そのものも見てみますか？",
+          "en": "Want to see the LCH color space itself?"
+        }
+      }
+    }
+  ]
+}

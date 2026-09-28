@@ -1,30 +1,24 @@
-"""SHOW_CONTENT — 色彩理論の教育コンテンツを表示するツール。"""
+"""SHOW_CONTENT — 色彩理論の教育コンテンツを表示するツール。
+
+表示可能なスライドと、スライド間のつながり（次に何を勧めるか）は
+app/data/topic_graph.json で定義する。
+"""
 
 from __future__ import annotations
 
-CONTENT_IDS = [
-    "rgb_primary",  # 光の三原色と加法混色
-    "cmy_primary",  # 色材の三原色と減法混色
-    "hsb_space",    # HSB色空間（カラーホイール・彩度・明度）
-    "hsl_space",    # HSL色空間（カラーホイール・彩度・輝度）
-    "lab_space",    # Lab色空間（L*明度バー・a*b*平面）
-]
+from app.services.navigation import NavState, content_ids, load_topic_graph
+from app.services.prompts.topics import topic_script
+
+CONTENT_IDS = content_ids()
 
 DECLARATIONS: list[dict] = [
     {
         "name": "SHOW_CONTENT",
         "description": (
-            "Display an educational slide to visually explain a color theory concept. "
-            "Use this when (a) the user asks about a color theory topic, OR (b) the user agrees to learn more after you proactively suggested it. "
-            "Call SHOW_CONTENT at the START of your response, then deliver the verbal explanation. "
-            "Do NOT call SELECT_COLOR or other action tools in the same response — "
-            "reserve demonstrations for the follow-up after the user has seen the slide. "
-            f"Available content IDs: {', '.join(CONTENT_IDS)}. "
-            "rgb_primary: primary colors of light (red, green, blue) and additive color mixing. "
-            "cmy_primary: primary colors of pigment (cyan, magenta, yellow) and subtractive color mixing. "
-            "hsb_space: HSB color space — color wheel (hue), saturation (vividness), and brightness. "
-            "hsl_space: HSL color space — color wheel (hue), saturation (vividness), and lightness (0=black, 0.5=vivid, 1=white). "
-            "lab_space: Lab color space — L* lightness bar (black to white) and a*×b* chrominance plane (green↔red, blue↔yellow). "
+            "Display an educational slide about a color theory topic. "
+            "Call it at the START of your response, before speaking. "
+            "The response contains the speaking script and next_suggestions — follow the SHOW_CONTENT rules. "
+            "Do NOT call SELECT_COLOR or other action tools in the same response."
         ),
         "parameters": {
             "type": "object",
@@ -52,6 +46,24 @@ DECLARATIONS: list[dict] = [
             "properties": {},
         },
     },
+    {
+        "name": "RECORD_DECLINE",
+        "description": (
+            "Record that the user declined a topic you suggested from next_suggestions, "
+            "so it is not suggested again. Call silently."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "enum": CONTENT_IDS,
+                    "description": "Content ID of the declined suggestion.",
+                }
+            },
+            "required": ["id"],
+        },
+    },
 ]
 
 
@@ -64,18 +76,40 @@ COMMANDS: dict[str, object] = {
     "DISMISS_CONTENT": lambda _args: {},
 }
 
+
+def build_show_content_response(content_id: str, nav_state: NavState, language: str) -> dict:
+    """SHOW_CONTENT の tool response。発話スクリプトと次トピックの候補を Gemini に渡す。"""
+    graph = load_topic_graph()
+    if content_id not in graph.nodes:
+        return {"result": "error", "error": f"Unknown content id: {content_id}"}
+    nav_state.mark_shown(content_id)
+    return {
+        "result": "ok",
+        "title": graph.label(content_id, language),
+        "script": topic_script(content_id, language),
+        "next_suggestions": nav_state.next_suggestions(language, graph),
+    }
+
+
 RULES_JA = """\
 ## SHOW_CONTENT — スライド表示ルール
 
-利用可能なスライド（**5種類のみ**）: rgb_primary（光の三原色・加法混色）、cmy_primary（色材の三原色・減法混色）、hsb_space（HSB色空間）、hsl_space（HSL色空間）、lab_space（Lab色空間）。
+表示できるのは id の enum にあるスライドのみ。
 
 **呼ぶタイミング**:
-1. 上記トピックへの明示的な質問 → 即座に SHOW_CONTENT を呼ぶ。
-2. 会話中に自然に触れた場合 → 提案は**3回に1回程度**。「〇〇をスライドで確認しますか？」と口頭提案し、同意されたら次ターンで呼ぶ（毎回提案しない）。
+1. enum のトピックについて明示的に質問された → 即座に SHOW_CONTENT を呼ぶ。
+2. あなたが提案したトピックにユーザーが同意した → 次のターンでその id で呼ぶ。
+3. 会話で enum のトピックに自然に触れた → 2回に1回程度、口頭で提案してよい。
 
-**スライドがないトピック**（LCH・補色・トーン・XYZ等）では SHOW_CONTENT を呼ばない。
+**呼び方**: 「表示します」「見てみましょう」等は言わない。まず SHOW_CONTENT を呼び、tool response を受けてから話す。CHANGE_SHAPE と同じレスポンスで呼んでよいが、SELECT_COLOR は呼ばない。
 
-**呼び方**: SHOW_CONTENT でスライドは自動表示される。「表示します」「見てみましょう」等は言わない。まず SHOW_CONTENT を呼び、その後音声で簡潔に説明（定義1文＋補足1文）。CHANGE_SHAPE と同じレスポンスで呼んでよいが、SELECT_COLOR は呼ばない。
+**tool response に従って、1回の連続した発話で話す**:
+- script がある → s1 を言い、s2 が null でなければ続けて言う。
+- script が null → スライドはタイトルのみ。そのトピックを自分の知識で2文以内で説明する。
+- next_suggestions が空でない → 最後に1つだけ選び、その phrase をほぼそのまま言う（つなぎ言葉の調整のみ可）。会話の流れに最も合うものを選び、迷ったら先頭。ユーザーが色選びなどに集中していて提案が不自然なら言わない。
+- next_suggestions が空 → 他のトピックを自分から勧めない。
+
+**提案への返答**: 同意 → その id で SHOW_CONTENT。断られた → RECORD_DECLINE(id) を黙って呼ぶ（「記録します」等は言わない）。
 
 ## DISMISS_CONTENT
 
@@ -85,15 +119,22 @@ GET_UI_STATE で activeSlide が null 以外かつ話題と無関係なら呼ぶ
 RULES_EN = """\
 ## SHOW_CONTENT — Slide display rules
 
-Available slides (**exactly 5**): rgb_primary (light primaries / additive mixing), cmy_primary (pigment primaries / subtractive mixing), hsb_space, hsl_space, lab_space.
+Only slides in the id enum exist.
 
-**When to call (trigger on either — no throttle):**
-1. The user explicitly asks about one of these topics → call SHOW_CONTENT immediately.
-2. The conversation naturally touches on one → offer it verbally in that same response: "Would you like to see a visual on [topic]?" If the user agrees next turn, call SHOW_CONTENT then.
+**When to call:**
+1. The user explicitly asks about a topic in the enum → call SHOW_CONTENT immediately.
+2. The user agrees to a topic you suggested → call it with that id in the next turn.
+3. The conversation naturally touches on a topic in the enum → offer it verbally about half the time.
 
-**Topics without slides** (LCH, complementary colors, tones, XYZ, etc.): do NOT call SHOW_CONTENT.
+**How to call:** do NOT say "let me show you a slide". Call SHOW_CONTENT first and speak after the tool response arrives. May be called together with CHANGE_SHAPE. Do NOT call SELECT_COLOR.
 
-**How to call:** SHOW_CONTENT displays the slide automatically — do NOT say "let me show you a slide". Call it first, then give a 2-sentence verbal explanation (definition + follow-up). May be called together with CHANGE_SHAPE. Do NOT call SELECT_COLOR.
+**Follow the tool response, as one continuous utterance:**
+- script present → say s1, then s2 if it is not null.
+- script is null → the slide shows only a title. Explain the topic in at most 2 sentences from your own knowledge.
+- next_suggestions non-empty → end by choosing ONE and saying its phrase nearly verbatim (only adjust connecting words). Pick the one that best fits the conversation; if unsure, the first. Skip it if the user is focused on something else (e.g. picking colors).
+- next_suggestions empty → do not suggest other topics on your own.
+
+**Replies to a suggestion:** agreed → SHOW_CONTENT with that id. Declined → call RECORD_DECLINE(id) silently (do not mention it).
 
 ## DISMISS_CONTENT
 

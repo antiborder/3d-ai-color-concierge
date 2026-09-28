@@ -23,18 +23,4 @@ TOPIC: dict = {
             ],
         },
     },
-    "s3": {
-        "skip_probability": 0.5,  # 5割でスキップ
-        "options": {
-            "ja": [
-                {"text": "光の三原色RGBと並べて比較してみますか？", "leads_to": "rgb_primary"},
-                {"text": "他の色空間も見てみますか？", "leads_to": None},
-            ],
-            "en": [
-                {"text": "Want to compare with RGB, the primary colors of light?", "leads_to": "rgb_primary"},
-                {"text": "Want to explore other color spaces?", "leads_to": None},
-            ],
-        },
-    },
-    "related": ["rgb_primary"],
 }

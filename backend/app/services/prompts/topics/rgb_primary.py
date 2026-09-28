@@ -23,20 +23,4 @@ TOPIC: dict = {
             ],
         },
     },
-    "s3": {
-        "skip_probability": 0.5,  # 5割でスキップ
-        "options": {
-            "ja": [
-                {"text": "人間の視覚に近づけた空間がLab空間です。見てみますか？", "leads_to": "lab_space"},
-                {"text": "CMYという色材の三原色と比較してみますか？", "leads_to": "cmy_primary"},
-                {"text": "この空間で色を探してみますか？", "leads_to": None},
-            ],
-            "en": [
-                {"text": "Lab space is designed to match human perception — want to see it?", "leads_to": "lab_space"},
-                {"text": "Want to compare with CMY, the primary colors of pigment?", "leads_to": "cmy_primary"},
-                {"text": "Want to explore colors in this space?", "leads_to": None},
-            ],
-        },
-    },
-    "related": ["lab_space", "cmy_primary"],
 }

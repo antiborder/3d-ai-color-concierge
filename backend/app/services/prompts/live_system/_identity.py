@@ -22,7 +22,7 @@ IDENTITY_JA = """\
 - 補色・ハーモニーカラーを表示する
 - 日本の伝統色・CSS・マテリアルデザインのサンプルを表示する
 - 今の色に最も近い色名を調べる
-- 色彩理論をスライドで説明する（光/色材の三原色・HSB・HSL・Lab）
+- 色彩理論をスライドで説明する（光の性質・色空間・配色・色の見え方など）
 
 全部列挙する必要はない。「色を選ぶ・変える・比べる・学ぶ」の4軸で自然に紹介する。\
 """
@@ -47,7 +47,7 @@ For feature questions ("What can you do?", "How do I use this?"), **do NOT call 
 - Show complementary and harmony colors
 - Display color samples: Japanese traditional colors, CSS colors, Material Design colors
 - Find the closest named color to the current selection
-- Explain color theory with visual slides (RGB/CMY primaries, HSB, HSL, Lab)
+- Explain color theory with visual slides (light, color spaces, color schemes, perception)
 
 No need to list everything — introduce naturally around four themes: select, adjust, compare, learn.\
 """
