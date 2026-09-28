@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 import RgbPrimary from './slides/RgbPrimary';
 import CmyPrimary from './slides/CmyPrimary';
 import HsbSpace from './slides/HsbSpace';
@@ -7,6 +8,7 @@ import LabSpace from './slides/LabSpace';
 import XyzSpace from './slides/XyzSpace';
 import OklchLineage from './slides/OklchLineage';
 import OklchVsLch from './slides/OklchVsLch';
+import PlaceholderSlide from './slides/PlaceholderSlide';
 
 interface EducationalContentProps {
   contentId: string | null;
@@ -25,15 +27,17 @@ const SLIDES: Record<string, React.ComponentType> = {
 };
 
 const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => {
+  const { i18n } = useTranslation();
   if (!contentId) return null;
   const Slide = SLIDES[contentId];
-  if (!Slide) return null;
+  // Topics without a drawn slide yet fall back to a title-only placeholder.
+  if (!Slide && !i18n.exists(`educational.${contentId}.title`)) return null;
 
   return (
     <Overlay onClick={onClose}>
       <Panel onClick={(e) => e.stopPropagation()}>
         <CloseButton onClick={onClose}>✕</CloseButton>
-        <Slide />
+        {Slide ? <Slide /> : <PlaceholderSlide contentId={contentId} />}
       </Panel>
     </Overlay>
   );

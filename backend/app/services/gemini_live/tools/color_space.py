@@ -38,6 +38,7 @@ COMMANDS: dict[str, object] = {
 RULES_JA = """\
 - UI操作（色変更/明度・彩度・色相調整/色空間変更）に該当する発話には必ず tool call を使う。
 - CHANGE_SHAPE を呼ぶと画面表示が自動的に切り替わる。「〜を表示します」「切り替えます」等は言わず、呼んだ直後に説明を始める。
+- 以下で SHOW_CONTENT と組み合わせる場合は、SHOW_CONTENT の tool response（script・next_suggestions）に従って話す。以下の説明文は script が null のときだけ使う。
 - CIE色度図・色度・馬蹄形の質問 → CHANGE_SHAPE("xy")、以下を説明：
   「CIE色度図は、3次元の色空間を明るさ方向に潰して2次元に射影した図です。三角形の内側が赤・緑・青の組み合わせでディスプレイ上に再現できる色、外側は再現できない色です。」
 - HSB・HSV・色相/彩度/明度の質問 → CHANGE_SHAPE("HSB") + SHOW_CONTENT("hsb_space")、以下を説明：
@@ -46,7 +47,7 @@ RULES_JA = """\
   「HSLは色相・彩度・輝度の3軸で色を表現します。輝度0.5で最も鮮やかになり、0で黒、1で白になります。」
 - Lab・CIE Lab・L*a*b*の質問 → CHANGE_SHAPE("Lab") + SHOW_CONTENT("lab_space")、以下を説明：
   「Labは明度L*、赤-緑方向のa*、青-黄方向のb*の3軸で色を表現します。人間の視覚に基づいており、Lab上の距離が知覚的な色差に対応します。」
-- XYZ・CIE XYZの質問 → CHANGE_SHAPE("XYZ")、以下を説明：
+- XYZ・CIE XYZの質問 → CHANGE_SHAPE("XYZ") + SHOW_CONTENT("xyz_space")、以下を説明：
   「XYZ色空間は人が光を認知する仕組みを元にした色空間で、ディスプレイで再現できない色も含みます。xy平面に射影するとCIE色度図になります。みてみますか？」
 - LMS・錐体細胞の応答の質問 → CHANGE_SHAPE("LMS") + SHOW_CONTENT("oklch_lineage")、以下を説明：
   「LMSは目の錐体細胞の応答を表す色空間です。L（長波長・赤）・M（中波長・緑）・S（短波長・青）の3成分で、XYZからOkLabへの中間ステップです。」
@@ -61,6 +62,7 @@ RULES_JA = """\
 RULES_EN = """\
 - If the user asks to change color / adjust brightness/saturation/hue / change color space, you MUST use a tool call.
 - CHANGE_SHAPE updates the display automatically — do NOT say "let me show you" or "I'll switch to". Call the tool, then immediately explain.
+- When a line below pairs CHANGE_SHAPE with SHOW_CONTENT, speak from the SHOW_CONTENT response (script, next_suggestions). Use the explanation below only if script is null.
 - CIE chromaticity diagram question → CHANGE_SHAPE("xy"), explain:
   "The CIE chromaticity diagram is a 2D projection of the 3D color space that ignores the lightness axis. Colors inside the triangle can be reproduced on a display using red, green, and blue; colors outside cannot."
 - HSB (HSV) question → CHANGE_SHAPE("HSB") + SHOW_CONTENT("hsb_space"), explain:
@@ -69,7 +71,7 @@ RULES_EN = """\
   "HSL expresses color using Hue, Saturation, and Lightness. At Lightness 0.5 colors are most vivid; 0 is black, 1 is white."
 - Lab / CIE L*a*b* question → CHANGE_SHAPE("Lab") + SHOW_CONTENT("lab_space"), explain:
   "Lab expresses color using L* for lightness, a* for red-green, and b* for blue-yellow. It's designed around human perception, so equal distances correspond to equal perceived color differences."
-- XYZ / CIE XYZ question → CHANGE_SHAPE("XYZ"), explain:
+- XYZ / CIE XYZ question → CHANGE_SHAPE("XYZ") + SHOW_CONTENT("xyz_space"), explain:
   "CIE XYZ was designed based on how humans perceive light, and includes colors no display can reproduce. Projecting it onto the xy plane gives the CIE chromaticity diagram. Would you like to see it?"
 - LMS / cone cell response question → CHANGE_SHAPE("LMS") + SHOW_CONTENT("oklch_lineage"), explain:
   "LMS represents the response of the eye's three cone types — L (long/red), M (medium/green), S (short/blue). It sits between XYZ and OkLab, which applies a cube root and linear mix to LMS for perceptual uniformity."

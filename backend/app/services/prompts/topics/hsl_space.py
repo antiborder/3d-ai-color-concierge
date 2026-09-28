@@ -25,22 +25,4 @@ TOPIC: dict = {
             ],
         },
     },
-    "s3": {
-        "skip_probability": 0.5,  # 5割でスキップ
-        "options": {
-            "ja": [
-                {"text": "HSB空間と似ているようで大きな違いがあります。HSB空間も見てみますか？", "leads_to": "hsb_space"},
-                {"text": "RGBの形状も見てみますか？", "leads_to": "rgb_primary"},
-                {"text": "同じく極座標を用いた方法として、LCHがあります。見てみますか？", "leads_to": None},
-                {"text": "他の色空間も見てみますか？", "leads_to": None},
-            ],
-            "en": [
-                {"text": "HSB looks similar but has key differences — want to compare?", "leads_to": "hsb_space"},
-                {"text": "Want to see the RGB space too?", "leads_to": "rgb_primary"},
-                {"text": "LCH is another cylindrical color space — want to hear about it?", "leads_to": None},
-                {"text": "Want to explore other color spaces?", "leads_to": None},
-            ],
-        },
-    },
-    "related": ["hsb_space", "rgb_primary"],
 }

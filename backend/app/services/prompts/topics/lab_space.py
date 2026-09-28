@@ -23,20 +23,4 @@ TOPIC: dict = {
             ],
         },
     },
-    "s3": {
-        "skip_probability": 0.5,  # 5割でスキップ
-        "options": {
-            "ja": [
-                {"text": "RGBと並べて見比べてみますか？", "leads_to": "rgb_primary"},
-                {"text": "HSL空間も見てみますか？", "leads_to": "hsl_space"},
-                {"text": "他の色空間も見てみますか？", "leads_to": None},
-            ],
-            "en": [
-                {"text": "Want to compare it side by side with RGB?", "leads_to": "rgb_primary"},
-                {"text": "Want to see the HSL space too?", "leads_to": "hsl_space"},
-                {"text": "Want to explore other color spaces?", "leads_to": None},
-            ],
-        },
-    },
-    "related": ["rgb_primary", "hsl_space"],
 }

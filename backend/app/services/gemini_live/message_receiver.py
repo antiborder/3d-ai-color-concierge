@@ -21,6 +21,7 @@ from app.services.gemini_live.tools import (
     tool_call_function_calls,
     tool_call_to_frontend_command,
 )
+from app.services.gemini_live.tools.educational import build_show_content_response
 from app.services.gemini_live.transcription import (
     extract_finished_from_transcription_obj,
     extract_text_from_transcription_obj,
@@ -33,6 +34,7 @@ from app.services.gemini_live_types import (
     LiveInterruptedEvent,
     LiveTranscriptEvent,
 )
+from app.services.navigation import NavState
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -101,6 +103,7 @@ async def process_live_message(
     text_part_seq: int,
     color_service=None,
     pending_tool_futures: dict | None = None,
+    nav_state: NavState | None = None,
 ) -> tuple[str, str | None, int, str, str | None, int, str, str | None, int]:
     """
     Process a single message from Gemini Live and emit events.
@@ -435,6 +438,21 @@ async def process_live_message(
                         logger.info("GET_CLOSEST_COLOR send_tool_response failed: %s", str(e))
                     continue
 
+                if name == "RECORD_DECLINE":
+                    declined_id = args.get("id")
+                    if nav_state is not None and isinstance(declined_id, str):
+                        nav_state.mark_declined(declined_id)
+                    logger.info("RECORD_DECLINE: id=%s", declined_id)
+                    try:
+                        if callable(send_tool) and FunctionResponse is not None:
+                            fr = FunctionResponse(name=name, response={"result": "ok"}, id=call_id)
+                            maybe = send_tool(function_responses=fr)
+                            if inspect.isawaitable(maybe):
+                                await maybe
+                    except Exception as e:
+                        logger.info("RECORD_DECLINE send_tool_response failed: %s", str(e))
+                    continue
+
                 if name == "SEARCH_COLOR":
                     query = args.get("query", "")
                     logger.info(
@@ -507,6 +525,17 @@ async def process_live_message(
                 # For ADJUST_VALUE: create future before emitting event so the future
                 # is in place by the time the frontend sends back a tool_result.
                 tool_resp: dict = {"result": "ok"}
+                if nav_state is not None and name == "SHOW_CONTENT":
+                    tool_resp = build_show_content_response(
+                        str(args.get("id")), nav_state, cfg.language
+                    )
+                    logger.info(
+                        "SHOW_CONTENT: id=%s next_suggestions=%s",
+                        args.get("id"),
+                        [s["id"] for s in tool_resp.get("next_suggestions", [])],
+                    )
+                elif nav_state is not None and name == "DISMISS_CONTENT":
+                    nav_state.mark_dismissed()
                 if name == "ADJUST_VALUE" and call_id and pending_tool_futures is not None:
                     loop = asyncio.get_running_loop()
                     future: asyncio.Future = loop.create_future()

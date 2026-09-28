@@ -43,6 +43,7 @@ from app.services.gemini_live_types import (
     LiveErrorEvent,
     LiveEvent,
 )
+from app.services.navigation import NavState
 
 # NOTE: uvicorn のデフォルトlog_configでは root logger がINFOを出さないことがあるため、
 # CloudWatchで確実に見える uvicorn.error ロガーへ寄せる。
@@ -69,6 +70,9 @@ class GeminiLiveSession:
         self.current_color_state: dict | None = None
         self.current_color_updated_at: float = 0.0
         self.color_history: list[dict] = []
+
+        # 教育スライドのナビゲーション状態（表示履歴・断られた提案）
+        self.nav_state = NavState()
 
         # Pending futures for UI tool calls awaiting frontend confirmation
         self.pending_tool_futures: dict[str, asyncio.Future] = {}
@@ -98,6 +102,14 @@ class GeminiLiveSession:
         """
         self.current_color_state = color
         self.current_color_updated_at = time.time()
+        # ユーザーが手動でスライドを閉じた場合などを反映する
+        ui = color.get("uiContext") if isinstance(color, dict) else None
+        if isinstance(ui, dict) and "activeSlide" in ui:
+            active = ui.get("activeSlide")
+            if active is None:
+                self.nav_state.mark_dismissed()
+            elif isinstance(active, str) and active != self.nav_state.current:
+                self.nav_state.mark_shown(active)
 
     def set_color_history(self, history: list[dict]) -> None:
         """Update the color selection history provided by the frontend."""
@@ -408,6 +420,7 @@ class GeminiLiveSession:
                         self._text_part_seq,
                         self._color_service,
                         self.pending_tool_futures,
+                        self.nav_state,
                     )
                     msg_end = time.time()
                     logger.info(
