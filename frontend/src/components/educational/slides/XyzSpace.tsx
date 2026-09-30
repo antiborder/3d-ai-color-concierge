@@ -38,14 +38,14 @@ const XyzSpace = () => {
 
   return (
     <div style={{ padding: '12px 8px', fontFamily: 'sans-serif' }}>
-      <h3 style={{ margin: '0 0 10px', fontSize: '16px', fontWeight: 700, textAlign: 'center' }}>
+      <h3 style={{ margin: '0 0 8px', fontSize: '16px', fontWeight: 700, textAlign: 'center' }}>
         {k('title')}
       </h3>
 
       <svg
         viewBox="0 0 230 265"
         width="100%"
-        style={{ display: 'block', maxWidth: '260px', margin: '0 auto', background: '#0d1117', borderRadius: '8px' }}
+        style={{ display: 'block', maxWidth: '210px', margin: '0 auto', background: '#0d1117', borderRadius: '8px' }}
       >
         {/* ── Outer box back edges (dashed) ── */}
         <line x1={pn(1,0,0)[0]} y1={pn(1,0,0)[1]} x2={pn(1,1,0)[0]} y2={pn(1,1,0)[1]}
