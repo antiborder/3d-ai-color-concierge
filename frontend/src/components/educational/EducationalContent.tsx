@@ -10,6 +10,10 @@ import OklchLineage from './slides/OklchLineage';
 import OklchVsLch from './slides/OklchVsLch';
 import PlaceholderSlide from './slides/PlaceholderSlide';
 
+// Every slide uses the same box as the HSB slide (its natural size at 320px wide).
+const SLIDE_WIDTH = 'min(320px, 90vw)';
+const SLIDE_HEIGHT = '470px';
+
 interface EducationalContentProps {
   contentId: string | null;
   onClose: () => void;
@@ -56,9 +60,20 @@ const Panel = styled.div`
   position: relative;
   background: white;
   border-radius: 12px;
-  padding: 16px;
-  width: min(320px, 90vw);
+  padding: 8px;
+  box-sizing: border-box;
+  width: ${SLIDE_WIDTH};
+  height: ${SLIDE_HEIGHT};
+  max-height: 80vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+
+  /* Center the slide vertically; auto margins (unlike justify-content) never clip overflow */
+  & > :last-child {
+    margin-block: auto;
+  }
 `;
 
 const CloseButton = styled.button`

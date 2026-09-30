@@ -22,8 +22,8 @@ const RgbPrimary = () => {
   const k = (key: string) => t(`educational.rgb_primary.${key}`);
 
   return (
-    <div style={{ padding: '16px 8px', fontFamily: 'sans-serif' }}>
-      <h3 style={{ margin: '0 0 16px', fontSize: '16px', fontWeight: 700, textAlign: 'center' }}>
+    <div style={{ padding: '12px 8px', fontFamily: 'sans-serif' }}>
+      <h3 style={{ margin: '0 0 8px', fontSize: '16px', fontWeight: 700, textAlign: 'center' }}>
         {k('title')}
       </h3>
       <svg
