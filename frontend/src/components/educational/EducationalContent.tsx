@@ -80,7 +80,7 @@ const Panel = styled.div`
 const CloseButton = styled.button`
   position: absolute;
   top: 10px;
-  right: 12px;
+  left: 12px;
   background: none;
   border: none;
   font-size: 16px;
