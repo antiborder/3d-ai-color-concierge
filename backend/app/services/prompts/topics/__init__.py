@@ -27,6 +27,9 @@ from app.services.prompts.topics import (
     lab_space as _lab,
 )
 from app.services.prompts.topics import (
+    light_visible_reason as _light_visible_reason,
+)
+from app.services.prompts.topics import (
     oklch_lineage as _oklch_lineage,
 )
 from app.services.prompts.topics import (
@@ -39,7 +42,17 @@ from app.services.prompts.topics import (
     xyz_space as _xyz,
 )
 
-_TOPIC_MODULES = [_rgb, _cmy, _hsb, _hsl, _lab, _xyz, _oklch_lineage, _oklch_vs_lch]
+_TOPIC_MODULES = [
+    _rgb,
+    _cmy,
+    _hsb,
+    _hsl,
+    _lab,
+    _xyz,
+    _oklch_lineage,
+    _oklch_vs_lch,
+    _light_visible_reason,
+]
 
 TOPICS: dict[str, dict] = {m.TOPIC["id"]: m.TOPIC for m in _TOPIC_MODULES}
 

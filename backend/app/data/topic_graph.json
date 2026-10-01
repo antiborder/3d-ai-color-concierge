@@ -1616,6 +1616,174 @@
           "en": "Want to see the LCH color space itself?"
         }
       }
+    },
+    {
+      "from": "rgb_space",
+      "to": "lab_space",
+      "suggest": {
+        "forward": {
+          "ja": "RGBは機器の都合で決まる色空間ですが、人の見え方に近づけたLab色空間もあります。見てみますか？",
+          "en": "RGB is shaped by devices; Lab is designed around how people see color. Want to see it?"
+        },
+        "backward": {
+          "ja": "画面に表示するとき、Labの色はRGBに変換されます。RGB色空間も見てみますか？",
+          "en": "To appear on screen, Lab colors are converted to RGB. Want to see the RGB color space?"
+        }
+      }
+    },
+    {
+      "from": "lch_space",
+      "to": "hsl_space",
+      "suggest": {
+        "forward": {
+          "ja": "HSLもLCHと同じく、色相を角度で表す色空間です。HSL色空間も見てみますか？",
+          "en": "Like LCH, HSL expresses hue as an angle. Want to see the HSL color space?"
+        },
+        "backward": {
+          "ja": "HSLと同じく色相を角度で表しつつ、人の見え方に合わせたのがLCHです。見てみますか？",
+          "en": "LCH also uses a hue angle, but is tuned to how people see color. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "lch_space",
+      "to": "hsb_space",
+      "suggest": {
+        "forward": {
+          "ja": "HSBもLCHと同じく、色相を角度で表す色空間です。HSB色空間も見てみますか？",
+          "en": "Like LCH, HSB expresses hue as an angle. Want to see the HSB color space?"
+        },
+        "backward": {
+          "ja": "HSBと同じく色相を角度で表しつつ、人の見え方に合わせたのがLCHです。見てみますか？",
+          "en": "LCH also uses a hue angle, but is tuned to how people see color. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "cmyk_space",
+      "to": "lab_space",
+      "suggest": {
+        "forward": {
+          "ja": "印刷の色合わせでは、機器に依存しないLab色空間が基準として使われます。Lab色空間も見てみますか？",
+          "en": "Print color matching uses Lab as a device-independent reference. Want to see the Lab color space?"
+        },
+        "backward": {
+          "ja": "Labの色を印刷するときは、CMYKに変換されます。CMYK色空間も見てみますか？",
+          "en": "To print Lab colors, they are converted to CMYK. Want to see the CMYK color space?"
+        }
+      }
+    },
+    {
+      "from": "electromagnetic_wave",
+      "to": "sunset_red_reason",
+      "suggest": {
+        "forward": {
+          "ja": "光は波長によってふるまいが変わる電磁波です。夕焼けが赤い理由もそこにあります。見てみますか？",
+          "en": "Light is an electromagnetic wave that behaves differently by wavelength—that's why sunsets are red. Want to see?"
+        },
+        "backward": {
+          "ja": "夕焼けの色を決めている波長は、電磁波の性質です。電磁波についても見てみますか？",
+          "en": "The wavelength behind sunset colors is a property of electromagnetic waves. Want to learn about them?"
+        }
+      }
+    },
+    {
+      "from": "electromagnetic_wave",
+      "to": "sky_blue_reason",
+      "suggest": {
+        "forward": {
+          "ja": "波長の短い光ほど空気中で散乱されやすく、空が青く見えます。見てみますか？",
+          "en": "Shorter-wavelength light scatters more in the air, which makes the sky blue. Want to see?"
+        },
+        "backward": {
+          "ja": "青い光は、目に見える電磁波の中でも波長の短い光です。電磁波についても見てみますか？",
+          "en": "Blue light is the short-wavelength end of the visible electromagnetic waves. Want to learn about them?"
+        }
+      }
+    },
+    {
+      "from": "electromagnetic_wave",
+      "to": "rainbow_mechanism",
+      "suggest": {
+        "forward": {
+          "ja": "目に見える電磁波を波長の順に並べると、虹の色の並びになります。虹の仕組みも見てみますか？",
+          "en": "Arrange visible electromagnetic waves by wavelength and you get the order of a rainbow's colors. Want to see how rainbows form?"
+        },
+        "backward": {
+          "ja": "虹の色の並びは、電磁波の波長の順番です。電磁波についても見てみますか？",
+          "en": "A rainbow's color order follows the wavelengths of electromagnetic waves. Want to learn about them?"
+        }
+      }
+    },
+    {
+      "from": "sky_blue_reason",
+      "to": "rainbow_mechanism",
+      "suggest": {
+        "forward": {
+          "ja": "空の青さは光の散乱、虹は光の屈折によるものです。虹の仕組みも見てみますか？",
+          "en": "The blue sky comes from scattering; rainbows come from refraction. Want to see how rainbows form?"
+        },
+        "backward": {
+          "ja": "虹は屈折、空の青さは散乱と、どちらも太陽光が波長ごとに分かれる現象です。空が青い理由も見てみますか？",
+          "en": "Rainbows (refraction) and the blue sky (scattering) both split sunlight by wavelength. Want to see why the sky is blue?"
+        }
+      }
+    },
+    {
+      "from": "sunset_red_reason",
+      "to": "rainbow_mechanism",
+      "suggest": {
+        "forward": {
+          "ja": "夕焼けも虹も、太陽光が波長ごとに分かれて見える現象です。虹の仕組みも見てみますか？",
+          "en": "Sunsets and rainbows both show sunlight separated by wavelength. Want to see how rainbows form?"
+        },
+        "backward": {
+          "ja": "太陽光が波長によって分かれて見えるのは、夕焼けも同じです。夕焼けが赤い理由も見てみますか？",
+          "en": "Sunsets also come from sunlight being separated by wavelength. Want to see why sunsets are red?"
+        }
+      }
+    },
+    {
+      "from": "light_visible_reason",
+      "to": "visible_gamut",
+      "suggest": {
+        "forward": {
+          "ja": "目で感じ取れる色には限りがあります。人が知覚できる色の範囲も見てみますか？",
+          "en": "There's a limit to the colors our eyes can sense. Want to see the range of colors humans can perceive?"
+        },
+        "backward": {
+          "ja": "人が色を感じられるのは、目の視細胞が光に反応するからです。光が見える仕組みも見てみますか？",
+          "en": "We perceive colors because cells in the eye respond to light. Want to see how we see light?"
+        }
+      }
+    },
+    {
+      "from": "visible_gamut",
+      "to": "chromaticity_diagram",
+      "suggest": {
+        "forward": {
+          "ja": "人が知覚できる色の範囲は、色度図の馬蹄形で表されます。色度図も見てみますか？",
+          "en": "The range of colors humans can perceive is drawn as the horseshoe of the chromaticity diagram. Want to see it?"
+        },
+        "backward": {
+          "ja": "色度図の馬蹄形は、人が知覚できる色の範囲そのものです。見てみますか？",
+          "en": "The chromaticity diagram's horseshoe is exactly the range of colors humans can perceive. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "light_visible_reason",
+      "to": "electromagnetic_wave",
+      "suggest": {
+        "forward": {
+          "ja": "目が感じ取れるのは、電磁波のうちごく一部の波長だけです。電磁波についても見てみますか？",
+          "en": "Our eyes sense only a narrow band of electromagnetic waves. Want to learn about them?"
+        },
+        "backward": {
+          "ja": "電磁波のうち、目の視細胞が反応できる範囲が「光」として見えます。光が見える仕組みも見てみますか？",
+          "en": "The part of the electromagnetic spectrum that eye cells respond to is what we see as light. Want to see how we see it?"
+        }
+      }
     }
   ]
 }

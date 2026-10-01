@@ -8,6 +8,7 @@ import LabSpace from './slides/LabSpace';
 import XyzSpace from './slides/XyzSpace';
 import OklchLineage from './slides/OklchLineage';
 import OklchVsLch from './slides/OklchVsLch';
+import LightVisibleReason from './slides/LightVisibleReason';
 import PlaceholderSlide from './slides/PlaceholderSlide';
 
 // Every slide uses the same box as the HSB slide (its natural size at 320px wide).
@@ -28,6 +29,7 @@ const SLIDES: Record<string, React.ComponentType> = {
   xyz_space: XyzSpace,
   oklch_lineage: OklchLineage,
   oklch_vs_lch: OklchVsLch,
+  light_visible_reason: LightVisibleReason,
 };
 
 const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => {
