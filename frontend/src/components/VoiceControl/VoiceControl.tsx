@@ -54,7 +54,7 @@ interface VoiceControlProps {
     text: string,
     meta?: { source?: string | null; segmentId?: string | null; final?: boolean | null }
   ) => void;
-  onCommand?: (command: Command) => void;
+  onCommand?: (command: Command) => void | Promise<void>;
   onError?: (error: string) => void;
   // onOpenChatHistory?: () => void;
   isLoading?: boolean;

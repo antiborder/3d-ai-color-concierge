@@ -38,6 +38,14 @@ from app.services.navigation import NavState
 
 logger = logging.getLogger("uvicorn.error")
 
+# UI tools whose tool response waits for the frontend's tool_result, so Gemini only
+# continues (e.g. starts speaking) after the UI has finished applying the command.
+# SHOW_CONTENT may run the color space deformation (~2s) before showing the slide.
+_FRONTEND_CONFIRM_TIMEOUT_S: dict[str, float] = {
+    "ADJUST_VALUE": 0.5,
+    "SHOW_CONTENT": 4.0,
+}
+
 
 async def iter_live_messages(live_session: object) -> AsyncIterator[object]:
     """
@@ -82,6 +90,20 @@ async def iter_live_messages(live_session: object) -> AsyncIterator[object]:
         while True:
             yield await recv_one()
         # pragma: no cover
+
+
+def _shape_changes_first(function_calls: list) -> list:
+    """Run CHANGE_SHAPE before the other calls of the same message (stable otherwise).
+
+    The screen should deform before a slide from SHOW_CONTENT appears; the frontend
+    delays the slide until the deformation has finished.
+    """
+
+    def is_change_shape(fc) -> bool:
+        name = fc.get("name") if isinstance(fc, dict) else getattr(fc, "name", None)
+        return name == "CHANGE_SHAPE"
+
+    return sorted(function_calls, key=lambda fc: 0 if is_change_shape(fc) else 1)
 
 
 async def process_live_message(
@@ -346,7 +368,7 @@ async def process_live_message(
 
     # 0-b) google-genai>=1.x: tool call / function call (UI操作)
     tc = getattr(msg, "tool_call", None) or getattr(msg, "toolCall", None)
-    function_calls = tool_call_function_calls(tc)
+    function_calls = _shape_changes_first(tool_call_function_calls(tc))
     if function_calls:
         tool_call_start = time.time()
         logger.info("TOOL_CALL: Received %d function call(s)", len(function_calls))
@@ -522,8 +544,8 @@ async def process_live_message(
                     cmd.get("parameters"),
                 )
 
-                # For ADJUST_VALUE: create future before emitting event so the future
-                # is in place by the time the frontend sends back a tool_result.
+                # For tools in _FRONTEND_CONFIRM_TIMEOUT_S: create the future before emitting
+                # the event so it is in place by the time the frontend sends back a tool_result.
                 tool_resp: dict = {"result": "ok"}
                 if nav_state is not None and name == "SHOW_CONTENT":
                     tool_resp = build_show_content_response(
@@ -536,7 +558,11 @@ async def process_live_message(
                     )
                 elif nav_state is not None and name == "DISMISS_CONTENT":
                     nav_state.mark_dismissed()
-                if name == "ADJUST_VALUE" and call_id and pending_tool_futures is not None:
+                confirm_timeout = _FRONTEND_CONFIRM_TIMEOUT_S.get(name)
+                wait_for_frontend = (
+                    confirm_timeout is not None and call_id and pending_tool_futures is not None
+                )
+                if wait_for_frontend:
                     loop = asyncio.get_running_loop()
                     future: asyncio.Future = loop.create_future()
                     pending_tool_futures[call_id] = future
@@ -545,11 +571,17 @@ async def process_live_message(
                     LiveCommandEvent(command=cmd, tool_name=name, tool_call_id=call_id)
                 )
 
-                if name == "ADJUST_VALUE" and call_id and pending_tool_futures is not None:
+                if wait_for_frontend:
                     try:
-                        tool_resp = await asyncio.wait_for(asyncio.shield(future), timeout=0.5)
+                        frontend_resp = await asyncio.wait_for(
+                            asyncio.shield(future), timeout=confirm_timeout
+                        )
+                        # SHOW_CONTENT keeps its own response (script, next_suggestions);
+                        # the confirmation only delays it until the slide is on screen.
+                        if name == "ADJUST_VALUE":
+                            tool_resp = frontend_resp
                     except (asyncio.TimeoutError, asyncio.CancelledError):
-                        logger.info("ADJUST_VALUE: timeout waiting for frontend confirmation")
+                        logger.info("%s: timeout waiting for frontend confirmation", name)
                     finally:
                         pending_tool_futures.pop(call_id, None)
 

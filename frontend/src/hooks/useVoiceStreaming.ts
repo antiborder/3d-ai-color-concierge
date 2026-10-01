@@ -24,7 +24,7 @@ export interface UseVoiceStreamingOptions {
     text: string,
     meta?: { source?: string | null; segmentId?: string | null; final?: boolean | null }
   ) => void;
-  onCommand?: (command: Command) => void;
+  onCommand?: (command: Command) => void | Promise<void>;
   onError?: (message: string) => void;
 }
 
@@ -269,9 +269,9 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
             if (!isAISpeakingRef.current) void stopRef.current?.();
             return;
           }
-          if (onCommand) onCommand(msg.command);
-          if (msg.tool_name === 'ADJUST_VALUE' && msg.tool_call_id) {
-            const toolCallId = msg.tool_call_id;
+          const applied = onCommand ? onCommand(msg.command) : undefined;
+          const toolCallId = msg.tool_call_id;
+          const sendToolResult = () => {
             try {
               wsRef.current?.send(
                 JSON.stringify({ type: 'tool_result', tool_call_id: toolCallId, success: true })
@@ -279,7 +279,14 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
             } catch {
               /* best-effort */
             }
+          };
+          if (msg.tool_name === 'ADJUST_VALUE' && toolCallId) {
+            sendToolResult();
             setIsExecuting(false);
+          } else if (msg.tool_name === 'SHOW_CONTENT' && toolCallId) {
+            // The backend holds Gemini's tool response (and so its speech) until the
+            // slide is on screen, which may be after the color space deformation.
+            void Promise.resolve(applied).finally(sendToolResult);
           }
         } else if (msg.type === 'interrupted') {
           if (thinkingTimerRef.current != null) { window.clearTimeout(thinkingTimerRef.current); thinkingTimerRef.current = null; }

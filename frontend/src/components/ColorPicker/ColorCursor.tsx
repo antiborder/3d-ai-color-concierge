@@ -150,12 +150,14 @@ const ColorCursor = (props: ColorCursorProps) => {
     parallelLines.push(points);
   }
 
+  // Bubble layering: above other 3D labels (AI color labels use 200–300) but below
+  // the UI panels (left column 500, right panel 1000) and educational slides (2000).
   return (
     <>
       {/* Background color cursor */}
       <group position={bgPosition} rotation={[0, 0, -Math.PI]}>
         {!bgIsParticle && (
-          <Html zIndexRange={[9999, 8999]}>
+          <Html zIndexRange={[449, 400]}>
             <CurrentBubble>
               <BubbleTitle>Background Color</BubbleTitle>
               <ColorRect style={{ backgroundColor: bgHex }} />
@@ -184,7 +186,7 @@ const ColorCursor = (props: ColorCursorProps) => {
       {/* Focused color cursor */}
       <group position={position} rotation={[0, 0, -Math.PI]}>
         {!focusIsParticle && (
-          <Html zIndexRange={[10000, 9000]}>
+          <Html zIndexRange={[499, 450]}>
             <CurrentBubble>
               <BubbleTitle>Focused Color</BubbleTitle>
               <ColorRect style={{ backgroundColor: focusHex }} />

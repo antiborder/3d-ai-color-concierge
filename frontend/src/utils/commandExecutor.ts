@@ -32,7 +32,8 @@ export interface VoiceCommandHandlers {
   setBridgeColorB: (c: { r: number; g: number; b: number }) => void;
   setIsBridgeOpen: (open: boolean) => void;
   selectBridgePosition: (position: number) => void;
-  showContent: (id: string) => void;
+  /** Shows a slide; resolves once it is on screen (after any running shape deformation). */
+  showContent: (id: string) => Promise<void>;
   openCIEPanel: () => void;
   setAiColorLabels: (labels: AiColorLabel[]) => void;
   addAllColorsToHistory: (colors: Array<{ r: number; g: number; b: number }>) => void;
@@ -43,10 +44,27 @@ export interface VoiceCommandHandlers {
   setColorTarget: (target: 'focused' | 'background') => void;
 }
 
+const VALID_SHAPES: ColorSpace[] = ['RGB', 'CMYK', 'HSL', 'HSB', 'Lab', 'LCH', 'OKLAB', 'OKLCH', 'LMS', 'XYZ', 'xyz', 'xy'];
+
+/** CHANGE_SHAPE と SHOW_CONTENT(colorSpace) 共通の色空間切り替え */
+function applyShape(colorSpace: string | undefined, handlers: VoiceCommandHandlers): void {
+  const matched = VALID_SHAPES.find((s) => s.toLowerCase() === colorSpace?.toLowerCase());
+  if (!matched) return;
+  handlers.resetCameraZoom();
+  handlers.setShape(matched);
+  if (matched === 'xy' || matched === 'XYZ' || matched === 'xyz') {
+    handlers.openCIEPanel();
+  }
+}
+
 /**
  * コマンドを実行
+ * SHOW_CONTENT はスライドが表示されたときに resolve する Promise を返す（他は undefined）。
  */
-export function executeCommand(command: Command, handlers: VoiceCommandHandlers): void {
+export function executeCommand(
+  command: Command,
+  handlers: VoiceCommandHandlers
+): Promise<void> | undefined {
   switch (command.action) {
     case 'SELECT_COLOR': {
       const color = command.parameters.color as { r: number; g: number; b: number };
@@ -106,16 +124,7 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
     }
 
     case 'CHANGE_SHAPE': {
-      const colorSpace = command.parameters.colorSpace as string;
-      const validShapes: ColorSpace[] = ['RGB', 'CMYK', 'HSL', 'HSB', 'Lab', 'LCH', 'OKLAB', 'OKLCH', 'LMS', 'XYZ', 'xyz', 'xy'];
-      const matched = validShapes.find((s) => s.toLowerCase() === colorSpace?.toLowerCase());
-      if (matched) {
-        handlers.resetCameraZoom();
-        handlers.setShape(matched);
-        if (matched === 'xy' || matched === 'XYZ' || matched === 'xyz') {
-          handlers.openCIEPanel();
-        }
-      }
+      applyShape(command.parameters.colorSpace as string, handlers);
       break;
     }
 
@@ -306,8 +315,10 @@ export function executeCommand(command: Command, handlers: VoiceCommandHandlers)
 
     case 'SHOW_CONTENT': {
       const id = command.parameters.id as string;
+      // Deform the color space first; showContent waits for the deformation to finish.
+      applyShape(command.parameters.colorSpace as string | undefined, handlers);
       if (id) {
-        handlers.showContent(id);
+        return handlers.showContent(id);
       }
       break;
     }
