@@ -54,6 +54,7 @@ const Overlay = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
 `;
 
 const Panel = styled.div`
