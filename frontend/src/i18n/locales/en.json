@@ -139,7 +139,15 @@
       "title": "What electromagnetic waves are"
     },
     "light_visible_reason": {
-      "title": "Why we can see light"
+      "title": "Why we can see light",
+      "light": "Light",
+      "lens": "Lens",
+      "retina": "Retina",
+      "toBrain": "Optic nerve → brain",
+      "photoreceptors": "Photoreceptor cells",
+      "cones": "Cones (color)",
+      "rods": "Rods (light)",
+      "caption": "We see when light stimulates cells in the retina and the brain receives their signals."
     },
     "lms_space": {
       "title": "LMS color space"

@@ -139,7 +139,15 @@
       "title": "電磁波とは"
     },
     "light_visible_reason": {
-      "title": "光が見える理由"
+      "title": "光が見える理由",
+      "light": "光",
+      "lens": "水晶体",
+      "retina": "網膜",
+      "toBrain": "視神経 → 脳",
+      "photoreceptors": "網膜の視細胞",
+      "cones": "錐体（色）",
+      "rods": "桿体（明暗）",
+      "caption": "光が網膜を刺激し、その信号が脳に届くと「見える」。"
     },
     "lms_space": {
       "title": "LMS座標系"
