@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import toast from 'react-hot-toast';
 import type { ColorHistoryItem } from '../../hooks/useColorHistory';
 import HelpIcon from '../common/HelpIcon';
+import { UI_PANEL_CLASS } from '../common/uiPanel';
 
 interface ColorHistoryPanelProps {
   history: ColorHistoryItem[];
@@ -70,7 +71,7 @@ function CopyIconSvg() {
   );
 }
 
-const StyledColorHistoryPanel = styled.div`
+const StyledColorHistoryPanel = styled.div.attrs({ className: UI_PANEL_CLASS })`
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 4px;

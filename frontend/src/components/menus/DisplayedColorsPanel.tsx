@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import HelpIcon from '../common/HelpIcon';
+import { UI_PANEL_CLASS } from '../common/uiPanel';
 
 export interface DisplayedColorsPanelProps {
   cssColorsEnabled: boolean;
@@ -67,7 +68,7 @@ const DisplayedColorsPanel = ({
   );
 };
 
-const Panel = styled.div`
+const Panel = styled.div.attrs({ className: UI_PANEL_CLASS })`
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 4px;

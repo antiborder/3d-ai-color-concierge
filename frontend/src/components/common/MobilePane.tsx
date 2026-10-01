@@ -21,6 +21,7 @@ import {
   IconHistory,
   IconSearch,
 } from './MenuIcons';
+import { UI_PANEL_CLASS } from './uiPanel';
 
 export type MobileSheetId =
   | 'control'
@@ -238,7 +239,7 @@ const MobileMenuBar = ({ activeSheet, onIconClick }: MobileMenuBarProps) => (
   </IconBar>
 );
 
-const IconBar = styled.div`
+const IconBar = styled.div.attrs({ className: UI_PANEL_CLASS })`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -287,7 +288,7 @@ const SheetBlock = styled.div`
   }
 `;
 
-const EmptyHistory = styled.div`
+const EmptyHistory = styled.div.attrs({ className: UI_PANEL_CLASS })`
   background: white;
   border: 1px solid #ddd;
   border-radius: 4px;

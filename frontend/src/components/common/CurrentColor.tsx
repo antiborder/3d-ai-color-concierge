@@ -3,6 +3,7 @@ import convert from 'color-convert';
 import type { ControlPaneProps } from '../../types/controlPane';
 import { SyncIcon, ChainLinkedIcon, ChainBrokenIcon } from '../../assets/Icons.jsx';
 import styled from 'styled-components';
+import { UI_PANEL_CLASS } from './uiPanel';
 
 const CurrentColor = (props: ControlPaneProps) => {
   const { r: selR, g: selG, b: selB } = props.selectedRgb;
@@ -156,7 +157,7 @@ const CurrentColor = (props: ControlPaneProps) => {
   );
 };
 
-const CurrentColorPanel = styled.div`
+const CurrentColorPanel = styled.div.attrs({ className: UI_PANEL_CLASS })`
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 4px;
