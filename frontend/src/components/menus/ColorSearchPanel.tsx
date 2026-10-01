@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import styled from 'styled-components';
 import sampleColors from '../../constants/sampleColors';
+import { UI_PANEL_CLASS } from '../common/uiPanel';
 
 interface ColorItem {
   hex: string;
@@ -63,7 +64,7 @@ const ColorSearchPanel = ({ onColorSelect, autoFocus = false }: ColorSearchPanel
   );
 };
 
-const Panel = styled.div`
+const Panel = styled.div.attrs({ className: UI_PANEL_CLASS })`
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 4px;

@@ -4,6 +4,7 @@ import DesktopLeftPane from './DesktopLeftPane';
 import DesktopRightPane from './DesktopRightPane';
 import MobilePane from './MobilePane';
 import type { ControlPaneProps, ColorPanelProps } from '../../types/controlPane';
+import { UI_PANEL_CLASS } from './uiPanel';
 
 export { ControlPaneSliders } from '../menus/ControlPaneSliders';
 
@@ -70,6 +71,16 @@ const ControlPane = (props: ControlPaneProps & LayoutExtraProps) => {
   );
 };
 
+// The columns are click-through: only the white panels inside them take pointer events,
+// so dragging on the transparent space around/between panels rotates the 3D view.
+const clickThroughExceptPanels = `
+  pointer-events: none;
+
+  .${UI_PANEL_CLASS}, .controlPanel {
+    pointer-events: auto;
+  }
+`;
+
 const LeftColumn = styled.div`
   position: absolute;
   top: 12px;
@@ -82,7 +93,7 @@ const LeftColumn = styled.div`
   width: fit-content;
   max-width: calc(100vw - 40px);
   box-sizing: border-box;
-  pointer-events: auto;
+  ${clickThroughExceptPanels}
 `;
 
 const RightPanel = styled.div`
@@ -94,6 +105,7 @@ const RightPanel = styled.div`
   flex-direction: column;
   align-items: flex-end;
   gap: 12px;
+  ${clickThroughExceptPanels}
 `;
 
 export default ControlPane;

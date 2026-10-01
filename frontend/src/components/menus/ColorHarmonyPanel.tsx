@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import toast from 'react-hot-toast';
 import type { HarmonyMode, HarmonyColor } from '../../utils/colorHarmony';
 import HelpIcon from '../common/HelpIcon';
+import { UI_PANEL_CLASS } from '../common/uiPanel';
 
 interface ColorHarmonyPanelProps {
   mode: HarmonyMode;
@@ -111,7 +112,7 @@ function CopyIconSvg() {
   );
 }
 
-const Panel = styled.div`
+const Panel = styled.div.attrs({ className: UI_PANEL_CLASS })`
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 4px;

@@ -7,6 +7,7 @@ import OklabPanel from '../menus/OklabPanel';
 import CIEPanel from '../menus/CIEPanel';
 import type { ControlPaneProps } from '../../types/controlPane';
 import { IconSliders, IconOneDPicker, IconLabLch, IconOkLab, IconCIE } from './MenuIcons';
+import { UI_PANEL_CLASS } from './uiPanel';
 
 type DesktopMenuId = 'sliders' | 'oneDPicker' | 'labLch' | 'oklab' | 'cie';
 
@@ -101,7 +102,7 @@ const MenuAndContent = styled.div`
   gap: 8px;
 `;
 
-const MenuBar = styled.div`
+const MenuBar = styled.div.attrs({ className: UI_PANEL_CLASS })`
   display: flex;
   flex-direction: column;
   align-items: center;
