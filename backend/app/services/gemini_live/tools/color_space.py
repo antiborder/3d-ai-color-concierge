@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+COLOR_SPACES = ["RGB", "CMYK", "HSL", "HSB", "Lab", "LCH", "OKLAB", "OKLCH", "LMS", "XYZ", "xyz", "xy"]
+
 DECLARATIONS: list[dict] = [
     {
         "name": "CHANGE_SHAPE",
@@ -18,7 +20,7 @@ DECLARATIONS: list[dict] = [
             "properties": {
                 "colorSpace": {
                     "type": "string",
-                    "enum": ["RGB", "CMYK", "HSL", "HSB", "Lab", "LCH", "OKLAB", "OKLCH", "LMS", "XYZ", "xyz", "xy"],
+                    "enum": COLOR_SPACES,
                 }
             },
             "required": ["colorSpace"],
@@ -38,47 +40,47 @@ COMMANDS: dict[str, object] = {
 RULES_JA = """\
 - UI操作（色変更/明度・彩度・色相調整/色空間変更）に該当する発話には必ず tool call を使う。
 - CHANGE_SHAPE を呼ぶと画面表示が自動的に切り替わる。「〜を表示します」「切り替えます」等は言わず、呼んだ直後に説明を始める。
-- 以下で SHOW_CONTENT と組み合わせる場合は、SHOW_CONTENT の tool response（script・next_suggestions）に従って話す。以下の説明文は script が null のときだけ使う。
+- 以下で SHOW_CONTENT を使う場合は、色空間の切り替えを CHANGE_SHAPE で別に呼ばず、SHOW_CONTENT の colorSpace に指定する（画面が「変形 → スライド表示」の順に進む）。話す内容は SHOW_CONTENT の tool response（script・next_suggestions）に従い、以下の説明文は script が null のときだけ使う。
 - CIE色度図・色度・馬蹄形の質問 → CHANGE_SHAPE("xy")、以下を説明：
   「CIE色度図は、3次元の色空間を明るさ方向に潰して2次元に射影した図です。三角形の内側が赤・緑・青の組み合わせでディスプレイ上に再現できる色、外側は再現できない色です。」
-- HSB・HSV・色相/彩度/明度の質問 → CHANGE_SHAPE("HSB") + SHOW_CONTENT("hsb_space")、以下を説明：
+- HSB・HSV・色相/彩度/明度の質問 → SHOW_CONTENT("hsb_space", colorSpace="HSB")、以下を説明：
   「HSBは色相・彩度・明度の3軸で色を表現します。色相はカラーホイール上の角度、彩度は鮮やかさ、明度は明るさです。」
-- HSL・色相/彩度/輝度の質問 → CHANGE_SHAPE("HSL") + SHOW_CONTENT("hsl_space")、以下を説明：
+- HSL・色相/彩度/輝度の質問 → SHOW_CONTENT("hsl_space", colorSpace="HSL")、以下を説明：
   「HSLは色相・彩度・輝度の3軸で色を表現します。輝度0.5で最も鮮やかになり、0で黒、1で白になります。」
-- Lab・CIE Lab・L*a*b*の質問 → CHANGE_SHAPE("Lab") + SHOW_CONTENT("lab_space")、以下を説明：
+- Lab・CIE Lab・L*a*b*の質問 → SHOW_CONTENT("lab_space", colorSpace="Lab")、以下を説明：
   「Labは明度L*、赤-緑方向のa*、青-黄方向のb*の3軸で色を表現します。人間の視覚に基づいており、Lab上の距離が知覚的な色差に対応します。」
-- XYZ・CIE XYZの質問 → CHANGE_SHAPE("XYZ") + SHOW_CONTENT("xyz_space")、以下を説明：
+- XYZ・CIE XYZの質問 → SHOW_CONTENT("xyz_space", colorSpace="XYZ")、以下を説明：
   「XYZ色空間は人が光を認知する仕組みを元にした色空間で、ディスプレイで再現できない色も含みます。xy平面に射影するとCIE色度図になります。みてみますか？」
-- LMS・錐体細胞の応答の質問 → CHANGE_SHAPE("LMS") + SHOW_CONTENT("oklch_lineage")、以下を説明：
+- LMS・錐体細胞の応答の質問 → SHOW_CONTENT("oklch_lineage", colorSpace="LMS")、以下を説明：
   「LMSは目の錐体細胞の応答を表す色空間です。L（長波長・赤）・M（中波長・緑）・S（短波長・青）の3成分で、XYZからOkLabへの中間ステップです。」
-- OkLabの質問 → CHANGE_SHAPE("OKLAB") + SHOW_CONTENT("oklab_space")、以下を説明：
+- OkLabの質問 → SHOW_CONTENT("oklab_space", colorSpace="OKLAB")、以下を説明：
   「OkLabは2020年にBjörn Ottossonが提案した知覚的に均等な色空間です。LMSの立方根を取り行列変換でL・a・bを求めます。Lは明度、aは赤-緑軸、bは青-黄軸で、距離が知覚的な色差に対応します。」
-- OkLCH・OkLabの概念的な質問（例「OkLCHとは」）→ CHANGE_SHAPE("OKLCH") + SHOW_CONTENT("oklch_lineage")、以下を説明：
+- OkLCH・OkLabの概念的な質問（例「OkLCHとは」）→ SHOW_CONTENT("oklch_lineage", colorSpace="OKLCH")、以下を説明：
   「OkLCHはBjörn Ottossonが2020年に提案した知覚的に均等な色空間です。RGB→XYZ→Lab→LCHと進化した最新版で、色相回転のズレを解消しています。」
-- OkLCHとLCHの比較の質問（例「なぜOkLCHが優れているか」）→ CHANGE_SHAPE("OKLCH") + SHOW_CONTENT("oklch_vs_lch")、以下を説明：
+- OkLCHとLCHの比較の質問（例「なぜOkLCHが優れているか」）→ SHOW_CONTENT("oklch_vs_lch", colorSpace="OKLCH")、以下を説明：
   「OkLCHでは色相を均等に変化させても明度が均等に見えます。CIE LCHにあった色相による知覚的明度のばらつきを解消しています。」\
 """
 
 RULES_EN = """\
 - If the user asks to change color / adjust brightness/saturation/hue / change color space, you MUST use a tool call.
 - CHANGE_SHAPE updates the display automatically — do NOT say "let me show you" or "I'll switch to". Call the tool, then immediately explain.
-- When a line below pairs CHANGE_SHAPE with SHOW_CONTENT, speak from the SHOW_CONTENT response (script, next_suggestions). Use the explanation below only if script is null.
+- When a line below uses SHOW_CONTENT, do NOT call CHANGE_SHAPE separately — pass the color space as SHOW_CONTENT's colorSpace (the screen then deforms first, then shows the slide). Speak from the SHOW_CONTENT response (script, next_suggestions); use the explanation below only if script is null.
 - CIE chromaticity diagram question → CHANGE_SHAPE("xy"), explain:
   "The CIE chromaticity diagram is a 2D projection of the 3D color space that ignores the lightness axis. Colors inside the triangle can be reproduced on a display using red, green, and blue; colors outside cannot."
-- HSB (HSV) question → CHANGE_SHAPE("HSB") + SHOW_CONTENT("hsb_space"), explain:
+- HSB (HSV) question → SHOW_CONTENT("hsb_space", colorSpace="HSB"), explain:
   "HSB expresses color using Hue, Saturation, and Brightness. Hue is an angle on a color wheel, Saturation is vividness, Brightness is lightness."
-- HSL question → CHANGE_SHAPE("HSL") + SHOW_CONTENT("hsl_space"), explain:
+- HSL question → SHOW_CONTENT("hsl_space", colorSpace="HSL"), explain:
   "HSL expresses color using Hue, Saturation, and Lightness. At Lightness 0.5 colors are most vivid; 0 is black, 1 is white."
-- Lab / CIE L*a*b* question → CHANGE_SHAPE("Lab") + SHOW_CONTENT("lab_space"), explain:
+- Lab / CIE L*a*b* question → SHOW_CONTENT("lab_space", colorSpace="Lab"), explain:
   "Lab expresses color using L* for lightness, a* for red-green, and b* for blue-yellow. It's designed around human perception, so equal distances correspond to equal perceived color differences."
-- XYZ / CIE XYZ question → CHANGE_SHAPE("XYZ") + SHOW_CONTENT("xyz_space"), explain:
+- XYZ / CIE XYZ question → SHOW_CONTENT("xyz_space", colorSpace="XYZ"), explain:
   "CIE XYZ was designed based on how humans perceive light, and includes colors no display can reproduce. Projecting it onto the xy plane gives the CIE chromaticity diagram. Would you like to see it?"
-- LMS / cone cell response question → CHANGE_SHAPE("LMS") + SHOW_CONTENT("oklch_lineage"), explain:
+- LMS / cone cell response question → SHOW_CONTENT("oklch_lineage", colorSpace="LMS"), explain:
   "LMS represents the response of the eye's three cone types — L (long/red), M (medium/green), S (short/blue). It sits between XYZ and OkLab, which applies a cube root and linear mix to LMS for perceptual uniformity."
-- OkLab question → CHANGE_SHAPE("OKLAB") + SHOW_CONTENT("oklab_space"), explain:
+- OkLab question → SHOW_CONTENT("oklab_space", colorSpace="OKLAB"), explain:
   "OkLab is a perceptually uniform color space proposed by Björn Ottosson in 2020, computed by taking the cube root of LMS and applying a linear mix. L is lightness, a is red-green, b is blue-yellow; equal distances correspond to equal perceived differences."
-- OkLCH/OkLab conceptual question (e.g. "what is OkLCH") → CHANGE_SHAPE("OKLCH") + SHOW_CONTENT("oklch_lineage"), explain:
+- OkLCH/OkLab conceptual question (e.g. "what is OkLCH") → SHOW_CONTENT("oklch_lineage", colorSpace="OKLCH"), explain:
   "OkLCH is a perceptually uniform color space proposed by Björn Ottosson in 2020 — the latest evolution from RGB → XYZ → Lab → LCH, fixing hue rotation artifacts."
-- OkLCH vs LCH comparison question (e.g. "why is OkLCH better") → CHANGE_SHAPE("OKLCH") + SHOW_CONTENT("oklch_vs_lch"), explain:
+- OkLCH vs LCH comparison question (e.g. "why is OkLCH better") → SHOW_CONTENT("oklch_vs_lch", colorSpace="OKLCH"), explain:
   "In OkLCH, equal hue steps look equally bright — unlike CIE LCH, where perceived lightness varies unevenly with hue."\
 """

@@ -17,11 +17,13 @@ import { useBridgeState } from './hooks/useBridgeState';
 import { useHelpRequest } from './hooks/useHelpRequest';
 import { executeCommand } from './utils/commandExecutor';
 import EducationalContent from './components/educational/EducationalContent';
+import { SHAPE_MORPH_DURATION_S } from './components/ColorPicker/AnimatedWireframe';
 import type { Command as VoiceCommand } from './types/voice';
 import { useChatbot } from './hooks/useChatbot';
 import { type HarmonyMode, computeHarmonyColors } from './utils/colorHarmony';
 import { interpolateRgb } from './components/menus/controls/ColorBridge';
 import type { AiColorLabel } from './types/structure';
+import type { ColorSpace } from './types/color';
 
 function App() {
   const { i18n } = useTranslation();
@@ -170,6 +172,50 @@ function App() {
   const [openCIEPanelSignal, setOpenCIEPanelSignal] = useState(0);
   const activeContentIdRef = useRef<string | null>(null);
   activeContentIdRef.current = activeContentId;
+  // When the color space shape last started deforming, so a slide can wait for it to finish
+  const shapeMorphStartedAtRef = useRef(0);
+  const pendingSlideTimerRef = useRef<number | null>(null);
+  // Resolvers waiting for a slide to be rendered (resolved by the effect below)
+  const slideShownResolversRef = useRef<Array<{ id: string | null; resolve: () => void }>>([]);
+
+  const resolveSlideWaiters = (match: (id: string | null) => boolean) => {
+    const waiting = slideShownResolversRef.current;
+    slideShownResolversRef.current = waiting.filter((w) => !match(w.id));
+    waiting.filter((w) => match(w.id)).forEach((w) => w.resolve());
+  };
+
+  useEffect(() => {
+    resolveSlideWaiters((id) => id === activeContentId);
+  }, [activeContentId]);
+
+  const cancelPendingSlide = () => {
+    if (pendingSlideTimerRef.current !== null) {
+      window.clearTimeout(pendingSlideTimerRef.current);
+      pendingSlideTimerRef.current = null;
+    }
+    resolveSlideWaiters(() => true);
+  };
+
+  // Show the slide only after any running shape deformation has finished.
+  // Resolves once the slide has been rendered.
+  const showContentAfterMorph = (id: string): Promise<void> => {
+    cancelPendingSlide();
+    if (activeContentIdRef.current === id) return Promise.resolve();
+    const shown = new Promise<void>((resolve) => {
+      slideShownResolversRef.current.push({ id, resolve });
+    });
+    const elapsed = performance.now() - shapeMorphStartedAtRef.current;
+    const remaining = SHAPE_MORPH_DURATION_S * 1000 - elapsed;
+    if (remaining <= 0) {
+      setActiveContentId(id);
+    } else {
+      pendingSlideTimerRef.current = window.setTimeout(() => {
+        pendingSlideTimerRef.current = null;
+        setActiveContentId(id);
+      }, remaining);
+    }
+    return shown;
+  };
 
   const {
     bridgeColorA,
@@ -199,7 +245,10 @@ function App() {
     rotateCameraOnColorChange: () => { aiColorTriggerRef.current = true; },
     updateFromRgb,
     updateRgbValue,
-    setShape,
+    setShape: (shape: ColorSpace) => {
+      if (shape !== colorState.shape) shapeMorphStartedAtRef.current = performance.now();
+      setShape(shape);
+    },
     toggleLabel,
     adjustOklchValue,
     updateFromHex,
@@ -214,7 +263,7 @@ function App() {
       const [r, g, b] = interpolateRgb(bridgeColorA, bridgeColorB, colorState.shape, position);
       updateFromRgb(r, g, b);
     },
-    showContent: (id: string) => setActiveContentId(id),
+    showContent: showContentAfterMorph,
     openCIEPanel: () => setOpenCIEPanelSignal((n) => n + 1),
     setAiColorLabels,
     addAllColorsToHistory: (colors: Array<{ r: number; g: number; b: number }>) => {
@@ -249,11 +298,15 @@ function App() {
     }
   };
 
+  // Commands that leave an open (or about-to-open) slide in place
+  const KEEP_SLIDE_ACTIONS = ['SHOW_CONTENT', 'CHANGE_SHAPE'];
+
   const handleWsCommand = (command: VoiceCommand) => {
-    if (command.action !== 'SHOW_CONTENT' && activeContentIdRef.current !== null) {
-      setActiveContentId(null);
+    if (!KEEP_SLIDE_ACTIONS.includes(command.action)) {
+      cancelPendingSlide();
+      if (activeContentIdRef.current !== null) setActiveContentId(null);
     }
-    executeCommand(command, voiceCommandHandlers);
+    return executeCommand(command, voiceCommandHandlers);
   };
 
   // Handle voice recognition transcript

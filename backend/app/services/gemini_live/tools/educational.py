@@ -6,6 +6,7 @@ app/data/topic_graph.json で定義する。
 
 from __future__ import annotations
 
+from app.services.gemini_live.tools.color_space import COLOR_SPACES
 from app.services.navigation import NavState, content_ids, load_topic_graph
 from app.services.prompts.topics import topic_script
 
@@ -27,7 +28,15 @@ DECLARATIONS: list[dict] = [
                     "type": "string",
                     "enum": CONTENT_IDS,
                     "description": "Educational content ID to display.",
-                }
+                },
+                "colorSpace": {
+                    "type": "string",
+                    "enum": COLOR_SPACES,
+                    "description": (
+                        "Optional. Also switch the 3D color space (same values as CHANGE_SHAPE). "
+                        "The view deforms first, then the slide appears."
+                    ),
+                },
             },
             "required": ["id"],
         },
@@ -68,7 +77,10 @@ DECLARATIONS: list[dict] = [
 
 
 def _show_content(args: dict) -> dict:
-    return {"id": args.get("id")}
+    params = {"id": args.get("id")}
+    if args.get("colorSpace"):
+        params["colorSpace"] = args["colorSpace"]
+    return params
 
 
 COMMANDS: dict[str, object] = {
@@ -101,7 +113,7 @@ RULES_JA = """\
 2. あなたが提案したトピックにユーザーが同意した → 次のターンでその id で呼ぶ。
 3. 会話で enum のトピックに自然に触れた → 2回に1回程度、口頭で提案してよい。
 
-**呼び方**: 「表示します」「見てみましょう」等は言わない。まず SHOW_CONTENT を呼び、tool response を受けてから話す。CHANGE_SHAPE と同じレスポンスで呼んでよいが、SELECT_COLOR は呼ばない。
+**呼び方**: 「表示します」「見てみましょう」等は言わない。まず SHOW_CONTENT を呼び、tool response を受けてから話す。色空間も切り替えるときは CHANGE_SHAPE を別に呼ばず colorSpace に指定する。SELECT_COLOR は呼ばない。
 
 **tool response に従って、1回の連続した発話で話す**:
 - script がある → s1 を言い、s2 が null でなければ続けて言う。
@@ -126,7 +138,7 @@ Only slides in the id enum exist.
 2. The user agrees to a topic you suggested → call it with that id in the next turn.
 3. The conversation naturally touches on a topic in the enum → offer it verbally about half the time.
 
-**How to call:** do NOT say "let me show you a slide". Call SHOW_CONTENT first and speak after the tool response arrives. May be called together with CHANGE_SHAPE. Do NOT call SELECT_COLOR.
+**How to call:** do NOT say "let me show you a slide". Call SHOW_CONTENT first and speak after the tool response arrives. To also switch the color space, pass colorSpace instead of calling CHANGE_SHAPE separately. Do NOT call SELECT_COLOR.
 
 **Follow the tool response, as one continuous utterance:**
 - script present → say s1, then s2 if it is not null.

@@ -18,7 +18,8 @@ import {
   getXyChromaticityPosition,
 } from '../../utils/colorSpacePositions';
 
-const DURATION = 2.0;
+/** Seconds the wireframe takes to morph into a new color space shape. */
+export const SHAPE_MORPH_DURATION_S = 2.0;
 
 function easeInOut(t: number): number {
   return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
@@ -115,7 +116,7 @@ const AnimatedWireframe = ({ shape, visible }: AnimatedWireframeProps) => {
     const a = animRef.current!;
     if (a.progress >= 1) return;
 
-    a.progress = Math.min(1, a.progress + delta / DURATION);
+    a.progress = Math.min(1, a.progress + delta / SHAPE_MORPH_DURATION_S);
 
     if (a.progress >= 1 && a.pendingSegs) {
       // Snap to target topology now that positions have arrived
