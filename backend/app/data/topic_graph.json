@@ -68,6 +68,14 @@
       }
     },
     {
+      "id": "cone_cells",
+      "cluster": "human",
+      "label": {
+        "ja": "錐体とは",
+        "en": "What cone cells are"
+      }
+    },
+    {
       "id": "lms_space",
       "cluster": "human",
       "label": {
@@ -127,23 +135,23 @@
       "id": "blue_green_cyan",
       "cluster": null,
       "label": {
-        "ja": "青と緑を混ぜると水色になるのはなぜ",
+        "ja": "青と緑を混ぜるとシアンになるのはなぜ",
         "en": "Why blue + green makes cyan"
       }
     },
     {
-      "id": "red_blue_magenta",
+      "id": "magenta_not_in_rainbow",
       "cluster": null,
       "label": {
-        "ja": "赤と青を混ぜるとマゼンタになるのはなぜ",
-        "en": "Why red + blue makes magenta"
+        "ja": "虹に無い色：マゼンタ",
+        "en": "Magenta, the color not in the rainbow"
       }
     },
     {
       "id": "red_green_yellow",
       "cluster": null,
       "label": {
-        "ja": "赤と緑を混ぜると黄色になるのは何故",
+        "ja": "赤と緑を混ぜると黄色になるのはなぜ",
         "en": "Why red + green makes yellow"
       }
     },
@@ -670,7 +678,7 @@
       "to": "blue_green_cyan",
       "suggest": {
         "forward": {
-          "ja": "たとえば青と緑の光を混ぜると水色になります。なぜか見てみますか？",
+          "ja": "たとえば青と緑の光を混ぜるとシアンになります。なぜか見てみますか？",
           "en": "For example, blue and green light make cyan. Want to see why?"
         },
         "backward": {
@@ -681,15 +689,15 @@
     },
     {
       "from": "blue_green_cyan",
-      "to": "red_blue_magenta",
+      "to": "magenta_not_in_rainbow",
       "suggest": {
         "forward": {
-          "ja": "同じ仕組みで、赤と青はマゼンタになります。見てみますか？",
-          "en": "By the same rule, red and blue make magenta. Want to see?"
+          "ja": "では、赤と青を混ぜるとどうなるでしょう。できる色マゼンタは、虹の中にない色です。見てみますか？",
+          "en": "So what about red and blue? The color they make, magenta, is not in the rainbow. Want to see?"
         },
         "backward": {
-          "ja": "同じ仕組みで、青と緑は水色になります。見てみますか？",
-          "en": "By the same rule, blue and green make cyan. Want to see?"
+          "ja": "マゼンタと違って、青と緑を混ぜたシアンは虹の中の色と同じに見えます。見てみますか？",
+          "en": "Unlike magenta, cyan from blue and green looks just like a color in the rainbow. Want to see?"
         }
       }
     },
@@ -709,15 +717,15 @@
     },
     {
       "from": "red_green_yellow",
-      "to": "red_blue_magenta",
+      "to": "magenta_not_in_rainbow",
       "suggest": {
         "forward": {
-          "ja": "同じ仕組みで、赤と青はマゼンタになります。見てみますか？",
-          "en": "By the same rule, red and blue make magenta. Want to see?"
+          "ja": "では、赤と青を混ぜるとどうなるでしょう。できる色マゼンタは、虹の中にない色です。見てみますか？",
+          "en": "So what about red and blue? The color they make, magenta, is not in the rainbow. Want to see?"
         },
         "backward": {
-          "ja": "同じ仕組みで、赤と緑は黄色になります。見てみますか？",
-          "en": "By the same rule, red and green make yellow. Want to see?"
+          "ja": "マゼンタと違って、赤と緑を混ぜた黄色は虹の中の色と同じに見えます。見てみますか？",
+          "en": "Unlike magenta, yellow from red and green looks just like a color in the rainbow. Want to see?"
         }
       }
     },
@@ -1782,6 +1790,244 @@
         "backward": {
           "ja": "電磁波のうち、目の視細胞が反応できる範囲が「光」として見えます。光が見える仕組みも見てみますか？",
           "en": "The part of the electromagnetic spectrum that eye cells respond to is what we see as light. Want to see how we see it?"
+        }
+      }
+    },
+    {
+      "from": "light_visible_reason",
+      "to": "cone_cells",
+      "suggest": {
+        "forward": {
+          "ja": "色を感じているのは、網膜にある錐体という視細胞です。錐体についても見てみますか？",
+          "en": "Color is sensed by cells in the retina called cones. Want to learn about cones?"
+        },
+        "backward": {
+          "ja": "錐体は、目に入った光に反応する細胞です。光が見える仕組みも見てみますか？",
+          "en": "Cones are cells that respond to light entering the eye. Want to see how we see light?"
+        }
+      }
+    },
+    {
+      "from": "cone_cells",
+      "to": "lms_space",
+      "suggest": {
+        "forward": {
+          "ja": "3種類の錐体の反応をそのまま軸にしたのが、LMS座標系です。見てみますか？",
+          "en": "LMS uses the responses of the three cone types as its axes. Want to see it?"
+        },
+        "backward": {
+          "ja": "L・M・Sは、3種類の錐体のことです。錐体についても見てみますか？",
+          "en": "L, M and S stand for the three types of cone cells. Want to learn about cones?"
+        }
+      }
+    },
+    {
+      "from": "cone_cells",
+      "to": "color_matching_experiment",
+      "suggest": {
+        "forward": {
+          "ja": "錐体が3種類しかないので、3つの色の光を混ぜればどんな色とも同じに見せられます。それを確かめたのが等色実験です。見てみますか？",
+          "en": "Because there are only three kinds of cones, mixing three colors of light can match any color. Color matching experiments showed this. Want to see?"
+        },
+        "backward": {
+          "ja": "3つの色の光で色を再現できるのは、目の錐体が3種類だからです。錐体についても見てみますか？",
+          "en": "Three colors of light can reproduce colors because the eye has three kinds of cones. Want to learn about cones?"
+        }
+      }
+    },
+    {
+      "from": "cone_cells",
+      "to": "rgb_primary",
+      "suggest": {
+        "forward": {
+          "ja": "L・M・Sの錐体は、それぞれ赤・緑・青あたりの光によく反応します。この3色で色を作るのが光の三原色です。見てみますか？",
+          "en": "L, M and S cones respond best to roughly red, green and blue light. Making colors from those three is the idea of light's primary colors. Want to see?"
+        },
+        "backward": {
+          "ja": "赤・緑・青の3色で色を作れるのは、目に3種類の錐体があるからです。錐体についても見てみますか？",
+          "en": "We can make colors from red, green and blue because the eye has three kinds of cones. Want to learn about cones?"
+        }
+      }
+    },
+    {
+      "from": "cone_cells",
+      "to": "visible_gamut",
+      "suggest": {
+        "forward": {
+          "ja": "錐体が反応できる波長には限りがあり、それが人に見える色の範囲を決めています。見てみますか？",
+          "en": "Cones respond only to a limited range of wavelengths, and that sets the range of colors humans can see. Want to see it?"
+        },
+        "backward": {
+          "ja": "人に見える色の範囲は、目の錐体が反応できる光で決まります。錐体についても見てみますか？",
+          "en": "The range of colors we can see is set by the light our cones can respond to. Want to learn about cones?"
+        }
+      }
+    },
+    {
+      "from": "cone_cells",
+      "to": "magenta_not_in_rainbow",
+      "suggest": {
+        "forward": {
+          "ja": "錐体の反応で、赤と青を混ぜるとマゼンタに見える理由も説明できます。見てみますか？",
+          "en": "Cone responses also explain why red and blue light look magenta together. Want to see?"
+        },
+        "backward": {
+          "ja": "マゼンタが見えるのは、L・M・Sの3種類の錐体の反応の組み合わせによるものです。錐体についても見てみますか？",
+          "en": "We see magenta because of how the three cone types, L, M and S, respond. Want to learn about cones?"
+        }
+      }
+    },
+    {
+      "from": "cone_cells",
+      "to": "blue_green_cyan",
+      "suggest": {
+        "forward": {
+          "ja": "錐体の反応で、青と緑を混ぜるとシアンに見える理由も説明できます。見てみますか？",
+          "en": "Cone responses also explain why blue and green light look cyan together. Want to see?"
+        },
+        "backward": {
+          "ja": "シアンに見えるのは、L・M・Sの3種類の錐体の反応の組み合わせによるものです。錐体についても見てみますか？",
+          "en": "We see cyan because of how the three cone types, L, M and S, respond. Want to learn about cones?"
+        }
+      }
+    },
+    {
+      "from": "cone_cells",
+      "to": "red_green_yellow",
+      "suggest": {
+        "forward": {
+          "ja": "錐体の反応で、赤と緑を混ぜると黄色に見える理由も説明できます。見てみますか？",
+          "en": "Cone responses also explain why red and green light look yellow together. Want to see?"
+        },
+        "backward": {
+          "ja": "黄色に見えるのは、L・M・Sの3種類の錐体の反応の組み合わせによるものです。錐体についても見てみますか？",
+          "en": "We see yellow because of how the three cone types, L, M and S, respond. Want to learn about cones?"
+        }
+      }
+    },
+    {
+      "from": "blue_green_cyan",
+      "to": "red_green_yellow",
+      "suggest": {
+        "forward": {
+          "ja": "同じように、赤と緑の光を混ぜると黄色に見えます。見てみますか？",
+          "en": "In the same way, red and green light together look yellow. Want to see?"
+        },
+        "backward": {
+          "ja": "同じように、青と緑の光を混ぜるとシアンに見えます。見てみますか？",
+          "en": "In the same way, blue and green light together look cyan. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "rainbow_mechanism",
+      "to": "magenta_not_in_rainbow",
+      "suggest": {
+        "forward": {
+          "ja": "虹にはたくさんの色が並びますが、マゼンタは虹の中にない色です。見てみますか？",
+          "en": "A rainbow holds many colors, but magenta is not one of them. Want to see?"
+        },
+        "backward": {
+          "ja": "マゼンタがない虹は、どうやってできるのでしょう。虹が見える仕組みも見てみますか？",
+          "en": "How does the rainbow, which has no magenta, form? Want to see how rainbows form?"
+        }
+      }
+    },
+    {
+      "from": "nature_of_light",
+      "to": "magenta_not_in_rainbow",
+      "suggest": {
+        "forward": {
+          "ja": "光の色は波長で決まりますが、どの波長にも当てはまらない色、マゼンタがあります。見てみますか？",
+          "en": "Light's color is set by its wavelength, but magenta matches no single wavelength. Want to see?"
+        },
+        "backward": {
+          "ja": "光の色と波長の関係を、光の正体から見てみますか？",
+          "en": "Want to see how light's color relates to its wavelength, starting from what light is?"
+        }
+      }
+    },
+    {
+      "from": "nature_of_light",
+      "to": "red_green_yellow",
+      "suggest": {
+        "forward": {
+          "ja": "黄色は黄色い波長の光でも見えますが、赤と緑の光を混ぜても見えます。なぜか見てみますか？",
+          "en": "Yellow light has its own wavelength, yet red and green light mixed also look yellow. Want to see why?"
+        },
+        "backward": {
+          "ja": "光の色が波長でどう決まるのか、光の正体も見てみますか？",
+          "en": "Want to see how wavelength decides the color of light?"
+        }
+      }
+    },
+    {
+      "from": "magenta_not_in_rainbow",
+      "to": "lms_space",
+      "suggest": {
+        "forward": {
+          "ja": "L・M・Sの3つの錐体の反応をそのまま軸にした色の表し方が、LMS座標系です。見てみますか？",
+          "en": "LMS is a way of describing color that uses the responses of the L, M and S cones as its axes. Want to see it?"
+        },
+        "backward": {
+          "ja": "LMS座標系で見ると、マゼンタはLとSが大きくMが小さい、虹の中にはない組み合わせです。見てみますか？",
+          "en": "In LMS terms, magenta is high L and S with low M, a combination found nowhere in the rainbow. Want to see?"
+        }
+      }
+    },
+    {
+      "from": "blue_green_cyan",
+      "to": "lms_space",
+      "suggest": {
+        "forward": {
+          "ja": "錐体の反応のバランスで色を表すのが、LMS座標系です。見てみますか？",
+          "en": "LMS describes color by the balance of the cone responses. Want to see it?"
+        },
+        "backward": {
+          "ja": "LMS座標系で見ると、青と緑を混ぜた光とシアンの光はほぼ同じ位置に来ます。見てみますか？",
+          "en": "In LMS terms, blue and green light mixed land almost where cyan light does. Want to see why?"
+        }
+      }
+    },
+    {
+      "from": "light_visible_reason",
+      "to": "magenta_not_in_rainbow",
+      "suggest": {
+        "forward": {
+          "ja": "目は光を錐体の反応として受け取るので、虹の中にない色マゼンタも見えます。見てみますか？",
+          "en": "Our eyes take in light as cone responses, which is how we can see magenta, a color not in the rainbow. Want to see?"
+        },
+        "backward": {
+          "ja": "マゼンタが見えるのは、目に入った光に網膜の細胞が反応するからです。光が見える理由も見てみますか？",
+          "en": "We see magenta because cells in the retina respond to the light entering the eye. Want to see how we see light?"
+        }
+      }
+    },
+    {
+      "from": "blue_green_cyan",
+      "to": "color_matching_experiment",
+      "suggest": {
+        "forward": {
+          "ja": "混ぜた光が単色の光と同じ色に見えることは、等色実験で確かめられました。見てみますか？",
+          "en": "That mixed light can look the same as single-wavelength light was confirmed by color matching experiments. Want to see?"
+        },
+        "backward": {
+          "ja": "等色実験の一例として、青と緑の光を混ぜるとシアンの光と同じに見える理由を見てみますか？",
+          "en": "As one example of color matching, want to see why blue and green light together look the same as cyan light?"
+        }
+      }
+    },
+    {
+      "from": "red_green_yellow",
+      "to": "color_matching_experiment",
+      "suggest": {
+        "forward": {
+          "ja": "混ぜた光が単色の光と同じ色に見えることは、等色実験で確かめられました。見てみますか？",
+          "en": "That mixed light can look the same as single-wavelength light was confirmed by color matching experiments. Want to see?"
+        },
+        "backward": {
+          "ja": "等色実験の一例として、赤と緑の光を混ぜると黄色の光と同じに見える理由を見てみますか？",
+          "en": "As one example of color matching, want to see why red and green light together look the same as yellow light?"
         }
       }
     }

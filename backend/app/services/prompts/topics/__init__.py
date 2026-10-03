@@ -15,7 +15,19 @@ from __future__ import annotations
 import random
 
 from app.services.prompts.topics import (
+    blue_green_cyan as _blue_green_cyan,
+)
+from app.services.prompts.topics import (
     cmy_primary as _cmy,
+)
+from app.services.prompts.topics import (
+    color_matching_experiment as _color_matching_experiment,
+)
+from app.services.prompts.topics import (
+    cone_cells as _cone_cells,
+)
+from app.services.prompts.topics import (
+    electromagnetic_wave as _electromagnetic_wave,
 )
 from app.services.prompts.topics import (
     hsb_space as _hsb,
@@ -30,13 +42,31 @@ from app.services.prompts.topics import (
     light_visible_reason as _light_visible_reason,
 )
 from app.services.prompts.topics import (
+    nature_of_light as _nature_of_light,
+)
+from app.services.prompts.topics import (
     oklch_lineage as _oklch_lineage,
 )
 from app.services.prompts.topics import (
     oklch_vs_lch as _oklch_vs_lch,
 )
 from app.services.prompts.topics import (
+    rainbow_mechanism as _rainbow_mechanism,
+)
+from app.services.prompts.topics import (
+    magenta_not_in_rainbow as _magenta_not_in_rainbow,
+)
+from app.services.prompts.topics import (
+    red_green_yellow as _red_green_yellow,
+)
+from app.services.prompts.topics import (
     rgb_primary as _rgb,
+)
+from app.services.prompts.topics import (
+    sky_blue_reason as _sky_blue_reason,
+)
+from app.services.prompts.topics import (
+    sunset_red_reason as _sunset_red_reason,
 )
 from app.services.prompts.topics import (
     xyz_space as _xyz,
@@ -52,6 +82,16 @@ _TOPIC_MODULES = [
     _oklch_lineage,
     _oklch_vs_lch,
     _light_visible_reason,
+    _cone_cells,
+    _magenta_not_in_rainbow,
+    _blue_green_cyan,
+    _red_green_yellow,
+    _rainbow_mechanism,
+    _nature_of_light,
+    _electromagnetic_wave,
+    _sky_blue_reason,
+    _sunset_red_reason,
+    _color_matching_experiment,
 ]
 
 TOPICS: dict[str, dict] = {m.TOPIC["id"]: m.TOPIC for m in _TOPIC_MODULES}
