@@ -9,6 +9,16 @@ import XyzSpace from './slides/XyzSpace';
 import OklchLineage from './slides/OklchLineage';
 import OklchVsLch from './slides/OklchVsLch';
 import LightVisibleReason from './slides/LightVisibleReason';
+import ConeCells from './slides/ConeCells';
+import MagentaNotInRainbow from './slides/MagentaNotInRainbow';
+import BlueGreenCyan from './slides/BlueGreenCyan';
+import RedGreenYellow from './slides/RedGreenYellow';
+import RainbowMechanism from './slides/RainbowMechanism';
+import NatureOfLight from './slides/NatureOfLight';
+import ElectromagneticWave from './slides/ElectromagneticWave';
+import SkyBlueReason from './slides/SkyBlueReason';
+import SunsetRedReason from './slides/SunsetRedReason';
+import ColorMatchingExperiment from './slides/ColorMatchingExperiment';
 import PlaceholderSlide from './slides/PlaceholderSlide';
 
 // Every slide uses the same box as the HSB slide (its natural size at 320px wide).
@@ -30,6 +40,16 @@ const SLIDES: Record<string, React.ComponentType> = {
   oklch_lineage: OklchLineage,
   oklch_vs_lch: OklchVsLch,
   light_visible_reason: LightVisibleReason,
+  cone_cells: ConeCells,
+  magenta_not_in_rainbow: MagentaNotInRainbow,
+  blue_green_cyan: BlueGreenCyan,
+  red_green_yellow: RedGreenYellow,
+  rainbow_mechanism: RainbowMechanism,
+  nature_of_light: NatureOfLight,
+  electromagnetic_wave: ElectromagneticWave,
+  sky_blue_reason: SkyBlueReason,
+  sunset_red_reason: SunsetRedReason,
+  color_matching_experiment: ColorMatchingExperiment,
 };
 
 const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => {

@@ -124,29 +124,65 @@
       "caption": "Equal hue steps in OkLCH appear more uniform in brightness."
     },
     "sky_blue_reason": {
-      "title": "Why the sky is blue"
+      "title": "Why the sky is blue",
+      "eye": "Eye",
+      "molecule": "Air molecule",
+      "scattering": "How easily it scatters",
+      "blue": "Blue",
+      "green": "Green",
+      "red": "Red"
     },
     "sunset_red_reason": {
-      "title": "Why sunsets are red"
+      "title": "Why sunsets are red",
+      "air": "Air",
+      "noon": "Noon",
+      "sunset": "Sunset",
+      "short": "Short",
+      "long": "Long",
+      "longPath": "A long way through the air",
+      "eye": "Eye",
+      "molecules": "Air molecules",
+      "sunsetLooksRed": "The sunset looks red"
     },
     "rainbow_mechanism": {
-      "title": "How rainbows form"
+      "title": "How rainbows form",
+      "sunlight": "Sunlight",
+      "raindrop": "Raindrop",
+      "eye": "Eye",
+      "red": "Red",
+      "violet": "Violet",
+      "rainbow": "Rainbow"
     },
     "nature_of_light": {
-      "title": "What light is"
+      "title": "What light is",
+      "light": "Light (EM wave)",
+      "wavelength": "Wavelength",
+      "blue": "Blue",
+      "green": "Green",
+      "red": "Red",
+      "white": "All mixed: white"
     },
     "electromagnetic_wave": {
-      "title": "What electromagnetic waves are"
+      "title": "What electromagnetic waves are",
+      "long": "Long",
+      "short": "Short",
+      "wavelength": "Wavelength",
+      "radio": "Radio waves",
+      "infrared": "Infrared",
+      "visible": "Visible light",
+      "ultraviolet": "Ultraviolet",
+      "xray": "X-rays",
+      "gamma": "Gamma rays",
+      "visibleRange": "Visible light (what we see)",
+      "nm": "Wavelength (nm)"
     },
     "light_visible_reason": {
       "title": "Why we can see light",
       "light": "Light",
-      "lens": "Lens",
       "retina": "Retina",
       "toBrain": "Optic nerve → brain",
       "photoreceptors": "Photoreceptor cells",
-      "cones": "Cones (color)",
-      "rods": "Rods (light)",
+      "cones": "Cones",
       "caption": "We see when light stimulates cells in the retina and the brain receives their signals."
     },
     "lms_space": {
@@ -165,13 +201,28 @@
       "title": "Additive color mixing"
     },
     "blue_green_cyan": {
-      "title": "Why blue + green makes cyan"
+      "title": "Why blue + green makes cyan",
+      "sensitivity": "Sensitivity",
+      "wavelength": "Wavelength (nm)",
+      "blueLight": "Blue",
+      "greenLight": "Green",
+      "cyanLight": "Cyan"
     },
-    "red_blue_magenta": {
-      "title": "Why red + blue makes magenta"
+    "magenta_not_in_rainbow": {
+      "title": "Magenta, the color not in the rainbow",
+      "red": "Red",
+      "blue": "Blue",
+      "magenta": "Magenta",
+      "sensitivity": "Sensitivity",
+      "wavelength": "Wavelength (nm)"
     },
     "red_green_yellow": {
-      "title": "Why red + green makes yellow"
+      "title": "Why red + green makes yellow",
+      "sensitivity": "Sensitivity",
+      "wavelength": "Wavelength (nm)",
+      "redLight": "Red",
+      "greenLight": "Green",
+      "yellowLight": "Yellow"
     },
     "screen_mechanism": {
       "title": "How screens show color"
@@ -186,7 +237,17 @@
       "title": "What HEX codes are"
     },
     "color_matching_experiment": {
-      "title": "Color matching experiments"
+      "title": "Color matching experiments",
+      "target": "Target",
+      "mix": "Mix",
+      "red": "Red",
+      "green": "Green",
+      "blue": "Blue",
+      "matched": "A match!",
+      "functions": "Color matching functions",
+      "amount": "Amount",
+      "negative": "Negative",
+      "toXyz": "→ XYZ"
     },
     "chromaticity_diagram": {
       "title": "Chromaticity diagram"
@@ -250,6 +311,15 @@
     },
     "color_samples": {
       "title": "Color sample collections"
+    },
+    "cone_cells": {
+      "title": "What cone cells are",
+      "sensitivity": "Sensitivity",
+      "wavelength": "Wavelength (nm)",
+      "legend_L": "L: long waves (red)",
+      "legend_M": "M: medium waves (green)",
+      "legend_S": "S: short waves (blue)",
+      "caption": "We tell colors apart by how strongly each of the three cone types responds."
     }
   }
 }

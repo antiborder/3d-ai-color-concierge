@@ -124,29 +124,65 @@
       "caption": "OkLCH では等間隔の色相ステップが明度も均等に見える。"
     },
     "sky_blue_reason": {
-      "title": "空が青い理由"
+      "title": "空が青い理由",
+      "eye": "目",
+      "molecule": "空気の分子",
+      "scattering": "散乱されやすさ",
+      "blue": "青",
+      "green": "緑",
+      "red": "赤"
     },
     "sunset_red_reason": {
-      "title": "夕焼けが赤い理由"
+      "title": "夕焼けが赤い理由",
+      "air": "空気の層",
+      "noon": "昼",
+      "sunset": "夕方",
+      "short": "短い",
+      "long": "長い",
+      "longPath": "空気の中の長い道のり",
+      "eye": "目",
+      "molecules": "空気の分子",
+      "sunsetLooksRed": "夕焼けが赤く見える"
     },
     "rainbow_mechanism": {
-      "title": "虹が見える仕組み"
+      "title": "虹が見える仕組み",
+      "sunlight": "太陽の光",
+      "raindrop": "雨粒",
+      "eye": "目",
+      "red": "赤",
+      "violet": "紫",
+      "rainbow": "虹"
     },
     "nature_of_light": {
-      "title": "光の正体"
+      "title": "光の正体",
+      "light": "光（電磁波）",
+      "wavelength": "波長",
+      "blue": "青",
+      "green": "緑",
+      "red": "赤",
+      "white": "全部混ざると白"
     },
     "electromagnetic_wave": {
-      "title": "電磁波とは"
+      "title": "電磁波とは",
+      "long": "長い",
+      "short": "短い",
+      "wavelength": "波長",
+      "radio": "電波",
+      "infrared": "赤外線",
+      "visible": "可視光",
+      "ultraviolet": "紫外線",
+      "xray": "X線",
+      "gamma": "ガンマ線",
+      "visibleRange": "可視光（目に見える範囲）",
+      "nm": "波長 (nm)"
     },
     "light_visible_reason": {
       "title": "光が見える理由",
       "light": "光",
-      "lens": "水晶体",
       "retina": "網膜",
       "toBrain": "視神経 → 脳",
       "photoreceptors": "網膜の視細胞",
-      "cones": "錐体（色）",
-      "rods": "桿体（明暗）",
+      "cones": "錐体",
       "caption": "光が網膜を刺激し、その信号が脳に届くと「見える」。"
     },
     "lms_space": {
@@ -165,13 +201,28 @@
       "title": "加法混色"
     },
     "blue_green_cyan": {
-      "title": "青と緑を混ぜると水色になるのはなぜ"
+      "title": "青と緑を混ぜるとシアンになるのはなぜ",
+      "sensitivity": "感度",
+      "wavelength": "波長 (nm)",
+      "blueLight": "青",
+      "greenLight": "緑",
+      "cyanLight": "シアン"
     },
-    "red_blue_magenta": {
-      "title": "赤と青を混ぜるとマゼンタになるのはなぜ"
+    "magenta_not_in_rainbow": {
+      "title": "虹に無い色：マゼンタ",
+      "red": "赤",
+      "blue": "青",
+      "magenta": "マゼンタ",
+      "sensitivity": "感度",
+      "wavelength": "波長 (nm)"
     },
     "red_green_yellow": {
-      "title": "赤と緑を混ぜると黄色になるのは何故"
+      "title": "赤と緑を混ぜると黄色になるのはなぜ",
+      "sensitivity": "感度",
+      "wavelength": "波長 (nm)",
+      "redLight": "赤",
+      "greenLight": "緑",
+      "yellowLight": "黄色"
     },
     "screen_mechanism": {
       "title": "画面の仕組み"
@@ -186,7 +237,17 @@
       "title": "HEXコードとは"
     },
     "color_matching_experiment": {
-      "title": "等色実験とは"
+      "title": "等色実験とは",
+      "target": "見たい色",
+      "mix": "混ぜた色",
+      "red": "赤",
+      "green": "緑",
+      "blue": "青",
+      "matched": "同じに見えた！",
+      "functions": "等色関数",
+      "amount": "光の量",
+      "negative": "マイナス",
+      "toXyz": "→ XYZ色空間へ"
     },
     "chromaticity_diagram": {
       "title": "色度図"
@@ -250,6 +311,15 @@
     },
     "color_samples": {
       "title": "様々なColor Samples"
+    },
+    "cone_cells": {
+      "title": "錐体とは",
+      "sensitivity": "感度",
+      "wavelength": "波長 (nm)",
+      "legend_L": "L：長い波長（赤）",
+      "legend_M": "M：中くらいの波長（緑）",
+      "legend_S": "S：短い波長（青）",
+      "caption": "3種類の錐体の反応の割合で、\n色を見分けている。"
     }
   }
 }

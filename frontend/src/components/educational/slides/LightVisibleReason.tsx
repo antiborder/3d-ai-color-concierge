@@ -10,11 +10,10 @@ const RETINA_COLOR = '#e05a5a';
 const ZOOM = { x: 10, y: 160, w: 210, h: 104 };
 
 const CONES = [
-  { label: 'L', x: 34, fill: '#e5533d' },
-  { label: 'M', x: 64, fill: '#3aa655' },
-  { label: 'S', x: 94, fill: '#3f6fe0' },
+  { label: 'L', x: 85, fill: '#e5533d' },
+  { label: 'M', x: 115, fill: '#3aa655' },
+  { label: 'S', x: 145, fill: '#3f6fe0' },
 ];
-const RODS_X = [150, 168, 186];
 const CELL_TOP = ZOOM.y + 46;
 const CELL_BOTTOM = ZOOM.y + 82;
 
@@ -108,10 +107,6 @@ const LightVisibleReason = () => {
         />
 
         {/* labels */}
-        <text x={LENS.cx} y="20" textAnchor="middle" fontSize="13" fill="#3b6fb0">
-          {k('lens')}
-        </text>
-        <line x1={LENS.cx} y1="24" x2={LENS.cx} y2="50" stroke="#6a9fd8" strokeWidth="1" />
         <text x="226" y="22" textAnchor="end" fontSize="13" fill={RETINA_COLOR}>
           {k('retina')}
         </text>
@@ -168,8 +163,8 @@ const LightVisibleReason = () => {
           {k('photoreceptors')}
         </text>
 
-        {/* cones: color */}
-        <text x="64" y={ZOOM.y + 38} textAnchor="middle" fontSize="13" fill="#333">
+        {/* cones */}
+        <text x={ZOOM.x + ZOOM.w / 2} y={ZOOM.y + 38} textAnchor="middle" fontSize="13" fill="#333">
           {k('cones')}
         </text>
         {CONES.map(({ label, x, fill }) => (
@@ -189,22 +184,6 @@ const LightVisibleReason = () => {
               {label}
             </text>
           </g>
-        ))}
-
-        {/* rods: brightness */}
-        <text x="168" y={ZOOM.y + 38} textAnchor="middle" fontSize="13" fill="#333">
-          {k('rods')}
-        </text>
-        {RODS_X.map((x) => (
-          <rect
-            key={x}
-            x={x - 4}
-            y={CELL_TOP - 4}
-            width="8"
-            height={CELL_BOTTOM - CELL_TOP + 4}
-            rx="4"
-            fill="#9aa3ad"
-          />
         ))}
       </svg>
 
