@@ -106,7 +106,7 @@ def build_show_content_response(content_id: str, nav_state: NavState, language: 
 RULES_JA = """\
 ## SHOW_CONTENT — スライド表示ルール
 
-表示できるのは id の enum にあるスライドのみ。
+表示できるのは id の enum にあるスライドのみ。加法混色の質問は rgb_primary（光の三原色）、減法混色の質問は cmy_primary（色材の三原色）で説明する。
 
 **呼ぶタイミング**:
 1. enum のトピックについて明示的に質問された → 即座に SHOW_CONTENT を呼ぶ。
@@ -131,7 +131,7 @@ GET_UI_STATE で activeSlide が null 以外かつ話題と無関係なら呼ぶ
 RULES_EN = """\
 ## SHOW_CONTENT — Slide display rules
 
-Only slides in the id enum exist.
+Only slides in the id enum exist. For additive color mixing use rgb_primary (primary colors of light); for subtractive mixing use cmy_primary (primary colors of pigment).
 
 **When to call:**
 1. The user explicitly asks about a topic in the enum → call SHOW_CONTENT immediately.

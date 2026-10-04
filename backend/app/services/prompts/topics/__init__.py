@@ -33,10 +33,16 @@ from app.services.prompts.topics import (
     hsb_space as _hsb,
 )
 from app.services.prompts.topics import (
+    hsb_vs_hsl as _hsb_vs_hsl,
+)
+from app.services.prompts.topics import (
     hsl_space as _hsl,
 )
 from app.services.prompts.topics import (
     lab_space as _lab,
+)
+from app.services.prompts.topics import (
+    light_pigment_primary_relation as _light_pigment_primary_relation,
 )
 from app.services.prompts.topics import (
     light_visible_reason as _light_visible_reason,
@@ -61,6 +67,9 @@ from app.services.prompts.topics import (
 )
 from app.services.prompts.topics import (
     rgb_primary as _rgb,
+)
+from app.services.prompts.topics import (
+    rgb_space as _rgb_space,
 )
 from app.services.prompts.topics import (
     sky_blue_reason as _sky_blue_reason,
@@ -92,6 +101,9 @@ _TOPIC_MODULES = [
     _sky_blue_reason,
     _sunset_red_reason,
     _color_matching_experiment,
+    _rgb_space,
+    _hsb_vs_hsl,
+    _light_pigment_primary_relation,
 ]
 
 TOPICS: dict[str, dict] = {m.TOPIC["id"]: m.TOPIC for m in _TOPIC_MODULES}
