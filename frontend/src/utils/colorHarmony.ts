@@ -1,4 +1,4 @@
-import { rgbToLch, lchToRgb, maxInGamutChroma } from './gamutUtils';
+import { rgbToOklch, oklchToRgb, maxInGamutChromaOklch } from './gamutUtils';
 
 export type HarmonyMode =
   | 'none'
@@ -37,17 +37,20 @@ export function computeHarmonyColors(
   b: number,
   mode: HarmonyMode
 ): HarmonyColor[] {
-  const [L, C, H] = rgbToLch(r, g, b);
+  // Harmonies are computed in OkLCH: the hue is rotated while the perceived lightness is kept.
+  // OkLCH keeps hues straighter than CIE LCH when chroma changes (e.g. blue no longer drifts
+  // toward purple), which matters because the chroma is reduced below.
+  const [L, C, H] = rgbToOklch(r, g, b);
   const offsets = hueOffsets(mode);
   if (offsets.length === 0) return [];
 
   // Use the same chroma for all harmony colors so they form a regular polygon
-  // in the Lab a-b plane. safeC is the largest value in-gamut for every hue.
+  // in the OkLab a-b plane. safeC is the largest value in-gamut for every hue.
   const allHues = offsets.map((o) => (H + o) % 360);
-  const safeC = Math.min(C, ...allHues.map((h) => maxInGamutChroma(L, h)));
+  const safeC = Math.min(C, ...allHues.map((h) => maxInGamutChromaOklch(L, h)));
 
   return allHues.map((newH) => {
-    const [nr, ng, nb] = lchToRgb(L, safeC, newH);
+    const [nr, ng, nb] = oklchToRgb(L, safeC, newH);
     return { r: nr, g: ng, b: nb };
   });
 }

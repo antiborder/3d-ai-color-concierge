@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { computeHarmonyColors, type HarmonyMode } from '../colorHarmony';
-import { rgbToLch } from '../gamutUtils';
+import { rgbToOklch } from '../gamutUtils';
 
 /** Smallest angular distance between two hue angles (0–360). */
 function angDiff(a: number, b: number): number {
@@ -14,7 +14,7 @@ function isValidRgbChannel(v: number): boolean {
 
 // Pure red in RGB
 const RED: [number, number, number] = [255, 0, 0];
-// Mid gray (achromatic, C≈0 in LCH)
+// Mid gray (achromatic, C≈0 in OkLCH)
 const GRAY: [number, number, number] = [128, 128, 128];
 // An arbitrary saturated color for multi-mode tests
 const ORANGE: [number, number, number] = [235, 194, 71];
@@ -72,33 +72,33 @@ describe('computeHarmonyColors', () => {
     }
   });
 
-  it('LCH lightness is preserved in harmony colors (within ±2)', () => {
-    const [L] = rgbToLch(...RED);
+  it('OkLCH lightness is preserved in harmony colors (within ±0.02)', () => {
+    const [L] = rgbToOklch(...RED);
     const colors = computeHarmonyColors(...RED, 'triangle');
     for (const { r, g, b } of colors) {
-      const [Lh] = rgbToLch(r, g, b);
-      expect(Math.abs(Lh - L)).toBeLessThan(2);
+      const [Lh] = rgbToOklch(r, g, b);
+      expect(Math.abs(Lh - L)).toBeLessThan(0.02);
     }
   });
 
-  it('LCH hue is offset by 180° for complementary (within ±2°)', () => {
-    const [, , H] = rgbToLch(...RED);
+  it('OkLCH hue is offset by 180° for complementary (within ±2°)', () => {
+    const [, , H] = rgbToOklch(...RED);
     const [{ r, g, b }] = computeHarmonyColors(...RED, 'complementary');
-    const [, , Hc] = rgbToLch(r, g, b);
+    const [, , Hc] = rgbToOklch(r, g, b);
     expect(angDiff(Hc, (H + 180) % 360)).toBeLessThan(2);
   });
 
-  it('LCH hue offsets for triangle are ≈120° apart (within ±2°)', () => {
-    const [, , H] = rgbToLch(...RED);
+  it('OkLCH hue offsets for triangle are ≈120° apart (within ±2°)', () => {
+    const [, , H] = rgbToOklch(...RED);
     const colors = computeHarmonyColors(...RED, 'triangle');
     [120, 240].forEach((offset, i) => {
-      const [, , Hh] = rgbToLch(colors[i].r, colors[i].g, colors[i].b);
+      const [, , Hh] = rgbToOklch(colors[i].r, colors[i].g, colors[i].b);
       expect(angDiff(Hh, (H + offset) % 360)).toBeLessThan(2);
     });
   });
 
   it('achromatic input produces achromatic harmony colors', () => {
-    // Gray has C≈0 in LCH; shifting H on a gray produces the same gray
+    // Gray has C≈0 in OkLCH; shifting H on a gray produces the same gray
     const colors = computeHarmonyColors(...GRAY, 'triangle');
     for (const { r, g, b } of colors) {
       // All channels should be very close to each other (achromatic)
