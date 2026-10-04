@@ -19,6 +19,9 @@ import ElectromagneticWave from './slides/ElectromagneticWave';
 import SkyBlueReason from './slides/SkyBlueReason';
 import SunsetRedReason from './slides/SunsetRedReason';
 import ColorMatchingExperiment from './slides/ColorMatchingExperiment';
+import RgbSpace from './slides/RgbSpace';
+import HsbVsHsl from './slides/HsbVsHsl';
+import LightPigmentPrimaryRelation from './slides/LightPigmentPrimaryRelation';
 import PlaceholderSlide from './slides/PlaceholderSlide';
 
 // Every slide uses the same box as the HSB slide (its natural size at 320px wide).
@@ -50,6 +53,9 @@ const SLIDES: Record<string, React.ComponentType> = {
   sky_blue_reason: SkyBlueReason,
   sunset_red_reason: SunsetRedReason,
   color_matching_experiment: ColorMatchingExperiment,
+  rgb_space: RgbSpace,
+  hsb_vs_hsl: HsbVsHsl,
+  light_pigment_primary_relation: LightPigmentPrimaryRelation,
 };
 
 const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => {

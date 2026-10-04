@@ -47,29 +47,25 @@
       "title": "色材の三原色（減法混色）",
       "cyan": "シアン",
       "magenta": "マゼンタ",
-      "yellow": "黄",
+      "yellow": "イエロー",
       "blue": "青",
-      "green": "緑",
       "red": "赤",
+      "green": "緑",
       "black": "黒",
-      "mix1": "シアン ＋ マゼンタ ＝ 青",
-      "mix2": "シアン ＋ 黄 ＝ 緑",
-      "mix3": "マゼンタ ＋ 黄 ＝ 赤",
-      "mix4": "シアン ＋ マゼンタ ＋ 黄 ＝ 黒"
+      "whiteLight": "白い光",
+      "cyanInk": "シアンのインク",
+      "looksCyan": "シアンに見える"
     },
     "rgb_primary": {
       "title": "光の三原色（加法混色）",
       "red": "赤",
       "green": "緑",
       "blue": "青",
-      "yellow": "黄",
-      "magenta": "マゼンタ",
+      "yellow": "黄色",
       "cyan": "シアン",
+      "magenta": "マゼンタ",
       "white": "白",
-      "mix1": "赤 ＋ 緑 ＝ 黄",
-      "mix2": "赤 ＋ 青 ＝ マゼンタ",
-      "mix3": "緑 ＋ 青 ＝ シアン",
-      "mix4": "赤 ＋ 緑 ＋ 青 ＝ 白"
+      "pixel": "画面の1つの点（画素）"
     },
     "hsb_space": {
       "title": "HSB色空間",
@@ -78,8 +74,10 @@
       "brightness": "明度",
       "white": "白",
       "black": "黒",
-      "desc1": "HSBは色相（H）・彩度（S）・明度（B）の3軸で色を表現します。",
-      "desc2": "色相はカラーホイール上の角度（0〜360°）です。彩度は鮮やかさ、明度は明るさを表し、いずれも0〜1の範囲です。"
+      "example": "例：オレンジ",
+      "hueShort": "色相",
+      "saturationShort": "彩度",
+      "brightnessShort": "明度"
     },
     "xyz_space": {
       "title": "CIE XYZ 色空間",
@@ -91,8 +89,16 @@
     },
     "hsl_space": {
       "title": "HSL色空間",
+      "hue": "色相",
+      "saturation": "彩度",
+      "lightness": "輝度",
+      "gray": "グレー",
       "white": "白",
-      "black": "黒"
+      "black": "黒",
+      "example": "例：オレンジ",
+      "hueShort": "色相",
+      "saturationShort": "彩度",
+      "lightnessShort": "輝度"
     },
     "lab_space": {
       "title": "Lab色空間",
@@ -195,10 +201,14 @@
       "title": "CMYK色空間"
     },
     "light_pigment_primary_relation": {
-      "title": "光の三原色と色の三原色の関係"
-    },
-    "additive_mixing": {
-      "title": "加法混色"
+      "title": "光の三原色と色材の三原色の関係",
+      "red": "赤",
+      "green": "緑",
+      "blue": "青",
+      "yellow": "黄色",
+      "cyan": "シアン",
+      "magenta": "マゼンタ",
+      "absorbs": "色材が吸収する光"
     },
     "blue_green_cyan": {
       "title": "青と緑を混ぜるとシアンになるのはなぜ",
@@ -228,7 +238,11 @@
       "title": "画面の仕組み"
     },
     "rgb_space": {
-      "title": "RGB色空間"
+      "title": "RGB色空間",
+      "black": "黒",
+      "white": "白",
+      "grays": "グレー",
+      "example": "例：オレンジ"
     },
     "rgb_cube_grid": {
       "title": "RGB Cube Grid"
@@ -256,7 +270,12 @@
       "title": "画面で表示可能な範囲"
     },
     "hsb_vs_hsl": {
-      "title": "HSBとHSLの違い"
+      "title": "HSBとHSLの違い",
+      "brightness": "明度",
+      "lightness": "輝度",
+      "white": "白",
+      "black": "黒",
+      "compare": "彩度100%・明るさ100%の色"
     },
     "brightness": {
       "title": "明度"

@@ -44,42 +44,40 @@
   },
   "educational": {
     "cmy_primary": {
-      "title": "Primary Colors of Pigment (Subtractive)",
+      "title": "Primary colors of pigment",
       "cyan": "Cyan",
       "magenta": "Magenta",
       "yellow": "Yellow",
       "blue": "Blue",
-      "green": "Green",
       "red": "Red",
+      "green": "Green",
       "black": "Black",
-      "mix1": "Cyan + Magenta = Blue",
-      "mix2": "Cyan + Yellow = Green",
-      "mix3": "Magenta + Yellow = Red",
-      "mix4": "Cyan + Magenta + Yellow = Black"
+      "whiteLight": "White light",
+      "cyanInk": "Cyan ink",
+      "looksCyan": "Looks cyan"
     },
     "rgb_primary": {
-      "title": "Primary Colors of Light (Additive)",
+      "title": "Primary colors of light",
       "red": "Red",
       "green": "Green",
       "blue": "Blue",
       "yellow": "Yellow",
-      "magenta": "Magenta",
       "cyan": "Cyan",
+      "magenta": "Magenta",
       "white": "White",
-      "mix1": "Red + Green = Yellow",
-      "mix2": "Red + Blue = Magenta",
-      "mix3": "Green + Blue = Cyan",
-      "mix4": "Red + Green + Blue = White"
+      "pixel": "One dot on a screen (pixel)"
     },
     "hsb_space": {
-      "title": "HSB Color Space",
+      "title": "HSB color space",
       "hue": "Hue",
       "saturation": "Saturation",
       "brightness": "Brightness",
       "white": "White",
       "black": "Black",
-      "desc1": "HSB expresses color using three axes: Hue (H), Saturation (S), and Brightness (B).",
-      "desc2": "Hue is the angle on a color wheel (0–360°). Saturation is vividness and Brightness is lightness — each ranging from 0 to 1."
+      "example": "Example: orange",
+      "hueShort": "H",
+      "saturationShort": "S",
+      "brightnessShort": "B"
     },
     "xyz_space": {
       "title": "CIE XYZ Color Space",
@@ -90,9 +88,17 @@
       "desc2": "XYZ covers all colors visible to humans — wider than sRGB, including colors that cannot be reproduced on any display."
     },
     "hsl_space": {
-      "title": "HSL Color Space",
+      "title": "HSL color space",
+      "hue": "Hue",
+      "saturation": "Saturation",
+      "lightness": "Lightness",
+      "gray": "Gray",
       "white": "White",
-      "black": "Black"
+      "black": "Black",
+      "example": "Example: orange",
+      "hueShort": "H",
+      "saturationShort": "S",
+      "lightnessShort": "L"
     },
     "lab_space": {
       "title": "Lab Color Space",
@@ -195,10 +201,14 @@
       "title": "CMYK color space"
     },
     "light_pigment_primary_relation": {
-      "title": "Light primaries vs. pigment primaries"
-    },
-    "additive_mixing": {
-      "title": "Additive color mixing"
+      "title": "Light primaries vs. pigment primaries",
+      "red": "Red",
+      "green": "Green",
+      "blue": "Blue",
+      "yellow": "Yellow",
+      "cyan": "Cyan",
+      "magenta": "Magenta",
+      "absorbs": "Light each pigment absorbs"
     },
     "blue_green_cyan": {
       "title": "Why blue + green makes cyan",
@@ -228,7 +238,11 @@
       "title": "How screens show color"
     },
     "rgb_space": {
-      "title": "RGB color space"
+      "title": "RGB color space",
+      "black": "Black",
+      "white": "White",
+      "grays": "Grays",
+      "example": "Example: orange"
     },
     "rgb_cube_grid": {
       "title": "RGB cube grid"
@@ -256,7 +270,12 @@
       "title": "Colors a screen can show"
     },
     "hsb_vs_hsl": {
-      "title": "HSB vs. HSL"
+      "title": "HSB vs. HSL",
+      "brightness": "Brightness",
+      "lightness": "Lightness",
+      "white": "White",
+      "black": "Black",
+      "compare": "Saturation 100%, brightness 100%"
     },
     "brightness": {
       "title": "Brightness"

@@ -95,16 +95,16 @@
       "id": "rgb_primary",
       "cluster": "machine",
       "label": {
-        "ja": "光の三原色",
-        "en": "Primary colors of light"
+        "ja": "光の三原色（加法混色）",
+        "en": "Primary colors of light (additive mixing)"
       }
     },
     {
       "id": "cmy_primary",
       "cluster": "machine",
       "label": {
-        "ja": "色材の三原色",
-        "en": "Primary colors of pigment"
+        "ja": "色材の三原色（減法混色）",
+        "en": "Primary colors of pigment (subtractive mixing)"
       }
     },
     {
@@ -119,16 +119,8 @@
       "id": "light_pigment_primary_relation",
       "cluster": null,
       "label": {
-        "ja": "光の三原色と色の三原色の関係",
+        "ja": "光の三原色と色材の三原色の関係",
         "en": "Light primaries vs. pigment primaries"
-      }
-    },
-    {
-      "id": "additive_mixing",
-      "cluster": null,
-      "label": {
-        "ja": "加法混色",
-        "en": "Additive color mixing"
       }
     },
     {
@@ -660,34 +652,6 @@
       }
     },
     {
-      "from": "rgb_primary",
-      "to": "additive_mixing",
-      "suggest": {
-        "forward": {
-          "ja": "光は重ねるほど明るくなります。これが加法混色です。見てみますか？",
-          "en": "Light gets brighter as you overlap it—that's additive mixing. Want to see?"
-        },
-        "backward": {
-          "ja": "加法混色で混ぜるのは、光の三原色です。見てみますか？",
-          "en": "Additive mixing combines the three primaries of light. Want to see them?"
-        }
-      }
-    },
-    {
-      "from": "additive_mixing",
-      "to": "blue_green_cyan",
-      "suggest": {
-        "forward": {
-          "ja": "たとえば青と緑の光を混ぜるとシアンになります。なぜか見てみますか？",
-          "en": "For example, blue and green light make cyan. Want to see why?"
-        },
-        "backward": {
-          "ja": "これは加法混色という仕組みによるものです。見てみますか？",
-          "en": "This happens through additive mixing. Want to see how it works?"
-        }
-      }
-    },
-    {
       "from": "blue_green_cyan",
       "to": "magenta_not_in_rainbow",
       "suggest": {
@@ -702,20 +666,6 @@
       }
     },
     {
-      "from": "additive_mixing",
-      "to": "red_green_yellow",
-      "suggest": {
-        "forward": {
-          "ja": "意外なことに、赤と緑の光を混ぜると黄色になります。なぜか見てみますか？",
-          "en": "Surprisingly, red and green light make yellow. Want to see why?"
-        },
-        "backward": {
-          "ja": "これは加法混色という仕組みによるものです。見てみますか？",
-          "en": "This happens through additive mixing. Want to see how it works?"
-        }
-      }
-    },
-    {
       "from": "red_green_yellow",
       "to": "magenta_not_in_rainbow",
       "suggest": {
@@ -726,20 +676,6 @@
         "backward": {
           "ja": "マゼンタと違って、赤と緑を混ぜた黄色は虹の中の色と同じに見えます。見てみますか？",
           "en": "Unlike magenta, yellow from red and green looks just like a color in the rainbow. Want to see?"
-        }
-      }
-    },
-    {
-      "from": "screen_mechanism",
-      "to": "additive_mixing",
-      "suggest": {
-        "forward": {
-          "ja": "画面は赤・緑・青の光を混ぜて色を作っています。加法混色も見てみますか？",
-          "en": "Screens mix red, green and blue light. Want to see how additive mixing works?"
-        },
-        "backward": {
-          "ja": "加法混色は、画面が色を表示する仕組みそのものです。画面の仕組みも見てみますか？",
-          "en": "Additive mixing is exactly how screens display color. Want to see how screens work?"
         }
       }
     },
@@ -2028,6 +1964,48 @@
         "backward": {
           "ja": "等色実験の一例として、赤と緑の光を混ぜると黄色の光と同じに見える理由を見てみますか？",
           "en": "As one example of color matching, want to see why red and green light together look the same as yellow light?"
+        }
+      }
+    },
+    {
+      "from": "rgb_primary",
+      "to": "blue_green_cyan",
+      "suggest": {
+        "forward": {
+          "ja": "たとえば青と緑の光を重ねるとシアンになります。なぜか見てみますか？",
+          "en": "For example, blue and green light together make cyan. Want to see why?"
+        },
+        "backward": {
+          "ja": "これは、光を重ねるほど明るくなる加法混色によるものです。光の三原色も見てみますか？",
+          "en": "This comes from additive mixing, where light gets brighter as you add more. Want to see the primary colors of light?"
+        }
+      }
+    },
+    {
+      "from": "rgb_primary",
+      "to": "red_green_yellow",
+      "suggest": {
+        "forward": {
+          "ja": "意外なことに、赤と緑の光を重ねると黄色になります。なぜか見てみますか？",
+          "en": "Surprisingly, red and green light together make yellow. Want to see why?"
+        },
+        "backward": {
+          "ja": "これは、光を重ねるほど明るくなる加法混色によるものです。光の三原色も見てみますか？",
+          "en": "This comes from additive mixing, where light gets brighter as you add more. Want to see the primary colors of light?"
+        }
+      }
+    },
+    {
+      "from": "rgb_primary",
+      "to": "screen_mechanism",
+      "suggest": {
+        "forward": {
+          "ja": "画面は、光の三原色を混ぜて色を表示しています。画面の仕組みも見てみますか？",
+          "en": "Screens show colors by mixing the three primary colors of light. Want to see how screens work?"
+        },
+        "backward": {
+          "ja": "画面は赤・緑・青の光を混ぜて色を作っています。光の三原色も見てみますか？",
+          "en": "Screens make colors by mixing red, green and blue light. Want to see the primary colors of light?"
         }
       }
     }

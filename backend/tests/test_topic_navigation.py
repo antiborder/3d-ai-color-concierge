@@ -209,8 +209,8 @@ def test_show_content_response_rejects_unknown_id():
 
 def test_topic_script_s2_is_skipped_or_chosen_from_options():
     rng = random.Random(0)
-    options = TOPICS["hsl_space"]["s2"]["options"]["ja"]
-    seen_s2 = {topic_script("hsl_space", "ja", rng)["s2"] for _ in range(50)}
+    options = TOPICS["cone_cells"]["s2"]["options"]["ja"]
+    seen_s2 = {topic_script("cone_cells", "ja", rng)["s2"] for _ in range(50)}
     assert None in seen_s2
     assert seen_s2 - {None} <= set(options)
     assert len(seen_s2 - {None}) > 1
