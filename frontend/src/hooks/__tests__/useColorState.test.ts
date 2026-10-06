@@ -27,7 +27,7 @@ describe('useColorState – updateFromRgb', () => {
     act(() => {
       result.current.updateFromRgb(255, 0, 0);
     });
-    expect(result.current.colorState.hexInput).toBe('FF0000');
+    expect(result.current.colorState.hexInput).toBe('ff0000');
   });
 
   it('derives HSL correctly from pure red (255,0,0)', () => {
@@ -72,7 +72,7 @@ describe('useColorState – updateFromRgb', () => {
     expect(result.current.colorState.r).toBe(255);
     expect(result.current.colorState.g).toBe(255);
     expect(result.current.colorState.b).toBe(255);
-    expect(result.current.colorState.hexInput).toBe('FFFFFF');
+    expect(result.current.colorState.hexInput).toBe('ffffff');
     expect(result.current.colorState.l).toBe(100); // lightness
   });
 });
@@ -88,12 +88,12 @@ describe('useColorState – updateFromHex', () => {
     expect(result.current.colorState.b).toBe(0);
   });
 
-  it('stores hex in uppercase', () => {
+  it('stores hex in lowercase', () => {
     const { result } = renderHook(() => useColorState());
     act(() => {
       result.current.updateFromHex('ff8800');
     });
-    expect(result.current.colorState.hexInput).toBe('FF8800');
+    expect(result.current.colorState.hexInput).toBe('ff8800');
   });
 });
 
@@ -213,6 +213,6 @@ describe('useColorState – setHexInput', () => {
     act(() => {
       result.current.setHexInput('abc');
     });
-    expect(result.current.colorState.hexInput).toBe('ABC');
+    expect(result.current.colorState.hexInput).toBe('abc');
   });
 });
