@@ -21,6 +21,9 @@ from app.services.prompts.topics import (
     brightness as _brightness,
 )
 from app.services.prompts.topics import (
+    chromaticity_diagram as _chromaticity_diagram,
+)
+from app.services.prompts.topics import (
     cmy_primary as _cmy,
 )
 from app.services.prompts.topics import (
@@ -31,6 +34,9 @@ from app.services.prompts.topics import (
 )
 from app.services.prompts.topics import (
     cone_cells as _cone_cells,
+)
+from app.services.prompts.topics import (
+    display_gamut as _display_gamut,
 )
 from app.services.prompts.topics import (
     electromagnetic_wave as _electromagnetic_wave,
@@ -96,6 +102,9 @@ from app.services.prompts.topics import (
     sunset_red_reason as _sunset_red_reason,
 )
 from app.services.prompts.topics import (
+    visible_gamut as _visible_gamut,
+)
+from app.services.prompts.topics import (
     xyz_lms_relation as _xyz_lms_relation,
 )
 from app.services.prompts.topics import (
@@ -132,6 +141,9 @@ _TOPIC_MODULES = [
     _rgb_xyz_relation,
     _brightness,
     _lightness,
+    _chromaticity_diagram,
+    _display_gamut,
+    _visible_gamut,
 ]
 
 TOPICS: dict[str, dict] = {m.TOPIC["id"]: m.TOPIC for m in _TOPIC_MODULES}

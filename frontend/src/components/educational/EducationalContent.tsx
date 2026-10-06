@@ -29,6 +29,9 @@ import XyzLmsRelation from './slides/XyzLmsRelation';
 import RgbXyzRelation from './slides/RgbXyzRelation';
 import Brightness from './slides/Brightness';
 import Lightness from './slides/Lightness';
+import ChromaticityDiagram from './slides/ChromaticityDiagram';
+import DisplayGamut from './slides/DisplayGamut';
+import VisibleGamut from './slides/VisibleGamut';
 import PlaceholderSlide from './slides/PlaceholderSlide';
 
 // Every slide uses the same box as the HSB slide (its natural size at 320px wide).
@@ -70,6 +73,9 @@ const SLIDES: Record<string, React.ComponentType> = {
   rgb_xyz_relation: RgbXyzRelation,
   brightness: Brightness,
   lightness: Lightness,
+  chromaticity_diagram: ChromaticityDiagram,
+  display_gamut: DisplayGamut,
+  visible_gamut: VisibleGamut,
 };
 
 const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => {
@@ -130,7 +136,9 @@ const CloseButton = styled.button`
   color: #888;
   line-height: 1;
   padding: 2px 4px;
-  &:hover { color: #333; }
+  &:hover {
+    color: #333;
+  }
 `;
 
 export default EducationalContent;
