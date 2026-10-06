@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { SPECTRUM_STOPS } from '../ConeSensitivityChart';
-import { CONE_FUNDAMENTALS, CONE_NM_MAX, CONE_NM_MIN, coneResponse } from '../coneFundamentals';
+import { RGB_CMF } from '../colorMatchingFunctions';
+import { CONE_NM_MAX, CONE_NM_MIN } from '../coneFundamentals';
 import { draw, fade, useSlideStep } from '../slideAnimation';
 
 /**
@@ -44,32 +45,8 @@ const SEARCH: Array<[number, number, number]> = [
   [1.0, 0.85, 0],
 ];
 
-// Bottom: color matching functions for the CIE 1931 RGB primaries (700, 546.1, 435.8 nm),
-// computed from the cone fundamentals: the amounts a of the three primaries whose cone
-// responses add up to those of each wavelength (P · a = LMS(λ)), each curve scaled to equal area.
-const PRIMARY_NM = [700, 546.1, 435.8];
-const det3 = (m: number[][]) =>
-  m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) -
-  m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) +
-  m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
-const PRIMARY_MATRIX = (() => {
-  const p = PRIMARY_NM.map((nm) => coneResponse(nm));
-  return [p.map((r) => r.L), p.map((r) => r.M), p.map((r) => r.S)];
-})();
-/** Solve PRIMARY_MATRIX · a = lms by Cramer's rule */
-const solvePrimaries = (lms: number[]) => {
-  const d = det3(PRIMARY_MATRIX);
-  return [0, 1, 2].map(
-    (j) => det3(PRIMARY_MATRIX.map((row, i) => row.map((v, c) => (c === j ? lms[i] : v)))) / d
-  );
-};
-const CMF = (() => {
-  const raw = CONE_FUNDAMENTALS.map(([nm, l, m, s]) => ({ nm, a: solvePrimaries([l, m, s]) }));
-  const areas = [0, 1, 2].map((j) => raw.reduce((sum, r) => sum + r.a[j], 0));
-  const scaled = raw.map((r) => ({ nm: r.nm, a: r.a.map((v, j) => v / areas[j]) }));
-  const max = Math.max(...scaled.flatMap((r) => r.a));
-  return scaled.map((r) => ({ nm: r.nm, a: r.a.map((v) => v / max) }));
-})();
+// Bottom: color matching functions for the CIE 1931 RGB primaries (see colorMatchingFunctions)
+const CMF = RGB_CMF;
 
 const CHART = { x0: 34, x1: 218, zeroY: 262, height: 70 };
 const xOf = (nm: number) =>

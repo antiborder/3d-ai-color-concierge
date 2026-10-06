@@ -84,6 +84,22 @@
       }
     },
     {
+      "id": "rgb_xyz_relation",
+      "cluster": "machine",
+      "label": {
+        "ja": "RGB座標とXYZ座標の関係",
+        "en": "How RGB and XYZ relate"
+      }
+    },
+    {
+      "id": "xyz_lms_relation",
+      "cluster": "human",
+      "label": {
+        "ja": "XYZ座標とLMS座標の関係",
+        "en": "How XYZ and LMS relate"
+      }
+    },
+    {
       "id": "visible_gamut",
       "cluster": "human",
       "label": {
@@ -2006,6 +2022,132 @@
         "backward": {
           "ja": "画面は赤・緑・青の光を混ぜて色を作っています。光の三原色も見てみますか？",
           "en": "Screens make colors by mixing red, green and blue light. Want to see the primary colors of light?"
+        }
+      }
+    },
+    {
+      "from": "xyz_space",
+      "to": "xyz_lms_relation",
+      "suggest": {
+        "forward": {
+          "ja": "XYZは、目の錐体の反応であるLMSから計算することもできます。2つの関係を見てみますか？",
+          "en": "XYZ can also be calculated from LMS, the responses of the eye's cones. Want to see how they relate?"
+        },
+        "backward": {
+          "ja": "XYZそのものについても見てみますか？",
+          "en": "Want to see XYZ color space itself?"
+        }
+      }
+    },
+    {
+      "from": "lms_space",
+      "to": "xyz_lms_relation",
+      "suggest": {
+        "forward": {
+          "ja": "LMSを決まった割合で足し引きすると、世界共通の基準XYZになります。2つの関係を見てみますか？",
+          "en": "Adding and subtracting LMS in fixed proportions gives XYZ, the worldwide standard. Want to see how they relate?"
+        },
+        "backward": {
+          "ja": "LMSそのものについても見てみますか？",
+          "en": "Want to see LMS color space itself?"
+        }
+      }
+    },
+    {
+      "from": "xyz_lms_relation",
+      "to": "oklch_lineage",
+      "suggest": {
+        "forward": {
+          "ja": "XYZやLMSから、Lab・OkLabなどの色空間が生まれました。色科学の系統図を見てみますか？",
+          "en": "Color spaces such as Lab and OkLab grew out of XYZ and LMS. Want to see the lineage of color science?"
+        },
+        "backward": {
+          "ja": "系統図の中のXYZとLMSは、互いに計算で行き来できます。その関係を見てみますか？",
+          "en": "In the lineage, XYZ and LMS can be converted into each other. Want to see how they relate?"
+        }
+      }
+    },
+    {
+      "from": "rgb_space",
+      "to": "rgb_xyz_relation",
+      "suggest": {
+        "forward": {
+          "ja": "RGBの値は、決まった計算で世界共通の基準XYZに変換できます。2つの関係を見てみますか？",
+          "en": "RGB values can be converted to XYZ, the worldwide standard, with a fixed calculation. Want to see how they relate?"
+        },
+        "backward": {
+          "ja": "RGB色空間そのものについても見てみますか？",
+          "en": "Want to see RGB color space itself?"
+        }
+      }
+    },
+    {
+      "from": "xyz_space",
+      "to": "rgb_xyz_relation",
+      "suggest": {
+        "forward": {
+          "ja": "画面のRGBも、XYZから計算で定義されています。RGBとXYZの関係を見てみますか？",
+          "en": "The RGB of screens is defined from XYZ by a calculation. Want to see how RGB and XYZ relate?"
+        },
+        "backward": {
+          "ja": "XYZそのものについても見てみますか？",
+          "en": "Want to see XYZ color space itself?"
+        }
+      }
+    },
+    {
+      "from": "rgb_xyz_relation",
+      "to": "xyz_lms_relation",
+      "suggest": {
+        "forward": {
+          "ja": "XYZは、目の錐体の反応であるLMSとも計算で行き来できます。その関係も見てみますか？",
+          "en": "XYZ can also be converted to and from LMS, the cone responses. Want to see that relation too?"
+        },
+        "backward": {
+          "ja": "XYZは、画面のRGBとも計算で行き来できます。その関係も見てみますか？",
+          "en": "XYZ can also be converted to and from the RGB of screens. Want to see that relation too?"
+        }
+      }
+    },
+    {
+      "from": "screen_mechanism",
+      "to": "color_matching_experiment",
+      "suggest": {
+        "forward": {
+          "ja": "画面が赤・緑・青の3色だけでほとんどの色を作れることは、等色実験で確かめられました。見てみますか？",
+          "en": "That screens can make almost any color from just red, green and blue was confirmed by color matching experiments. Want to see?"
+        },
+        "backward": {
+          "ja": "3つの色の光で色を再現するしくみは、画面にも使われています。画面の仕組みも見てみますか？",
+          "en": "Reproducing colors with three lights is exactly how screens work. Want to see how screens show color?"
+        }
+      }
+    },
+    {
+      "from": "various_color_spaces",
+      "to": "rgb_space",
+      "suggest": {
+        "forward": {
+          "ja": "いろいろな色空間の出発点が、画面の色を表すRGB色空間です。見てみますか？",
+          "en": "Many color spaces start from RGB, the color space of screens. Want to see it?"
+        },
+        "backward": {
+          "ja": "RGBのほかにも、目的に合わせていろいろな色空間があります。見てみますか？",
+          "en": "Besides RGB, there are many color spaces for different purposes. Want to see them?"
+        }
+      }
+    },
+    {
+      "from": "various_color_spaces",
+      "to": "rgb_xyz_relation",
+      "suggest": {
+        "forward": {
+          "ja": "色空間どうしは計算で変換できます。例としてRGBとXYZの関係を見てみますか？",
+          "en": "Color spaces can be converted into one another. Want to see how RGB and XYZ relate, as an example?"
+        },
+        "backward": {
+          "ja": "RGBやXYZのほかにも、いろいろな色空間があります。見てみますか？",
+          "en": "Besides RGB and XYZ, there are many other color spaces. Want to see them?"
         }
       }
     }

@@ -22,6 +22,11 @@ import ColorMatchingExperiment from './slides/ColorMatchingExperiment';
 import RgbSpace from './slides/RgbSpace';
 import HsbVsHsl from './slides/HsbVsHsl';
 import LightPigmentPrimaryRelation from './slides/LightPigmentPrimaryRelation';
+import CmykSpace from './slides/CmykSpace';
+import HexCode from './slides/HexCode';
+import ScreenMechanism from './slides/ScreenMechanism';
+import XyzLmsRelation from './slides/XyzLmsRelation';
+import RgbXyzRelation from './slides/RgbXyzRelation';
 import PlaceholderSlide from './slides/PlaceholderSlide';
 
 // Every slide uses the same box as the HSB slide (its natural size at 320px wide).
@@ -56,6 +61,11 @@ const SLIDES: Record<string, React.ComponentType> = {
   rgb_space: RgbSpace,
   hsb_vs_hsl: HsbVsHsl,
   light_pigment_primary_relation: LightPigmentPrimaryRelation,
+  cmyk_space: CmykSpace,
+  hex_code: HexCode,
+  screen_mechanism: ScreenMechanism,
+  xyz_lms_relation: XyzLmsRelation,
+  rgb_xyz_relation: RgbXyzRelation,
 };
 
 const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => {

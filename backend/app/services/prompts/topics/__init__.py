@@ -21,6 +21,9 @@ from app.services.prompts.topics import (
     cmy_primary as _cmy,
 )
 from app.services.prompts.topics import (
+    cmyk_space as _cmyk_space,
+)
+from app.services.prompts.topics import (
     color_matching_experiment as _color_matching_experiment,
 )
 from app.services.prompts.topics import (
@@ -28,6 +31,9 @@ from app.services.prompts.topics import (
 )
 from app.services.prompts.topics import (
     electromagnetic_wave as _electromagnetic_wave,
+)
+from app.services.prompts.topics import (
+    hex_code as _hex_code,
 )
 from app.services.prompts.topics import (
     hsb_space as _hsb,
@@ -72,10 +78,19 @@ from app.services.prompts.topics import (
     rgb_space as _rgb_space,
 )
 from app.services.prompts.topics import (
+    rgb_xyz_relation as _rgb_xyz_relation,
+)
+from app.services.prompts.topics import (
+    screen_mechanism as _screen_mechanism,
+)
+from app.services.prompts.topics import (
     sky_blue_reason as _sky_blue_reason,
 )
 from app.services.prompts.topics import (
     sunset_red_reason as _sunset_red_reason,
+)
+from app.services.prompts.topics import (
+    xyz_lms_relation as _xyz_lms_relation,
 )
 from app.services.prompts.topics import (
     xyz_space as _xyz,
@@ -104,6 +119,11 @@ _TOPIC_MODULES = [
     _rgb_space,
     _hsb_vs_hsl,
     _light_pigment_primary_relation,
+    _cmyk_space,
+    _hex_code,
+    _screen_mechanism,
+    _xyz_lms_relation,
+    _rgb_xyz_relation,
 ]
 
 TOPICS: dict[str, dict] = {m.TOPIC["id"]: m.TOPIC for m in _TOPIC_MODULES}
