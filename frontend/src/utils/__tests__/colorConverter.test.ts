@@ -4,18 +4,18 @@ import { ColorConverter, focusContrastColor } from '../colorConverter';
 describe('ColorConverter.fromRgb', () => {
   it('returns correct hex for pure red', () => {
     const result = ColorConverter.fromRgb(255, 0, 0);
-    expect(result.hex).toBe('FF0000');
+    expect(result.hex).toBe('ff0000');
     expect(result.rgb).toEqual([255, 0, 0]);
   });
 
   it('returns correct hex for pure green', () => {
     const result = ColorConverter.fromRgb(0, 255, 0);
-    expect(result.hex).toBe('00FF00');
+    expect(result.hex).toBe('00ff00');
   });
 
   it('returns correct hex for pure blue', () => {
     const result = ColorConverter.fromRgb(0, 0, 255);
-    expect(result.hex).toBe('0000FF');
+    expect(result.hex).toBe('0000ff');
   });
 
   it('handles black (0,0,0)', () => {
@@ -27,7 +27,7 @@ describe('ColorConverter.fromRgb', () => {
 
   it('handles white (255,255,255)', () => {
     const result = ColorConverter.fromRgb(255, 255, 255);
-    expect(result.hex).toBe('FFFFFF');
+    expect(result.hex).toBe('ffffff');
     expect(result.rgb).toEqual([255, 255, 255]);
     // White has 0 saturation in HSL
     expect(result.hsl[1]).toBe(0);
