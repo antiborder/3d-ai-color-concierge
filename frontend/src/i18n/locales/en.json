@@ -216,7 +216,10 @@
       "title": "LMS color space"
     },
     "visible_gamut": {
-      "title": "Colors humans can perceive"
+      "title": "Colors humans can perceive",
+      "notReal": "Unreal colors",
+      "edge": "Edge = rainbow's pure lights",
+      "screenNote": "Dashed = a screen's range"
     },
     "cmyk_space": {
       "title": "CMYK color space",
@@ -296,10 +299,22 @@
       "toXyz": "→ XYZ"
     },
     "chromaticity_diagram": {
-      "title": "Chromaticity diagram"
+      "title": "Chromaticity diagram",
+      "purpleLine": "Not in rainbow",
+      "white": "White",
+      "mix": "Mix",
+      "formulaTitle": "Divide by the sum of XYZ"
     },
     "display_gamut": {
-      "title": "Colors a screen can show"
+      "title": "Colors a screen can show",
+      "red": "Red",
+      "green": "Green",
+      "blue": "Blue",
+      "greens": "Vivid greens",
+      "cannotShow": "can't be shown",
+      "srgb": "Usual screen (sRGB)",
+      "p3": "Wide-gamut (Display P3)",
+      "outside": "Can't make colors outside"
     },
     "hsb_vs_hsl": {
       "title": "HSB vs. HSL",

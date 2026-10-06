@@ -216,7 +216,10 @@
       "title": "LMS座標系"
     },
     "visible_gamut": {
-      "title": "人が知覚可能な範囲"
+      "title": "人が知覚可能な範囲",
+      "notReal": "実在しない色",
+      "edge": "馬蹄形のふち = 虹の単色光",
+      "screenNote": "点線 = 画面の範囲"
     },
     "cmyk_space": {
       "title": "CMYK色空間",
@@ -296,10 +299,22 @@
       "toXyz": "→ XYZ色空間へ"
     },
     "chromaticity_diagram": {
-      "title": "色度図"
+      "title": "色度図",
+      "purpleLine": "虹にない色",
+      "white": "白",
+      "mix": "混ぜた色",
+      "formulaTitle": "XYZの合計で割って座標にする"
     },
     "display_gamut": {
-      "title": "画面で表示可能な範囲"
+      "title": "画面で表示可能な範囲",
+      "red": "赤",
+      "green": "緑",
+      "blue": "青",
+      "greens": "鮮やかな緑・青緑",
+      "cannotShow": "は表示できない",
+      "srgb": "一般的な画面 (sRGB)",
+      "p3": "広色域の画面 (Display P3)",
+      "outside": "三角形の外の色は作れない"
     },
     "hsb_vs_hsl": {
       "title": "HSBとHSLの違い",

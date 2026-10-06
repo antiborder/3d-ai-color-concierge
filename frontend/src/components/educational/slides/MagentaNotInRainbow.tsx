@@ -23,7 +23,7 @@ const STEP = {
   blueResponse: 5, // "no single wavelength of light gives that response."
   redResponse: 6, // "Two or more lights have to be mixed."
 } as const;
-const STEP_AT_MS = [0, 1500, 4500, 8500, 11500, 17000, 21500];
+const STEP_AT_MS = [0, 1500, 4500, 8500, 11500, 17000, 22000];
 
 const RED = { nm: 630, color: '#e01a00' };
 const BLUE = { nm: 450, color: '#2a3cff' };
