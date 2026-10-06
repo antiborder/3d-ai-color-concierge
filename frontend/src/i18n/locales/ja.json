@@ -81,11 +81,13 @@
     },
     "xyz_space": {
       "title": "CIE XYZ 色空間",
-      "luminance": "輝度",
-      "visible": "可視域",
-      "outOfDisplay": "表示不可",
-      "desc1": "人間の目の3種類の錐体細胞の応答特性を基に設計された色空間。",
-      "desc2": "人間が知覚できるすべての色を包含し、ディスプレイで再現できない色も表現できます。"
+      "wavelength": "波長 (nm)",
+      "brightness": "明るさ",
+      "rgb": "RGB（画面）",
+      "lab": "Lab",
+      "cmyk": "CMYK",
+      "lms": "LMS",
+      "oklab": "OkLab"
     },
     "hsl_space": {
       "title": "HSL色空間",
@@ -191,6 +193,25 @@
       "cones": "錐体",
       "caption": "光が網膜を刺激し、その信号が脳に届くと「見える」。"
     },
+    "rgb_xyz_relation": {
+      "title": "RGB座標とXYZ座標の関係",
+      "wavelength": "波長 (nm)",
+      "matchingCurves": "等色実験のRGB",
+      "xyzCurves": "XYZ",
+      "negative": "マイナス",
+      "red": "赤",
+      "green": "緑",
+      "blue": "青",
+      "white": "白",
+      "linearize": "① RGBの値を光の強さに直す"
+    },
+    "xyz_lms_relation": {
+      "title": "XYZ座標とLMS座標の関係",
+      "wavelength": "波長 (nm)",
+      "lmsCurves": "LMS（錐体の反応）",
+      "xyzCurves": "XYZ",
+      "inverse": "逆の計算で、XYZ → LMS にも戻せる"
+    },
     "lms_space": {
       "title": "LMS座標系"
     },
@@ -198,7 +219,11 @@
       "title": "人が知覚可能な範囲"
     },
     "cmyk_space": {
-      "title": "CMYK色空間"
+      "title": "CMYK色空間",
+      "paperWhite": "紙の白",
+      "black": "黒",
+      "muddy": "濁った黒",
+      "blackInk": "黒インク"
     },
     "light_pigment_primary_relation": {
       "title": "光の三原色と色材の三原色の関係",
@@ -235,7 +260,11 @@
       "yellowLight": "黄色"
     },
     "screen_mechanism": {
-      "title": "画面の仕組み"
+      "title": "画面の仕組み",
+      "pixel": "画素",
+      "eye": "目",
+      "levels": "赤・緑・青 それぞれ256段階",
+      "total": "＝ 約1677万色"
     },
     "rgb_space": {
       "title": "RGB色空間",
@@ -248,7 +277,10 @@
       "title": "RGB Cube Grid"
     },
     "hex_code": {
-      "title": "HEXコードとは"
+      "title": "HEXコードとは",
+      "oneDigit": "1桁",
+      "twoDigits": "2桁",
+      "levels": "16 × 16 = 256段階"
     },
     "color_matching_experiment": {
       "title": "等色実験とは",

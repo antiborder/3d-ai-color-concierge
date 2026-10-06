@@ -80,12 +80,14 @@
       "brightnessShort": "B"
     },
     "xyz_space": {
-      "title": "CIE XYZ Color Space",
-      "luminance": "Luminance",
-      "visible": "Visible gamut",
-      "outOfDisplay": "Not displayable",
-      "desc1": "Designed from the response of three types of cone cells in the human eye. Only the Y axis represents luminance (brightness).",
-      "desc2": "XYZ covers all colors visible to humans — wider than sRGB, including colors that cannot be reproduced on any display."
+      "title": "CIE XYZ color space",
+      "wavelength": "Wavelength (nm)",
+      "brightness": "Brightness",
+      "rgb": "RGB (screens)",
+      "lab": "Lab",
+      "cmyk": "CMYK",
+      "lms": "LMS",
+      "oklab": "OkLab"
     },
     "hsl_space": {
       "title": "HSL color space",
@@ -191,6 +193,25 @@
       "cones": "Cones",
       "caption": "We see when light stimulates cells in the retina and the brain receives their signals."
     },
+    "rgb_xyz_relation": {
+      "title": "How RGB and XYZ relate",
+      "wavelength": "Wavelength (nm)",
+      "matchingCurves": "Color matching RGB",
+      "xyzCurves": "XYZ",
+      "negative": "Negative",
+      "red": "Red",
+      "green": "Green",
+      "blue": "Blue",
+      "white": "White",
+      "linearize": "① Turn RGB values into light"
+    },
+    "xyz_lms_relation": {
+      "title": "How XYZ and LMS relate",
+      "wavelength": "Wavelength (nm)",
+      "lmsCurves": "LMS (cone responses)",
+      "xyzCurves": "XYZ",
+      "inverse": "Reversed, XYZ → LMS works too"
+    },
     "lms_space": {
       "title": "LMS color space"
     },
@@ -198,7 +219,11 @@
       "title": "Colors humans can perceive"
     },
     "cmyk_space": {
-      "title": "CMYK color space"
+      "title": "CMYK color space",
+      "paperWhite": "Paper white",
+      "black": "Black",
+      "muddy": "Muddy dark",
+      "blackInk": "Black ink"
     },
     "light_pigment_primary_relation": {
       "title": "Light primaries vs. pigment primaries",
@@ -235,7 +260,11 @@
       "yellowLight": "Yellow"
     },
     "screen_mechanism": {
-      "title": "How screens show color"
+      "title": "How screens show color",
+      "pixel": "Pixels",
+      "eye": "Eye",
+      "levels": "Red, green, blue: 256 levels each",
+      "total": "= about 16.7 million colors"
     },
     "rgb_space": {
       "title": "RGB color space",
@@ -248,7 +277,10 @@
       "title": "RGB cube grid"
     },
     "hex_code": {
-      "title": "What HEX codes are"
+      "title": "What HEX codes are",
+      "oneDigit": "1 digit",
+      "twoDigits": "2 digits",
+      "levels": "16 × 16 = 256 levels"
     },
     "color_matching_experiment": {
       "title": "Color matching experiments",
