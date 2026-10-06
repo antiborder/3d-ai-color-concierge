@@ -27,6 +27,8 @@ import HexCode from './slides/HexCode';
 import ScreenMechanism from './slides/ScreenMechanism';
 import XyzLmsRelation from './slides/XyzLmsRelation';
 import RgbXyzRelation from './slides/RgbXyzRelation';
+import Brightness from './slides/Brightness';
+import Lightness from './slides/Lightness';
 import PlaceholderSlide from './slides/PlaceholderSlide';
 
 // Every slide uses the same box as the HSB slide (its natural size at 320px wide).
@@ -66,6 +68,8 @@ const SLIDES: Record<string, React.ComponentType> = {
   screen_mechanism: ScreenMechanism,
   xyz_lms_relation: XyzLmsRelation,
   rgb_xyz_relation: RgbXyzRelation,
+  brightness: Brightness,
+  lightness: Lightness,
 };
 
 const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => {
