@@ -310,10 +310,18 @@
       "compare": "Saturation 100%, brightness 100%"
     },
     "brightness": {
-      "title": "Brightness"
+      "title": "Brightness",
+      "formula": "B = max of R, G, B",
+      "calc": "Max 255",
+      "whiteNote": "White is 100% too",
+      "caption": "Same value, not equally bright"
     },
     "lightness": {
-      "title": "Lightness"
+      "title": "Lightness",
+      "formula": "L = (max + min) ÷ 2",
+      "calc": "(255 + 0) ÷ 2",
+      "whiteNote": "White is 100%",
+      "caption": "Same value, not equally bright"
     },
     "saturation": {
       "title": "Saturation"

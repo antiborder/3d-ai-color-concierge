@@ -196,7 +196,9 @@ function App() {
     resolveSlideWaiters(() => true);
   };
 
-  // Show the slide only after any running shape deformation has finished.
+  // Show the slide only after any running shape deformation has finished. While the shape
+  // deforms, the previous slide is closed so the user can watch the color space change:
+  // close the old slide → deform the shape → open the new slide.
   // Resolves once the slide has been rendered.
   const showContentAfterMorph = (id: string): Promise<void> => {
     cancelPendingSlide();
@@ -209,6 +211,7 @@ function App() {
     if (remaining <= 0) {
       setActiveContentId(id);
     } else {
+      if (activeContentIdRef.current !== null) setActiveContentId(null);
       pendingSlideTimerRef.current = window.setTimeout(() => {
         pendingSlideTimerRef.current = null;
         setActiveContentId(id);

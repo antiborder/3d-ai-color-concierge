@@ -310,10 +310,18 @@
       "compare": "彩度100%・明るさ100%の色"
     },
     "brightness": {
-      "title": "明度"
+      "title": "明度",
+      "formula": "B = R・G・B の最大値",
+      "calc": "最大 255",
+      "whiteNote": "白も 100%",
+      "caption": "同じ値でも、見た目の明るさは違う"
     },
     "lightness": {
-      "title": "輝度"
+      "title": "輝度",
+      "formula": "L = (最大 + 最小) ÷ 2",
+      "calc": "(255 + 0) ÷ 2",
+      "whiteNote": "白は 100%",
+      "caption": "同じ値でも、見た目の明るさは違う"
     },
     "saturation": {
       "title": "彩度"

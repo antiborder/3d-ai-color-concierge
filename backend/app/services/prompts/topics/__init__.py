@@ -18,6 +18,9 @@ from app.services.prompts.topics import (
     blue_green_cyan as _blue_green_cyan,
 )
 from app.services.prompts.topics import (
+    brightness as _brightness,
+)
+from app.services.prompts.topics import (
     cmy_primary as _cmy,
 )
 from app.services.prompts.topics import (
@@ -49,6 +52,9 @@ from app.services.prompts.topics import (
 )
 from app.services.prompts.topics import (
     light_pigment_primary_relation as _light_pigment_primary_relation,
+)
+from app.services.prompts.topics import (
+    lightness as _lightness,
 )
 from app.services.prompts.topics import (
     light_visible_reason as _light_visible_reason,
@@ -124,6 +130,8 @@ _TOPIC_MODULES = [
     _screen_mechanism,
     _xyz_lms_relation,
     _rgb_xyz_relation,
+    _brightness,
+    _lightness,
 ]
 
 TOPICS: dict[str, dict] = {m.TOPIC["id"]: m.TOPIC for m in _TOPIC_MODULES}
