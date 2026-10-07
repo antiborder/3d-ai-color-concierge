@@ -191,9 +191,9 @@ def test_show_content_response_for_scripted_topic():
 
 
 def test_show_content_response_for_placeholder_topic_has_no_script():
-    resp = build_show_content_response("hue", NavState(), "en")
+    resp = build_show_content_response("lms_space", NavState(), "en")
     assert resp["result"] == "ok"
-    assert resp["title"] == "Hue"
+    assert resp["title"] == "LMS color space"
     assert resp["script"] is None
 
 

@@ -339,13 +339,39 @@
       "caption": "Same value, not equally bright"
     },
     "saturation": {
-      "title": "Saturation"
+      "title": "Saturation",
+      "high": "Saturation 100%",
+      "low": "0%",
+      "vivid": "Vivid",
+      "dull": "Dull",
+      "gray": "Gray",
+      "hslTitle": "HSL (lightness 50%)",
+      "distance": "From center",
+      "orangeLabel": "Orange",
+      "brownLabel": "Brown",
+      "grayLabel": "Gray"
     },
     "hue": {
-      "title": "Hue"
+      "title": "Hue",
+      "red": "Red",
+      "yellow": "Yellow",
+      "green": "Green",
+      "blue": "Blue",
+      "backToRed": "360° = 0° (red again)",
+      "sameHue": "All hue 30°"
     },
     "hue_circle": {
-      "title": "Color wheel"
+      "title": "Color wheel",
+      "red": "Red",
+      "yellow": "Yellow",
+      "green": "Green",
+      "cyan": "Cyan",
+      "blue": "Blue",
+      "magenta": "Magenta",
+      "complementary": "Complement",
+      "rainbow": "Rainbow: red → violet",
+      "bridge": "Magenta joins",
+      "loop": "→ a ring"
     },
     "complementary_colors": {
       "title": "Complementary colors"
@@ -394,6 +420,16 @@
       "legend_M": "M: medium waves (green)",
       "legend_S": "S: short waves (blue)",
       "caption": "We tell colors apart by how strongly each of the three cone types responds."
+    },
+    "tone": {
+      "title": "Tone",
+      "vividness": "Vividness →",
+      "lightness": "Lightness →",
+      "vivid": "Vivid",
+      "pale": "Pale",
+      "dark": "Dark",
+      "grayish": "Grayish",
+      "caption": "Different hues, similar feel"
     }
   }
 }

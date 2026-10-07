@@ -339,13 +339,39 @@
       "caption": "同じ値でも、見た目の明るさは違う"
     },
     "saturation": {
-      "title": "彩度"
+      "title": "彩度",
+      "high": "彩度 100%",
+      "low": "0%",
+      "vivid": "鮮やか",
+      "dull": "くすんだ",
+      "gray": "グレー",
+      "hslTitle": "HSL（輝度 50%）",
+      "distance": "中心からの距離",
+      "orangeLabel": "オレンジ",
+      "brownLabel": "茶色",
+      "grayLabel": "グレー"
     },
     "hue": {
-      "title": "色相"
+      "title": "色相",
+      "red": "赤",
+      "yellow": "黄色",
+      "green": "緑",
+      "blue": "青",
+      "backToRed": "360° = 0°（赤に戻る）",
+      "sameHue": "どれも色相 30°"
     },
     "hue_circle": {
-      "title": "色相環"
+      "title": "色相環",
+      "red": "赤",
+      "yellow": "黄色",
+      "green": "緑",
+      "cyan": "シアン",
+      "blue": "青",
+      "magenta": "マゼンタ",
+      "complementary": "補色",
+      "rainbow": "虹：赤 → 紫",
+      "bridge": "マゼンタがつなぐ",
+      "loop": "→ 輪になる"
     },
     "complementary_colors": {
       "title": "補色"
@@ -394,6 +420,16 @@
       "legend_M": "M：中くらいの波長（緑）",
       "legend_S": "S：短い波長（青）",
       "caption": "3種類の錐体の反応の割合で、\n色を見分けている。"
+    },
+    "tone": {
+      "title": "トーン（色調）",
+      "vividness": "鮮やかさ →",
+      "lightness": "明るさ",
+      "vivid": "ビビッド",
+      "pale": "ペール",
+      "dark": "ダーク",
+      "grayish": "グレイッシュ",
+      "caption": "色相が違っても、似た印象"
     }
   }
 }

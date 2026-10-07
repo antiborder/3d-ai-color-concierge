@@ -426,6 +426,14 @@
         "ja": "LCHとOKLCHの色相回転",
         "en": "Hue rotation in LCH vs. OKLCH"
       }
+    },
+    {
+      "id": "tone",
+      "cluster": null,
+      "label": {
+        "ja": "トーン（色調）",
+        "en": "Tone"
+      }
     }
   ],
   "edges": [
@@ -2148,6 +2156,174 @@
         "backward": {
           "ja": "RGBやXYZのほかにも、いろいろな色空間があります。見てみますか？",
           "en": "Besides RGB and XYZ, there are many other color spaces. Want to see them?"
+        }
+      }
+    },
+    {
+      "from": "saturation",
+      "to": "tone",
+      "suggest": {
+        "forward": {
+          "ja": "彩度と明るさを組み合わせると、色のトーンになります。トーンについても見てみますか？",
+          "en": "Combining saturation with lightness gives a color's tone. Want to learn about tone?"
+        },
+        "backward": {
+          "ja": "トーンの鮮やかさは彩度のことです。彩度についても見てみますか？",
+          "en": "A tone's vividness is saturation. Want to learn about saturation?"
+        }
+      }
+    },
+    {
+      "from": "brightness",
+      "to": "tone",
+      "suggest": {
+        "forward": {
+          "ja": "明るさと鮮やかさを組み合わせると、色のトーンになります。トーンについても見てみますか？",
+          "en": "Combining lightness with vividness gives a color's tone. Want to learn about tone?"
+        },
+        "backward": {
+          "ja": "トーンの明るさの一つの表し方が明度です。明度についても見てみますか？",
+          "en": "Brightness is one way to express a tone's lightness. Want to learn about brightness?"
+        }
+      }
+    },
+    {
+      "from": "tone",
+      "to": "hue",
+      "suggest": {
+        "forward": {
+          "ja": "トーンと組み合わせて色を決めるのが色相です。色相についても見てみますか？",
+          "en": "Hue is what combines with tone to pin down a color. Want to learn about hue?"
+        },
+        "backward": {
+          "ja": "同じ色相でも、トーンによって印象が変わります。トーンについても見てみますか？",
+          "en": "The same hue can feel very different by tone. Want to learn about tone?"
+        }
+      }
+    },
+    {
+      "from": "chromaticity_diagram",
+      "to": "magenta_not_in_rainbow",
+      "suggest": {
+        "forward": {
+          "ja": "色度図の下の直線に並ぶマゼンタは、虹にない色です。なぜ虹にないのか見てみますか？",
+          "en": "Magenta, on the diagram's straight bottom edge, isn't in the rainbow. Want to see why?"
+        },
+        "backward": {
+          "ja": "マゼンタが虹にないことは、色度図で見るとよく分かります。色度図も見てみますか？",
+          "en": "The chromaticity diagram shows clearly why magenta isn't in the rainbow. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "chromaticity_diagram",
+      "to": "hue_circle",
+      "suggest": {
+        "forward": {
+          "ja": "色度図の白のまわりを一周すると、色相が順に変わります。色相環も見てみますか？",
+          "en": "Going around white on the chromaticity diagram, the hue changes in order. Want to see the color wheel?"
+        },
+        "backward": {
+          "ja": "色相環の色を、光の色として平面に並べたのが色度図です。色度図も見てみますか？",
+          "en": "The chromaticity diagram lays out colors of light on a plane, hues included. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "brightness",
+      "to": "saturation",
+      "suggest": {
+        "forward": {
+          "ja": "HSBでは、明度と並んで彩度も色を決めます。彩度についても見てみますか？",
+          "en": "In HSB, saturation works alongside brightness. Want to learn about saturation?"
+        },
+        "backward": {
+          "ja": "HSBでは、彩度と並んで明度も色を決めます。明度についても見てみますか？",
+          "en": "In HSB, brightness works alongside saturation. Want to learn about brightness?"
+        }
+      }
+    },
+    {
+      "from": "brightness",
+      "to": "hue",
+      "suggest": {
+        "forward": {
+          "ja": "明度は明るさ、色相は色の種類を表します。色相についても見てみますか？",
+          "en": "Brightness is how light a color is; hue is what kind of color it is. Want to learn about hue?"
+        },
+        "backward": {
+          "ja": "色相と並んで、明度もHSBの軸のひとつです。明度についても見てみますか？",
+          "en": "Alongside hue, brightness is one of HSB's axes. Want to learn about brightness?"
+        }
+      }
+    },
+    {
+      "from": "brightness",
+      "to": "lightness",
+      "suggest": {
+        "forward": {
+          "ja": "明度と似た明るさの値に、HSLの輝度があります。違いを見てみますか？",
+          "en": "HSL's lightness is a similar value to brightness. Want to see how it differs?"
+        },
+        "backward": {
+          "ja": "輝度と似た明るさの値に、HSBの明度があります。違いを見てみますか？",
+          "en": "HSB's brightness is a similar value to lightness. Want to see how it differs?"
+        }
+      }
+    },
+    {
+      "from": "saturation",
+      "to": "hue",
+      "suggest": {
+        "forward": {
+          "ja": "彩度は鮮やかさ、色相は色の種類を表します。色相についても見てみますか？",
+          "en": "Saturation is vividness; hue is what kind of color it is. Want to learn about hue?"
+        },
+        "backward": {
+          "ja": "色相と並んで、彩度も色を決める要素です。彩度についても見てみますか？",
+          "en": "Alongside hue, saturation helps define a color. Want to learn about saturation?"
+        }
+      }
+    },
+    {
+      "from": "saturation",
+      "to": "lightness",
+      "suggest": {
+        "forward": {
+          "ja": "HSLでは、彩度と並んで輝度も色を決めます。輝度についても見てみますか？",
+          "en": "In HSL, lightness works alongside saturation. Want to learn about lightness?"
+        },
+        "backward": {
+          "ja": "HSLでは、輝度と並んで彩度も色を決めます。彩度についても見てみますか？",
+          "en": "In HSL, saturation works alongside lightness. Want to learn about saturation?"
+        }
+      }
+    },
+    {
+      "from": "hue",
+      "to": "lightness",
+      "suggest": {
+        "forward": {
+          "ja": "色相と並んで、輝度もHSLの軸のひとつです。輝度についても見てみますか？",
+          "en": "Alongside hue, lightness is one of HSL's axes. Want to learn about lightness?"
+        },
+        "backward": {
+          "ja": "輝度は明るさ、色相は色の種類を表します。色相についても見てみますか？",
+          "en": "Lightness is how light a color is; hue is what kind of color it is. Want to learn about hue?"
+        }
+      }
+    },
+    {
+      "from": "lightness",
+      "to": "tone",
+      "suggest": {
+        "forward": {
+          "ja": "明るさと鮮やかさを組み合わせると、色のトーンになります。トーンについても見てみますか？",
+          "en": "Combining lightness with vividness gives a color's tone. Want to learn about tone?"
+        },
+        "backward": {
+          "ja": "トーンの明るさの一つの表し方が輝度です。輝度についても見てみますか？",
+          "en": "HSL's lightness is one way to express how light a tone is. Want to learn about it?"
         }
       }
     }
