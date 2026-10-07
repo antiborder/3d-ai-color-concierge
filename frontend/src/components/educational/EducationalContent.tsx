@@ -32,6 +32,10 @@ import Lightness from './slides/Lightness';
 import ChromaticityDiagram from './slides/ChromaticityDiagram';
 import DisplayGamut from './slides/DisplayGamut';
 import VisibleGamut from './slides/VisibleGamut';
+import Hue from './slides/Hue';
+import Saturation from './slides/Saturation';
+import HueCircle from './slides/HueCircle';
+import Tone from './slides/Tone';
 import PlaceholderSlide from './slides/PlaceholderSlide';
 
 // Every slide uses the same box as the HSB slide (its natural size at 320px wide).
@@ -76,6 +80,10 @@ const SLIDES: Record<string, React.ComponentType> = {
   chromaticity_diagram: ChromaticityDiagram,
   display_gamut: DisplayGamut,
   visible_gamut: VisibleGamut,
+  hue: Hue,
+  saturation: Saturation,
+  hue_circle: HueCircle,
+  tone: Tone,
 };
 
 const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => {

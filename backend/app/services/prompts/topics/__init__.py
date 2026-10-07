@@ -54,6 +54,12 @@ from app.services.prompts.topics import (
     hsl_space as _hsl,
 )
 from app.services.prompts.topics import (
+    hue as _hue,
+)
+from app.services.prompts.topics import (
+    hue_circle as _hue_circle,
+)
+from app.services.prompts.topics import (
     lab_space as _lab,
 )
 from app.services.prompts.topics import (
@@ -93,6 +99,9 @@ from app.services.prompts.topics import (
     rgb_xyz_relation as _rgb_xyz_relation,
 )
 from app.services.prompts.topics import (
+    saturation as _saturation,
+)
+from app.services.prompts.topics import (
     screen_mechanism as _screen_mechanism,
 )
 from app.services.prompts.topics import (
@@ -100,6 +109,9 @@ from app.services.prompts.topics import (
 )
 from app.services.prompts.topics import (
     sunset_red_reason as _sunset_red_reason,
+)
+from app.services.prompts.topics import (
+    tone as _tone,
 )
 from app.services.prompts.topics import (
     visible_gamut as _visible_gamut,
@@ -144,6 +156,10 @@ _TOPIC_MODULES = [
     _chromaticity_diagram,
     _display_gamut,
     _visible_gamut,
+    _hue,
+    _saturation,
+    _hue_circle,
+    _tone,
 ]
 
 TOPICS: dict[str, dict] = {m.TOPIC["id"]: m.TOPIC for m in _TOPIC_MODULES}
