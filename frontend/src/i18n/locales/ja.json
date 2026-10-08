@@ -75,9 +75,9 @@
       "white": "白",
       "black": "黒",
       "example": "例：オレンジ",
-      "hueShort": "色相",
-      "saturationShort": "彩度",
-      "brightnessShort": "明度"
+      "hueShort": "H:色相",
+      "saturationShort": "S:彩度",
+      "brightnessShort": "B:明度"
     },
     "xyz_space": {
       "title": "CIE XYZ 色空間",
@@ -98,14 +98,18 @@
       "white": "白",
       "black": "黒",
       "example": "例：オレンジ",
-      "hueShort": "色相",
-      "saturationShort": "彩度",
-      "lightnessShort": "輝度"
+      "hueShort": "H:色相",
+      "saturationShort": "S:彩度",
+      "lightnessShort": "L:輝度"
     },
     "lab_space": {
       "title": "Lab色空間",
-      "white": "白",
-      "black": "黒"
+      "green": "緑 −a",
+      "red": "赤",
+      "yellow": "黄",
+      "blue": "青 −b",
+      "distance": "距離 ≈ 見た目の色の差",
+      "deltaE": "色差ΔE = 30"
     },
     "oklab_space": {
       "title": "OkLab色空間",
@@ -385,7 +389,7 @@
       "title": "四角配色"
     },
     "lch_space": {
-      "title": "LCH空間"
+      "title": "LCH色空間"
     },
     "oklch_space": {
       "title": "OKLCH空間"

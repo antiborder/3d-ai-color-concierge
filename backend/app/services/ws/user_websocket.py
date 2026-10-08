@@ -12,6 +12,7 @@ from app.services.ws.events import (
     UserColorHistoryEvent,
     UserColorStateEvent,
     UserStopEvent,
+    UserSuggestionReadyEvent,
     UserTextMessageEvent,
     UserToolResultEvent,
 )
@@ -20,6 +21,7 @@ from app.services.ws.listeners.user_inbound import (
     UserColorHistoryEventListener,
     UserColorStateEventListener,
     UserStopEventListener,
+    UserSuggestionReadyEventListener,
     UserTextMessageEventListener,
     UserToolResultEventListener,
 )
@@ -92,6 +94,7 @@ class UserWebSocket(AbstractWebSocket):
         UserColorHistoryEvent: UserColorHistoryEventListener,
         UserStopEvent: UserStopEventListener,
         UserToolResultEvent: UserToolResultEventListener,
+        UserSuggestionReadyEvent: UserSuggestionReadyEventListener,
     }
 
     def __init__(self, ws: WebSocket) -> None:
@@ -122,6 +125,10 @@ class UserWebSocket(AbstractWebSocket):
                                     if isinstance(c, dict)
                                 ][:50]
                                 await queue.put(UserColorHistoryEvent(history=history))
+                        if msg_type == "suggestion_ready" and isinstance(payload, dict):
+                            token = _clamp_int(payload.get("token"), 0, 2**31 - 1)
+                            if token is not None:
+                                await queue.put(UserSuggestionReadyEvent(token=token))
                         if msg_type == "text_message" and isinstance(payload, dict):
                             text = str(payload.get("text", "")).strip()
                             if text:

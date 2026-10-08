@@ -8,6 +8,7 @@ from app.services.ws.events import (
     UserColorHistoryEvent,
     UserColorStateEvent,
     UserStopEvent,
+    UserSuggestionReadyEvent,
     UserTextMessageEvent,
     UserToolResultEvent,
 )
@@ -43,7 +44,22 @@ class UserAudioEventListener(AbstractEventListener):
 
 class UserTextMessageEventListener(AbstractEventListener):
     async def handle(self, event: UserTextMessageEvent) -> None:
+        # The user has moved on: drop the next-topic suggestion held after a slide
+        self._ctx.gemini_ws.clear_pending_suggestions()
         await self._ctx.gemini_ws.send_text(event.text)
+
+
+class UserSuggestionReadyEventListener(AbstractEventListener):
+    """After a slide's narration has played, have Gemini suggest the next topic as its own turn."""
+
+    async def handle(self, event: UserSuggestionReadyEvent) -> None:
+        from app.services.gemini_live.tools.educational import build_suggestion_prompt
+
+        suggestions = self._ctx.gemini_ws.take_pending_suggestions(event.token)
+        if not suggestions:
+            return
+        logger.info("SUGGESTION: speaking next-topic suggestion %s", [s["id"] for s in suggestions])
+        await self._ctx.gemini_ws.send_text(build_suggestion_prompt(suggestions, self._ctx.language))
 
 
 class UserColorStateEventListener(AbstractEventListener):

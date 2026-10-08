@@ -30,6 +30,12 @@ class NavState:
     declined: set[str] = field(default_factory=set)
     # 1回おきに提案する（提案した直後の SHOW_CONTENT では提案しない）
     suggested_last_time: bool = False
+    # スライドの説明を言い終えて間を置いてから言う、次トピックの候補。
+    # SHOW_CONTENT で保留し、説明の音声の再生が終わってからフロントの合図で Gemini に渡す。
+    pending_suggestions: list[dict] = field(default_factory=list)
+    pending_token: int = 0
+    # 保留したあと Gemini が説明を話し始めたか（その発話の終わりを待つため）
+    pending_spoken: bool = False
 
     def mark_shown(self, content_id: str) -> None:
         self.current = content_id
@@ -41,6 +47,23 @@ class NavState:
 
     def mark_declined(self, content_id: str) -> None:
         self.declined.add(content_id)
+
+    def hold_suggestions(self, suggestions: list[dict]) -> None:
+        self.pending_suggestions = suggestions
+        self.pending_token += 1
+        self.pending_spoken = False
+
+    def clear_pending(self) -> None:
+        self.pending_suggestions = []
+        self.pending_spoken = False
+
+    def take_pending(self, token: int) -> list[dict]:
+        """token が今の保留と一致すれば候補を返して保留を解く（古い合図や取り消し済みなら空）。"""
+        if token != self.pending_token or not self.pending_suggestions:
+            return []
+        suggestions = self.pending_suggestions
+        self.clear_pending()
+        return suggestions
 
     def next_suggestions(self, language: str, graph: TopicGraph | None = None) -> list[dict]:
         """SHOW_CONTENT 直後に呼ぶ。提案しない回は空リストを返す（1回おき）。"""

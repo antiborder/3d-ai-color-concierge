@@ -1,26 +1,33 @@
-"""lab_space トピック定義 — Lab色空間。"""
+"""lab_space トピック定義 — Lab色空間。
+
+スライド（LabSpace.tsx）はこの s1 の進行に合わせて段階的に描画される。
+文を変えたら LabSpace.tsx の STEP / STEP_AT_MS も合わせること。
+"""
 
 from __future__ import annotations
 
 TOPIC: dict = {
     "id": "lab_space",
     "s1": {
-        "ja": "Lab色空間は人間の視覚に近い形で色を数値化した方式です。",
-        "en": "The Lab color space is designed to match how human vision actually perceives color.",
+        "ja": (
+            "Lab色空間は、人の見え方に近づけた色空間です。"
+            "Lは明るさで、0が黒、100が白です。"
+            "aは緑から赤、bは青から黄色への軸で、"
+            "人の目が、赤と緑、黄色と青を、反対の色として感じる仕組みにもとづいています。"
+            "2つの色の距離が、見た目の色の差にほぼ対応するので、色の違いを数値で比べられます。"
+        ),
+        "en": (
+            "The Lab color space is designed to be closer to how people see color. "
+            "L is lightness, from 0 for black to 100 for white. "
+            "a runs from green to red and b from blue to yellow, "
+            "based on how our eyes sense red and green, and yellow and blue, as opposing colors. "
+            "The distance between two colors roughly matches how different they look, "
+            "so color differences can be compared as numbers."
+        ),
     },
+    # スライドの描画が s1 と同期しているので、追加の文は言わない
     "s2": {
-        "skip_probability": 0.5,  # 5割でスキップ
-        "options": {
-            "ja": [
-                "L*は明度（0=黒、100=白）、a*は緑↔赤、b*は青↔黄の軸を表します。",
-                "知覚的に均等な色空間で、数値の差が実際の見た目の差に対応します。",
-                "印刷・デザインの現場で色の正確な管理に使われます。",
-            ],
-            "en": [
-                "L* is lightness (0=black, 100=white), a* runs green↔red, b* runs blue↔yellow.",
-                "It's a perceptually uniform space — equal numerical differences feel equal to the eye.",
-                "Widely used in print and design for accurate color management.",
-            ],
-        },
+        "skip_probability": 1.0,
+        "options": {"ja": [], "en": []},
     },
 }

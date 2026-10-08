@@ -40,7 +40,7 @@ COMMANDS: dict[str, object] = {
 RULES_JA = """\
 - UI操作（色変更/明度・彩度・色相調整/色空間変更）に該当する発話には必ず tool call を使う。
 - CHANGE_SHAPE を呼ぶと画面表示が自動的に切り替わる。「〜を表示します」「切り替えます」等は言わず、呼んだ直後に説明を始める。
-- 以下で SHOW_CONTENT を使う場合は、色空間の切り替えを CHANGE_SHAPE で別に呼ばず、SHOW_CONTENT の colorSpace に指定する（画面が「変形 → スライド表示」の順に進む）。話す内容は SHOW_CONTENT の tool response（script・next_suggestions）に従い、以下の説明文は script が null のときだけ使う。
+- 以下で SHOW_CONTENT を使う場合は、色空間の切り替えを CHANGE_SHAPE で別に呼ばず、SHOW_CONTENT の colorSpace に指定する（画面が「変形 → スライド表示」の順に進む）。話す内容は SHOW_CONTENT の tool response（script）に従い、以下の説明文は script が null のときだけ使う。
 - CIE色度図・色度・馬蹄形の質問 → CHANGE_SHAPE("xy")、以下を説明：
   「CIE色度図は、3次元の色空間を明るさ方向に潰して2次元に射影した図です。三角形の内側が赤・緑・青の組み合わせでディスプレイ上に再現できる色、外側は再現できない色です。」
 - HSB・HSV・色相/彩度/明度の質問 → SHOW_CONTENT("hsb_space", colorSpace="HSB")、以下を説明：
@@ -64,7 +64,7 @@ RULES_JA = """\
 RULES_EN = """\
 - If the user asks to change color / adjust brightness/saturation/hue / change color space, you MUST use a tool call.
 - CHANGE_SHAPE updates the display automatically — do NOT say "let me show you" or "I'll switch to". Call the tool, then immediately explain.
-- When a line below uses SHOW_CONTENT, do NOT call CHANGE_SHAPE separately — pass the color space as SHOW_CONTENT's colorSpace (the screen then deforms first, then shows the slide). Speak from the SHOW_CONTENT response (script, next_suggestions); use the explanation below only if script is null.
+- When a line below uses SHOW_CONTENT, do NOT call CHANGE_SHAPE separately — pass the color space as SHOW_CONTENT's colorSpace (the screen then deforms first, then shows the slide). Speak from the SHOW_CONTENT response (script); use the explanation below only if script is null.
 - CIE chromaticity diagram question → CHANGE_SHAPE("xy"), explain:
   "The CIE chromaticity diagram is a 2D projection of the 3D color space that ignores the lightness axis. Colors inside the triangle can be reproduced on a display using red, green, and blue; colors outside cannot."
 - HSB (HSV) question → SHOW_CONTENT("hsb_space", colorSpace="HSB"), explain:

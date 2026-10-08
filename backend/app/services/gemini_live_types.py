@@ -76,6 +76,13 @@ class LiveInterruptedEvent:
     """Gemini が応答生成を中断した（ユーザーの割り込み検知）。"""
 
 
+@dataclass(frozen=True)
+class LiveSuggestionPendingEvent:
+    """スライドの説明の発話が終わり、次トピックの提案が保留中（フロントの再生終了を待つ）。"""
+
+    token: int
+
+
 LiveEvent = (
     LiveAudioChunk
     | LiveTranscriptEvent
@@ -83,4 +90,5 @@ LiveEvent = (
     | LiveCommandEvent
     | LiveErrorEvent
     | LiveInterruptedEvent
+    | LiveSuggestionPendingEvent
 )

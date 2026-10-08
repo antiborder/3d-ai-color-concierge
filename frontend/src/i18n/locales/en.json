@@ -103,9 +103,13 @@
       "lightnessShort": "L"
     },
     "lab_space": {
-      "title": "Lab Color Space",
-      "white": "White",
-      "black": "Black"
+      "title": "Lab color space",
+      "green": "Green −a",
+      "red": "Red",
+      "yellow": "Yellow",
+      "blue": "Blue −b",
+      "distance": "Distance ≈ how different they look",
+      "deltaE": "ΔE = 30"
     },
     "oklab_space": {
       "title": "OkLab Color Space",

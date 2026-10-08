@@ -91,6 +91,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
   const thinkingFallbackTimerRef = useRef<number | null>(null);
   const pendingStopRef = useRef<boolean>(false);
   const stopRef = useRef<(() => Promise<void>) | null>(null);
+  const suggestionTimerRef = useRef<number | null>(null);
 
   // ─── Audio playback (usePcmPlayer) ──────────────────────────────────────────
 
@@ -103,6 +104,44 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     schedulePcmPlayback,
     calculateRMS,
   } = usePcmPlayer();
+
+  // ─── Next-topic suggestion after a slide ────────────────────────────────────
+  // After a slide's narration, the backend holds the next-topic suggestion. Tell it once the
+  // narration has finished playing plus a short pause, so the suggestion doesn't run straight on.
+
+  const SUGGESTION_PAUSE_MS = 1000;
+
+  const cancelSuggestionReady = useCallback(() => {
+    if (suggestionTimerRef.current != null) {
+      window.clearTimeout(suggestionTimerRef.current);
+      suggestionTimerRef.current = null;
+    }
+  }, []);
+
+  const scheduleSuggestionReady = useCallback(
+    (token: number) => {
+      cancelSuggestionReady();
+      const wait = () => {
+        const ctx = audioCtxRef.current;
+        // Audio is generated faster than real time: wait for what is already scheduled to play
+        const remainingMs = ctx ? Math.max(0, (playTimeRef.current - ctx.currentTime) * 1000) : 0;
+        if (remainingMs > 50) {
+          suggestionTimerRef.current = window.setTimeout(wait, remainingMs);
+          return;
+        }
+        suggestionTimerRef.current = window.setTimeout(() => {
+          suggestionTimerRef.current = null;
+          try {
+            wsRef.current?.send(JSON.stringify({ type: 'suggestion_ready', token }));
+          } catch {
+            /* best-effort */
+          }
+        }, SUGGESTION_PAUSE_MS);
+      };
+      wait();
+    },
+    [audioCtxRef, playTimeRef, cancelSuggestionReady]
+  );
 
   // ─── Color sync (useWsColorSync) ─────────────────────────────────────────────
 
@@ -204,6 +243,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
             );
           }
           ts.lastTranscriptReceived = now;
+          cancelSuggestionReady();
           setTranscript(msg.text);
           if (msg.final) {
             if (userSpeakingTimerRef.current != null) window.clearTimeout(userSpeakingTimerRef.current);
@@ -288,7 +328,10 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
             // slide is on screen, which may be after the color space deformation.
             void Promise.resolve(applied).finally(sendToolResult);
           }
+        } else if (msg.type === 'suggestion_pending') {
+          scheduleSuggestionReady(msg.token);
         } else if (msg.type === 'interrupted') {
+          cancelSuggestionReady();
           if (thinkingTimerRef.current != null) { window.clearTimeout(thinkingTimerRef.current); thinkingTimerRef.current = null; }
           if (thinkingFallbackTimerRef.current != null) { window.clearTimeout(thinkingFallbackTimerRef.current); thinkingFallbackTimerRef.current = null; }
           setIsThinking(false);
@@ -330,6 +373,8 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
       setIsExecuting,
       setIsUserSpeaking,
       setIsThinking,
+      cancelSuggestionReady,
+      scheduleSuggestionReady,
     ]
   );
 
@@ -349,6 +394,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     if (userSpeakingTimerRef.current != null) { window.clearTimeout(userSpeakingTimerRef.current); userSpeakingTimerRef.current = null; }
     if (thinkingTimerRef.current != null) { window.clearTimeout(thinkingTimerRef.current); thinkingTimerRef.current = null; }
     if (thinkingFallbackTimerRef.current != null) { window.clearTimeout(thinkingFallbackTimerRef.current); thinkingFallbackTimerRef.current = null; }
+    cancelSuggestionReady();
 
     try {
       wsRef.current?.send(JSON.stringify({ type: 'stop' }));
@@ -359,7 +405,7 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     cancelPendingSync();
     cleanupAudio();
     cleanupWs({ code: 1000, reason: 'client stop' });
-  }, [cancelPendingSync, cleanupAudio, cleanupWs, clearReconnectTimer]);
+  }, [cancelPendingSync, cleanupAudio, cleanupWs, clearReconnectTimer, cancelSuggestionReady]);
 
   const start = useCallback(
     async (opts?: { skipIntro?: boolean; skipGreeting?: boolean }) => {
@@ -589,15 +635,19 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
 
   // ─── Public API ──────────────────────────────────────────────────────────────
 
-  const sendTextMessage = useCallback((text: string) => {
-    const ws = wsRef.current;
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    try {
-      ws.send(JSON.stringify({ type: 'text_message', text }));
-    } catch {
-      /* best-effort */
-    }
-  }, []);
+  const sendTextMessage = useCallback(
+    (text: string) => {
+      const ws = wsRef.current;
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      cancelSuggestionReady();
+      try {
+        ws.send(JSON.stringify({ type: 'text_message', text }));
+      } catch {
+        /* best-effort */
+      }
+    },
+    [cancelSuggestionReady]
+  );
 
   return {
     isConnecting,
