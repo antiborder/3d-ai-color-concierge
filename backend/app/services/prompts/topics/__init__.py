@@ -33,6 +33,9 @@ from app.services.prompts.topics import (
     color_matching_experiment as _color_matching_experiment,
 )
 from app.services.prompts.topics import (
+    color_samples as _color_samples,
+)
+from app.services.prompts.topics import (
     cone_cells as _cone_cells,
 )
 from app.services.prompts.topics import (
@@ -91,6 +94,9 @@ from app.services.prompts.topics import (
 )
 from app.services.prompts.topics import (
     rgb_primary as _rgb,
+)
+from app.services.prompts.topics import (
+    rgb_cube_grid as _rgb_cube_grid,
 )
 from app.services.prompts.topics import (
     rgb_space as _rgb_space,
@@ -160,6 +166,8 @@ _TOPIC_MODULES = [
     _saturation,
     _hue_circle,
     _tone,
+    _rgb_cube_grid,
+    _color_samples,
 ]
 
 TOPICS: dict[str, dict] = {m.TOPIC["id"]: m.TOPIC for m in _TOPIC_MODULES}

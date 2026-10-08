@@ -277,7 +277,9 @@
       "example": "例：オレンジ"
     },
     "rgb_cube_grid": {
-      "title": "RGB Cube Grid"
+      "title": "RGB Cube Grid",
+      "even": "均等に並ぶ",
+      "count": "7 × 7 × 7 = 343色"
     },
     "hex_code": {
       "title": "HEXコードとは",
@@ -410,7 +412,12 @@
       "title": "Material Design Color"
     },
     "color_samples": {
-      "title": "様々なColor Samples"
+      "title": "様々なColor Samples",
+      "gridNote": "各軸7段階 → 343色",
+      "cssNote": "tomato・skyblue など",
+      "materialNote": "明るさの段階：Red 50〜900",
+      "japaneseNote": "桜色・萌葱色 など",
+      "toggle": "Color Samples メニューで切り替え"
     },
     "cone_cells": {
       "title": "錐体とは",

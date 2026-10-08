@@ -36,6 +36,8 @@ import Hue from './slides/Hue';
 import Saturation from './slides/Saturation';
 import HueCircle from './slides/HueCircle';
 import Tone from './slides/Tone';
+import RgbCubeGrid from './slides/RgbCubeGrid';
+import ColorSamples from './slides/ColorSamples';
 import PlaceholderSlide from './slides/PlaceholderSlide';
 
 // Every slide uses the same box as the HSB slide (its natural size at 320px wide).
@@ -84,6 +86,8 @@ const SLIDES: Record<string, React.ComponentType> = {
   saturation: Saturation,
   hue_circle: HueCircle,
   tone: Tone,
+  rgb_cube_grid: RgbCubeGrid,
+  color_samples: ColorSamples,
 };
 
 const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => {
