@@ -32,6 +32,7 @@ from app.services.gemini_live_types import (
     LiveAudioChunk,
     LiveCommandEvent,
     LiveInterruptedEvent,
+    LiveSuggestionPendingEvent,
     LiveTranscriptEvent,
 )
 from app.services.navigation import NavState
@@ -178,6 +179,8 @@ async def process_live_message(
             interrupted_flag = sc.get("interrupted")
         if interrupted_flag:
             await event_q.put(LiveInterruptedEvent())
+            if nav_state is not None:
+                nav_state.clear_pending()
             out_transcription_buf = ""
             out_transcription_segment_id = None
 
@@ -284,6 +287,9 @@ async def process_live_message(
             except Exception:
                 logger.info("LIVE_CHAT_DEBUG it (failed to log details)")
         if it_txt:
+            # The user is talking: drop the next-topic suggestion held after a slide
+            if nav_state is not None:
+                nav_state.clear_pending()
             # Stream user transcript as a single updatable bubble.
             if in_transcription_segment_id is None:
                 in_transcription_seq += 1
@@ -326,6 +332,8 @@ async def process_live_message(
                 mt = extract_mime(candidate) or extract_mime(inline)
                 b = extract_blob_bytes(candidate)
                 if b and (mt or "").startswith("audio/"):
+                    if nav_state is not None and nav_state.pending_suggestions:
+                        nav_state.pending_spoken = True
                     if chat_debug_enabled():
                         logger.info(
                             "LIVE_CHAT_DEBUG audio_part bytes=%s mime=%s",
@@ -552,9 +560,9 @@ async def process_live_message(
                         str(args.get("id")), nav_state, cfg.language
                     )
                     logger.info(
-                        "SHOW_CONTENT: id=%s next_suggestions=%s",
+                        "SHOW_CONTENT: id=%s held_suggestions=%s",
                         args.get("id"),
-                        [s["id"] for s in tool_resp.get("next_suggestions", [])],
+                        [s["id"] for s in nav_state.pending_suggestions],
                     )
                 elif nav_state is not None and name == "DISMISS_CONTENT":
                     nav_state.mark_dismissed()
@@ -576,7 +584,7 @@ async def process_live_message(
                         frontend_resp = await asyncio.wait_for(
                             asyncio.shield(future), timeout=confirm_timeout
                         )
-                        # SHOW_CONTENT keeps its own response (script, next_suggestions);
+                        # SHOW_CONTENT keeps its own response (script);
                         # the confirmation only delays it until the slide is on screen.
                         if name == "ADJUST_VALUE":
                             tool_resp = frontend_resp
@@ -605,6 +613,17 @@ async def process_live_message(
             tool_call_end - tool_call_start,
             len(function_calls),
         )
+
+    # turn_complete: when the slide's narration has been generated, tell the frontend that a
+    # next-topic suggestion is waiting. The frontend replies once the narration has finished
+    # playing (plus a short pause), and only then is the suggestion spoken as its own turn.
+    if sc is not None and nav_state is not None:
+        turn_complete = getattr(sc, "turn_complete", None)
+        if turn_complete is None and isinstance(sc, dict):
+            turn_complete = sc.get("turn_complete") or sc.get("turnComplete")
+        if turn_complete and nav_state.pending_suggestions and nav_state.pending_spoken:
+            nav_state.pending_spoken = False
+            await event_q.put(LiveSuggestionPendingEvent(token=nav_state.pending_token))
 
     # 音声出力
     audio = getattr(msg, "audio", None) or msg.get("audio") if isinstance(msg, dict) else None

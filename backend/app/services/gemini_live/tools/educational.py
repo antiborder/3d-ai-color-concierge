@@ -18,7 +18,7 @@ DECLARATIONS: list[dict] = [
         "description": (
             "Display an educational slide about a color theory topic. "
             "Call it at the START of your response, before speaking. "
-            "The response contains the speaking script and next_suggestions — follow the SHOW_CONTENT rules. "
+            "The response contains the speaking script — follow the SHOW_CONTENT rules. "
             "Do NOT call SELECT_COLOR or other action tools in the same response."
         ),
         "parameters": {
@@ -58,7 +58,7 @@ DECLARATIONS: list[dict] = [
     {
         "name": "RECORD_DECLINE",
         "description": (
-            "Record that the user declined a topic you suggested from next_suggestions, "
+            "Record that the user declined a next-topic candidate you suggested, "
             "so it is not suggested again. Call silently."
         ),
         "parameters": {
@@ -95,12 +95,32 @@ def build_show_content_response(content_id: str, nav_state: NavState, language: 
     if content_id not in graph.nodes:
         return {"result": "error", "error": f"Unknown content id: {content_id}"}
     nav_state.mark_shown(content_id)
+    # The next-topic suggestion is not part of this response: it is held and given to Gemini as
+    # its own turn after the narration has finished playing, so there is a pause between them.
+    nav_state.hold_suggestions(nav_state.next_suggestions(language, graph))
     return {
         "result": "ok",
         "title": graph.label(content_id, language),
         "script": topic_script(content_id, language),
-        "next_suggestions": nav_state.next_suggestions(language, graph),
     }
+
+
+def build_suggestion_prompt(suggestions: list[dict], language: str) -> str:
+    """スライドの説明のあと、間を置いて次トピックを提案させるための指示（ユーザー発言ではない）。"""
+    lines = "\n".join(f"- id={s['id']}: {s['phrase']}" for s in suggestions)
+    if language == "ja":
+        return (
+            "（システムからの指示です。ユーザーの発言ではありません）"
+            "スライドの説明は終わりました。次の候補から会話の流れに最も合うものを1つ選び、"
+            "その phrase をほぼそのまま1文で言ってください（迷ったら先頭）。"
+            "説明を繰り返したり、ツールを呼んだりしないでください。\n" + lines
+        )
+    return (
+        "(System instruction, not said by the user) "
+        "The slide narration has finished. Choose ONE of these that best fits the conversation "
+        "(if unsure, the first) and say its phrase nearly verbatim, in one sentence. "
+        "Do not repeat the explanation and do not call any tool.\n" + lines
+    )
 
 
 RULES_JA = """\
@@ -118,10 +138,9 @@ RULES_JA = """\
 **tool response に従って、1回の連続した発話で話す**:
 - script がある → s1 を言い、s2 が null でなければ続けて言う。
 - script が null → スライドはタイトルのみ。そのトピックを自分の知識で2文以内で説明する。
-- next_suggestions が空でない → 最後に1つだけ選び、その phrase をほぼそのまま言う（つなぎ言葉の調整のみ可）。会話の流れに最も合うものを選び、迷ったら先頭。ユーザーが色選びなどに集中していて提案が不自然なら言わない。
-- next_suggestions が空 → 他のトピックを自分から勧めない。
+- この発話では次のトピックを勧めない。説明を言い終えて少し間を置いたあと、システムから次トピックの候補が届いたら、その指示に従って1文で提案する。候補が届かなければ、他のトピックを自分から勧めない。
 
-**提案への返答**: 同意 → その id で SHOW_CONTENT。断られた → RECORD_DECLINE(id) を黙って呼ぶ（「記録します」等は言わない）。
+**提案への返答**: 同意 → 候補にあったその id で SHOW_CONTENT。断られた → RECORD_DECLINE(id) を黙って呼ぶ（「記録します」等は言わない）。
 
 ## DISMISS_CONTENT
 
@@ -143,10 +162,9 @@ Only slides in the id enum exist. For additive color mixing use rgb_primary (pri
 **Follow the tool response, as one continuous utterance:**
 - script present → say s1, then s2 if it is not null.
 - script is null → the slide shows only a title. Explain the topic in at most 2 sentences from your own knowledge.
-- next_suggestions non-empty → end by choosing ONE and saying its phrase nearly verbatim (only adjust connecting words). Pick the one that best fits the conversation; if unsure, the first. Skip it if the user is focused on something else (e.g. picking colors).
-- next_suggestions empty → do not suggest other topics on your own.
+- Do not suggest a next topic in this utterance. After you finish and a short pause, the system may send next-topic candidates; then follow that instruction and suggest one in a single sentence. If no candidates arrive, do not suggest other topics on your own.
 
-**Replies to a suggestion:** agreed → SHOW_CONTENT with that id. Declined → call RECORD_DECLINE(id) silently (do not mention it).
+**Replies to a suggestion:** agreed → SHOW_CONTENT with that candidate's id. Declined → call RECORD_DECLINE(id) silently (do not mention it).
 
 ## DISMISS_CONTENT
 

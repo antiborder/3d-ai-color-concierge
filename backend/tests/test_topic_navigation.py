@@ -11,6 +11,7 @@ import pytest
 from app.services.gemini_live.tools.educational import (
     CONTENT_IDS,
     build_show_content_response,
+    build_suggestion_prompt,
 )
 from app.services.navigation import NavState, load_topic_graph, rank
 from app.services.navigation.topic_graph import _GRAPH_FILE
@@ -186,7 +187,9 @@ def test_show_content_response_for_scripted_topic():
     assert resp["result"] == "ok"
     assert resp["title"] == "HSL色空間"
     assert resp["script"]["s1"]
-    assert resp["next_suggestions"]
+    # The suggestion is not in the response: it is held until the narration has played
+    assert "next_suggestions" not in resp
+    assert nav.pending_suggestions
     assert nav.current == "hsl_space"
 
 
@@ -276,7 +279,8 @@ def test_show_content_tool_call_returns_suggestions_and_emits_command():
     assert len(responses) == 1
     resp = responses[0].response
     assert resp["title"] == "RGB色空間"
-    assert resp["next_suggestions"]
+    assert "next_suggestions" not in resp
+    assert nav.pending_suggestions
     assert [e.command["action"] for e in events] == ["SHOW_CONTENT"]
     assert nav.visited == ["rgb_space"]
 
@@ -294,3 +298,75 @@ def test_dismiss_content_tool_call_clears_current():
     nav.mark_shown("rgb_space")
     _run_tool_call("DISMISS_CONTENT", {}, nav)
     assert nav.current is None
+
+
+# ── 説明のあと間を置いて次トピックを提案する ────────────────────────────────
+
+
+def test_held_suggestion_is_released_once_with_the_current_token():
+    nav = NavState()
+    build_show_content_response("rgb_space", nav, "ja")
+    token = nav.pending_token
+    assert nav.take_pending(token - 1) == []  # a stale signal
+    suggestions = nav.take_pending(token)
+    assert suggestions
+    assert nav.take_pending(token) == []  # only once
+
+
+def test_held_suggestion_is_dropped_when_the_user_speaks():
+    import asyncio
+
+    from app.services.gemini_live.config import GeminiLiveConfig
+    from app.services.gemini_live.message_receiver import process_live_message
+
+    nav = NavState()
+    build_show_content_response("rgb_space", nav, "ja")
+    msg = SimpleNamespace(server_content={"input_transcription": {"text": "ねえ"}})
+
+    async def run():
+        await process_live_message(
+            msg, asyncio.Queue(), GeminiLiveConfig(model="test", language="ja"), _FakeLiveSession(),
+            None, 0.0, [], "", None, 0, "", None, 0, "", None, 0, nav_state=nav,
+        )
+
+    asyncio.run(run())
+    assert nav.pending_suggestions == []
+
+
+def test_turn_complete_after_narration_signals_the_frontend():
+    import asyncio
+
+    from app.services.gemini_live.config import GeminiLiveConfig
+    from app.services.gemini_live.message_receiver import process_live_message
+    from app.services.gemini_live_types import LiveSuggestionPendingEvent
+
+    nav = NavState()
+    build_show_content_response("rgb_space", nav, "ja")
+    q: asyncio.Queue = asyncio.Queue()
+    part = SimpleNamespace(inline_data=SimpleNamespace(mime_type="audio/pcm", data=b"\x00\x01"))
+    audio = SimpleNamespace(model_turn=SimpleNamespace(parts=[part]))
+    done = SimpleNamespace(turn_complete=True)
+
+    async def feed(server_content):
+        await process_live_message(
+            SimpleNamespace(server_content=server_content), q,
+            GeminiLiveConfig(model="test", language="ja"), _FakeLiveSession(),
+            None, 0.0, [], "", None, 0, "", None, 0, "", None, 0, nav_state=nav,
+        )
+
+    async def run():
+        await feed(done)  # before any narration: nothing yet
+        await feed(audio)
+        await feed(done)
+
+    asyncio.run(run())
+    events = []
+    while not q.empty():
+        events.append(q.get_nowait())
+    pending = [e for e in events if isinstance(e, LiveSuggestionPendingEvent)]
+    assert [e.token for e in pending] == [nav.pending_token]
+
+
+def test_suggestion_prompt_lists_candidates():
+    prompt = build_suggestion_prompt([{"id": "hsb_space", "phrase": "HSBも見てみますか？"}], "ja")
+    assert "id=hsb_space" in prompt and "HSBも見てみますか？" in prompt

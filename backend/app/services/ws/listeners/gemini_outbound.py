@@ -10,6 +10,7 @@ from app.services.gemini_live_types import (
     LiveCommandEvent,
     LiveErrorEvent,
     LiveInterruptedEvent,
+    LiveSuggestionPendingEvent,
     LiveTranscriptEvent,
 )
 from app.services.ws.listeners.base import AbstractEventListener
@@ -129,6 +130,15 @@ class GeminiErrorEventListener(AbstractEventListener):
 class GeminiInterruptedEventListener(AbstractEventListener):
     async def handle(self, event: LiveInterruptedEvent) -> None:
         await self._ctx.user_ws.send_text(json.dumps({"type": "interrupted"}))
+
+
+class GeminiSuggestionPendingEventListener(AbstractEventListener):
+    """Ask the frontend to reply (suggestion_ready) once the slide narration has finished playing."""
+
+    async def handle(self, event: LiveSuggestionPendingEvent) -> None:
+        await self._ctx.user_ws.send_text(
+            json.dumps({"type": "suggestion_pending", "token": event.token})
+        )
 
 
 class GeminiCommandEventListener(AbstractEventListener):

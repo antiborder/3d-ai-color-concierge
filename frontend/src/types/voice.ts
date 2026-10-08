@@ -48,4 +48,5 @@ export type WsInboundText =
   | { type: 'command'; command: Command; tool_name?: string; tool_call_id?: string }
   | { type: 'executing'; tool_name?: string; tool_call_id?: string }
   | { type: 'interrupted' }
+  | { type: 'suggestion_pending'; token: number }
   | { type: 'error'; message: string; code?: string };

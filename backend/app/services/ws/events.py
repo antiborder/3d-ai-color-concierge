@@ -29,6 +29,13 @@ class UserStopEvent:
 
 
 @dataclass
+class UserSuggestionReadyEvent:
+    """The slide narration has finished playing (and a short pause has passed)."""
+
+    token: int
+
+
+@dataclass
 class UserToolResultEvent:
     tool_call_id: str
     success: bool

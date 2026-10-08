@@ -9,6 +9,7 @@ from app.services.gemini_live_types import (
     LiveCommandEvent,
     LiveErrorEvent,
     LiveInterruptedEvent,
+    LiveSuggestionPendingEvent,
     LiveTranscriptEvent,
 )
 from app.services.ws.abstract_websocket import AbstractWebSocket
@@ -18,6 +19,7 @@ from app.services.ws.listeners.gemini_outbound import (
     GeminiCommandEventListener,
     GeminiErrorEventListener,
     GeminiInterruptedEventListener,
+    GeminiSuggestionPendingEventListener,
     GeminiTranscriptEventListener,
 )
 
@@ -30,6 +32,7 @@ class GeminiWebSocket(AbstractWebSocket):
         LiveErrorEvent: GeminiErrorEventListener,
         LiveCommandEvent: GeminiCommandEventListener,
         LiveInterruptedEvent: GeminiInterruptedEventListener,
+        LiveSuggestionPendingEvent: GeminiSuggestionPendingEventListener,
     }
 
     def __init__(self, session: GeminiLiveSession) -> None:
@@ -53,6 +56,12 @@ class GeminiWebSocket(AbstractWebSocket):
 
     def set_color_history(self, history: list[dict]) -> None:
         self._session.set_color_history(history)
+
+    def take_pending_suggestions(self, token: int) -> list[dict]:
+        return self._session.nav_state.take_pending(token)
+
+    def clear_pending_suggestions(self) -> None:
+        self._session.nav_state.clear_pending()
 
     def resolve_tool_result(self, tool_call_id: str, result: dict) -> None:
         future = self._session.pending_tool_futures.pop(tool_call_id, None)
