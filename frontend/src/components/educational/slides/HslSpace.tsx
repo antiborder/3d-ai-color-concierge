@@ -79,7 +79,7 @@ const LIGHT_X = 212;
 // The example color
 const EXAMPLE = { h: 30, s: 1, l: 0.5 };
 const EXAMPLE_HEX = hslToHex(EXAMPLE.h, EXAMPLE.s, EXAMPLE.l);
-const BARS = { valueX: 76, x0: 82, width: 88, height: 10, row0: 240, gap: 20 };
+const BARS = { valueX: 98, x0: 104, width: 68, height: 10, row0: 240, gap: 20 };
 const SWATCH = { x: 180, y: 240, size: 40 };
 
 /** Front half of one cone (from the equator to a tip), as one closed path */

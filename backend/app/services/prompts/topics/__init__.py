@@ -66,6 +66,9 @@ from app.services.prompts.topics import (
     lab_space as _lab,
 )
 from app.services.prompts.topics import (
+    lch_space as _lch_space,
+)
+from app.services.prompts.topics import (
     light_pigment_primary_relation as _light_pigment_primary_relation,
 )
 from app.services.prompts.topics import (
@@ -168,6 +171,7 @@ _TOPIC_MODULES = [
     _tone,
     _rgb_cube_grid,
     _color_samples,
+    _lch_space,
 ]
 
 TOPICS: dict[str, dict] = {m.TOPIC["id"]: m.TOPIC for m in _TOPIC_MODULES}

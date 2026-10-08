@@ -1002,8 +1002,8 @@
       "to": "oklab_space",
       "suggest": {
         "forward": {
-          "ja": "Labの考え方を改良した、OKLabという新しい色空間があります。見てみますか？",
-          "en": "OKLab is a newer space that refines Lab. Want to see it?"
+          "ja": "Labには、青のあたりなどで見た目とのずれが残っています。それを改良したOKLabも見てみますか？",
+          "en": "Lab still drifts from how colors look in places, around blue for example. Want to see OKLab, which improves on that?"
         },
         "backward": {
           "ja": "OKLabのもとになった考え方がLab色空間です。見てみますか？",

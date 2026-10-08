@@ -74,7 +74,7 @@ const BRIGHT_X = 212;
 // The example color
 const EXAMPLE = { h: 30, s: 1, b: 1 };
 const EXAMPLE_HEX = hsbToHex(EXAMPLE.h, EXAMPLE.s, EXAMPLE.b);
-const BARS = { valueX: 76, x0: 82, width: 88, height: 10, row0: 240, gap: 20 };
+const BARS = { valueX: 98, x0: 104, width: 68, height: 10, row0: 240, gap: 20 };
 const SWATCH = { x: 180, y: 240, size: 40 };
 
 /** Front half of the cone's side, as one closed path */

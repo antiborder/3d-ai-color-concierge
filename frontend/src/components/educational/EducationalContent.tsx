@@ -38,6 +38,7 @@ import HueCircle from './slides/HueCircle';
 import Tone from './slides/Tone';
 import RgbCubeGrid from './slides/RgbCubeGrid';
 import ColorSamples from './slides/ColorSamples';
+import LchSpace from './slides/LchSpace';
 import PlaceholderSlide from './slides/PlaceholderSlide';
 
 // Every slide uses the same box as the HSB slide (its natural size at 320px wide).
@@ -88,6 +89,7 @@ const SLIDES: Record<string, React.ComponentType> = {
   tone: Tone,
   rgb_cube_grid: RgbCubeGrid,
   color_samples: ColorSamples,
+  lch_space: LchSpace,
 };
 
 const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => {
