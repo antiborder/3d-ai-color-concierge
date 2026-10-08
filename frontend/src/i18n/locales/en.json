@@ -277,7 +277,9 @@
       "example": "Example: orange"
     },
     "rgb_cube_grid": {
-      "title": "RGB cube grid"
+      "title": "RGB cube grid",
+      "even": "Evenly spaced",
+      "count": "7 × 7 × 7 = 343 colors"
     },
     "hex_code": {
       "title": "What HEX codes are",
@@ -410,7 +412,12 @@
       "title": "Material Design colors"
     },
     "color_samples": {
-      "title": "Color sample collections"
+      "title": "Color sample collections",
+      "gridNote": "7 levels per axis → 343 colors",
+      "cssNote": "tomato, skyblue, and more",
+      "materialNote": "Lightness steps: Red 50–900",
+      "japaneseNote": "Sakura-iro, Moegi-iro, and more",
+      "toggle": "Switch in the Color Samples menu"
     },
     "cone_cells": {
       "title": "What cone cells are",
