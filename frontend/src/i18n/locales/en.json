@@ -112,11 +112,13 @@
       "deltaE": "ΔE = 30"
     },
     "oklab_space": {
-      "title": "OkLab Color Space",
-      "white": "White",
-      "black": "Black",
-      "desc1": "OkLab is a perceptually uniform Lab-like space proposed by Björn Ottosson in 2020.",
-      "desc2": "L is lightness (0–1), a is red-green axis, b is blue-yellow axis. Equal distances in OkLab correspond to equal perceived color differences."
+      "title": "OKLab color space",
+      "green": "Green −a",
+      "red": "Red",
+      "yellow": "Yellow",
+      "blue": "Blue −b",
+      "gradientTitle": "Blue → white gradient",
+      "gradientNote": "Lab drifts purple; OKLab stays blue"
     },
     "oklch_lineage": {
       "title": "Color Science Lineage",
@@ -416,7 +418,9 @@
       "title": "LCH color space"
     },
     "oklch_space": {
-      "title": "OKLCH color space"
+      "title": "OKLCH color space",
+      "rowLabel": "OKLCH",
+      "app": "Color Harmony uses OKLCH"
     },
     "various_color_spaces": {
       "title": "The family of color spaces",
@@ -452,10 +456,23 @@
       "title": "Color distortion"
     },
     "css_color": {
-      "title": "CSS color"
+      "title": "CSS Named Colors",
+      "count": "about 140 colors",
+      "basic": "Basic colors",
+      "familiar": "Named after things",
+      "readable": "easy to read",
+      "hexLabel": "HEX code",
+      "darkgray": "darkgray is the lighter one",
+      "app": "Color Samples can show them all"
     },
     "material_design_color": {
-      "title": "Material Design colors"
+      "title": "Material Design colors",
+      "palette": "19 hues × 10 shades (50–900)",
+      "lighter": "Lighter",
+      "darker": "Darker",
+      "grayLabel": "Light",
+      "yellowBlue": "Yellow is light, blue is dark",
+      "sameNumber": "Same 500, different lightness"
     },
     "color_samples": {
       "title": "Color sample collections",
@@ -502,6 +519,26 @@
       "coolFeel": "Cool, calm",
       "warmUse": "Restaurants",
       "coolUse": "Hospitals, offices"
+    },
+    "japanese_traditional_colors": {
+      "title": "Japanese traditional colors",
+      "sakura": "Sakura-iro",
+      "sakuraReading": "cherry blossom",
+      "sakuraOrigin": "flower",
+      "moegi": "Moegi-iro",
+      "moegiReading": "onion sprout",
+      "moegiOrigin": "plant",
+      "ai": "Ai-iro",
+      "aiReading": "indigo",
+      "aiOrigin": "dye",
+      "akane": "Akane-iro",
+      "akaneReading": "madder red",
+      "akaneOrigin": "dye (root)",
+      "yamabuki": "Yamabuki-iro",
+      "yamabukiReading": "kerria yellow",
+      "yamabukiOrigin": "flower",
+      "muted": "Many soft, muted colors",
+      "app": "This app can show about 460"
     }
   }
 }

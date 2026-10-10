@@ -47,6 +47,11 @@ import VariousColorSpaces from './slides/VariousColorSpaces';
 import ColorSize from './slides/ColorSize';
 import ColorWeight from './slides/ColorWeight';
 import WarmCoolColors from './slides/WarmCoolColors';
+import OklabSpace from './slides/OklabSpace';
+import OklchSpace from './slides/OklchSpace';
+import CssColor from './slides/CssColor';
+import MaterialDesignColor from './slides/MaterialDesignColor';
+import JapaneseTraditionalColors from './slides/JapaneseTraditionalColors';
 import PlaceholderSlide from './slides/PlaceholderSlide';
 
 // Every slide uses the same box as the HSB slide (its natural size at 320px wide).
@@ -106,6 +111,11 @@ const SLIDES: Record<string, React.ComponentType> = {
   color_size: ColorSize,
   color_weight: ColorWeight,
   warm_cool_colors: WarmCoolColors,
+  oklab_space: OklabSpace,
+  oklch_space: OklchSpace,
+  css_color: CssColor,
+  material_design_color: MaterialDesignColor,
+  japanese_traditional_colors: JapaneseTraditionalColors,
 };
 
 const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => {

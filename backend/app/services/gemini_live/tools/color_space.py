@@ -55,8 +55,12 @@ RULES_JA = """\
   「LMSは目の錐体細胞の応答を表す色空間です。L（長波長・赤）・M（中波長・緑）・S（短波長・青）の3成分で、XYZからOkLabへの中間ステップです。」
 - OkLabの質問 → SHOW_CONTENT("oklab_space", colorSpace="OKLAB")、以下を説明：
   「OkLabは2020年にBjörn Ottossonが提案した知覚的に均等な色空間です。LMSの立方根を取り行列変換でL・a・bを求めます。Lは明度、aは赤-緑軸、bは青-黄軸で、距離が知覚的な色差に対応します。」
-- OkLCH・OkLabの概念的な質問（例「OkLCHとは」）→ SHOW_CONTENT("oklch_lineage", colorSpace="OKLCH")、以下を説明：
-  「OkLCHはBjörn Ottossonが2020年に提案した知覚的に均等な色空間です。RGB→XYZ→Lab→LCHと進化した最新版で、色相回転のズレを解消しています。」
+- LCH・CIE LCHの質問 → SHOW_CONTENT("lch_space", colorSpace="LCH")、以下を説明：
+  「LCHはLabを極座標で表した色空間です。Lは明るさ、Cは鮮やかさ、Hは色相の角度です。」
+- OkLCHの質問（例「OkLCHとは」）→ SHOW_CONTENT("oklch_space", colorSpace="OKLCH")、以下を説明：
+  「OkLCHはOkLabを極座標で表した色空間です。Lは明るさ、Cは鮮やかさ、Hは色相の角度で、色相を変えても明るさがそろいます。」
+- 色空間どうしの系統・つながり・歴史の質問 → SHOW_CONTENT("oklch_lineage")、以下を説明：
+  「色空間は、XYZを出発点に、LabとLCH、LMSを経由したOkLabとOkLCHの2つの流れに分かれて発展してきました。」
 - OkLCHとLCHの比較の質問（例「なぜOkLCHが優れているか」）→ SHOW_CONTENT("oklch_vs_lch", colorSpace="OKLCH")、以下を説明：
   「OkLCHでは色相を均等に変化させても明度が均等に見えます。CIE LCHにあった色相による知覚的明度のばらつきを解消しています。」\
 """
@@ -79,8 +83,12 @@ RULES_EN = """\
   "LMS represents the response of the eye's three cone types — L (long/red), M (medium/green), S (short/blue). It sits between XYZ and OkLab, which applies a cube root and linear mix to LMS for perceptual uniformity."
 - OkLab question → SHOW_CONTENT("oklab_space", colorSpace="OKLAB"), explain:
   "OkLab is a perceptually uniform color space proposed by Björn Ottosson in 2020, computed by taking the cube root of LMS and applying a linear mix. L is lightness, a is red-green, b is blue-yellow; equal distances correspond to equal perceived differences."
-- OkLCH/OkLab conceptual question (e.g. "what is OkLCH") → SHOW_CONTENT("oklch_lineage", colorSpace="OKLCH"), explain:
-  "OkLCH is a perceptually uniform color space proposed by Björn Ottosson in 2020 — the latest evolution from RGB → XYZ → Lab → LCH, fixing hue rotation artifacts."
+- LCH / CIE LCH question → SHOW_CONTENT("lch_space", colorSpace="LCH"), explain:
+  "LCH is Lab in polar coordinates: L is lightness, C is chroma (vividness), H is the hue angle."
+- OkLCH question (e.g. "what is OkLCH") → SHOW_CONTENT("oklch_space", colorSpace="OKLCH"), explain:
+  "OkLCH is OkLab in polar coordinates: L is lightness, C is chroma, H is the hue angle, and lightness stays even as the hue changes."
+- Question about how color spaces are related or descend from each other → SHOW_CONTENT("oklch_lineage"), explain:
+  "Color spaces grew from XYZ along two branches: Lab and LCH, and, through LMS, OkLab and OkLCH."
 - OkLCH vs LCH comparison question (e.g. "why is OkLCH better") → SHOW_CONTENT("oklch_vs_lch", colorSpace="OKLCH"), explain:
   "In OkLCH, equal hue steps look equally bright — unlike CIE LCH, where perceived lightness varies unevenly with hue."\
 """
