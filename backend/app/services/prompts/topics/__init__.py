@@ -39,6 +39,12 @@ from app.services.prompts.topics import (
     color_samples as _color_samples,
 )
 from app.services.prompts.topics import (
+    color_size as _color_size,
+)
+from app.services.prompts.topics import (
+    color_weight as _color_weight,
+)
+from app.services.prompts.topics import (
     complementary_colors as _complementary_colors,
 )
 from app.services.prompts.topics import (
@@ -141,6 +147,9 @@ from app.services.prompts.topics import (
     visible_gamut as _visible_gamut,
 )
 from app.services.prompts.topics import (
+    warm_cool_colors as _warm_cool_colors,
+)
+from app.services.prompts.topics import (
     xyz_lms_relation as _xyz_lms_relation,
 )
 from app.services.prompts.topics import (
@@ -192,6 +201,9 @@ _TOPIC_MODULES = [
     _tetradic_colors,
     _color_harmony,
     _various_color_spaces,
+    _color_size,
+    _color_weight,
+    _warm_cool_colors,
 ]
 
 TOPICS: dict[str, dict] = {m.TOPIC["id"]: m.TOPIC for m in _TOPIC_MODULES}

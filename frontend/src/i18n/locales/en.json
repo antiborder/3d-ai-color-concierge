@@ -429,13 +429,24 @@
       "app": "Switch and compare them in this app"
     },
     "color_size": {
-      "title": "Perceived size of colors"
+      "title": "Perceived size of colors",
+      "same": "Two circles of the same size",
+      "expand": "Expanding",
+      "contract": "Contracting",
+      "expandNote": "Light, warm",
+      "contractNote": "Dark, cool",
+      "bigger": "Looks bigger",
+      "smaller": "Looks smaller",
+      "goNote": "White Go stones: a bit smaller"
     },
     "color_weight": {
-      "title": "Perceived weight of colors"
-    },
-    "color_temperature": {
-      "title": "Color temperature"
+      "title": "Perceived weight of colors",
+      "heavy": "Heavy",
+      "light": "Light",
+      "lightness": "Lightness",
+      "hueNote": "Hue changes it little",
+      "stableLabel": "Stable",
+      "unstableLabel": "Unstable"
     },
     "color_distortion": {
       "title": "Color distortion"
@@ -481,6 +492,16 @@
       "more": "5–9 colors",
       "regular": "Corners of a regular polygon",
       "app": "Made by Color Harmony"
+    },
+    "warm_cool_colors": {
+      "title": "Warm and cool colors",
+      "warm": "Warm",
+      "cool": "Cool",
+      "neutral": "Neutral",
+      "warmFeel": "Warm, lively",
+      "coolFeel": "Cool, calm",
+      "warmUse": "Restaurants",
+      "coolUse": "Hospitals, offices"
     }
   }
 }
