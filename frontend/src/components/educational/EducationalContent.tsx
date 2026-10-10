@@ -39,6 +39,10 @@ import Tone from './slides/Tone';
 import RgbCubeGrid from './slides/RgbCubeGrid';
 import ColorSamples from './slides/ColorSamples';
 import LchSpace from './slides/LchSpace';
+import ComplementaryColors from './slides/ComplementaryColors';
+import TriadicColors from './slides/TriadicColors';
+import TetradicColors from './slides/TetradicColors';
+import ColorHarmony from './slides/ColorHarmony';
 import PlaceholderSlide from './slides/PlaceholderSlide';
 
 // Every slide uses the same box as the HSB slide (its natural size at 320px wide).
@@ -90,6 +94,10 @@ const SLIDES: Record<string, React.ComponentType> = {
   rgb_cube_grid: RgbCubeGrid,
   color_samples: ColorSamples,
   lch_space: LchSpace,
+  complementary_colors: ComplementaryColors,
+  triadic_colors: TriadicColors,
+  tetradic_colors: TetradicColors,
+  color_harmony: ColorHarmony,
 };
 
 const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => {

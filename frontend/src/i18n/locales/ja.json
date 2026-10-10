@@ -380,13 +380,37 @@
       "loop": "→ 輪になる"
     },
     "complementary_colors": {
-      "title": "補色"
+      "title": "補色",
+      "names": [
+        "オレンジ",
+        "水色"
+      ],
+      "feel": "引き立て合って目立つ",
+      "main": "補色は少しだけ使う",
+      "app": "Color Harmony で表示できる"
     },
     "triadic_colors": {
-      "title": "三角配色"
+      "title": "三角配色",
+      "names": [
+        "オレンジ",
+        "青緑",
+        "紫"
+      ],
+      "feel": "にぎやかでバランスが良い",
+      "main": "1色を主役に、残りは少なめ",
+      "app": "Color Harmony で表示できる"
     },
     "tetradic_colors": {
-      "title": "四角配色"
+      "title": "四角配色",
+      "names": [
+        "オレンジ",
+        "緑",
+        "水色",
+        "紫"
+      ],
+      "feel": "華やか（まとめるのは難しい）",
+      "main": "1色を主役に、ほかは控えめ",
+      "app": "Color Harmony で表示できる"
     },
     "lch_space": {
       "title": "LCH色空間"
@@ -441,6 +465,15 @@
       "dark": "ダーク",
       "grayish": "グレイッシュ",
       "caption": "色相が違っても、似た印象"
+    },
+    "color_harmony": {
+      "title": "カラーハーモニー",
+      "complementary": "補色",
+      "triadic": "三角配色",
+      "tetradic": "四角配色",
+      "more": "5〜9色",
+      "regular": "正多角形の頂点の色",
+      "app": "Color Harmony で作れる"
     }
   }
 }
