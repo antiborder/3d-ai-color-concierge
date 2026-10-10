@@ -2488,6 +2488,104 @@
           "en": "Color harmony is worked out on the color wheel. Want to see the color wheel?"
         }
       }
+    },
+    {
+      "from": "various_color_spaces",
+      "to": "cmyk_space",
+      "suggest": {
+        "forward": {
+          "ja": "印刷のための色空間が、インクの量で色を表すCMYKです。CMYKも見てみますか？",
+          "en": "CMYK is the color space for print, describing colors by amounts of ink. Want to see CMYK?"
+        },
+        "backward": {
+          "ja": "色空間には、目的に合わせてたくさんの種類があります。様々な色空間も見てみますか？",
+          "en": "There are many color spaces, each made for a purpose. Want to see the family of color spaces?"
+        }
+      }
+    },
+    {
+      "from": "various_color_spaces",
+      "to": "hsb_space",
+      "suggest": {
+        "forward": {
+          "ja": "色を直感的に選ぶための色空間に、HSBがあります。HSB色空間も見てみますか？",
+          "en": "HSB is a color space for picking colors intuitively. Want to see the HSB color space?"
+        },
+        "backward": {
+          "ja": "色空間には、目的に合わせてたくさんの種類があります。様々な色空間も見てみますか？",
+          "en": "There are many color spaces, each made for a purpose. Want to see the family of color spaces?"
+        }
+      }
+    },
+    {
+      "from": "various_color_spaces",
+      "to": "hsl_space",
+      "suggest": {
+        "forward": {
+          "ja": "色を直感的に選ぶための色空間に、HSLもあります。HSL色空間も見てみますか？",
+          "en": "HSL is another color space for picking colors intuitively. Want to see the HSL color space?"
+        },
+        "backward": {
+          "ja": "色空間には、目的に合わせてたくさんの種類があります。様々な色空間も見てみますか？",
+          "en": "There are many color spaces, each made for a purpose. Want to see the family of color spaces?"
+        }
+      }
+    },
+    {
+      "from": "various_color_spaces",
+      "to": "lms_space",
+      "suggest": {
+        "forward": {
+          "ja": "目の錐体の反応をそのまま表したのがLMSです。LMS色空間も見てみますか？",
+          "en": "LMS describes colors directly as the eye's cone responses. Want to see the LMS color space?"
+        },
+        "backward": {
+          "ja": "色空間には、目的に合わせてたくさんの種類があります。様々な色空間も見てみますか？",
+          "en": "There are many color spaces, each made for a purpose. Want to see the family of color spaces?"
+        }
+      }
+    },
+    {
+      "from": "various_color_spaces",
+      "to": "lch_space",
+      "suggest": {
+        "forward": {
+          "ja": "Labを極座標で表したのがLCHです。LCH色空間も見てみますか？",
+          "en": "LCH is Lab written in polar coordinates. Want to see the LCH color space?"
+        },
+        "backward": {
+          "ja": "色空間には、目的に合わせてたくさんの種類があります。様々な色空間も見てみますか？",
+          "en": "There are many color spaces, each made for a purpose. Want to see the family of color spaces?"
+        }
+      }
+    },
+    {
+      "from": "various_color_spaces",
+      "to": "oklch_space",
+      "suggest": {
+        "forward": {
+          "ja": "OKLabを極座標で表したのがOKLCHです。OKLCH色空間も見てみますか？",
+          "en": "OKLCH is OKLab written in polar coordinates. Want to see the OKLCH color space?"
+        },
+        "backward": {
+          "ja": "色空間には、目的に合わせてたくさんの種類があります。様々な色空間も見てみますか？",
+          "en": "There are many color spaces, each made for a purpose. Want to see the family of color spaces?"
+        }
+      }
+    },
+    {
+      "from": "various_color_spaces",
+      "to": "oklch_lineage",
+      "suggest": {
+        "forward": {
+          "ja": "色空間どうしが、どう生まれてつながっているかを見てみますか？",
+          "en": "Want to see how these color spaces grew out of one another?"
+        },
+        "backward": {
+          "ja": "系統図に出てくる色空間を、目的ごとに見てみますか？",
+          "en": "Want to see the color spaces in this lineage grouped by purpose?"
+        }
+      }
     }
   ]
 }
