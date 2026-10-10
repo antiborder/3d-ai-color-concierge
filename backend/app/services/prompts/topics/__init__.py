@@ -30,10 +30,16 @@ from app.services.prompts.topics import (
     cmyk_space as _cmyk_space,
 )
 from app.services.prompts.topics import (
+    color_harmony as _color_harmony,
+)
+from app.services.prompts.topics import (
     color_matching_experiment as _color_matching_experiment,
 )
 from app.services.prompts.topics import (
     color_samples as _color_samples,
+)
+from app.services.prompts.topics import (
+    complementary_colors as _complementary_colors,
 )
 from app.services.prompts.topics import (
     cone_cells as _cone_cells,
@@ -120,7 +126,13 @@ from app.services.prompts.topics import (
     sunset_red_reason as _sunset_red_reason,
 )
 from app.services.prompts.topics import (
+    tetradic_colors as _tetradic_colors,
+)
+from app.services.prompts.topics import (
     tone as _tone,
+)
+from app.services.prompts.topics import (
+    triadic_colors as _triadic_colors,
 )
 from app.services.prompts.topics import (
     visible_gamut as _visible_gamut,
@@ -172,6 +184,10 @@ _TOPIC_MODULES = [
     _rgb_cube_grid,
     _color_samples,
     _lch_space,
+    _complementary_colors,
+    _triadic_colors,
+    _tetradic_colors,
+    _color_harmony,
 ]
 
 TOPICS: dict[str, dict] = {m.TOPIC["id"]: m.TOPIC for m in _TOPIC_MODULES}

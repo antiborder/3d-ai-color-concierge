@@ -434,6 +434,14 @@
         "ja": "トーン（色調）",
         "en": "Tone"
       }
+    },
+    {
+      "id": "color_harmony",
+      "cluster": null,
+      "label": {
+        "ja": "カラーハーモニー",
+        "en": "Color harmony"
+      }
     }
   ],
   "edges": [
@@ -2324,6 +2332,160 @@
         "backward": {
           "ja": "トーンの明るさの一つの表し方が輝度です。輝度についても見てみますか？",
           "en": "HSL's lightness is one way to express how light a tone is. Want to learn about it?"
+        }
+      }
+    },
+    {
+      "from": "hue",
+      "to": "complementary_colors",
+      "suggest": {
+        "forward": {
+          "ja": "色相が正反対の2色の組み合わせを補色と呼びます。補色も見てみますか？",
+          "en": "Two colors with opposite hues are called complementary. Want to see complementary colors?"
+        },
+        "backward": {
+          "ja": "補色は、色相で決まる組み合わせです。色相についても見てみますか？",
+          "en": "Complementary colors are defined by hue. Want to learn about hue?"
+        }
+      }
+    },
+    {
+      "from": "hue",
+      "to": "triadic_colors",
+      "suggest": {
+        "forward": {
+          "ja": "色相を3等分した3色の組み合わせが三角配色です。見てみますか？",
+          "en": "Three hues dividing the wheel into thirds make a triadic scheme. Want to see it?"
+        },
+        "backward": {
+          "ja": "三角配色は、色相で決まる組み合わせです。色相についても見てみますか？",
+          "en": "A triadic scheme is defined by hue. Want to learn about hue?"
+        }
+      }
+    },
+    {
+      "from": "hue",
+      "to": "tetradic_colors",
+      "suggest": {
+        "forward": {
+          "ja": "色相を4等分した4色の組み合わせが四角配色です。見てみますか？",
+          "en": "Four hues dividing the wheel into quarters make a tetradic scheme. Want to see it?"
+        },
+        "backward": {
+          "ja": "四角配色は、色相で決まる組み合わせです。色相についても見てみますか？",
+          "en": "A tetradic scheme is defined by hue. Want to learn about hue?"
+        }
+      }
+    },
+    {
+      "from": "complementary_colors",
+      "to": "tone",
+      "suggest": {
+        "forward": {
+          "ja": "補色どうしでも、トーンをそろえると落ち着いた組み合わせになります。トーンについても見てみますか？",
+          "en": "Even complementary colors look calmer when their tones match. Want to learn about tone?"
+        },
+        "backward": {
+          "ja": "トーンをそろえたまま色相を正反対にすると、補色の組み合わせになります。補色も見てみますか？",
+          "en": "Keep the tone and flip the hue, and you get complementary colors. Want to see them?"
+        }
+      }
+    },
+    {
+      "from": "triadic_colors",
+      "to": "tone",
+      "suggest": {
+        "forward": {
+          "ja": "三角配色は、トーンをそろえるとまとまりやすくなります。トーンについても見てみますか？",
+          "en": "A triadic scheme holds together more easily when the tones match. Want to learn about tone?"
+        },
+        "backward": {
+          "ja": "トーンをそろえたまま、色相を3等分すると三角配色になります。見てみますか？",
+          "en": "Keep the tone and split the hue into thirds, and you get a triadic scheme. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "tetradic_colors",
+      "to": "tone",
+      "suggest": {
+        "forward": {
+          "ja": "色数の多い四角配色は、トーンをそろえるとまとまりやすくなります。トーンについても見てみますか？",
+          "en": "A many-colored tetradic scheme holds together more easily when the tones match. Want to learn about tone?"
+        },
+        "backward": {
+          "ja": "トーンをそろえたまま、色相を4等分すると四角配色になります。見てみますか？",
+          "en": "Keep the tone and split the hue into quarters, and you get a tetradic scheme. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "color_harmony",
+      "to": "complementary_colors",
+      "suggest": {
+        "forward": {
+          "ja": "いちばん基本のカラーハーモニーが、正反対の2色の補色です。補色も見てみますか？",
+          "en": "The most basic color harmony is complementary colors, two opposites. Want to see them?"
+        },
+        "backward": {
+          "ja": "補色のような、調和して見える組み合わせをまとめてカラーハーモニーと呼びます。見てみますか？",
+          "en": "Combinations like complementary colors are called color harmonies. Want to see more?"
+        }
+      }
+    },
+    {
+      "from": "color_harmony",
+      "to": "triadic_colors",
+      "suggest": {
+        "forward": {
+          "ja": "色相環を3等分する三角配色も、代表的なカラーハーモニーです。見てみますか？",
+          "en": "The triadic scheme, splitting the wheel into thirds, is another classic harmony. Want to see it?"
+        },
+        "backward": {
+          "ja": "三角配色のほかにも、色相環の位置で決まるカラーハーモニーがあります。見てみますか？",
+          "en": "Besides triadic, there are other harmonies set by the color wheel. Want to see them?"
+        }
+      }
+    },
+    {
+      "from": "color_harmony",
+      "to": "tetradic_colors",
+      "suggest": {
+        "forward": {
+          "ja": "色相環の上で正方形をなす四角配色も、カラーハーモニーのひとつです。見てみますか？",
+          "en": "The tetradic scheme, a square on the wheel, is also a color harmony. Want to see it?"
+        },
+        "backward": {
+          "ja": "四角配色のほかにも、色相環の位置で決まるカラーハーモニーがあります。見てみますか？",
+          "en": "Besides tetradic, there are other harmonies set by the color wheel. Want to see them?"
+        }
+      }
+    },
+    {
+      "from": "hue",
+      "to": "color_harmony",
+      "suggest": {
+        "forward": {
+          "ja": "色相の組み合わせ方で、調和して見える配色が作れます。カラーハーモニーを見てみますか？",
+          "en": "Combining hues well makes harmonious color schemes. Want to see color harmony?"
+        },
+        "backward": {
+          "ja": "カラーハーモニーは、色相の位置関係で決まります。色相についても見てみますか？",
+          "en": "Color harmony is set by how hues relate. Want to learn about hue?"
+        }
+      }
+    },
+    {
+      "from": "hue_circle",
+      "to": "color_harmony",
+      "suggest": {
+        "forward": {
+          "ja": "色相環の上の位置関係で、調和して見える配色が決まります。カラーハーモニーを見てみますか？",
+          "en": "Positions on the color wheel set which colors look harmonious. Want to see color harmony?"
+        },
+        "backward": {
+          "ja": "カラーハーモニーは、色相環の上で考えます。色相環も見てみますか？",
+          "en": "Color harmony is worked out on the color wheel. Want to see the color wheel?"
         }
       }
     }

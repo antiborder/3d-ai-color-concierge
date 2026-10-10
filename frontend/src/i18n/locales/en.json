@@ -380,13 +380,37 @@
       "loop": "→ a ring"
     },
     "complementary_colors": {
-      "title": "Complementary colors"
+      "title": "Complementary colors",
+      "names": [
+        "Orange",
+        "Sky blue"
+      ],
+      "feel": "They bring each other out",
+      "main": "Use the complement sparingly",
+      "app": "Shown by Color Harmony"
     },
     "triadic_colors": {
-      "title": "Triadic color schemes"
+      "title": "Triadic color schemes",
+      "names": [
+        "Orange",
+        "Teal",
+        "Purple"
+      ],
+      "feel": "Lively yet balanced",
+      "main": "One main color, less of the rest",
+      "app": "Shown by Color Harmony"
     },
     "tetradic_colors": {
-      "title": "Tetradic color schemes"
+      "title": "Tetradic color schemes",
+      "names": [
+        "Orange",
+        "Green",
+        "Sky blue",
+        "Purple"
+      ],
+      "feel": "Rich, but hard to pull together",
+      "main": "One main color, others sparingly",
+      "app": "Shown by Color Harmony"
     },
     "lch_space": {
       "title": "LCH color space"
@@ -441,6 +465,15 @@
       "dark": "Dark",
       "grayish": "Grayish",
       "caption": "Different hues, similar feel"
+    },
+    "color_harmony": {
+      "title": "Color harmony",
+      "complementary": "Complementary",
+      "triadic": "Triadic",
+      "tetradic": "Tetradic",
+      "more": "5–9 colors",
+      "regular": "Corners of a regular polygon",
+      "app": "Made by Color Harmony"
     }
   }
 }
