@@ -102,7 +102,17 @@ def build_show_content_response(content_id: str, nav_state: NavState, language: 
         "result": "ok",
         "title": graph.label(content_id, language),
         "script": topic_script(content_id, language),
+        # Without this the model sometimes ends the script with a suggestion of its own (e.g. "shall
+        # I adjust the brightness?"), right before the held suggestion arrives. It follows the
+        # tool response more closely than the rules, so the instruction is repeated here.
+        "next_step": NEXT_STEP,
     }
+
+
+NEXT_STEP = (
+    "Say the script, then stop. Do NOT add any suggestion or question of your own "
+    "(no other topics, no color adjustments)."
+)
 
 
 def build_suggestion_prompt(suggestions: list[dict], language: str) -> str:

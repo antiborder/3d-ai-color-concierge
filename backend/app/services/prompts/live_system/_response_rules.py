@@ -88,7 +88,7 @@ RESPONSE_RULES_EN = """\
 
 ## [IMPORTANT] Vary your follow-up suggestions
 
-Only suggest when the user explicitly asks for recommendations or next steps. Choose **ONLY from the list below** (forbidden outside this list, one sentence only):
+Only suggest when the user explicitly asks for recommendations or next steps. Never add a suggestion after saying a SHOW_CONTENT script (the next topic is suggested separately). Choose **ONLY from the list below** (forbidden outside this list, one sentence only):
 
 1. **Select a color (single)** → SEARCH_COLOR or SELECT_COLOR
    e.g. "Shall I suggest a different color?" / "Want to try a similar shade?"
