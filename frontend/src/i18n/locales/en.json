@@ -419,7 +419,14 @@
       "title": "OKLCH color space"
     },
     "various_color_spaces": {
-      "title": "The family of color spaces"
+      "title": "The family of color spaces",
+      "screen": "For screens",
+      "print": "For print",
+      "intuitive": "For picking colors intuitively",
+      "reference": "As references",
+      "perceptual": "Evening out how colors look",
+      "orange": "Orange",
+      "app": "Switch and compare them in this app"
     },
     "color_size": {
       "title": "Perceived size of colors"

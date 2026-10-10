@@ -43,6 +43,7 @@ import ComplementaryColors from './slides/ComplementaryColors';
 import TriadicColors from './slides/TriadicColors';
 import TetradicColors from './slides/TetradicColors';
 import ColorHarmony from './slides/ColorHarmony';
+import VariousColorSpaces from './slides/VariousColorSpaces';
 import PlaceholderSlide from './slides/PlaceholderSlide';
 
 // Every slide uses the same box as the HSB slide (its natural size at 320px wide).
@@ -98,6 +99,7 @@ const SLIDES: Record<string, React.ComponentType> = {
   triadic_colors: TriadicColors,
   tetradic_colors: TetradicColors,
   color_harmony: ColorHarmony,
+  various_color_spaces: VariousColorSpaces,
 };
 
 const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => {

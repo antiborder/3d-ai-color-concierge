@@ -419,7 +419,14 @@
       "title": "OKLCH空間"
     },
     "various_color_spaces": {
-      "title": "様々な色空間"
+      "title": "様々な色空間",
+      "screen": "画面のため",
+      "print": "印刷のため",
+      "intuitive": "色を直感的に選ぶため",
+      "reference": "基準として",
+      "perceptual": "見た目の差をそろえる",
+      "orange": "オレンジ",
+      "app": "このアプリで形を切り替えて比べられる"
     },
     "color_size": {
       "title": "色の大きさ"

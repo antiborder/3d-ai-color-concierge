@@ -135,6 +135,9 @@ from app.services.prompts.topics import (
     triadic_colors as _triadic_colors,
 )
 from app.services.prompts.topics import (
+    various_color_spaces as _various_color_spaces,
+)
+from app.services.prompts.topics import (
     visible_gamut as _visible_gamut,
 )
 from app.services.prompts.topics import (
@@ -188,6 +191,7 @@ _TOPIC_MODULES = [
     _triadic_colors,
     _tetradic_colors,
     _color_harmony,
+    _various_color_spaces,
 ]
 
 TOPICS: dict[str, dict] = {m.TOPIC["id"]: m.TOPIC for m in _TOPIC_MODULES}
