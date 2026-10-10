@@ -429,13 +429,24 @@
       "app": "このアプリで形を切り替えて比べられる"
     },
     "color_size": {
-      "title": "色の大きさ"
+      "title": "色の大きさ",
+      "same": "同じ大きさの円",
+      "expand": "膨張色",
+      "contract": "収縮色",
+      "expandNote": "明るい・暖かい",
+      "contractNote": "暗い・冷たい",
+      "bigger": "大きく見える",
+      "smaller": "小さく見える",
+      "goNote": "囲碁の白石は少し小さく作られる"
     },
     "color_weight": {
-      "title": "色の重み"
-    },
-    "color_temperature": {
-      "title": "色温度"
+      "title": "色の重み",
+      "heavy": "重い",
+      "light": "軽い",
+      "lightness": "明るさ",
+      "hueNote": "色相が違っても重さは近い",
+      "stableLabel": "安定",
+      "unstableLabel": "不安定"
     },
     "color_distortion": {
       "title": "色の歪み"
@@ -481,6 +492,16 @@
       "more": "5〜9色",
       "regular": "正多角形の頂点の色",
       "app": "Color Harmony で作れる"
+    },
+    "warm_cool_colors": {
+      "title": "暖色と寒色",
+      "warm": "暖色",
+      "cool": "寒色",
+      "neutral": "中性色",
+      "warmFeel": "暖かい・活発",
+      "coolFeel": "涼しい・落ち着き",
+      "warmUse": "飲食店など",
+      "coolUse": "病院・オフィスなど"
     }
   }
 }

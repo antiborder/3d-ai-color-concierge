@@ -372,14 +372,6 @@
       }
     },
     {
-      "id": "color_temperature",
-      "cluster": "psychology",
-      "label": {
-        "ja": "色温度",
-        "en": "Color temperature"
-      }
-    },
-    {
       "id": "color_distortion",
       "cluster": null,
       "label": {
@@ -441,6 +433,14 @@
       "label": {
         "ja": "カラーハーモニー",
         "en": "Color harmony"
+      }
+    },
+    {
+      "id": "warm_cool_colors",
+      "cluster": "psychology",
+      "label": {
+        "ja": "暖色と寒色",
+        "en": "Warm and cool colors"
       }
     }
   ],
@@ -1310,20 +1310,6 @@
         "backward": {
           "ja": "色相を軸に持つ色空間のひとつがLCHです。見てみますか？",
           "en": "LCH is one color space with a hue axis. Want to see it?"
-        }
-      }
-    },
-    {
-      "from": "color_temperature",
-      "to": "hue",
-      "suggest": {
-        "forward": {
-          "ja": "暖かい・冷たいという印象は、色相と深く関係しています。色相についても見てみますか？",
-          "en": "Warm and cool impressions are closely tied to hue. Want to learn about hue?"
-        },
-        "backward": {
-          "ja": "色相によって、暖かさや冷たさの印象が変わります。色温度も見てみますか？",
-          "en": "Hue changes how warm or cool a color feels. Want to see color temperature?"
         }
       }
     },
@@ -2584,6 +2570,90 @@
         "backward": {
           "ja": "系統図に出てくる色空間を、目的ごとに見てみますか？",
           "en": "Want to see the color spaces in this lineage grouped by purpose?"
+        }
+      }
+    },
+    {
+      "from": "color_size",
+      "to": "color_weight",
+      "suggest": {
+        "forward": {
+          "ja": "明るさは、色の重さの印象も左右します。色の重みも見てみますか？",
+          "en": "Lightness also changes how heavy a color feels. Want to see the weight of colors?"
+        },
+        "backward": {
+          "ja": "明るさは、色の大きさの見え方も左右します。色の大きさも見てみますか？",
+          "en": "Lightness also changes how big a color looks. Want to see the size of colors?"
+        }
+      }
+    },
+    {
+      "from": "brightness",
+      "to": "color_weight",
+      "suggest": {
+        "forward": {
+          "ja": "明るさは、色の重さの印象を大きく左右します。色の重みも見てみますか？",
+          "en": "Lightness strongly shapes how heavy a color feels. Want to see the weight of colors?"
+        },
+        "backward": {
+          "ja": "色の重さの印象を決めるのは、主に明るさです。明度についても見てみますか？",
+          "en": "How heavy a color feels comes mainly from its lightness. Want to learn about brightness?"
+        }
+      }
+    },
+    {
+      "from": "hue",
+      "to": "warm_cool_colors",
+      "suggest": {
+        "forward": {
+          "ja": "色相によって、暖かく感じる色と冷たく感じる色があります。暖色と寒色を見てみますか？",
+          "en": "Some hues feel warm and others cool. Want to see warm and cool colors?"
+        },
+        "backward": {
+          "ja": "暖色か寒色かは、主に色相で決まります。色相についても見てみますか？",
+          "en": "Whether a color is warm or cool depends mainly on its hue. Want to learn about hue?"
+        }
+      }
+    },
+    {
+      "from": "hue_circle",
+      "to": "warm_cool_colors",
+      "suggest": {
+        "forward": {
+          "ja": "色相環は、暖色・寒色・中性色に分けられます。暖色と寒色を見てみますか？",
+          "en": "The color wheel divides into warm, cool and neutral colors. Want to see warm and cool colors?"
+        },
+        "backward": {
+          "ja": "暖色と寒色は、色相環の上で分かれています。色相環も見てみますか？",
+          "en": "Warm and cool colors sit on opposite sides of the color wheel. Want to see the color wheel?"
+        }
+      }
+    },
+    {
+      "from": "warm_cool_colors",
+      "to": "color_size",
+      "suggest": {
+        "forward": {
+          "ja": "暖色は大きく、寒色は小さく見える傾向があります。色の大きさも見てみますか？",
+          "en": "Warm colors tend to look bigger and cool colors smaller. Want to see the size of colors?"
+        },
+        "backward": {
+          "ja": "色の大きさの見え方には、暖色か寒色かも関わります。暖色と寒色も見てみますか？",
+          "en": "Whether a color is warm or cool also affects how big it looks. Want to see warm and cool colors?"
+        }
+      }
+    },
+    {
+      "from": "warm_cool_colors",
+      "to": "color_weight",
+      "suggest": {
+        "forward": {
+          "ja": "色は、暖かさだけでなく重さの印象も与えます。色の重みも見てみますか？",
+          "en": "Colors give an impression not only of warmth but also of weight. Want to see the weight of colors?"
+        },
+        "backward": {
+          "ja": "色は、重さだけでなく暖かさの印象も与えます。暖色と寒色も見てみますか？",
+          "en": "Colors give an impression not only of weight but also of warmth. Want to see warm and cool colors?"
         }
       }
     }
