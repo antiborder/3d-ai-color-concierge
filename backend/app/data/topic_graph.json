@@ -383,8 +383,8 @@
       "id": "css_color",
       "cluster": null,
       "label": {
-        "ja": "CSS Color",
-        "en": "CSS color"
+        "ja": "CSS Named Colors",
+        "en": "CSS Named Colors"
       }
     },
     {
@@ -441,6 +441,14 @@
       "label": {
         "ja": "暖色と寒色",
         "en": "Warm and cool colors"
+      }
+    },
+    {
+      "id": "japanese_traditional_colors",
+      "cluster": null,
+      "label": {
+        "ja": "日本の伝統色",
+        "en": "Japanese traditional colors"
       }
     }
   ],
@@ -828,12 +836,12 @@
       "to": "css_color",
       "suggest": {
         "forward": {
-          "ja": "Webページでは、CSSでHEXコードを使って色を指定できます。CSSの色指定も見てみますか？",
-          "en": "On web pages, CSS can use HEX codes for color. Want to see how CSS specifies colors?"
+          "ja": "CSSでは、HEXコードの代わりに名前で指定できる色もあります。CSS Named Colorsも見てみますか？",
+          "en": "In CSS, some colors can be written by name instead of a HEX code. Want to see CSS Named Colors?"
         },
         "backward": {
-          "ja": "CSSで最もよく使われる色の書き方がHEXコードです。見てみますか？",
-          "en": "HEX codes are the most common way to write colors in CSS. Want to see?"
+          "ja": "名前付きの色も、中身はHEXコードで表せます。HEXコードも見てみますか？",
+          "en": "Named colors can also be written as HEX codes. Want to see HEX codes?"
         }
       }
     },
@@ -870,8 +878,8 @@
       "to": "color_samples",
       "suggest": {
         "forward": {
-          "ja": "CSSには名前付きの色が用意されています。いろいろな色見本も見てみますか？",
-          "en": "CSS includes a set of named colors. Want to see various color samples?"
+          "ja": "このアプリには、CSSの名前付きの色のほかにも色見本があります。いろいろな色見本も見てみますか？",
+          "en": "Besides CSS named colors, this app has other color samples. Want to see them?"
         },
         "backward": {
           "ja": "CSSにも名前付きの色見本があります。CSSの色指定も見てみますか？",
@@ -898,12 +906,12 @@
       "to": "css_color",
       "suggest": {
         "forward": {
-          "ja": "パレットの色は、CSSで指定して使います。CSSの色指定も見てみますか？",
-          "en": "Palette colors are applied with CSS. Want to see how CSS specifies colors?"
+          "ja": "ウェブには、名前で指定できる色のセットもあります。CSS Named Colorsも見てみますか？",
+          "en": "The web also has a set of colors you can specify by name. Want to see CSS Named Colors?"
         },
         "backward": {
-          "ja": "CSSでよく使われる色の一例が、Material Designのパレットです。見てみますか？",
-          "en": "Material Design's palette is a common source of CSS colors. Want to see it?"
+          "ja": "デザインのためのパレットもあります。Material Design Colorも見てみますか？",
+          "en": "There are also palettes made for design. Want to see Material Design colors?"
         }
       }
     },
@@ -922,30 +930,16 @@
       }
     },
     {
-      "from": "color_distortion",
-      "to": "css_color",
-      "suggest": {
-        "forward": {
-          "ja": "CSSでは、oklchという書き方を使うと色の歪みを避けやすくなります。見てみますか？",
-          "en": "In CSS, oklch() helps avoid color distortion. Want to see?"
-        },
-        "backward": {
-          "ja": "CSSで色を選ぶときは、色の歪みに注意が必要です。色の歪みについても見てみますか？",
-          "en": "When picking colors in CSS, color distortion matters. Want to learn about it?"
-        }
-      }
-    },
-    {
       "from": "oklch_space",
       "to": "css_color",
       "suggest": {
         "forward": {
-          "ja": "OKLCHは、CSSでもそのまま使えます。CSSの色指定も見てみますか？",
-          "en": "OKLCH can be used directly in CSS. Want to see how?"
+          "ja": "CSSでは、色を名前で指定することもできます。CSS Named Colorsも見てみますか？",
+          "en": "CSS can also specify colors by name. Want to see CSS Named Colors?"
         },
         "backward": {
-          "ja": "CSSでは、OKLCHという新しい色空間も使えます。見てみますか？",
-          "en": "CSS also supports OKLCH, a newer color space. Want to see it?"
+          "ja": "CSSでは、OKLCHでも色を指定できます。OKLCH色空間も見てみますか？",
+          "en": "CSS can also specify colors in OKLCH. Want to see the OKLCH color space?"
         }
       }
     },
@@ -2654,6 +2648,48 @@
         "backward": {
           "ja": "色は、重さだけでなく暖かさの印象も与えます。暖色と寒色も見てみますか？",
           "en": "Colors give an impression not only of weight but also of warmth. Want to see warm and cool colors?"
+        }
+      }
+    },
+    {
+      "from": "color_samples",
+      "to": "japanese_traditional_colors",
+      "suggest": {
+        "forward": {
+          "ja": "色見本のひとつに、日本の伝統色があります。見てみますか？",
+          "en": "One of the color sample sets is Japanese traditional colors. Want to see them?"
+        },
+        "backward": {
+          "ja": "このアプリには、日本の伝統色のほかにも色見本があります。様々なColor Samplesも見てみますか？",
+          "en": "Besides Japanese traditional colors, this app has other color samples. Want to see them?"
+        }
+      }
+    },
+    {
+      "from": "css_color",
+      "to": "japanese_traditional_colors",
+      "suggest": {
+        "forward": {
+          "ja": "CSSの色名のように、日本にも伝統的な色の名前があります。日本の伝統色も見てみますか？",
+          "en": "Like CSS color names, Japan has traditional color names. Want to see Japanese traditional colors?"
+        },
+        "backward": {
+          "ja": "名前の付いた色は、ウェブのCSSにもあります。CSS Colorも見てみますか？",
+          "en": "The web's CSS has named colors too. Want to see CSS colors?"
+        }
+      }
+    },
+    {
+      "from": "material_design_color",
+      "to": "japanese_traditional_colors",
+      "suggest": {
+        "forward": {
+          "ja": "現代のパレットとは対照的な、昔からの色の名前もあります。日本の伝統色も見てみますか？",
+          "en": "In contrast to modern palettes, there are also long-standing color names. Want to see Japanese traditional colors?"
+        },
+        "backward": {
+          "ja": "現代のデザインのためのパレットもあります。Material Design Colorも見てみますか？",
+          "en": "There are also palettes made for modern design. Want to see Material Design colors?"
         }
       }
     }

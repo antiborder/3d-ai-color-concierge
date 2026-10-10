@@ -112,11 +112,13 @@
       "deltaE": "色差ΔE = 30"
     },
     "oklab_space": {
-      "title": "OkLab色空間",
-      "white": "白",
-      "black": "黒",
-      "desc1": "OkLabは2020年にBjörn Ottossonが提案した知覚的に均等なLab型色空間です。",
-      "desc2": "Lは明度（0〜1）、aは赤-緑軸、bは青-黄軸。OkLab上での距離が知覚的な色差に対応します。"
+      "title": "OKLab色空間",
+      "green": "緑 −a",
+      "red": "赤",
+      "yellow": "黄",
+      "blue": "青 −b",
+      "gradientTitle": "青 → 白 のグラデーション",
+      "gradientNote": "Labは途中で紫寄りに、OKLabは青のまま"
     },
     "oklch_lineage": {
       "title": "色科学の系統図",
@@ -416,7 +418,9 @@
       "title": "LCH色空間"
     },
     "oklch_space": {
-      "title": "OKLCH空間"
+      "title": "OKLCH色空間",
+      "rowLabel": "OKLCH",
+      "app": "Color Harmony も OKLCH で計算"
     },
     "various_color_spaces": {
       "title": "様々な色空間",
@@ -452,10 +456,23 @@
       "title": "色の歪み"
     },
     "css_color": {
-      "title": "CSS Color"
+      "title": "CSS Named Colors",
+      "count": "約140色",
+      "basic": "基本の色",
+      "familiar": "身近なものの名前",
+      "readable": "読みやすい",
+      "hexLabel": "HEXコード",
+      "darkgray": "darkgray の方が明るい",
+      "app": "Color Samples ですべて表示できる"
     },
     "material_design_color": {
-      "title": "Material Design Color"
+      "title": "Material Design Color",
+      "palette": "19の色相 × 10段階（50〜900）",
+      "lighter": "明るい",
+      "darker": "暗い",
+      "grayLabel": "明るさ",
+      "yellowBlue": "黄色は明るく、青は暗い",
+      "sameNumber": "同じ500でも、明るさは色相で違う"
     },
     "color_samples": {
       "title": "様々なColor Samples",
@@ -502,6 +519,26 @@
       "coolFeel": "涼しい・落ち着き",
       "warmUse": "飲食店など",
       "coolUse": "病院・オフィスなど"
+    },
+    "japanese_traditional_colors": {
+      "title": "日本の伝統色",
+      "sakura": "桜色",
+      "sakuraReading": "さくらいろ",
+      "sakuraOrigin": "花",
+      "moegi": "萌葱色",
+      "moegiReading": "もえぎいろ",
+      "moegiOrigin": "植物（ねぎの芽）",
+      "ai": "藍色",
+      "aiReading": "あいいろ",
+      "aiOrigin": "染料",
+      "akane": "茜色",
+      "akaneReading": "あかねいろ",
+      "akaneOrigin": "染料（茜の根）",
+      "yamabuki": "山吹色",
+      "yamabukiReading": "やまぶきいろ",
+      "yamabukiOrigin": "花",
+      "muted": "淡く、くすんだ色が多い",
+      "app": "このアプリで約460色を表示できる"
     }
   }
 }

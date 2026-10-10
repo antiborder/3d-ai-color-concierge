@@ -51,6 +51,9 @@ from app.services.prompts.topics import (
     cone_cells as _cone_cells,
 )
 from app.services.prompts.topics import (
+    css_color as _css_color,
+)
+from app.services.prompts.topics import (
     display_gamut as _display_gamut,
 )
 from app.services.prompts.topics import (
@@ -75,6 +78,9 @@ from app.services.prompts.topics import (
     hue_circle as _hue_circle,
 )
 from app.services.prompts.topics import (
+    japanese_traditional_colors as _japanese_traditional_colors,
+)
+from app.services.prompts.topics import (
     lab_space as _lab,
 )
 from app.services.prompts.topics import (
@@ -90,10 +96,19 @@ from app.services.prompts.topics import (
     light_visible_reason as _light_visible_reason,
 )
 from app.services.prompts.topics import (
+    material_design_color as _material_design_color,
+)
+from app.services.prompts.topics import (
     nature_of_light as _nature_of_light,
 )
 from app.services.prompts.topics import (
+    oklab_space as _oklab_space,
+)
+from app.services.prompts.topics import (
     oklch_lineage as _oklch_lineage,
+)
+from app.services.prompts.topics import (
+    oklch_space as _oklch_space,
 )
 from app.services.prompts.topics import (
     oklch_vs_lch as _oklch_vs_lch,
@@ -204,6 +219,11 @@ _TOPIC_MODULES = [
     _color_size,
     _color_weight,
     _warm_cool_colors,
+    _oklab_space,
+    _oklch_space,
+    _css_color,
+    _material_design_color,
+    _japanese_traditional_colors,
 ]
 
 TOPICS: dict[str, dict] = {m.TOPIC["id"]: m.TOPIC for m in _TOPIC_MODULES}
