@@ -26,15 +26,11 @@ const COLORS = {
   oklch: '#6a30b0',
 };
 
-const YEARS: Record<string, string> = {
-  xyz: '1931', lab: '1976', lch: '1976', lms: '—', oklab: '2020', oklch: '2020',
-};
-
 function Box({
-  x, y, label, sublabel, color, year, bold,
+  x, y, label, sublabel, color, bold,
 }: {
   x: number; y: number; label: string; sublabel: string;
-  color: string; year?: string; bold?: boolean;
+  color: string; bold?: boolean;
 }) {
   return (
     <g>
@@ -55,15 +51,6 @@ function Box({
       >
         {sublabel}
       </text>
-      {year && (
-        <text
-          x={x + BOX_W / 2 - 5} y={y + BOX_H / 2}
-          fontSize="10" fill="white" opacity="0.75"
-          textAnchor="end" dominantBaseline="middle"
-        >
-          {year}
-        </text>
-      )}
     </g>
   );
 }
@@ -123,12 +110,12 @@ const OklchLineage = () => {
 
         {/* Boxes */}
         <Box x={CX} y={Y_RGB}  label="RGB"   sublabel={k('rgb_desc')}   color={COLORS.rgb} />
-        <Box x={CX} y={Y_XYZ}  label="XYZ"   sublabel={k('xyz_desc')}   color={COLORS.xyz}   year={YEARS.xyz} />
-        <Box x={LX} y={Y_FORK} label="Lab"   sublabel={k('lab_desc')}   color={COLORS.lab}   year={YEARS.lab} />
-        <Box x={RX} y={Y_FORK} label="LMS"   sublabel={k('lms_desc')}   color={COLORS.lms}   year={YEARS.lms} />
-        <Box x={LX} y={Y_ROW3} label="LCH"   sublabel={k('lch_desc')}   color={COLORS.lch}   year={YEARS.lch} />
-        <Box x={RX} y={Y_ROW3} label="OkLab" sublabel={k('oklab_desc')} color={COLORS.oklab} year={YEARS.oklab} />
-        <Box x={RX} y={Y_ROW4} label="OkLCH" sublabel={k('oklch_desc')} color={COLORS.oklch} year={YEARS.oklch} bold />
+        <Box x={CX} y={Y_XYZ}  label="XYZ"   sublabel={k('xyz_desc')}   color={COLORS.xyz} />
+        <Box x={LX} y={Y_FORK} label="Lab"   sublabel={k('lab_desc')}   color={COLORS.lab} />
+        <Box x={RX} y={Y_FORK} label="LMS"   sublabel={k('lms_desc')}   color={COLORS.lms} />
+        <Box x={LX} y={Y_ROW3} label="LCH"   sublabel={k('lch_desc')}   color={COLORS.lch} />
+        <Box x={RX} y={Y_ROW3} label="OkLab" sublabel={k('oklab_desc')} color={COLORS.oklab} />
+        <Box x={RX} y={Y_ROW4} label="OkLCH" sublabel={k('oklch_desc')} color={COLORS.oklch} bold />
       </svg>
 
       <p style={{

@@ -123,11 +123,11 @@
     "oklch_lineage": {
       "title": "Color Science Lineage",
       "rgb_desc": "Device-dependent (display values)",
-      "xyz_desc": "Based on human vision (CIE 1931)",
-      "lab_desc": "Perceptually uniform (1976)",
+      "xyz_desc": "Based on human vision",
+      "lab_desc": "Perceptually uniform",
       "lch_desc": "Polar form of Lab",
       "lms_desc": "Cone cell responses (L/M/S)",
-      "oklab_desc": "Perceptual via LMS (2020)",
+      "oklab_desc": "Perceptual via LMS",
       "oklch_desc": "Polar form of OkLab",
       "caption": "Two branches from XYZ: CIE Lab and OkLab via cone responses."
     },
