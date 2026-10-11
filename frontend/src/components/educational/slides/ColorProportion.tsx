@@ -68,18 +68,11 @@ const ColorProportion = () => {
           />
         ))}
 
-        {/* ── top: the three roles (faint until each is named) ── */}
+        {/* ── top: the three roles, each appearing when it is named ── */}
         {ROLES.map((r, i) => {
           const y = ROLE.y0 + i * ROLE.pitch;
-          const shown = step >= r.step;
           return (
-            <g
-              key={r.key}
-              style={{
-                opacity: shown ? 1 : step >= STEP.intro ? 0.3 : 0,
-                transition: 'opacity 600ms ease',
-              }}
-            >
+            <g key={r.key} style={fade(step >= r.step)}>
               <rect
                 x={ROLE.x0}
                 y={y}

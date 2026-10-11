@@ -70,19 +70,12 @@ const ColorContrast = () => {
           />
         ))}
 
-        {/* ── top: four kinds of contrast (faint until each is named) ── */}
+        {/* ── top: four kinds of contrast, each appearing when it is named ── */}
         {KINDS.map((kind, i) => {
           const x = CELL.xs[i % 2];
           const y = CELL.ys[Math.floor(i / 2)];
-          const shown = step >= kind.step;
           return (
-            <g
-              key={kind.key}
-              style={{
-                opacity: shown ? 1 : step >= STEP.intro ? 0.25 : 0,
-                transition: 'opacity 600ms ease',
-              }}
-            >
+            <g key={kind.key} style={fade(step >= kind.step)}>
               <rect x={x} y={y} width={CELL.w} height={CELL.h} rx="6" fill={rgb(kind.bg)} />
               <rect
                 x={x + (CELL.w - CELL.inner) / 2}
