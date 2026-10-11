@@ -52,6 +52,15 @@ import OklchSpace from './slides/OklchSpace';
 import CssColor from './slides/CssColor';
 import MaterialDesignColor from './slides/MaterialDesignColor';
 import JapaneseTraditionalColors from './slides/JapaneseTraditionalColors';
+import MonochromeColors from './slides/MonochromeColors';
+import PastelColors from './slides/PastelColors';
+import ColorUnity from './slides/ColorUnity';
+import ColorDifference from './slides/ColorDifference';
+import ColorIllusion from './slides/ColorIllusion';
+import ColorDistortion from './slides/ColorDistortion';
+import ColorProportion from './slides/ColorProportion';
+import ContrastReadability from './slides/ContrastReadability';
+import ColorContrast from './slides/ColorContrast';
 import PlaceholderSlide from './slides/PlaceholderSlide';
 
 // Every slide uses the same box as the HSB slide (its natural size at 320px wide).
@@ -116,6 +125,15 @@ const SLIDES: Record<string, React.ComponentType> = {
   css_color: CssColor,
   material_design_color: MaterialDesignColor,
   japanese_traditional_colors: JapaneseTraditionalColors,
+  monochrome_colors: MonochromeColors,
+  pastel_colors: PastelColors,
+  color_unity: ColorUnity,
+  color_difference: ColorDifference,
+  color_illusion: ColorIllusion,
+  color_distortion: ColorDistortion,
+  color_proportion: ColorProportion,
+  contrast_readability: ContrastReadability,
+  color_contrast: ColorContrast,
 };
 
 const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => {

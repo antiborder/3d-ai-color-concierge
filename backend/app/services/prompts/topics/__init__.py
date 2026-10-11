@@ -30,16 +30,34 @@ from app.services.prompts.topics import (
     cmyk_space as _cmyk_space,
 )
 from app.services.prompts.topics import (
+    color_contrast as _color_contrast,
+)
+from app.services.prompts.topics import (
+    color_difference as _color_difference,
+)
+from app.services.prompts.topics import (
+    color_distortion as _color_distortion,
+)
+from app.services.prompts.topics import (
     color_harmony as _color_harmony,
 )
 from app.services.prompts.topics import (
+    color_illusion as _color_illusion,
+)
+from app.services.prompts.topics import (
     color_matching_experiment as _color_matching_experiment,
+)
+from app.services.prompts.topics import (
+    color_proportion as _color_proportion,
 )
 from app.services.prompts.topics import (
     color_samples as _color_samples,
 )
 from app.services.prompts.topics import (
     color_size as _color_size,
+)
+from app.services.prompts.topics import (
+    color_unity as _color_unity,
 )
 from app.services.prompts.topics import (
     color_weight as _color_weight,
@@ -49,6 +67,9 @@ from app.services.prompts.topics import (
 )
 from app.services.prompts.topics import (
     cone_cells as _cone_cells,
+)
+from app.services.prompts.topics import (
+    contrast_readability as _contrast_readability,
 )
 from app.services.prompts.topics import (
     css_color as _css_color,
@@ -99,6 +120,9 @@ from app.services.prompts.topics import (
     material_design_color as _material_design_color,
 )
 from app.services.prompts.topics import (
+    monochrome_colors as _monochrome_colors,
+)
+from app.services.prompts.topics import (
     nature_of_light as _nature_of_light,
 )
 from app.services.prompts.topics import (
@@ -112,6 +136,9 @@ from app.services.prompts.topics import (
 )
 from app.services.prompts.topics import (
     oklch_vs_lch as _oklch_vs_lch,
+)
+from app.services.prompts.topics import (
+    pastel_colors as _pastel_colors,
 )
 from app.services.prompts.topics import (
     rainbow_mechanism as _rainbow_mechanism,
@@ -224,6 +251,15 @@ _TOPIC_MODULES = [
     _css_color,
     _material_design_color,
     _japanese_traditional_colors,
+    _monochrome_colors,
+    _pastel_colors,
+    _color_unity,
+    _color_difference,
+    _color_illusion,
+    _color_distortion,
+    _color_proportion,
+    _contrast_readability,
+    _color_contrast,
 ]
 
 TOPICS: dict[str, dict] = {m.TOPIC["id"]: m.TOPIC for m in _TOPIC_MODULES}

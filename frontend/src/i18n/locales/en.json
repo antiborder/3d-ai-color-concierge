@@ -453,7 +453,15 @@
       "unstableLabel": "Unstable"
     },
     "color_distortion": {
-      "title": "Color distortion"
+      "title": "Color distortion",
+      "what": "Number difference ≠ look difference",
+      "example": "HSL lightness 50%",
+      "light": "Looks light",
+      "dark": "Looks dark",
+      "hueSteps": "Hue in 30° steps",
+      "big": "Big change",
+      "small": "Small change",
+      "fix": "Spaces matched to sight: Lab, OKLCH"
     },
     "css_color": {
       "title": "CSS Named Colors",
@@ -539,6 +547,86 @@
       "yamabukiOrigin": "flower",
       "muted": "Many soft, muted colors",
       "app": "This app can show about 460"
+    },
+    "monochrome_colors": {
+      "title": "Monochrome colors",
+      "achromatic": "Achromatic (saturation 0)",
+      "shape": "Lightness alone carries the shapes",
+      "mono": "Monochromatic (one hue)",
+      "unity": "Easily feels unified"
+    },
+    "pastel_colors": {
+      "title": "Pastel colors",
+      "dull": "Dull",
+      "vivid": "Vivid",
+      "dark": "Dark",
+      "pastel": "Pastel",
+      "pale": "Pale",
+      "light": "Light",
+      "even": "Even lightness, easy to combine",
+      "sakura": "Sakura-iro is a pastel too"
+    },
+    "color_unity": {
+      "title": "Color unity",
+      "hue": "① Same hue",
+      "tone": "② Same tone",
+      "count": "③ Fewer colors",
+      "messy": "Hues and tones all different",
+      "messyNote": "Looks scattered"
+    },
+    "color_difference": {
+      "title": "Color difference",
+      "what": "ΔE: how different two colors are",
+      "lab": "Distance in Lab or OKLab",
+      "de1": "Hard to tell apart",
+      "de3": "Noticeable up close",
+      "de10": "Clearly different",
+      "de30": "A different color",
+      "print": "Print",
+      "product": "Products",
+      "check": "Check drift from the target with ΔE"
+    },
+    "color_illusion": {
+      "title": "Color illusions",
+      "onWhite": "Looks darker",
+      "onBlack": "Looks lighter",
+      "same": "Both are the same gray",
+      "stare": "Stare at it",
+      "afterimage": "Afterimage on white",
+      "cause": "Tired cones bring out the opposite color"
+    },
+    "color_proportion": {
+      "title": "Color proportions",
+      "base": "Base color",
+      "main": "Main color",
+      "accent": "Accent color",
+      "baseNote": "Large areas, like backgrounds",
+      "mainNote": "The leading color",
+      "accentNote": "Just a little, to catch the eye",
+      "ratios": [
+        60,
+        30,
+        10
+      ],
+      "evenly": "Used evenly",
+      "inProportion": "In proportion"
+    },
+    "contrast_readability": {
+      "title": "Contrast and readability",
+      "what": "Contrast ratio = lightness ratio",
+      "guideline": "Body text: 4.5 : 1 or more",
+      "sample": "Red on green",
+      "grays": "Similar lightness",
+      "hardToRead": "Close lightness: hard to read"
+    },
+    "color_contrast": {
+      "title": "Color contrast",
+      "lightness": "Lightness",
+      "saturation": "Saturation",
+      "hue": "Hue",
+      "complement": "Complementary",
+      "strong": "Strong: stands out",
+      "weak": "Weak: calm"
     }
   }
 }

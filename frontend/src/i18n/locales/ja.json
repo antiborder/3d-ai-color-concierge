@@ -453,7 +453,15 @@
       "unstableLabel": "不安定"
     },
     "color_distortion": {
-      "title": "色の歪み"
+      "title": "色の歪み",
+      "what": "数値の差 ≠ 見た目の差",
+      "example": "HSL 輝度 50%",
+      "light": "明るく見える",
+      "dark": "暗く見える",
+      "hueSteps": "色相を30°ずつ",
+      "big": "変化が大きい",
+      "small": "変化が小さい",
+      "fix": "見た目に合わせた色空間：Lab・OKLCH"
     },
     "css_color": {
       "title": "CSS Named Colors",
@@ -539,6 +547,86 @@
       "yamabukiOrigin": "花",
       "muted": "淡く、くすんだ色が多い",
       "app": "このアプリで約460色を表示できる"
+    },
+    "monochrome_colors": {
+      "title": "モノクロカラー",
+      "achromatic": "無彩色（彩度 0）",
+      "shape": "明るさの差だけで形が伝わる",
+      "mono": "単色配色（色相は1つ）",
+      "unity": "統一感が出やすい"
+    },
+    "pastel_colors": {
+      "title": "パステルカラー",
+      "dull": "くすんだ",
+      "vivid": "鮮やか",
+      "dark": "暗い",
+      "pastel": "パステル",
+      "pale": "ペール",
+      "light": "ライト",
+      "even": "明るさがそろい、まとまりやすい",
+      "sakura": "桜色もパステルカラー"
+    },
+    "color_unity": {
+      "title": "色の統一感",
+      "hue": "① 色相をそろえる",
+      "tone": "② トーンをそろえる",
+      "count": "③ 色の数を絞る",
+      "messy": "色相もトーンもばらばら",
+      "messyNote": "まとまりのない印象になる"
+    },
+    "color_difference": {
+      "title": "色差",
+      "what": "ΔE：2つの色の違い",
+      "lab": "Lab・OKLab での2点の距離",
+      "de1": "ほとんど区別できない",
+      "de3": "よく見ると分かる",
+      "de10": "違いがはっきり分かる",
+      "de30": "別の色に見える",
+      "print": "印刷物",
+      "product": "製品",
+      "check": "指定した色とのずれを ΔE で確かめる"
+    },
+    "color_illusion": {
+      "title": "色の錯視",
+      "onWhite": "暗く見える",
+      "onBlack": "明るく見える",
+      "same": "どちらも同じ灰色",
+      "stare": "見つめる",
+      "afterimage": "白い面に残像",
+      "cause": "錐体が疲れて、反対の色が浮かぶ"
+    },
+    "color_proportion": {
+      "title": "配色の比率",
+      "base": "ベースカラー",
+      "main": "メインカラー",
+      "accent": "アクセントカラー",
+      "baseNote": "背景など、広い面に",
+      "mainNote": "主役の色",
+      "accentNote": "目を引くために少しだけ",
+      "ratios": [
+        70,
+        25,
+        5
+      ],
+      "evenly": "均等に使う",
+      "inProportion": "比率を守る"
+    },
+    "contrast_readability": {
+      "title": "コントラストと読みやすさ",
+      "what": "コントラスト比 ＝ 明るさの比",
+      "guideline": "本文の目安：4.5 : 1 以上",
+      "sample": "赤い文字・緑の背景",
+      "grays": "明るさが近い",
+      "hardToRead": "明るさが近いと読みにくい"
+    },
+    "color_contrast": {
+      "title": "コントラスト",
+      "lightness": "明度対比",
+      "saturation": "彩度対比",
+      "hue": "色相対比",
+      "complement": "補色対比",
+      "strong": "強い：目立つ",
+      "weak": "弱い：落ち着く"
     }
   }
 }
