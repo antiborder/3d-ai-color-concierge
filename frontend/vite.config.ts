@@ -30,7 +30,7 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    sourcemap: 'hidden',
     commonjsOptions: {
       include: [/node_modules/],
       transformMixedEsModules: true,
