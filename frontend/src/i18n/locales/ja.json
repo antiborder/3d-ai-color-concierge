@@ -123,11 +123,11 @@
     "oklch_lineage": {
       "title": "色科学の系統図",
       "rgb_desc": "デバイス依存（表示値）",
-      "xyz_desc": "人の視覚に基づく（CIE 1931）",
-      "lab_desc": "知覚的に均等（1976）",
+      "xyz_desc": "人の視覚に基づく",
+      "lab_desc": "知覚的に均等",
       "lch_desc": "Labの極座標形式",
       "lms_desc": "錐体細胞の応答（L/M/S）",
-      "oklab_desc": "LMS経由の知覚空間（2020）",
+      "oklab_desc": "LMS経由の知覚空間",
       "oklch_desc": "OkLabの極座標形式",
       "caption": "XYZから2つの流れ：CIE LabとLMS経由のOkLab。"
     },

@@ -54,7 +54,7 @@ RULES_JA = """\
 - LMS・錐体細胞の応答の質問 → SHOW_CONTENT("oklch_lineage", colorSpace="LMS")、以下を説明：
   「LMSは目の錐体細胞の応答を表す色空間です。L（長波長・赤）・M（中波長・緑）・S（短波長・青）の3成分で、XYZからOkLabへの中間ステップです。」
 - OkLabの質問 → SHOW_CONTENT("oklab_space", colorSpace="OKLAB")、以下を説明：
-  「OkLabは2020年にBjörn Ottossonが提案した知覚的に均等な色空間です。LMSの立方根を取り行列変換でL・a・bを求めます。Lは明度、aは赤-緑軸、bは青-黄軸で、距離が知覚的な色差に対応します。」
+  「OkLabはLabを改良した、知覚的に均等な色空間です。LMSの立方根を取り行列変換でL・a・bを求めます。Lは明度、aは赤-緑軸、bは青-黄軸で、距離が知覚的な色差に対応します。」
 - LCH・CIE LCHの質問 → SHOW_CONTENT("lch_space", colorSpace="LCH")、以下を説明：
   「LCHはLabを極座標で表した色空間です。Lは明るさ、Cは鮮やかさ、Hは色相の角度です。」
 - OkLCHの質問（例「OkLCHとは」）→ SHOW_CONTENT("oklch_space", colorSpace="OKLCH")、以下を説明：
@@ -82,7 +82,7 @@ RULES_EN = """\
 - LMS / cone cell response question → SHOW_CONTENT("oklch_lineage", colorSpace="LMS"), explain:
   "LMS represents the response of the eye's three cone types — L (long/red), M (medium/green), S (short/blue). It sits between XYZ and OkLab, which applies a cube root and linear mix to LMS for perceptual uniformity."
 - OkLab question → SHOW_CONTENT("oklab_space", colorSpace="OKLAB"), explain:
-  "OkLab is a perceptually uniform color space proposed by Björn Ottosson in 2020, computed by taking the cube root of LMS and applying a linear mix. L is lightness, a is red-green, b is blue-yellow; equal distances correspond to equal perceived differences."
+  "OkLab is a perceptually uniform color space that improves on Lab, computed by taking the cube root of LMS and applying a linear mix. L is lightness, a is red-green, b is blue-yellow; equal distances correspond to equal perceived differences."
 - LCH / CIE LCH question → SHOW_CONTENT("lch_space", colorSpace="LCH"), explain:
   "LCH is Lab in polar coordinates: L is lightness, C is chroma (vividness), H is the hue angle."
 - OkLCH question (e.g. "what is OkLCH") → SHOW_CONTENT("oklch_space", colorSpace="OKLCH"), explain:

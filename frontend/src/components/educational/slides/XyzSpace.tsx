@@ -9,22 +9,21 @@ import { draw, fade, useSlideStep } from '../slideAnimation';
  * (backend/app/services/prompts/topics/xyz_space.py); each step starts on the word in [ ].
  */
 const STEP = {
-  frame: 0, // "[XYZ色空間は]、"
-  cie: 1, // "[国際照明委員会]が1931年に定めた、色を表す世界共通の基準です。"
-  curves: 2, // "光の色を、この[3本]の曲線で"
-  labelX: 3, // "測った[X]・"
-  labelY: 4, // "[Y]・"
-  labelZ: 5, // "[Z]の3つの値で表します。"
-  positive: 6, // "曲線は等色実験をもとに、[マイナス]にならないよう作られています。"
-  brightness: 7, // "[特に]Yは、人が感じる明るさを表します。"
-  hub: 8, // "XYZは[機器に]よらないので、"
-  rgb: 9, // "[画面の]RGBなど"
-  others: 10, // "[多くの]色空間が、XYZを基準に定義されています。"
+  frame: 0, // "[XYZ色空間は]、色を表す世界共通の基準です。"
+  curves: 1, // "光の色を、この[3本]の曲線で"
+  labelX: 2, // "測った[X]・"
+  labelY: 3, // "[Y]・"
+  labelZ: 4, // "[Z]の3つの値で表します。"
+  positive: 5, // "曲線は等色実験をもとに、[マイナス]にならないよう作られています。"
+  brightness: 6, // "[特に]Yは、人が感じる明るさを表します。"
+  hub: 7, // "XYZは[機器に]よらないので、"
+  rgb: 8, // "[画面の]RGBなど"
+  others: 9, // "[多くの]色空間が、XYZを基準に定義されています。"
 } as const;
 // When each step's words are spoken, counted from when the slide appears. Estimated from the
 // reading (kana) of the Japanese narration at 8 morae/s, with pauses at 、(0.25 s) ・(0.15 s)
 // 。(0.5 s) and 0.6 s before speech starts — calibrated on the hand-tuned RGB slide.
-const STEP_AT_MS = [600, 2800, 11600, 12800, 14000, 14400, 19500, 22400, 27400, 28800, 30400];
+const STEP_AT_MS = [600, 7200, 8400, 9600, 10000, 15100, 18000, 23000, 24400, 26000];
 
 // Two rounded panels: the X, Y, Z curves (top), XYZ as the common reference (bottom)
 const TOP_PANEL = { y: 0, height: 195 };
@@ -142,16 +141,6 @@ const XyzSpace = () => {
             0
           </text>
         </g>
-        <text
-          x="12"
-          y="20"
-          fontSize="13"
-          fontWeight="bold"
-          fill="#555"
-          style={fade(step >= STEP.cie)}
-        >
-          CIE 1931
-        </text>
 
         {/* never below zero */}
         <g style={fade(step >= STEP.positive)}>
