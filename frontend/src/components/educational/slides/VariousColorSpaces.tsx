@@ -115,17 +115,14 @@ const VariousColorSpaces = () => {
           const shown = step >= g.step;
           return (
             <g key={g.key}>
-              {/* the purposes are faintly visible from the start; each lights up when named */}
+              {/* each purpose appears when it is named */}
               <text
                 x={GROUP.x0}
                 y={y + 12}
                 fontSize="12"
                 fontWeight="bold"
                 fill={g.color}
-                style={{
-                  opacity: shown ? 1 : step >= STEP.intro ? 0.3 : 0,
-                  transition: 'opacity 600ms ease',
-                }}
+                style={fade(shown)}
               >
                 {k(g.key)}
               </text>
