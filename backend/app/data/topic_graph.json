@@ -450,6 +450,70 @@
         "ja": "日本の伝統色",
         "en": "Japanese traditional colors"
       }
+    },
+    {
+      "id": "monochrome_colors",
+      "cluster": null,
+      "label": {
+        "ja": "モノクロカラー",
+        "en": "Monochrome colors"
+      }
+    },
+    {
+      "id": "pastel_colors",
+      "cluster": null,
+      "label": {
+        "ja": "パステルカラー",
+        "en": "Pastel colors"
+      }
+    },
+    {
+      "id": "color_unity",
+      "cluster": null,
+      "label": {
+        "ja": "色の統一感",
+        "en": "Color unity"
+      }
+    },
+    {
+      "id": "color_difference",
+      "cluster": null,
+      "label": {
+        "ja": "色差",
+        "en": "Color difference"
+      }
+    },
+    {
+      "id": "color_illusion",
+      "cluster": "psychology",
+      "label": {
+        "ja": "色の錯視",
+        "en": "Color illusions"
+      }
+    },
+    {
+      "id": "color_proportion",
+      "cluster": null,
+      "label": {
+        "ja": "配色の比率",
+        "en": "Color proportions"
+      }
+    },
+    {
+      "id": "contrast_readability",
+      "cluster": null,
+      "label": {
+        "ja": "コントラストと読みやすさ",
+        "en": "Contrast and readability"
+      }
+    },
+    {
+      "id": "color_contrast",
+      "cluster": null,
+      "label": {
+        "ja": "コントラスト",
+        "en": "Color contrast"
+      }
     }
   ],
   "edges": [
@@ -892,8 +956,8 @@
       "to": "material_design_color",
       "suggest": {
         "forward": {
-          "ja": "Material Designは、色の歪みを抑える工夫をしたパレットです。見てみますか？",
-          "en": "Material Design's palette is designed to reduce color distortion. Want to see?"
+          "ja": "Material Designの色も、同じ番号で明るさが色相ごとに違います。Material Design Colorも見てみますか？",
+          "en": "In Material Design colors too, the same number has different lightness by hue. Want to see Material Design colors?"
         },
         "backward": {
           "ja": "このパレットは、色の歪みを抑えるように作られています。色の歪みについても見てみますか？",
@@ -2690,6 +2754,608 @@
         "backward": {
           "ja": "現代のデザインのためのパレットもあります。Material Design Colorも見てみますか？",
           "en": "There are also palettes made for modern design. Want to see Material Design colors?"
+        }
+      }
+    },
+    {
+      "from": "saturation",
+      "to": "monochrome_colors",
+      "suggest": {
+        "forward": {
+          "ja": "彩度を0まで下げると、白・グレー・黒の無彩色になります。モノクロカラーも見てみますか？",
+          "en": "Lower saturation to zero and you get achromatic white, gray and black. Want to see monochrome colors?"
+        },
+        "backward": {
+          "ja": "無彩色は、彩度が0の色です。彩度についても見てみますか？",
+          "en": "Achromatic colors have zero saturation. Want to learn about saturation?"
+        }
+      }
+    },
+    {
+      "from": "monochrome_colors",
+      "to": "brightness",
+      "suggest": {
+        "forward": {
+          "ja": "モノクロでは、明るさの違いだけで形が伝わります。明度についても見てみますか？",
+          "en": "In monochrome, shapes come across through lightness alone. Want to learn about brightness?"
+        },
+        "backward": {
+          "ja": "明るさだけで表す、モノクロカラーという考え方もあります。見てみますか？",
+          "en": "There is also monochrome, which uses lightness alone. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "rgb_space",
+      "to": "monochrome_colors",
+      "suggest": {
+        "forward": {
+          "ja": "RGBの立方体の対角線に並ぶグレーは、無彩色です。モノクロカラーも見てみますか？",
+          "en": "The grays along the RGB cube's diagonal are achromatic. Want to see monochrome colors?"
+        },
+        "backward": {
+          "ja": "無彩色は、RGBの立方体では対角線上に並びます。RGB色空間も見てみますか？",
+          "en": "Achromatic colors lie on the diagonal of the RGB cube. Want to see the RGB color space?"
+        }
+      }
+    },
+    {
+      "from": "monochrome_colors",
+      "to": "tone",
+      "suggest": {
+        "forward": {
+          "ja": "単色配色は、1つの色相のトーンを変えて作ります。トーンについても見てみますか？",
+          "en": "A monochromatic scheme changes the tone of one hue. Want to learn about tone?"
+        },
+        "backward": {
+          "ja": "トーンを変えるだけで作る、単色配色もあります。モノクロカラーも見てみますか？",
+          "en": "You can also make a monochromatic scheme just by changing tone. Want to see monochrome colors?"
+        }
+      }
+    },
+    {
+      "from": "monochrome_colors",
+      "to": "color_harmony",
+      "suggest": {
+        "forward": {
+          "ja": "単色配色も、配色の型の1つです。カラーハーモニーも見てみますか？",
+          "en": "A monochromatic scheme is one kind of color scheme. Want to see color harmony?"
+        },
+        "backward": {
+          "ja": "色相を1つに絞る、単色配色という配色もあります。モノクロカラーも見てみますか？",
+          "en": "There is also the monochromatic scheme, using a single hue. Want to see monochrome colors?"
+        }
+      }
+    },
+    {
+      "from": "monochrome_colors",
+      "to": "color_unity",
+      "suggest": {
+        "forward": {
+          "ja": "色相を1つに絞るのは、統一感を出す方法の1つです。色の統一感も見てみますか？",
+          "en": "Using a single hue is one way to unify colors. Want to see color unity?"
+        },
+        "backward": {
+          "ja": "色相を1つに絞る例として、モノクロカラーも見てみますか？",
+          "en": "As an example of using a single hue, want to see monochrome colors?"
+        }
+      }
+    },
+    {
+      "from": "tone",
+      "to": "pastel_colors",
+      "suggest": {
+        "forward": {
+          "ja": "ペールやライトのトーンの色は、パステルカラーと呼ばれます。見てみますか？",
+          "en": "Colors in pale or light tones are called pastel colors. Want to see them?"
+        },
+        "backward": {
+          "ja": "パステルカラーは、トーンでいうとペールやライトです。トーンについても見てみますか？",
+          "en": "In tone terms, pastels are pale or light. Want to learn about tone?"
+        }
+      }
+    },
+    {
+      "from": "pastel_colors",
+      "to": "saturation",
+      "suggest": {
+        "forward": {
+          "ja": "パステルカラーは、彩度が低めの色です。彩度についても見てみますか？",
+          "en": "Pastels are fairly low in saturation. Want to learn about saturation?"
+        },
+        "backward": {
+          "ja": "彩度を下げて明るくすると、パステルカラーになります。見てみますか？",
+          "en": "Lower the saturation and raise the lightness, and you get pastels. Want to see them?"
+        }
+      }
+    },
+    {
+      "from": "pastel_colors",
+      "to": "lightness",
+      "suggest": {
+        "forward": {
+          "ja": "パステルカラーは、明るさの高い色です。輝度についても見てみますか？",
+          "en": "Pastels are high in lightness. Want to learn about lightness?"
+        },
+        "backward": {
+          "ja": "明るく淡い色を、パステルカラーと呼びます。見てみますか？",
+          "en": "Light, soft colors are called pastels. Want to see them?"
+        }
+      }
+    },
+    {
+      "from": "pastel_colors",
+      "to": "color_weight",
+      "suggest": {
+        "forward": {
+          "ja": "明るいパステルカラーは、軽い印象になります。色の重みも見てみますか？",
+          "en": "Light pastels feel light in weight. Want to see the weight of colors?"
+        },
+        "backward": {
+          "ja": "軽い印象の代表が、パステルカラーです。見てみますか？",
+          "en": "Pastels are a classic light-feeling color. Want to see them?"
+        }
+      }
+    },
+    {
+      "from": "japanese_traditional_colors",
+      "to": "pastel_colors",
+      "suggest": {
+        "forward": {
+          "ja": "桜色のような淡い色は、パステルカラーと呼ばれます。見てみますか？",
+          "en": "Soft colors like sakura-iro are called pastels. Want to see them?"
+        },
+        "backward": {
+          "ja": "日本の伝統色にも、淡いパステルカラーがたくさんあります。見てみますか？",
+          "en": "Japanese traditional colors include many soft pastels. Want to see them?"
+        }
+      }
+    },
+    {
+      "from": "pastel_colors",
+      "to": "color_unity",
+      "suggest": {
+        "forward": {
+          "ja": "トーンをそろえるのは、統一感を出す方法の1つです。色の統一感も見てみますか？",
+          "en": "Matching the tone is one way to unify colors. Want to see color unity?"
+        },
+        "backward": {
+          "ja": "トーンをそろえる例として、パステルカラーも見てみますか？",
+          "en": "As an example of matching tone, want to see pastel colors?"
+        }
+      }
+    },
+    {
+      "from": "color_unity",
+      "to": "tone",
+      "suggest": {
+        "forward": {
+          "ja": "統一感を出すには、トーンをそろえるのが近道です。トーンについても見てみますか？",
+          "en": "Matching the tone is a quick way to unify colors. Want to learn about tone?"
+        },
+        "backward": {
+          "ja": "トーンをそろえると、色に統一感が出ます。色の統一感も見てみますか？",
+          "en": "Matching tones gives colors unity. Want to see color unity?"
+        }
+      }
+    },
+    {
+      "from": "color_unity",
+      "to": "hue",
+      "suggest": {
+        "forward": {
+          "ja": "色相をそろえるのも、統一感を出す方法です。色相についても見てみますか？",
+          "en": "Keeping the hue the same is another way to unify. Want to learn about hue?"
+        },
+        "backward": {
+          "ja": "色相をそろえると、色に統一感が出ます。色の統一感も見てみますか？",
+          "en": "Keeping the hue the same gives colors unity. Want to see color unity?"
+        }
+      }
+    },
+    {
+      "from": "color_unity",
+      "to": "color_proportion",
+      "suggest": {
+        "forward": {
+          "ja": "色の役割と比率を決めると、さらにまとまります。配色の比率も見てみますか？",
+          "en": "Deciding each color's role and proportion pulls things together further. Want to see color proportions?"
+        },
+        "backward": {
+          "ja": "比率のほかにも、統一感を出す方法があります。色の統一感も見てみますか？",
+          "en": "Besides proportions, there are other ways to unify. Want to see color unity?"
+        }
+      }
+    },
+    {
+      "from": "color_harmony",
+      "to": "color_unity",
+      "suggest": {
+        "forward": {
+          "ja": "配色には、統一感を出すためのコツもあります。色の統一感も見てみますか？",
+          "en": "There are also tricks for giving a scheme unity. Want to see color unity?"
+        },
+        "backward": {
+          "ja": "統一感のある配色の型として、カラーハーモニーも見てみますか？",
+          "en": "As schemes with built-in unity, want to see color harmony?"
+        }
+      }
+    },
+    {
+      "from": "lab_space",
+      "to": "color_difference",
+      "suggest": {
+        "forward": {
+          "ja": "Labでの距離は、色差ΔEとして使われます。色差も見てみますか？",
+          "en": "Distance in Lab is used as the color difference ΔE. Want to see color difference?"
+        },
+        "backward": {
+          "ja": "色差は、Labの空間での距離で計算します。Lab色空間も見てみますか？",
+          "en": "Color difference is a distance in Lab space. Want to see the Lab color space?"
+        }
+      }
+    },
+    {
+      "from": "color_difference",
+      "to": "oklab_space",
+      "suggest": {
+        "forward": {
+          "ja": "OKLabの距離は、見た目の差により近くなります。OKLab色空間も見てみますか？",
+          "en": "Distances in OKLab match how different colors look even better. Want to see the OKLab color space?"
+        },
+        "backward": {
+          "ja": "OKLabでも、色差を計算できます。色差も見てみますか？",
+          "en": "Color difference can be calculated in OKLab too. Want to see color difference?"
+        }
+      }
+    },
+    {
+      "from": "color_difference",
+      "to": "color_distortion",
+      "suggest": {
+        "forward": {
+          "ja": "数値の差と見た目の差がずれることを、色の歪みと呼びます。見てみますか？",
+          "en": "When number differences and look differences disagree, it's called color distortion. Want to see it?"
+        },
+        "backward": {
+          "ja": "見た目の差を数値で表すのが色差です。色差も見てみますか？",
+          "en": "Color difference puts how different colors look into a number. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "cmyk_space",
+      "to": "color_difference",
+      "suggest": {
+        "forward": {
+          "ja": "印刷の色がずれていないかは、色差で確かめます。色差も見てみますか？",
+          "en": "Print colors are checked for drift using color difference. Want to see color difference?"
+        },
+        "backward": {
+          "ja": "色差は、印刷の色の管理に使われます。CMYK色空間も見てみますか？",
+          "en": "Color difference is used to manage print colors. Want to see the CMYK color space?"
+        }
+      }
+    },
+    {
+      "from": "color_difference",
+      "to": "color_illusion",
+      "suggest": {
+        "forward": {
+          "ja": "同じ色でも、まわりによって違って見えることがあります。色の錯視も見てみますか？",
+          "en": "The same color can look different depending on its surroundings. Want to see color illusions?"
+        },
+        "backward": {
+          "ja": "見た目の違いを数値で表す、色差という考え方もあります。見てみますか？",
+          "en": "There is also color difference, which puts visible differences into a number. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "color_illusion",
+      "to": "complementary_colors",
+      "suggest": {
+        "forward": {
+          "ja": "残像の色は、元の色の補色に近い色です。補色も見てみますか？",
+          "en": "The afterimage color is close to the complement of the original. Want to see complementary colors?"
+        },
+        "backward": {
+          "ja": "補色は、残像としても現れます。色の錯視も見てみますか？",
+          "en": "Complements also show up as afterimages. Want to see color illusions?"
+        }
+      }
+    },
+    {
+      "from": "color_illusion",
+      "to": "cone_cells",
+      "suggest": {
+        "forward": {
+          "ja": "残像は、錐体が疲れることで起こります。錐体についても見てみますか？",
+          "en": "Afterimages happen when cones tire. Want to learn about cone cells?"
+        },
+        "backward": {
+          "ja": "錐体の疲れが、色の錯視を生むこともあります。色の錯視も見てみますか？",
+          "en": "Tired cones can also cause color illusions. Want to see them?"
+        }
+      }
+    },
+    {
+      "from": "color_illusion",
+      "to": "color_size",
+      "suggest": {
+        "forward": {
+          "ja": "色によって大きさが違って見えるのも、見え方の不思議の1つです。色の大きさも見てみますか？",
+          "en": "Colors looking bigger or smaller is another quirk of seeing. Want to see the size of colors?"
+        },
+        "backward": {
+          "ja": "色の見え方の不思議には、色の錯視もあります。見てみますか？",
+          "en": "Another quirk of seeing color is color illusions. Want to see them?"
+        }
+      }
+    },
+    {
+      "from": "light_visible_reason",
+      "to": "color_illusion",
+      "suggest": {
+        "forward": {
+          "ja": "見える色は、まわりの色にも影響されます。色の錯視も見てみますか？",
+          "en": "The colors we see are also affected by their surroundings. Want to see color illusions?"
+        },
+        "backward": {
+          "ja": "色が見える仕組みについても見てみますか？",
+          "en": "Want to see how we see color in the first place?"
+        }
+      }
+    },
+    {
+      "from": "color_illusion",
+      "to": "color_distortion",
+      "suggest": {
+        "forward": {
+          "ja": "色の数値と見た目がずれる、色の歪みという問題もあります。見てみますか？",
+          "en": "There is also color distortion, where color numbers and looks disagree. Want to see it?"
+        },
+        "backward": {
+          "ja": "見た目が変わる現象として、色の錯視も見てみますか？",
+          "en": "As another case of colors looking different, want to see color illusions?"
+        }
+      }
+    },
+    {
+      "from": "hsl_space",
+      "to": "color_distortion",
+      "suggest": {
+        "forward": {
+          "ja": "HSLで輝度をそろえても、色相によって明るさが違って見えます。色の歪みを見てみますか？",
+          "en": "Even at the same HSL lightness, brightness looks different by hue. Want to see color distortion?"
+        },
+        "backward": {
+          "ja": "色の歪みは、HSLでよく見られます。HSL色空間も見てみますか？",
+          "en": "Color distortion shows up clearly in HSL. Want to see the HSL color space?"
+        }
+      }
+    },
+    {
+      "from": "color_distortion",
+      "to": "lab_space",
+      "suggest": {
+        "forward": {
+          "ja": "歪みを小さくするために作られたのが、Lab色空間です。見てみますか？",
+          "en": "The Lab color space was made to reduce this distortion. Want to see it?"
+        },
+        "backward": {
+          "ja": "Labは、色の歪みを小さくするための色空間です。色の歪みも見てみますか？",
+          "en": "Lab is a color space meant to reduce color distortion. Want to see color distortion?"
+        }
+      }
+    },
+    {
+      "from": "color_proportion",
+      "to": "complementary_colors",
+      "suggest": {
+        "forward": {
+          "ja": "アクセントには、メインの補色を少しだけ使うと効果的です。補色も見てみますか？",
+          "en": "A touch of the main color's complement works well as an accent. Want to see complementary colors?"
+        },
+        "backward": {
+          "ja": "補色は、アクセントとして少しだけ使うのが効果的です。配色の比率も見てみますか？",
+          "en": "Complements work best as a small accent. Want to see color proportions?"
+        }
+      }
+    },
+    {
+      "from": "color_harmony",
+      "to": "color_proportion",
+      "suggest": {
+        "forward": {
+          "ja": "作った配色は、役割と比率を決めて使います。配色の比率も見てみますか？",
+          "en": "Once you have a scheme, decide each color's role and proportion. Want to see color proportions?"
+        },
+        "backward": {
+          "ja": "比率に当てはめる色は、カラーハーモニーで選べます。見てみますか？",
+          "en": "You can choose the colors for each role with color harmony. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "color_proportion",
+      "to": "tone",
+      "suggest": {
+        "forward": {
+          "ja": "3つの役割の色は、トーンをそろえるとまとまりやすくなります。トーンについても見てみますか？",
+          "en": "The three role colors come together more easily with matching tones. Want to learn about tone?"
+        },
+        "backward": {
+          "ja": "トーンのほかに、色を使う比率も大切です。配色の比率も見てみますか？",
+          "en": "Besides tone, the proportion of each color matters too. Want to see color proportions?"
+        }
+      }
+    },
+    {
+      "from": "contrast_readability",
+      "to": "brightness",
+      "suggest": {
+        "forward": {
+          "ja": "読みやすさは、明るさの差で決まります。明度についても見てみますか？",
+          "en": "Readability depends on the difference in lightness. Want to learn about brightness?"
+        },
+        "backward": {
+          "ja": "明るさの差は、文字の読みやすさを左右します。コントラストと読みやすさも見てみますか？",
+          "en": "Lightness differences decide how readable text is. Want to see contrast and readability?"
+        }
+      }
+    },
+    {
+      "from": "contrast_readability",
+      "to": "lightness",
+      "suggest": {
+        "forward": {
+          "ja": "文字と背景の明るさの差が大切です。輝度についても見てみますか？",
+          "en": "The lightness difference between text and background is what counts. Want to learn about lightness?"
+        },
+        "backward": {
+          "ja": "明るさの差は、文字の読みやすさを左右します。コントラストと読みやすさも見てみますか？",
+          "en": "Lightness differences decide how readable text is. Want to see contrast and readability?"
+        }
+      }
+    },
+    {
+      "from": "contrast_readability",
+      "to": "color_difference",
+      "suggest": {
+        "forward": {
+          "ja": "2つの色の違いを数値で表す、色差という考え方もあります。見てみますか？",
+          "en": "There is also color difference, which puts the difference between two colors into a number. Want to see it?"
+        },
+        "backward": {
+          "ja": "文字と背景の色の差は、読みやすさにも関わります。コントラストと読みやすさも見てみますか？",
+          "en": "The difference between text and background colors matters for readability too. Want to see contrast and readability?"
+        }
+      }
+    },
+    {
+      "from": "css_color",
+      "to": "contrast_readability",
+      "suggest": {
+        "forward": {
+          "ja": "ウェブで色を使うときは、文字の読みやすさも大切です。コントラストと読みやすさも見てみますか？",
+          "en": "When using color on the web, readability matters too. Want to see contrast and readability?"
+        },
+        "backward": {
+          "ja": "ウェブでは、名前で色を指定することもできます。CSS Named Colorsも見てみますか？",
+          "en": "On the web, you can also specify colors by name. Want to see CSS Named Colors?"
+        }
+      }
+    },
+    {
+      "from": "contrast_readability",
+      "to": "color_illusion",
+      "suggest": {
+        "forward": {
+          "ja": "同じ色でも、背景によって明るさが違って見えます。色の錯視も見てみますか？",
+          "en": "The same color can look lighter or darker depending on the background. Want to see color illusions?"
+        },
+        "backward": {
+          "ja": "背景で見え方が変わる錯視は、文字の読みやすさにも関わります。コントラストと読みやすさも見てみますか？",
+          "en": "Background effects also matter for readability. Want to see contrast and readability?"
+        }
+      }
+    },
+    {
+      "from": "color_contrast",
+      "to": "complementary_colors",
+      "suggest": {
+        "forward": {
+          "ja": "最も強いコントラストを生むのが補色です。補色も見てみますか？",
+          "en": "Complementary colors create the strongest contrast. Want to see them?"
+        },
+        "backward": {
+          "ja": "補色どうしを並べると、最も強いコントラストになります。コントラストも見てみますか？",
+          "en": "Complementary colors side by side make the strongest contrast. Want to see contrast?"
+        }
+      }
+    },
+    {
+      "from": "color_contrast",
+      "to": "contrast_readability",
+      "suggest": {
+        "forward": {
+          "ja": "文字の読みやすさも、コントラストで決まります。コントラストと読みやすさも見てみますか？",
+          "en": "Text readability also comes down to contrast. Want to see contrast and readability?"
+        },
+        "backward": {
+          "ja": "色どうしの差で目立たせる、コントラストの考え方も見てみますか？",
+          "en": "Want to see contrast in general, making things stand out through color differences?"
+        }
+      }
+    },
+    {
+      "from": "color_contrast",
+      "to": "color_illusion",
+      "suggest": {
+        "forward": {
+          "ja": "同じ色でも、まわりとの対比で違って見えることがあります。色の錯視も見てみますか？",
+          "en": "The same color can look different by contrast with its surroundings. Want to see color illusions?"
+        },
+        "backward": {
+          "ja": "色どうしの差で目立たせる、コントラストという考え方もあります。見てみますか？",
+          "en": "There is also contrast: making things stand out through differences between colors. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "color_contrast",
+      "to": "color_proportion",
+      "suggest": {
+        "forward": {
+          "ja": "強いコントラストの差し色は、少しだけ使うのが効果的です。配色の比率も見てみますか？",
+          "en": "A high-contrast accent works best in small amounts. Want to see color proportions?"
+        },
+        "backward": {
+          "ja": "色どうしの差で目立たせる、コントラストという考え方もあります。見てみますか？",
+          "en": "There is also contrast: making things stand out through differences between colors. Want to see it?"
+        }
+      }
+    },
+    {
+      "from": "brightness",
+      "to": "color_contrast",
+      "suggest": {
+        "forward": {
+          "ja": "明るさの差は、コントラストの基本です。コントラストも見てみますか？",
+          "en": "Differences in lightness are the basis of contrast. Want to see contrast?"
+        },
+        "backward": {
+          "ja": "明るさの差による明度対比があります。明度についても見てみますか？",
+          "en": "There is lightness contrast, from differences in lightness. Want to learn about brightness?"
+        }
+      }
+    },
+    {
+      "from": "saturation",
+      "to": "color_contrast",
+      "suggest": {
+        "forward": {
+          "ja": "鮮やかさの差でも、コントラストが生まれます。コントラストも見てみますか？",
+          "en": "Differences in vividness also create contrast. Want to see contrast?"
+        },
+        "backward": {
+          "ja": "鮮やかさの差による彩度対比があります。彩度についても見てみますか？",
+          "en": "There is saturation contrast, from differences in vividness. Want to learn about saturation?"
+        }
+      }
+    },
+    {
+      "from": "hue",
+      "to": "color_contrast",
+      "suggest": {
+        "forward": {
+          "ja": "色の種類の差でも、コントラストが生まれます。コントラストも見てみますか？",
+          "en": "Differences in hue also create contrast. Want to see contrast?"
+        },
+        "backward": {
+          "ja": "色の種類の差による色相対比があります。色相についても見てみますか？",
+          "en": "There is hue contrast, from differences in the kind of color. Want to learn about hue?"
         }
       }
     }
