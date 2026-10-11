@@ -48,7 +48,11 @@ echo "S3 bucket name: $BUCKET_NAME"
 # S3バケットにファイルをアップロード
 echo "Uploading files to S3..."
 cd "$FRONTEND_DIR"
-aws s3 sync dist/ "s3://$BUCKET_NAME/" --delete --profile 3d-color-concierge
+# ソースマップ（vite.config.ts の sourcemap: 'hidden'）はビルドには出るが、公開バケットには置かない
+# （サイトから元のソースが読めないようにするため）。--delete は除外したファイルを消さないので、
+# バケットに残っている .map は別に削除する。
+aws s3 sync dist/ "s3://$BUCKET_NAME/" --delete --exclude "*.map" --profile 3d-color-concierge
+aws s3 rm "s3://$BUCKET_NAME/" --recursive --exclude "*" --include "*.map" --profile 3d-color-concierge
 
 echo "Files uploaded successfully."
 
