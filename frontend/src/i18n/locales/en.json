@@ -649,7 +649,6 @@
     "title": "Topic network",
     "summary": "{{topics}} topics · {{links}} connections",
     "close": "Close",
-    "unclassified": "Unclassified",
-    "hint": "Drag to rotate · Scroll or pinch to zoom · Hover or tap a topic to see its connections"
+    "unclassified": "Unclassified"
   }
 }

@@ -202,7 +202,6 @@ const TopicNetwork = ({ onClose }: { onClose: () => void }) => {
             {c.label}
           </LegendItem>
         ))}
-        <Hint>{t('topicNetwork.hint')}</Hint>
       </Legend>
     </Overlay>
   );
@@ -280,12 +279,6 @@ const Dot = styled.span`
   width: 12px;
   height: 12px;
   border-radius: 50%;
-`;
-
-const Hint = styled.span`
-  flex-basis: 100%;
-  font-size: 13px;
-  color: #8b95b0;
 `;
 
 const NodeLabel = styled.div<{ $lit: boolean; $named: boolean; $active: boolean }>`
