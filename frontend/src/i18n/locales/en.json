@@ -132,10 +132,16 @@
       "caption": "Two branches from XYZ: CIE Lab and OkLab via cone responses."
     },
     "oklch_vs_lch": {
-      "title": "LCH vs OkLCH Hue Rotation",
-      "lch_label": "CIE LCH",
-      "oklch_label": "OkLCH",
-      "caption": "Equal hue steps in OkLCH appear more uniform in brightness."
+      "title": "LCH vs. OKLCH",
+      "l": "lightness",
+      "c": "chroma",
+      "h": "hue",
+      "lchBase": "LCH = Lab in polar form",
+      "oklchBase": "OKLCH = OKLab in polar form",
+      "fixHue": "Lighter, with the hue fixed",
+      "drift": "drifts to purple",
+      "keep": "stays blue",
+      "use": "OKLCH suits gradients and schemes"
     },
     "sky_blue_reason": {
       "title": "Why the sky is blue",
@@ -627,6 +633,23 @@
       "complement": "Complementary",
       "strong": "Strong: stands out",
       "weak": "Weak: calm"
+    },
+    "lab_vs_oklab": {
+      "title": "Lab vs. OKLab",
+      "labBase": "Lab: from XYZ",
+      "oklabBase": "OKLab: through LMS (cones)",
+      "gradient": "A gradient from blue to white",
+      "drift": "purplish midway",
+      "keep": "stays blue",
+      "use": "OKLab suits gradients and math"
     }
+  },
+  "topicNetwork": {
+    "open": "Topic network",
+    "title": "Topic network",
+    "summary": "{{topics}} topics · {{links}} connections",
+    "close": "Close",
+    "unclassified": "Unclassified",
+    "hint": "Drag to rotate · Scroll or pinch to zoom · Hover or tap a topic to see its connections"
   }
 }

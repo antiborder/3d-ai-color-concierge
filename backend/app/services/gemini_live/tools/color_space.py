@@ -61,8 +61,10 @@ RULES_JA = """\
   「OkLCHはOkLabを極座標で表した色空間です。Lは明るさ、Cは鮮やかさ、Hは色相の角度で、色相を変えても明るさがそろいます。」
 - 色空間どうしの系統・つながり・歴史の質問 → SHOW_CONTENT("oklch_lineage")、以下を説明：
   「色空間は、XYZを出発点に、LabとLCH、LMSを経由したOkLabとOkLCHの2つの流れに分かれて発展してきました。」
-- OkLCHとLCHの比較の質問（例「なぜOkLCHが優れているか」）→ SHOW_CONTENT("oklch_vs_lch", colorSpace="OKLCH")、以下を説明：
-  「OkLCHでは色相を均等に変化させても明度が均等に見えます。CIE LCHにあった色相による知覚的明度のばらつきを解消しています。」\
+- OkLabとLabの違い・比較の質問 → SHOW_CONTENT("lab_vs_oklab", colorSpace="OKLAB")、以下を説明：
+  「LabはXYZから、OkLabはLMSを経由して作られています。青と白をつなぐグラデーションは、Labでは途中が紫っぽくなり、OkLabでは青のままです。」
+- OkLCHとLCHの違い・比較の質問（例「なぜOkLCHが優れているか」）→ SHOW_CONTENT("oklch_vs_lch", colorSpace="OKLCH")、以下を説明：
+  「LCHはLab、OkLCHはOkLabを極座標で表したものです。色相を固定して明るくすると、LCHでは青が紫に寄りますが、OkLCHでは青のままです。」\
 """
 
 RULES_EN = """\
@@ -89,6 +91,8 @@ RULES_EN = """\
   "OkLCH is OkLab in polar coordinates: L is lightness, C is chroma, H is the hue angle, and lightness stays even as the hue changes."
 - Question about how color spaces are related or descend from each other → SHOW_CONTENT("oklch_lineage"), explain:
   "Color spaces grew from XYZ along two branches: Lab and LCH, and, through LMS, OkLab and OkLCH."
-- OkLCH vs LCH comparison question (e.g. "why is OkLCH better") → SHOW_CONTENT("oklch_vs_lch", colorSpace="OKLCH"), explain:
-  "In OkLCH, equal hue steps look equally bright — unlike CIE LCH, where perceived lightness varies unevenly with hue."\
+- Question about how OkLab and Lab differ → SHOW_CONTENT("lab_vs_oklab", colorSpace="OKLAB"), explain:
+  "Lab comes from XYZ, while OkLab goes through LMS. A blue-to-white gradient turns purplish midway in Lab but stays blue in OkLab."
+- Question about how OkLCH and LCH differ (e.g. "why is OkLCH better") → SHOW_CONTENT("oklch_vs_lch", colorSpace="OKLCH"), explain:
+  "LCH is Lab and OkLCH is OkLab in polar coordinates. Lighten a color with its hue fixed and LCH's blue drifts toward purple, while OkLCH's stays blue."\
 """

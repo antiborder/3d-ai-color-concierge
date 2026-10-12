@@ -132,10 +132,16 @@
       "caption": "XYZから2つの流れ：CIE LabとLMS経由のOkLab。"
     },
     "oklch_vs_lch": {
-      "title": "LCH と OkLCH の色相回転",
-      "lch_label": "CIE LCH",
-      "oklch_label": "OkLCH",
-      "caption": "OkLCH では等間隔の色相ステップが明度も均等に見える。"
+      "title": "LCHとOKLCHの違い",
+      "l": "明るさ",
+      "c": "鮮やかさ",
+      "h": "色相",
+      "lchBase": "LCH ＝ Lab を極座標で",
+      "oklchBase": "OKLCH ＝ OKLab を極座標で",
+      "fixHue": "色相を固定して明るくすると",
+      "drift": "紫に寄っていく",
+      "keep": "青のまま",
+      "use": "グラデーションや配色には OKLCH"
     },
     "sky_blue_reason": {
       "title": "空が青い理由",
@@ -627,6 +633,23 @@
       "complement": "補色対比",
       "strong": "強い：目立つ",
       "weak": "弱い：落ち着く"
+    },
+    "lab_vs_oklab": {
+      "title": "LabとOKLabの違い",
+      "labBase": "Lab：XYZ から",
+      "oklabBase": "OKLab：LMS（錐体）を経由",
+      "gradient": "青と白をつなぐグラデーション",
+      "drift": "途中が紫っぽい",
+      "keep": "青のまま",
+      "use": "グラデーションや色の計算に OKLab"
     }
+  },
+  "topicNetwork": {
+    "open": "トピックネットワーク",
+    "title": "トピックネットワーク",
+    "summary": "{{topics}} トピック · {{links}} のつながり",
+    "close": "閉じる",
+    "unclassified": "未分類",
+    "hint": "ドラッグで回転 · スクロール／ピンチで拡大縮小 · トピックに触れるとつながりを表示"
   }
 }

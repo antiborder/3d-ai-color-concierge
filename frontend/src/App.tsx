@@ -1,11 +1,12 @@
 import './App.css';
-import { useState, useEffect, useRef, useMemo, type ChangeEvent } from 'react';
+import { useState, useEffect, useRef, useMemo, lazy, Suspense, type ChangeEvent } from 'react';
 import convert from 'color-convert';
 import { useTranslation } from 'react-i18next';
 import { Toaster } from 'react-hot-toast';
 import ControlPane from './components/common/ControlPane';
 import Structure from './components/ColorPicker/Structure';
 import LanguageSelector from './components/common/LanguageSelector';
+import TopicNetworkButton from './components/topicNetwork/TopicNetworkButton';
 import { useMatchMedia } from './hooks/useMatchMedia';
 import VoiceControl from './components/VoiceControl/VoiceControl';
 import ChatHistoryModal from './components/Chatbot/ChatHistoryModal';
@@ -24,6 +25,9 @@ import { type HarmonyMode, computeHarmonyColors } from './utils/colorHarmony';
 import { interpolateRgb } from './components/menus/controls/ColorBridge';
 import type { AiColorLabel } from './types/structure';
 import type { ColorSpace } from './types/color';
+
+// Loaded only when opened: it carries the whole topic graph
+const TopicNetwork = lazy(() => import('./components/topicNetwork/TopicNetwork'));
 
 function App() {
   const { i18n } = useTranslation();
@@ -169,6 +173,7 @@ function App() {
   const [harmonyMode, setHarmonyMode] = useState<HarmonyMode>('none');
   const [aiColorLabels, setAiColorLabels] = useState<AiColorLabel[]>([]);
   const [activeContentId, setActiveContentId] = useState<string | null>(null);
+  const [isTopicNetworkOpen, setIsTopicNetworkOpen] = useState(false);
   const [openCIEPanelSignal, setOpenCIEPanelSignal] = useState(0);
   const activeContentIdRef = useRef<string | null>(null);
   activeContentIdRef.current = activeContentId;
@@ -542,6 +547,7 @@ function App() {
     <>
       <Toaster position="top-right" />
       <LangSelectorWrapper>
+        <TopicNetworkButton onClick={() => setIsTopicNetworkOpen(true)} />
         <LanguageSelector />
       </LangSelectorWrapper>
       <Structure
@@ -623,6 +629,11 @@ function App() {
         contentId={activeContentId}
         onClose={() => setActiveContentId(null)}
       />
+      {isTopicNetworkOpen && (
+        <Suspense fallback={null}>
+          <TopicNetwork onClose={() => setIsTopicNetworkOpen(false)} />
+        </Suspense>
+      )}
     </>
   );
 }
@@ -634,6 +645,8 @@ const LangSelectorWrapper = styled.div`
   top: 12px;
   right: 20px;
   z-index: 1001;
+  display: flex;
+  gap: 8px;
 `;
 
 export default App;

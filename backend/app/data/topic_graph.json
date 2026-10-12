@@ -141,7 +141,7 @@
     },
     {
       "id": "blue_green_cyan",
-      "cluster": null,
+      "cluster": "human",
       "label": {
         "ja": "青と緑を混ぜるとシアンになるのはなぜ",
         "en": "Why blue + green makes cyan"
@@ -149,7 +149,7 @@
     },
     {
       "id": "magenta_not_in_rainbow",
-      "cluster": null,
+      "cluster": "human",
       "label": {
         "ja": "虹に無い色：マゼンタ",
         "en": "Magenta, the color not in the rainbow"
@@ -157,7 +157,7 @@
     },
     {
       "id": "red_green_yellow",
-      "cluster": null,
+      "cluster": "human",
       "label": {
         "ja": "赤と緑を混ぜると黄色になるのはなぜ",
         "en": "Why red + green makes yellow"
@@ -221,7 +221,7 @@
     },
     {
       "id": "display_gamut",
-      "cluster": null,
+      "cluster": "machine",
       "label": {
         "ja": "画面で表示可能な範囲",
         "en": "Colors a screen can show"
@@ -317,7 +317,7 @@
     },
     {
       "id": "lab_space",
-      "cluster": null,
+      "cluster": "psychology",
       "label": {
         "ja": "Lab空間",
         "en": "Lab color space"
@@ -325,7 +325,7 @@
     },
     {
       "id": "lch_space",
-      "cluster": null,
+      "cluster": "psychology",
       "label": {
         "ja": "LCH空間",
         "en": "LCH color space"
@@ -373,7 +373,7 @@
     },
     {
       "id": "color_distortion",
-      "cluster": null,
+      "cluster": "psychology",
       "label": {
         "ja": "色の歪み",
         "en": "Color distortion"
@@ -413,10 +413,10 @@
     },
     {
       "id": "oklch_vs_lch",
-      "cluster": null,
+      "cluster": "psychology",
       "label": {
-        "ja": "LCHとOKLCHの色相回転",
-        "en": "Hue rotation in LCH vs. OKLCH"
+        "ja": "LCHとOKLCHの違い",
+        "en": "LCH vs. OKLCH"
       }
     },
     {
@@ -477,7 +477,7 @@
     },
     {
       "id": "color_difference",
-      "cluster": null,
+      "cluster": "psychology",
       "label": {
         "ja": "色差",
         "en": "Color difference"
@@ -501,7 +501,7 @@
     },
     {
       "id": "contrast_readability",
-      "cluster": null,
+      "cluster": "psychology",
       "label": {
         "ja": "コントラストと読みやすさ",
         "en": "Contrast and readability"
@@ -513,6 +513,14 @@
       "label": {
         "ja": "コントラスト",
         "en": "Color contrast"
+      }
+    },
+    {
+      "id": "lab_vs_oklab",
+      "cluster": "psychology",
+      "label": {
+        "ja": "LabとOKLabの違い",
+        "en": "Lab vs. OKLab"
       }
     }
   ],
@@ -1373,34 +1381,6 @@
     },
     {
       "from": "hue",
-      "to": "color_size",
-      "suggest": {
-        "forward": {
-          "ja": "色によって、同じ大きさでも大きく見えたり小さく見えたりします。見てみますか？",
-          "en": "Same-sized shapes can look bigger or smaller depending on color. Want to see?"
-        },
-        "backward": {
-          "ja": "大きさの印象には、色相や明るさが関係しています。色相についても見てみますか？",
-          "en": "Hue and brightness affect perceived size. Want to learn about hue?"
-        }
-      }
-    },
-    {
-      "from": "hue",
-      "to": "color_weight",
-      "suggest": {
-        "forward": {
-          "ja": "色によって、重く感じたり軽く感じたりします。見てみますか？",
-          "en": "Colors can feel heavy or light. Want to see?"
-        },
-        "backward": {
-          "ja": "重さの印象には、色相や明るさが関係しています。色相についても見てみますか？",
-          "en": "Hue and brightness affect how heavy a color feels. Want to learn about hue?"
-        }
-      }
-    },
-    {
-      "from": "hue",
       "to": "color_distortion",
       "suggest": {
         "forward": {
@@ -1512,34 +1492,6 @@
       }
     },
     {
-      "from": "triadic_colors",
-      "to": "color_distortion",
-      "suggest": {
-        "forward": {
-          "ja": "HSLで三角配色を作ると、明るさがバラついて見えます。色の歪みを見てみますか？",
-          "en": "Triadic schemes made in HSL often look uneven in brightness. Want to see why?"
-        },
-        "backward": {
-          "ja": "色の歪みは、三角配色を作るとよくわかります。見てみますか？",
-          "en": "Distortion shows clearly in triadic schemes. Want to see?"
-        }
-      }
-    },
-    {
-      "from": "tetradic_colors",
-      "to": "color_distortion",
-      "suggest": {
-        "forward": {
-          "ja": "HSLで四角配色を作ると、明るさがバラついて見えます。色の歪みを見てみますか？",
-          "en": "Tetradic schemes made in HSL often look uneven in brightness. Want to see why?"
-        },
-        "backward": {
-          "ja": "色の歪みは、四角配色を作るとよくわかります。見てみますか？",
-          "en": "Distortion shows clearly in tetradic schemes. Want to see?"
-        }
-      }
-    },
-    {
       "from": "lab_space",
       "to": "oklch_lineage",
       "suggest": {
@@ -1614,8 +1566,8 @@
       "to": "oklch_vs_lch",
       "suggest": {
         "forward": {
-          "ja": "LCHとOKLCHでは、色相を回したときの見え方が違います。比べてみますか？",
-          "en": "Rotating hue looks different in LCH and OKLCH. Want to compare?"
+          "ja": "LCHとOKLCHは似ていますが、青を明るくすると違いがはっきり出ます。比べてみますか？",
+          "en": "LCH and OKLCH look alike, but lightening a blue shows a clear difference. Want to compare?"
         },
         "backward": {
           "ja": "OKLCH色空間そのものも見てみますか？",
@@ -1628,8 +1580,8 @@
       "to": "oklch_vs_lch",
       "suggest": {
         "forward": {
-          "ja": "LCHとOKLCHでは、色相を回したときの見え方が違います。比べてみますか？",
-          "en": "Rotating hue looks different in LCH and OKLCH. Want to compare?"
+          "ja": "LCHとOKLCHは似ていますが、青を明るくすると違いがはっきり出ます。比べてみますか？",
+          "en": "LCH and OKLCH look alike, but lightening a blue shows a clear difference. Want to compare?"
         },
         "backward": {
           "ja": "LCH色空間そのものも見てみますか？",
@@ -2240,20 +2192,6 @@
       }
     },
     {
-      "from": "tone",
-      "to": "hue",
-      "suggest": {
-        "forward": {
-          "ja": "トーンと組み合わせて色を決めるのが色相です。色相についても見てみますか？",
-          "en": "Hue is what combines with tone to pin down a color. Want to learn about hue?"
-        },
-        "backward": {
-          "ja": "同じ色相でも、トーンによって印象が変わります。トーンについても見てみますか？",
-          "en": "The same hue can feel very different by tone. Want to learn about tone?"
-        }
-      }
-    },
-    {
       "from": "chromaticity_diagram",
       "to": "magenta_not_in_rainbow",
       "suggest": {
@@ -2348,20 +2286,6 @@
         "backward": {
           "ja": "HSLでは、輝度と並んで彩度も色を決めます。彩度についても見てみますか？",
           "en": "In HSL, saturation works alongside lightness. Want to learn about saturation?"
-        }
-      }
-    },
-    {
-      "from": "hue",
-      "to": "lightness",
-      "suggest": {
-        "forward": {
-          "ja": "色相と並んで、輝度もHSLの軸のひとつです。輝度についても見てみますか？",
-          "en": "Alongside hue, lightness is one of HSL's axes. Want to learn about lightness?"
-        },
-        "backward": {
-          "ja": "輝度は明るさ、色相は色の種類を表します。色相についても見てみますか？",
-          "en": "Lightness is how light a color is; hue is what kind of color it is. Want to learn about hue?"
         }
       }
     },
@@ -2941,20 +2865,6 @@
     },
     {
       "from": "color_unity",
-      "to": "hue",
-      "suggest": {
-        "forward": {
-          "ja": "色相をそろえるのも、統一感を出す方法です。色相についても見てみますか？",
-          "en": "Keeping the hue the same is another way to unify. Want to learn about hue?"
-        },
-        "backward": {
-          "ja": "色相をそろえると、色に統一感が出ます。色の統一感も見てみますか？",
-          "en": "Keeping the hue the same gives colors unity. Want to see color unity?"
-        }
-      }
-    },
-    {
-      "from": "color_unity",
       "to": "color_proportion",
       "suggest": {
         "forward": {
@@ -3356,6 +3266,174 @@
         "backward": {
           "ja": "色の種類の差による色相対比があります。色相についても見てみますか？",
           "en": "There is hue contrast, from differences in the kind of color. Want to learn about hue?"
+        }
+      }
+    },
+    {
+      "from": "display_gamut",
+      "to": "rgb_primary",
+      "suggest": {
+        "forward": {
+          "ja": "画面の三角形の角は、光の三原色です。光の三原色も見てみますか？",
+          "en": "The corners of a screen's triangle are the primary colors of light. Want to see them?"
+        },
+        "backward": {
+          "ja": "光の三原色を混ぜて作れる色には、限りがあります。画面で表示できる範囲を見てみますか？",
+          "en": "Mixing the light primaries can only make a limited range of colors. Want to see which colors a screen can show?"
+        }
+      }
+    },
+    {
+      "from": "display_gamut",
+      "to": "rgb_space",
+      "suggest": {
+        "forward": {
+          "ja": "画面で表示できる色は、RGB色空間の立方体にすべて収まります。RGB色空間も見てみますか？",
+          "en": "Every color a screen can show fits inside the RGB cube. Want to see the RGB color space?"
+        },
+        "backward": {
+          "ja": "RGBで表せる色が、人に見える色全体のどれくらいかを、色度図で見てみますか？",
+          "en": "Want to see on the chromaticity diagram how much of all visible color RGB can show?"
+        }
+      }
+    },
+    {
+      "from": "display_gamut",
+      "to": "screen_mechanism",
+      "suggest": {
+        "forward": {
+          "ja": "画面が赤・緑・青の光で色を作る仕組みも見てみますか？",
+          "en": "Want to see how a screen makes colors from red, green and blue light?"
+        },
+        "backward": {
+          "ja": "画面の3色の光では作れない色もあります。画面で表示できる範囲を見てみますか？",
+          "en": "There are colors a screen's three lights can't make. Want to see the range a screen can show?"
+        }
+      }
+    },
+    {
+      "from": "color_size",
+      "to": "brightness",
+      "suggest": {
+        "forward": {
+          "ja": "色の大きさの見え方を大きく左右するのは、明るさです。明度についても見てみますか？",
+          "en": "How big a color looks depends a lot on how light it is. Want to learn about brightness?"
+        },
+        "backward": {
+          "ja": "明るい色は大きく、暗い色は小さく見えます。色の大きさも見てみますか？",
+          "en": "Light colors look bigger and dark colors look smaller. Want to see the size of colors?"
+        }
+      }
+    },
+    {
+      "from": "color_size",
+      "to": "lightness",
+      "suggest": {
+        "forward": {
+          "ja": "明るさは、HSLの輝度でも表せます。輝度についても見てみますか？",
+          "en": "How light a color is can also be measured as HSL's lightness. Want to learn about it?"
+        },
+        "backward": {
+          "ja": "輝度が高い明るい色ほど、大きく見えます。色の大きさも見てみますか？",
+          "en": "Colors with higher lightness look bigger. Want to see the size of colors?"
+        }
+      }
+    },
+    {
+      "from": "light_pigment_primary_relation",
+      "to": "complementary_colors",
+      "suggest": {
+        "forward": {
+          "ja": "補色は、色相環で正反対にある色の組み合わせです。補色についても見てみますか？",
+          "en": "Complementary colors sit opposite each other on the color wheel. Want to learn more about them?"
+        },
+        "backward": {
+          "ja": "光の三原色と色材の三原色も、補色の関係にあります。見てみますか？",
+          "en": "The primary colors of light and of pigment are complements too. Want to see how?"
+        }
+      }
+    },
+    {
+      "from": "color_weight",
+      "to": "lightness",
+      "suggest": {
+        "forward": {
+          "ja": "色の重さを左右する明るさは、HSLでは輝度で表します。輝度についても見てみますか？",
+          "en": "In HSL, the lightness that shapes a color's weight is measured as lightness. Want to learn about it?"
+        },
+        "backward": {
+          "ja": "輝度が低い暗い色ほど、重く感じられます。色の重みも見てみますか？",
+          "en": "Colors with lower lightness feel heavier. Want to see the weight of colors?"
+        }
+      }
+    },
+    {
+      "from": "cmy_primary",
+      "to": "complementary_colors",
+      "suggest": {
+        "forward": {
+          "ja": "シアン・マゼンタ・黄色は、それぞれ赤・緑・青の補色です。補色についても見てみますか？",
+          "en": "Cyan, magenta and yellow are the complements of red, green and blue. Want to learn about complementary colors?"
+        },
+        "backward": {
+          "ja": "色材の三原色は、光の三原色の補色にあたります。色材の三原色も見てみますか？",
+          "en": "The pigment primaries are the complements of the light primaries. Want to see the primary colors of pigment?"
+        }
+      }
+    },
+    {
+      "from": "lab_space",
+      "to": "lab_vs_oklab",
+      "suggest": {
+        "forward": {
+          "ja": "Labとよく似た、OKLabという色空間もあります。違いを比べてみますか？",
+          "en": "There's a similar color space called OKLab. Want to compare the two?"
+        },
+        "backward": {
+          "ja": "Lab色空間そのものも見てみますか？",
+          "en": "Want to see the Lab color space itself?"
+        }
+      }
+    },
+    {
+      "from": "oklab_space",
+      "to": "lab_vs_oklab",
+      "suggest": {
+        "forward": {
+          "ja": "OKLabは、Labを改良した色空間です。2つの違いを比べてみますか？",
+          "en": "OKLab improves on Lab. Want to compare the two?"
+        },
+        "backward": {
+          "ja": "OKLab色空間そのものも見てみますか？",
+          "en": "Want to see the OKLab color space itself?"
+        }
+      }
+    },
+    {
+      "from": "lab_vs_oklab",
+      "to": "oklch_vs_lch",
+      "suggest": {
+        "forward": {
+          "ja": "LabとOKLabを極座標にした、LCHとOKLCHでも同じ違いが見られます。比べてみますか？",
+          "en": "The same difference shows up in LCH and OKLCH, their polar versions. Want to compare?"
+        },
+        "backward": {
+          "ja": "LCHとOKLCHの元になった、LabとOKLabの違いも見てみますか？",
+          "en": "Want to see how Lab and OKLab, which they're built on, differ?"
+        }
+      }
+    },
+    {
+      "from": "lab_vs_oklab",
+      "to": "oklch_lineage",
+      "suggest": {
+        "forward": {
+          "ja": "LabやOKLabと、ほかの色空間とのつながりを、系統図で見てみますか？",
+          "en": "Want to see on a family tree how Lab and OKLab relate to other color spaces?"
+        },
+        "backward": {
+          "ja": "系統図で枝分かれした、LabとOKLabの違いを比べてみますか？",
+          "en": "Want to compare Lab and OKLab, two branches on the tree?"
         }
       }
     }
