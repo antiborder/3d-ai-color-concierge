@@ -12,6 +12,7 @@ const CLUSTER_COLORS: Record<string, string> = {
   machine: '#4a9be8',
   human: '#e45d9a',
   psychology: '#9a6cf0',
+  design: '#36b37e',
 };
 const UNCLASSIFIED_COLOR = '#9aa3ad';
 const colorOf = (cluster: string | null) =>
