@@ -61,6 +61,7 @@ import ColorDistortion from './slides/ColorDistortion';
 import ColorProportion from './slides/ColorProportion';
 import ContrastReadability from './slides/ContrastReadability';
 import ColorContrast from './slides/ColorContrast';
+import LabVsOklab from './slides/LabVsOklab';
 import PlaceholderSlide from './slides/PlaceholderSlide';
 
 // Every slide uses the same box as the HSB slide (its natural size at 320px wide).
@@ -134,6 +135,7 @@ const SLIDES: Record<string, React.ComponentType> = {
   color_proportion: ColorProportion,
   contrast_readability: ContrastReadability,
   color_contrast: ColorContrast,
+  lab_vs_oklab: LabVsOklab,
 };
 
 const EducationalContent = ({ contentId, onClose }: EducationalContentProps) => {
