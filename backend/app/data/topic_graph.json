@@ -10,12 +10,16 @@
       "en": "Machine"
     },
     "human": {
-      "ja": "人体",
-      "en": "Human body"
+      "ja": "目のしくみ",
+      "en": "The eye"
     },
     "psychology": {
-      "ja": "感覚心理",
-      "en": "Perception & psychology"
+      "ja": "色の見え方",
+      "en": "Perception"
+    },
+    "design": {
+      "ja": "配色・デザイン",
+      "en": "Color design"
     }
   },
   "nodes": [
@@ -133,7 +137,7 @@
     },
     {
       "id": "light_pigment_primary_relation",
-      "cluster": null,
+      "cluster": "machine",
       "label": {
         "ja": "光の三原色と色材の三原色の関係",
         "en": "Light primaries vs. pigment primaries"
@@ -205,7 +209,7 @@
     },
     {
       "id": "color_matching_experiment",
-      "cluster": "machine",
+      "cluster": "psychology",
       "label": {
         "ja": "等色実験とは",
         "en": "Color matching experiments"
@@ -253,7 +257,7 @@
     },
     {
       "id": "brightness",
-      "cluster": "machine",
+      "cluster": null,
       "label": {
         "ja": "明度",
         "en": "Brightness"
@@ -261,7 +265,7 @@
     },
     {
       "id": "lightness",
-      "cluster": "machine",
+      "cluster": null,
       "label": {
         "ja": "輝度",
         "en": "Lightness"
@@ -269,7 +273,7 @@
     },
     {
       "id": "saturation",
-      "cluster": null,
+      "cluster": "design",
       "label": {
         "ja": "彩度",
         "en": "Saturation"
@@ -277,7 +281,7 @@
     },
     {
       "id": "hue",
-      "cluster": null,
+      "cluster": "design",
       "label": {
         "ja": "色相",
         "en": "Hue"
@@ -285,7 +289,7 @@
     },
     {
       "id": "hue_circle",
-      "cluster": null,
+      "cluster": "design",
       "label": {
         "ja": "色相環",
         "en": "Color wheel"
@@ -293,7 +297,7 @@
     },
     {
       "id": "complementary_colors",
-      "cluster": null,
+      "cluster": "design",
       "label": {
         "ja": "補色",
         "en": "Complementary colors"
@@ -301,7 +305,7 @@
     },
     {
       "id": "triadic_colors",
-      "cluster": null,
+      "cluster": "design",
       "label": {
         "ja": "三角配色",
         "en": "Triadic color schemes"
@@ -309,7 +313,7 @@
     },
     {
       "id": "tetradic_colors",
-      "cluster": null,
+      "cluster": "design",
       "label": {
         "ja": "四角配色",
         "en": "Tetradic color schemes"
@@ -381,7 +385,7 @@
     },
     {
       "id": "css_color",
-      "cluster": null,
+      "cluster": "machine",
       "label": {
         "ja": "CSS Named Colors",
         "en": "CSS Named Colors"
@@ -389,7 +393,7 @@
     },
     {
       "id": "material_design_color",
-      "cluster": null,
+      "cluster": "machine",
       "label": {
         "ja": "Material Design Color",
         "en": "Material Design colors"
@@ -397,7 +401,7 @@
     },
     {
       "id": "color_samples",
-      "cluster": null,
+      "cluster": "design",
       "label": {
         "ja": "様々なColor Samples",
         "en": "Color sample collections"
@@ -421,7 +425,7 @@
     },
     {
       "id": "tone",
-      "cluster": null,
+      "cluster": "design",
       "label": {
         "ja": "トーン（色調）",
         "en": "Tone"
@@ -429,7 +433,7 @@
     },
     {
       "id": "color_harmony",
-      "cluster": null,
+      "cluster": "design",
       "label": {
         "ja": "カラーハーモニー",
         "en": "Color harmony"
@@ -445,7 +449,7 @@
     },
     {
       "id": "japanese_traditional_colors",
-      "cluster": null,
+      "cluster": "design",
       "label": {
         "ja": "日本の伝統色",
         "en": "Japanese traditional colors"
@@ -453,7 +457,7 @@
     },
     {
       "id": "monochrome_colors",
-      "cluster": null,
+      "cluster": "design",
       "label": {
         "ja": "モノクロカラー",
         "en": "Monochrome colors"
@@ -461,7 +465,7 @@
     },
     {
       "id": "pastel_colors",
-      "cluster": null,
+      "cluster": "design",
       "label": {
         "ja": "パステルカラー",
         "en": "Pastel colors"
@@ -469,7 +473,7 @@
     },
     {
       "id": "color_unity",
-      "cluster": null,
+      "cluster": "design",
       "label": {
         "ja": "色の統一感",
         "en": "Color unity"
@@ -493,7 +497,7 @@
     },
     {
       "id": "color_proportion",
-      "cluster": null,
+      "cluster": "design",
       "label": {
         "ja": "配色の比率",
         "en": "Color proportions"
@@ -509,7 +513,7 @@
     },
     {
       "id": "color_contrast",
-      "cluster": null,
+      "cluster": "design",
       "label": {
         "ja": "コントラスト",
         "en": "Color contrast"
@@ -3434,6 +3438,90 @@
         "backward": {
           "ja": "系統図で枝分かれした、LabとOKLabの違いを比べてみますか？",
           "en": "Want to compare Lab and OKLab, two branches on the tree?"
+        }
+      }
+    },
+    {
+      "from": "rainbow_mechanism",
+      "to": "hue_circle",
+      "suggest": {
+        "forward": {
+          "ja": "虹の赤から紫までの並びに、マゼンタを足して輪にしたのが色相環です。見てみますか？",
+          "en": "Add magenta to the rainbow's red-to-violet order and close it into a ring, and you get the color wheel. Want to see it?"
+        },
+        "backward": {
+          "ja": "色相環の色の並びは、虹の色の順番と同じです。虹が見える仕組みも見てみますか？",
+          "en": "The color wheel follows the same order as the rainbow. Want to see how rainbows form?"
+        }
+      }
+    },
+    {
+      "from": "rainbow_mechanism",
+      "to": "chromaticity_diagram",
+      "suggest": {
+        "forward": {
+          "ja": "虹の色は、色度図の馬蹄形のふちに、波長の順に並んでいます。色度図も見てみますか？",
+          "en": "The rainbow's colors line the curved edge of the chromaticity diagram, in order of wavelength. Want to see it?"
+        },
+        "backward": {
+          "ja": "馬蹄形のふちに並ぶ単色光は、虹に見える色です。虹が見える仕組みも見てみますか？",
+          "en": "The pure colors along the curved edge are the colors of the rainbow. Want to see how rainbows form?"
+        }
+      }
+    },
+    {
+      "from": "electromagnetic_wave",
+      "to": "visible_gamut",
+      "suggest": {
+        "forward": {
+          "ja": "目に見える光の色は、色度図の上でどこまで広がるのでしょう。人が知覚可能な範囲を見てみますか？",
+          "en": "How far do the colors of visible light reach on the chromaticity diagram? Want to see the range of colors people can perceive?"
+        },
+        "backward": {
+          "ja": "ふちに並ぶ単色光は、電磁波の中のごく一部、可視光です。電磁波についても見てみますか？",
+          "en": "The pure colors on the edge are visible light, a tiny slice of electromagnetic waves. Want to learn about electromagnetic waves?"
+        }
+      }
+    },
+    {
+      "from": "nature_of_light",
+      "to": "cone_cells",
+      "suggest": {
+        "forward": {
+          "ja": "光の波長の違いを感じ分けているのは、目の錐体です。錐体についても見てみますか？",
+          "en": "It's the cones in your eyes that tell wavelengths apart. Want to learn about cone cells?"
+        },
+        "backward": {
+          "ja": "錐体が反応する光の波長とは何か、光の正体から見てみますか？",
+          "en": "Want to see what light is, and what the wavelengths that cones respond to are?"
+        }
+      }
+    },
+    {
+      "from": "sunset_red_reason",
+      "to": "warm_cool_colors",
+      "suggest": {
+        "forward": {
+          "ja": "夕焼けの赤やオレンジは、暖かい印象を与える暖色です。暖色と寒色も見てみますか？",
+          "en": "The reds and oranges of a sunset are warm colors. Want to see warm and cool colors?"
+        },
+        "backward": {
+          "ja": "夕焼けの赤やオレンジも暖色です。夕焼けが赤く見える理由を見てみますか？",
+          "en": "Sunset reds and oranges are warm colors too. Want to see why sunsets look red?"
+        }
+      }
+    },
+    {
+      "from": "sky_blue_reason",
+      "to": "warm_cool_colors",
+      "suggest": {
+        "forward": {
+          "ja": "空の青は、涼しく落ち着いた印象を与える寒色です。暖色と寒色も見てみますか？",
+          "en": "The sky's blue is a cool color that feels calm and fresh. Want to see warm and cool colors?"
+        },
+        "backward": {
+          "ja": "寒色の代表の青は、空の色でもあります。空が青い理由を見てみますか？",
+          "en": "Blue, the classic cool color, is also the color of the sky. Want to see why the sky is blue?"
         }
       }
     }
