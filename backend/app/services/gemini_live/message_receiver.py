@@ -36,8 +36,67 @@ from app.services.gemini_live_types import (
     LiveTranscriptEvent,
 )
 from app.services.navigation import NavState
+from app.services.navigation.action_graph import (
+    PRIORITY_RUN_SUGGESTION,
+    PRIORITY_SHOW_CONTENT,
+    load_action_graph,
+    ui_state_of,
+)
 
 logger = logging.getLogger("uvicorn.error")
+
+# Added to the tool response of an action after which a suggestion is held: without it the model
+# tends to end its report with a suggestion of its own, right before the held one arrives.
+ACTION_NEXT_STEP = (
+    "Report the result in one short sentence, then stop. Do NOT add any suggestion or question "
+    "of your own."
+)
+
+
+def _hold_after_action(nav_state: NavState, name: str, args: dict, ui: dict, language: str) -> bool:
+    """操作の tool call の後に勧める候補を保留する。保留したら True。
+
+    1ターンに複数の操作があるときは、優先度の最も高い操作を「直前の操作」とする。
+    """
+    ctx = load_action_graph().context_for_call(name, args)
+    if ctx is None or ctx[1] <= nav_state.turn_priority:
+        return False
+    node_id, nav_state.turn_priority = ctx
+    nav_state.hold_suggestions(nav_state.next_suggestions(node_id, language, ui))
+    logger.info(
+        "SUGGEST: after %s → %s held=%s",
+        name,
+        node_id,
+        [s["id"] for s in nav_state.pending_suggestions],
+    )
+    return bool(nav_state.pending_suggestions)
+
+
+async def _run_suggestion(
+    action_id: str, nav_state: NavState, event_q: asyncio.Queue, ui: dict, language: str
+) -> dict:
+    """RUN_SUGGESTION: 提案して受け入れられた操作を実行し、tool response を返す。"""
+    action = load_action_graph().actions.get(action_id)
+    if action is None:
+        return {"result": "error", "error": f"Unknown action id: {action_id}"}
+    for c in action.get("run", []):
+        cmd = tool_call_to_frontend_command(c["name"], c["args"])
+        await event_q.put(LiveCommandEvent(command=cmd, tool_name=c["name"], tool_call_id=None))
+    nav_state.mark_done(action_id)
+    nav_state.turn_priority = PRIORITY_RUN_SUGGESTION
+    nav_state.hold_suggestions(nav_state.next_suggestions(action_id, language, ui))
+    logger.info(
+        "RUN_SUGGESTION: %s calls=%s held=%s",
+        action_id,
+        [c["name"] for c in action.get("run", [])],
+        [s["id"] for s in nav_state.pending_suggestions],
+    )
+    resp: dict = {"result": "ok", "done": action["label"][language]}
+    if "instruction" in action:
+        resp["instruction"] = action["instruction"][language]
+    resp["next_step"] = ACTION_NEXT_STEP
+    return resp
+
 
 # UI tools whose tool response waits for the frontend's tool_result, so Gemini only
 # continues (e.g. starts speaking) after the UI has finished applying the command.
@@ -405,6 +464,23 @@ async def process_live_message(
                     args,
                     call_id,
                 )
+                ui = ui_state_of(current_color_state)
+                lang = getattr(cfg, "language", "ja")
+                # After an action (not a slide), hold what to suggest next
+                held = nav_state is not None and _hold_after_action(nav_state, name, args, ui, lang)
+
+                if name == "RUN_SUGGESTION" and nav_state is not None:
+                    resp = await _run_suggestion(str(args.get("id")), nav_state, event_q, ui, lang)
+                    try:
+                        if callable(send_tool) and FunctionResponse is not None:
+                            fr = FunctionResponse(name=name, response=resp, id=call_id)
+                            maybe = send_tool(function_responses=fr)
+                            if inspect.isawaitable(maybe):
+                                await maybe
+                    except Exception as e:
+                        logger.info("RUN_SUGGESTION send_tool_response failed: %s", str(e))
+                    continue
+
                 # Non-UI tool: return current color snapshot without emitting a frontend command.
                 if name == "GET_UI_STATE":
                     resp = {
@@ -446,6 +522,8 @@ async def process_live_message(
                         lang = getattr(cfg, "language", "ja")
                         closest = color_service.find_closest_colors(r, g, b, top_n=5, language=lang)
                         resp = {"r": r, "g": g, "b": b, "closest": closest}
+                        if held:
+                            resp["next_step"] = ACTION_NEXT_STEP
                         logger.info(
                             "GET_CLOSEST_COLOR: rgb=(%d,%d,%d) top=%s",
                             r,
@@ -556,9 +634,15 @@ async def process_live_message(
                 # the event so it is in place by the time the frontend sends back a tool_result.
                 tool_resp: dict = {"result": "ok"}
                 if nav_state is not None and name == "SHOW_CONTENT":
+                    nav_state.turn_priority = PRIORITY_SHOW_CONTENT
+                    # The slide switches the color space too: judge the candidates by that space
+                    slide_ui = {**ui, "shape": args["colorSpace"]} if args.get("colorSpace") else ui
                     tool_resp = build_show_content_response(
-                        str(args.get("id")), nav_state, cfg.language
+                        str(args.get("id")), nav_state, cfg.language, slide_ui
                     )
+                    # The slide shows the recommendations as tags at its bottom
+                    if isinstance(cmd.get("parameters"), dict):
+                        cmd["parameters"]["tags"] = nav_state.slide_tags
                     logger.info(
                         "SHOW_CONTENT: id=%s held_suggestions=%s",
                         args.get("id"),
@@ -586,13 +670,15 @@ async def process_live_message(
                         )
                         # SHOW_CONTENT keeps its own response (script);
                         # the confirmation only delays it until the slide is on screen.
-                        if name == "ADJUST_VALUE":
-                            tool_resp = frontend_resp
+                        if name == "ADJUST_VALUE" and isinstance(frontend_resp, dict):
+                            tool_resp = dict(frontend_resp)
                     except (asyncio.TimeoutError, asyncio.CancelledError):
                         logger.info("%s: timeout waiting for frontend confirmation", name)
                     finally:
                         pending_tool_futures.pop(call_id, None)
 
+                if held:
+                    tool_resp["next_step"] = ACTION_NEXT_STEP
                 # Send tool response back to Gemini Live
                 try:
                     if callable(send_tool) and FunctionResponse is not None:
@@ -621,6 +707,8 @@ async def process_live_message(
         turn_complete = getattr(sc, "turn_complete", None)
         if turn_complete is None and isinstance(sc, dict):
             turn_complete = sc.get("turn_complete") or sc.get("turnComplete")
+        if turn_complete:
+            nav_state.turn_priority = 0
         if turn_complete and nav_state.pending_suggestions and nav_state.pending_spoken:
             nav_state.pending_spoken = False
             await event_q.put(LiveSuggestionPendingEvent(token=nav_state.pending_token))

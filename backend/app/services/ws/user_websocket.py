@@ -13,6 +13,7 @@ from app.services.ws.events import (
     UserColorStateEvent,
     UserStopEvent,
     UserSuggestionReadyEvent,
+    UserTagSelectedEvent,
     UserTextMessageEvent,
     UserToolResultEvent,
 )
@@ -22,6 +23,7 @@ from app.services.ws.listeners.user_inbound import (
     UserColorStateEventListener,
     UserStopEventListener,
     UserSuggestionReadyEventListener,
+    UserTagSelectedEventListener,
     UserTextMessageEventListener,
     UserToolResultEventListener,
 )
@@ -95,6 +97,7 @@ class UserWebSocket(AbstractWebSocket):
         UserStopEvent: UserStopEventListener,
         UserToolResultEvent: UserToolResultEventListener,
         UserSuggestionReadyEvent: UserSuggestionReadyEventListener,
+        UserTagSelectedEvent: UserTagSelectedEventListener,
     }
 
     def __init__(self, ws: WebSocket) -> None:
@@ -129,6 +132,10 @@ class UserWebSocket(AbstractWebSocket):
                             token = _clamp_int(payload.get("token"), 0, 2**31 - 1)
                             if token is not None:
                                 await queue.put(UserSuggestionReadyEvent(token=token))
+                        if msg_type == "tag_selected" and isinstance(payload, dict):
+                            tag_id = payload.get("id")
+                            if isinstance(tag_id, str) and tag_id:
+                                await queue.put(UserTagSelectedEvent(id=tag_id[:64]))
                         if msg_type == "text_message" and isinstance(payload, dict):
                             text = str(payload.get("text", "")).strip()
                             if text:

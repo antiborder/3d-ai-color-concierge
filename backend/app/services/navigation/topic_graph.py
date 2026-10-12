@@ -1,7 +1,8 @@
 """教育トピックのネットワーク（app/data/topic_graph.json）の読み込み。
 
 topic_graph.json の構造:
-  - nodes: {id, cluster, label: {ja, en}}  — id は SHOW_CONTENT の content ID と同一
+  - nodes: {id, cluster, label: {ja, en}, short: {ja, en}}  — id は SHOW_CONTENT の content ID と同一
+      short はスライド下のタグなど、狭い所に出す短い名前
   - edges: {from, to, suggest: {forward: {ja, en}, backward: {ja, en}}}
       forward は from→to へ誘導するときの発話、backward は to→from へ誘導するときの発話。
 """
@@ -43,6 +44,9 @@ class TopicGraph:
 
     def label(self, node_id: str, language: str) -> str:
         return self.nodes[node_id]["label"][language]
+
+    def short(self, node_id: str, language: str) -> str:
+        return self.nodes[node_id]["short"][language]
 
 
 @lru_cache(maxsize=1)

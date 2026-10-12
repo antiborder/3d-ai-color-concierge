@@ -50,3 +50,10 @@ export type WsInboundText =
   | { type: 'interrupted' }
   | { type: 'suggestion_pending'; token: number }
   | { type: 'error'; message: string; code?: string };
+
+/** A recommendation shown as a tag under a slide: a topic (another slide) or an action */
+export interface SlideTag {
+  id: string;
+  kind: 'topic' | 'action';
+  label: string;
+}

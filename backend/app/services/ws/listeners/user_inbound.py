@@ -9,6 +9,7 @@ from app.services.ws.events import (
     UserColorStateEvent,
     UserStopEvent,
     UserSuggestionReadyEvent,
+    UserTagSelectedEvent,
     UserTextMessageEvent,
     UserToolResultEvent,
 )
@@ -60,6 +61,22 @@ class UserSuggestionReadyEventListener(AbstractEventListener):
             return
         logger.info("SUGGESTION: speaking next-topic suggestion %s", [s["id"] for s in suggestions])
         await self._ctx.gemini_ws.send_text(build_suggestion_prompt(suggestions, self._ctx.language))
+
+
+class UserTagSelectedEventListener(AbstractEventListener):
+    """A recommendation tag under a slide was pressed: have Gemini show or do it."""
+
+    async def handle(self, event: UserTagSelectedEvent) -> None:
+        from app.services.gemini_live.tools.educational import build_tag_prompt
+
+        prompt = build_tag_prompt(event.id, self._ctx.language)
+        if prompt is None:
+            logger.info("TAG: unknown id %s", event.id)
+            return
+        # The user has chosen: drop the suggestion still waiting to be spoken
+        self._ctx.gemini_ws.clear_pending_suggestions()
+        logger.info("TAG: selected %s", event.id)
+        await self._ctx.gemini_ws.send_text(prompt)
 
 
 class UserColorStateEventListener(AbstractEventListener):

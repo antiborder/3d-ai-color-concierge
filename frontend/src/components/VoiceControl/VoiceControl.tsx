@@ -60,6 +60,8 @@ interface VoiceControlProps {
   isLoading?: boolean;
   onSpeak?: (text: string) => void;
   helpRequest?: { text: string; id: number } | null;
+  // A recommendation tag under a slide was pressed (nonce distinguishes repeated presses)
+  tagRequest?: { id: string; nonce: number } | null;
 }
 
 const VoiceControl = ({
@@ -76,6 +78,7 @@ const VoiceControl = ({
   // onOpenChatHistory,
   isLoading = false,
   helpRequest,
+  tagRequest,
 }: VoiceControlProps) => {
   const { t } = useTranslation();
   const [textInput, setTextInput] = useState('');
@@ -85,6 +88,7 @@ const VoiceControl = ({
   const sessionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pendingHelpRef = useRef<string | null>(null);
   const lastHelpIdRef = useRef<number>(0);
+  const lastTagNonceRef = useRef<number>(0);
 
   const SESSION_LIMIT_MS = 5 * 60 * 1000;
 
@@ -103,6 +107,7 @@ const VoiceControl = ({
     start,
     stop,
     sendTextMessage,
+    sendTagSelected,
   } = useVoiceStreaming({
     currentColorState,
     bridgeColorA,
@@ -177,6 +182,15 @@ const VoiceControl = ({
       pendingHelpRef.current = null;
     }
   }, [isConnected, sendTextMessage]);
+
+  // React to a pressed recommendation tag (slides only appear during a session, so it is connected)
+  useEffect(() => {
+    if (!tagRequest || tagRequest.nonce === lastTagNonceRef.current) return;
+    lastTagNonceRef.current = tagRequest.nonce;
+    clearSubtitle();
+    sendTagSelected(tagRequest.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tagRequest]);
 
   // React to new helpRequest
   useEffect(() => {

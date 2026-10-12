@@ -650,5 +650,8 @@
     "summary": "{{topics}} topics · {{links}} connections",
     "close": "Close",
     "unclassified": "Unclassified"
+  },
+  "slideTags": {
+    "next": "Next"
   }
 }
