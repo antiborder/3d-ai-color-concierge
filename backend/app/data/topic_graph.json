@@ -29,6 +29,10 @@
       "label": {
         "ja": "空が青い理由",
         "en": "Why the sky is blue"
+      },
+      "short": {
+        "ja": "空の青",
+        "en": "Blue sky"
       }
     },
     {
@@ -37,6 +41,10 @@
       "label": {
         "ja": "夕焼けが赤い理由",
         "en": "Why sunsets are red"
+      },
+      "short": {
+        "ja": "夕焼けの赤",
+        "en": "Red sunsets"
       }
     },
     {
@@ -45,12 +53,20 @@
       "label": {
         "ja": "虹が見える仕組み",
         "en": "How rainbows form"
+      },
+      "short": {
+        "ja": "虹の仕組み",
+        "en": "Rainbows"
       }
     },
     {
       "id": "nature_of_light",
       "cluster": "physics",
       "label": {
+        "ja": "光の正体",
+        "en": "What light is"
+      },
+      "short": {
         "ja": "光の正体",
         "en": "What light is"
       }
@@ -61,6 +77,10 @@
       "label": {
         "ja": "電磁波とは",
         "en": "What electromagnetic waves are"
+      },
+      "short": {
+        "ja": "電磁波",
+        "en": "EM waves"
       }
     },
     {
@@ -69,6 +89,10 @@
       "label": {
         "ja": "光が見える理由",
         "en": "Why we can see light"
+      },
+      "short": {
+        "ja": "光が見える理由",
+        "en": "Seeing light"
       }
     },
     {
@@ -77,6 +101,10 @@
       "label": {
         "ja": "錐体とは",
         "en": "What cone cells are"
+      },
+      "short": {
+        "ja": "錐体",
+        "en": "Cone cells"
       }
     },
     {
@@ -85,6 +113,10 @@
       "label": {
         "ja": "LMS座標系",
         "en": "LMS color space"
+      },
+      "short": {
+        "ja": "LMS",
+        "en": "LMS"
       }
     },
     {
@@ -93,6 +125,10 @@
       "label": {
         "ja": "RGB座標とXYZ座標の関係",
         "en": "How RGB and XYZ relate"
+      },
+      "short": {
+        "ja": "RGBとXYZ",
+        "en": "RGB & XYZ"
       }
     },
     {
@@ -101,6 +137,10 @@
       "label": {
         "ja": "XYZ座標とLMS座標の関係",
         "en": "How XYZ and LMS relate"
+      },
+      "short": {
+        "ja": "XYZとLMS",
+        "en": "XYZ & LMS"
       }
     },
     {
@@ -109,6 +149,10 @@
       "label": {
         "ja": "人が知覚可能な範囲",
         "en": "Colors humans can perceive"
+      },
+      "short": {
+        "ja": "見える色の範囲",
+        "en": "Visible colors"
       }
     },
     {
@@ -117,6 +161,10 @@
       "label": {
         "ja": "光の三原色（加法混色）",
         "en": "Primary colors of light (additive mixing)"
+      },
+      "short": {
+        "ja": "光の三原色",
+        "en": "Light primaries"
       }
     },
     {
@@ -125,6 +173,10 @@
       "label": {
         "ja": "色材の三原色（減法混色）",
         "en": "Primary colors of pigment (subtractive mixing)"
+      },
+      "short": {
+        "ja": "色材の三原色",
+        "en": "Ink primaries"
       }
     },
     {
@@ -133,6 +185,10 @@
       "label": {
         "ja": "CMYK色空間",
         "en": "CMYK color space"
+      },
+      "short": {
+        "ja": "CMYK",
+        "en": "CMYK"
       }
     },
     {
@@ -141,6 +197,10 @@
       "label": {
         "ja": "光の三原色と色材の三原色の関係",
         "en": "Light primaries vs. pigment primaries"
+      },
+      "short": {
+        "ja": "2つの三原色",
+        "en": "Light vs. ink"
       }
     },
     {
@@ -149,6 +209,10 @@
       "label": {
         "ja": "青と緑を混ぜるとシアンになるのはなぜ",
         "en": "Why blue + green makes cyan"
+      },
+      "short": {
+        "ja": "青＋緑＝シアン",
+        "en": "Blue + green"
       }
     },
     {
@@ -157,6 +221,10 @@
       "label": {
         "ja": "虹に無い色：マゼンタ",
         "en": "Magenta, the color not in the rainbow"
+      },
+      "short": {
+        "ja": "マゼンタ",
+        "en": "Magenta"
       }
     },
     {
@@ -165,6 +233,10 @@
       "label": {
         "ja": "赤と緑を混ぜると黄色になるのはなぜ",
         "en": "Why red + green makes yellow"
+      },
+      "short": {
+        "ja": "赤＋緑＝黄",
+        "en": "Red + green"
       }
     },
     {
@@ -173,6 +245,10 @@
       "label": {
         "ja": "画面の仕組み",
         "en": "How screens show color"
+      },
+      "short": {
+        "ja": "画面の仕組み",
+        "en": "Screens"
       }
     },
     {
@@ -181,6 +257,10 @@
       "label": {
         "ja": "RGB色空間",
         "en": "RGB color space"
+      },
+      "short": {
+        "ja": "RGB",
+        "en": "RGB"
       }
     },
     {
@@ -189,6 +269,10 @@
       "label": {
         "ja": "RGB Cube Grid",
         "en": "RGB cube grid"
+      },
+      "short": {
+        "ja": "RGB Grid",
+        "en": "RGB grid"
       }
     },
     {
@@ -197,6 +281,10 @@
       "label": {
         "ja": "HEXコードとは",
         "en": "What HEX codes are"
+      },
+      "short": {
+        "ja": "HEXコード",
+        "en": "HEX codes"
       }
     },
     {
@@ -205,6 +293,10 @@
       "label": {
         "ja": "XYZ空間",
         "en": "XYZ color space"
+      },
+      "short": {
+        "ja": "XYZ",
+        "en": "XYZ"
       }
     },
     {
@@ -213,6 +305,10 @@
       "label": {
         "ja": "等色実験とは",
         "en": "Color matching experiments"
+      },
+      "short": {
+        "ja": "等色実験",
+        "en": "Color matching"
       }
     },
     {
@@ -221,6 +317,10 @@
       "label": {
         "ja": "色度図",
         "en": "Chromaticity diagram"
+      },
+      "short": {
+        "ja": "色度図",
+        "en": "Chromaticity"
       }
     },
     {
@@ -229,6 +329,10 @@
       "label": {
         "ja": "画面で表示可能な範囲",
         "en": "Colors a screen can show"
+      },
+      "short": {
+        "ja": "画面の色域",
+        "en": "Screen gamut"
       }
     },
     {
@@ -237,6 +341,10 @@
       "label": {
         "ja": "HSL色空間",
         "en": "HSL color space"
+      },
+      "short": {
+        "ja": "HSL",
+        "en": "HSL"
       }
     },
     {
@@ -245,6 +353,10 @@
       "label": {
         "ja": "HSB色空間",
         "en": "HSB color space"
+      },
+      "short": {
+        "ja": "HSB",
+        "en": "HSB"
       }
     },
     {
@@ -253,12 +365,20 @@
       "label": {
         "ja": "HSBとHSLの違い",
         "en": "HSB vs. HSL"
+      },
+      "short": {
+        "ja": "HSBとHSL",
+        "en": "HSB vs. HSL"
       }
     },
     {
       "id": "brightness",
       "cluster": null,
       "label": {
+        "ja": "明度",
+        "en": "Brightness"
+      },
+      "short": {
         "ja": "明度",
         "en": "Brightness"
       }
@@ -269,12 +389,20 @@
       "label": {
         "ja": "輝度",
         "en": "Lightness"
+      },
+      "short": {
+        "ja": "輝度",
+        "en": "Lightness"
       }
     },
     {
       "id": "saturation",
       "cluster": "design",
       "label": {
+        "ja": "彩度",
+        "en": "Saturation"
+      },
+      "short": {
         "ja": "彩度",
         "en": "Saturation"
       }
@@ -285,12 +413,20 @@
       "label": {
         "ja": "色相",
         "en": "Hue"
+      },
+      "short": {
+        "ja": "色相",
+        "en": "Hue"
       }
     },
     {
       "id": "hue_circle",
       "cluster": "design",
       "label": {
+        "ja": "色相環",
+        "en": "Color wheel"
+      },
+      "short": {
         "ja": "色相環",
         "en": "Color wheel"
       }
@@ -301,6 +437,10 @@
       "label": {
         "ja": "補色",
         "en": "Complementary colors"
+      },
+      "short": {
+        "ja": "補色",
+        "en": "Complements"
       }
     },
     {
@@ -309,6 +449,10 @@
       "label": {
         "ja": "三角配色",
         "en": "Triadic color schemes"
+      },
+      "short": {
+        "ja": "三角配色",
+        "en": "Triads"
       }
     },
     {
@@ -317,6 +461,10 @@
       "label": {
         "ja": "四角配色",
         "en": "Tetradic color schemes"
+      },
+      "short": {
+        "ja": "四角配色",
+        "en": "Tetrads"
       }
     },
     {
@@ -325,6 +473,10 @@
       "label": {
         "ja": "Lab空間",
         "en": "Lab color space"
+      },
+      "short": {
+        "ja": "Lab",
+        "en": "Lab"
       }
     },
     {
@@ -333,6 +485,10 @@
       "label": {
         "ja": "LCH空間",
         "en": "LCH color space"
+      },
+      "short": {
+        "ja": "LCH",
+        "en": "LCH"
       }
     },
     {
@@ -341,6 +497,10 @@
       "label": {
         "ja": "OKLab空間",
         "en": "OKLab color space"
+      },
+      "short": {
+        "ja": "OKLab",
+        "en": "OKLab"
       }
     },
     {
@@ -349,6 +509,10 @@
       "label": {
         "ja": "OKLCH空間",
         "en": "OKLCH color space"
+      },
+      "short": {
+        "ja": "OKLCH",
+        "en": "OKLCH"
       }
     },
     {
@@ -357,6 +521,10 @@
       "label": {
         "ja": "様々な色空間",
         "en": "The family of color spaces"
+      },
+      "short": {
+        "ja": "色空間の種類",
+        "en": "Color spaces"
       }
     },
     {
@@ -365,6 +533,10 @@
       "label": {
         "ja": "色の大きさ",
         "en": "Perceived size of colors"
+      },
+      "short": {
+        "ja": "色の大きさ",
+        "en": "Color size"
       }
     },
     {
@@ -373,6 +545,10 @@
       "label": {
         "ja": "色の重み",
         "en": "Perceived weight of colors"
+      },
+      "short": {
+        "ja": "色の重み",
+        "en": "Color weight"
       }
     },
     {
@@ -381,6 +557,10 @@
       "label": {
         "ja": "色の歪み",
         "en": "Color distortion"
+      },
+      "short": {
+        "ja": "色の歪み",
+        "en": "Distortion"
       }
     },
     {
@@ -389,6 +569,10 @@
       "label": {
         "ja": "CSS Named Colors",
         "en": "CSS Named Colors"
+      },
+      "short": {
+        "ja": "CSSの色",
+        "en": "CSS colors"
       }
     },
     {
@@ -397,6 +581,10 @@
       "label": {
         "ja": "Material Design Color",
         "en": "Material Design colors"
+      },
+      "short": {
+        "ja": "Material",
+        "en": "Material"
       }
     },
     {
@@ -405,6 +593,10 @@
       "label": {
         "ja": "様々なColor Samples",
         "en": "Color sample collections"
+      },
+      "short": {
+        "ja": "色見本",
+        "en": "Color samples"
       }
     },
     {
@@ -413,6 +605,10 @@
       "label": {
         "ja": "色科学の系統図",
         "en": "Lineage of color science"
+      },
+      "short": {
+        "ja": "色空間の系統",
+        "en": "Lineage"
       }
     },
     {
@@ -420,6 +616,10 @@
       "cluster": "psychology",
       "label": {
         "ja": "LCHとOKLCHの違い",
+        "en": "LCH vs. OKLCH"
+      },
+      "short": {
+        "ja": "LCH vs OKLCH",
         "en": "LCH vs. OKLCH"
       }
     },
@@ -429,6 +629,10 @@
       "label": {
         "ja": "トーン（色調）",
         "en": "Tone"
+      },
+      "short": {
+        "ja": "トーン",
+        "en": "Tone"
       }
     },
     {
@@ -437,6 +641,10 @@
       "label": {
         "ja": "カラーハーモニー",
         "en": "Color harmony"
+      },
+      "short": {
+        "ja": "ハーモニー",
+        "en": "Harmony"
       }
     },
     {
@@ -445,6 +653,10 @@
       "label": {
         "ja": "暖色と寒色",
         "en": "Warm and cool colors"
+      },
+      "short": {
+        "ja": "暖色と寒色",
+        "en": "Warm & cool"
       }
     },
     {
@@ -453,6 +665,10 @@
       "label": {
         "ja": "日本の伝統色",
         "en": "Japanese traditional colors"
+      },
+      "short": {
+        "ja": "伝統色",
+        "en": "Japanese colors"
       }
     },
     {
@@ -461,6 +677,10 @@
       "label": {
         "ja": "モノクロカラー",
         "en": "Monochrome colors"
+      },
+      "short": {
+        "ja": "モノクロ",
+        "en": "Monochrome"
       }
     },
     {
@@ -469,6 +689,10 @@
       "label": {
         "ja": "パステルカラー",
         "en": "Pastel colors"
+      },
+      "short": {
+        "ja": "パステル",
+        "en": "Pastels"
       }
     },
     {
@@ -477,12 +701,20 @@
       "label": {
         "ja": "色の統一感",
         "en": "Color unity"
+      },
+      "short": {
+        "ja": "統一感",
+        "en": "Unity"
       }
     },
     {
       "id": "color_difference",
       "cluster": "psychology",
       "label": {
+        "ja": "色差",
+        "en": "Color difference"
+      },
+      "short": {
         "ja": "色差",
         "en": "Color difference"
       }
@@ -493,6 +725,10 @@
       "label": {
         "ja": "色の錯視",
         "en": "Color illusions"
+      },
+      "short": {
+        "ja": "錯視",
+        "en": "Illusions"
       }
     },
     {
@@ -501,6 +737,10 @@
       "label": {
         "ja": "配色の比率",
         "en": "Color proportions"
+      },
+      "short": {
+        "ja": "配色の比率",
+        "en": "Proportions"
       }
     },
     {
@@ -509,6 +749,10 @@
       "label": {
         "ja": "コントラストと読みやすさ",
         "en": "Contrast and readability"
+      },
+      "short": {
+        "ja": "読みやすさ",
+        "en": "Readability"
       }
     },
     {
@@ -517,6 +761,10 @@
       "label": {
         "ja": "コントラスト",
         "en": "Color contrast"
+      },
+      "short": {
+        "ja": "コントラスト",
+        "en": "Contrast"
       }
     },
     {
@@ -524,6 +772,10 @@
       "cluster": "psychology",
       "label": {
         "ja": "LabとOKLabの違い",
+        "en": "Lab vs. OKLab"
+      },
+      "short": {
+        "ja": "Lab vs OKLab",
         "en": "Lab vs. OKLab"
       }
     }

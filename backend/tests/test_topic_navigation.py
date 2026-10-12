@@ -148,14 +148,11 @@ def test_rank_returns_empty_when_all_neighbors_seen():
 # ── NavState ───────────────────────────────────────────────────────────────
 
 
-def test_nav_state_suggests_every_other_show():
+def test_nav_state_suggests_after_every_show():
     nav = NavState()
-    nav.mark_shown("rgb_primary")
-    assert nav.next_suggestions("ja")
-    nav.mark_shown("rgb_space")
-    assert nav.next_suggestions("ja") == []
-    nav.mark_shown("hsl_space")
-    assert nav.next_suggestions("ja")
+    for cid in ["rgb_primary", "rgb_space", "hsl_space"]:
+        nav.mark_shown(cid)
+        assert nav.next_suggestions(cid, "ja")
 
 
 def test_nav_state_tracks_visited_in_order_without_duplicates():
@@ -171,10 +168,9 @@ def test_nav_state_tracks_visited_in_order_without_duplicates():
 def test_nav_state_never_resuggests_declined_topic():
     nav = NavState()
     nav.mark_shown("hsl_space")
-    first = nav.next_suggestions("ja")
+    first = nav.next_suggestions("hsl_space", "ja")
     nav.mark_declined(first[0]["id"])
-    nav.suggested_last_time = False
-    again = nav.next_suggestions("ja")
+    again = nav.next_suggestions("hsl_space", "ja")
     assert first[0]["id"] not in [s["id"] for s in again]
 
 
@@ -367,6 +363,11 @@ def test_turn_complete_after_narration_signals_the_frontend():
     assert [e.token for e in pending] == [nav.pending_token]
 
 
-def test_suggestion_prompt_lists_candidates():
-    prompt = build_suggestion_prompt([{"id": "hsb_space", "phrase": "HSBも見てみますか？"}], "ja")
-    assert "id=hsb_space" in prompt and "HSBも見てみますか？" in prompt
+def test_suggestion_prompt_has_the_sentence_and_what_to_do_on_yes():
+    topic = {"id": "hsb_space", "kind": "topic", "phrase": "HSBも見てみますか？"}
+    prompt = build_suggestion_prompt([topic], "ja")
+    assert "「HSBも見てみますか？」" in prompt and 'SHOW_CONTENT(id="hsb_space")' in prompt
+    action = {"id": "act_lighter", "kind": "action", "phrase": "少し明るくしてみますか？"}
+    assert 'RUN_SUGGESTION(id="act_lighter")' in build_suggestion_prompt([action], "en")
+    ask = {"id": "act_ask_preference", "kind": "action", "phrase": "今はどんな色の気分ですか？"}
+    assert "答えに合わせて会話を続ける" in build_suggestion_prompt([ask], "ja")

@@ -53,7 +53,8 @@ RESPONSE_RULES_JA = """\
 
 ## 【重要】次のアクション提案のバリエーション
 
-提案を求められた場合のみ、**以下のリストからのみ**選ぶ（リスト外の提案は禁止、1文のみ）：
+自分からは提案しない。スライドの説明や操作の後の提案は、システムが候補を届けるので、届いたときにその指示に従う（説明や操作の報告の発話には、提案を付け足さない）。
+ユーザーから「次は何をしたらいい？」などと提案を求められた場合のみ、**以下のリストからのみ**選ぶ（リスト外の提案は禁止、1文のみ）：
 
 1. **色を選ぶ（単数）** → SEARCH_COLOR または SELECT_COLOR
    例：「別の色を試してみましょうか？」「類似した色を提案しましょうか？」
@@ -103,7 +104,7 @@ RESPONSE_RULES_EN = """\
 
 ## [IMPORTANT] Vary your follow-up suggestions
 
-Only suggest when the user explicitly asks for recommendations or next steps. Never add a suggestion after saying a SHOW_CONTENT script (the next topic is suggested separately). Choose **ONLY from the list below** (forbidden outside this list, one sentence only):
+Never suggest on your own. After a slide's narration or an action, the system sends candidates; follow that instruction when they arrive (do not add a suggestion to the narration or to your report of an action). Only when the user explicitly asks for recommendations or next steps, choose **ONLY from the list below** (forbidden outside this list, one sentence only):
 
 1. **Select a color (single)** → SEARCH_COLOR or SELECT_COLOR
    e.g. "Shall I suggest a different color?" / "Want to try a similar shade?"

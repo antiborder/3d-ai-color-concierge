@@ -83,7 +83,9 @@ def test_color_space_is_passed_to_frontend_command():
     log, _ = asyncio.run(
         _run(_msg(("SHOW_CONTENT", {"id": "oklab_space", "colorSpace": "OKLAB"})), 0.0)
     )
-    assert ("command", "SHOW_CONTENT", {"id": "oklab_space", "colorSpace": "OKLAB"}) in log
+    [params] = [e[2] for e in log if e[:2] == ("command", "SHOW_CONTENT")]
+    assert params["id"] == "oklab_space" and params["colorSpace"] == "OKLAB"
+    assert 1 <= len(params["tags"]) <= 3  # the recommendations shown under the slide
 
 
 def test_show_content_response_waits_until_slide_is_shown():

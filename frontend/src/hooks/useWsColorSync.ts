@@ -13,6 +13,8 @@ export interface UiContext {
   activeSlide: string | null;
   harmony: string;
   colorTarget: 'focused' | 'background';
+  // The 3D scene's background color (#rrggbb)
+  background: string;
 }
 
 interface UseWsColorSyncParams {

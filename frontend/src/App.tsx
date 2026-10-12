@@ -19,7 +19,7 @@ import { useHelpRequest } from './hooks/useHelpRequest';
 import { executeCommand } from './utils/commandExecutor';
 import EducationalContent from './components/educational/EducationalContent';
 import { SHAPE_MORPH_DURATION_S } from './components/ColorPicker/AnimatedWireframe';
-import type { Command as VoiceCommand } from './types/voice';
+import type { Command as VoiceCommand, SlideTag } from './types/voice';
 import { useChatbot } from './hooks/useChatbot';
 import { type HarmonyMode, computeHarmonyColors } from './utils/colorHarmony';
 import { interpolateRgb } from './components/menus/controls/ColorBridge';
@@ -174,6 +174,11 @@ function App() {
   const [aiColorLabels, setAiColorLabels] = useState<AiColorLabel[]>([]);
   const [activeContentId, setActiveContentId] = useState<string | null>(null);
   const [isTopicNetworkOpen, setIsTopicNetworkOpen] = useState(false);
+  // Recommendations shown as tags under the slide, and the tag the user last pressed
+  const [slideTags, setSlideTags] = useState<{ contentId: string; tags: SlideTag[] } | null>(
+    null
+  );
+  const [tagRequest, setTagRequest] = useState<{ id: string; nonce: number } | null>(null);
   const [openCIEPanelSignal, setOpenCIEPanelSignal] = useState(0);
   const activeContentIdRef = useRef<string | null>(null);
   activeContentIdRef.current = activeContentId;
@@ -205,8 +210,9 @@ function App() {
   // deforms, the previous slide is closed so the user can watch the color space change:
   // close the old slide → deform the shape → open the new slide.
   // Resolves once the slide has been rendered.
-  const showContentAfterMorph = (id: string): Promise<void> => {
+  const showContentAfterMorph = (id: string, tags: SlideTag[] = []): Promise<void> => {
     cancelPendingSlide();
+    setSlideTags({ contentId: id, tags });
     if (activeContentIdRef.current === id) return Promise.resolve();
     const shown = new Promise<void>((resolve) => {
       slideShownResolversRef.current.push({ id, resolve });
@@ -609,6 +615,7 @@ function App() {
           activeSlide: activeContentId,
           harmony: harmonyMode,
           colorTarget,
+          background: sceneBackgroundColor,
         }}
         onTranscript={handleVoiceTranscript}
         onTranscriptUpdate={handleTranscriptUpdate}
@@ -618,6 +625,7 @@ function App() {
         // onOpenChatHistory={openModal}
         isLoading={isLoading}
         helpRequest={helpRequest}
+        tagRequest={tagRequest}
       />
       <ChatHistoryModal
         isOpen={isModalOpen}
@@ -628,6 +636,8 @@ function App() {
       <EducationalContent
         contentId={activeContentId}
         onClose={() => setActiveContentId(null)}
+        tags={slideTags?.contentId === activeContentId ? slideTags.tags : []}
+        onTagClick={(tag) => setTagRequest({ id: tag.id, nonce: Date.now() })}
       />
       {isTopicNetworkOpen && (
         <Suspense fallback={null}>

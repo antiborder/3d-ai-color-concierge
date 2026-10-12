@@ -3,7 +3,7 @@
  * WebSocket経由で受信したコマンドを実行する
  */
 import toast from 'react-hot-toast';
-import type { Command } from '@/types/voice';
+import type { Command, SlideTag } from '@/types/voice';
 import type { ColorSpace } from '@/types/color';
 import type { HarmonyMode } from './colorHarmony';
 import type { AiColorLabel } from '@/types/structure';
@@ -33,7 +33,7 @@ export interface VoiceCommandHandlers {
   setIsBridgeOpen: (open: boolean) => void;
   selectBridgePosition: (position: number) => void;
   /** Shows a slide; resolves once it is on screen (after any running shape deformation). */
-  showContent: (id: string) => Promise<void>;
+  showContent: (id: string, tags: SlideTag[]) => Promise<void>;
   openCIEPanel: () => void;
   setAiColorLabels: (labels: AiColorLabel[]) => void;
   addAllColorsToHistory: (colors: Array<{ r: number; g: number; b: number }>) => void;
@@ -318,7 +318,10 @@ export function executeCommand(
       // Deform the color space first; showContent waits for the deformation to finish.
       applyShape(command.parameters.colorSpace as string | undefined, handlers);
       if (id) {
-        return handlers.showContent(id);
+        const tags = Array.isArray(command.parameters.tags)
+          ? (command.parameters.tags as SlideTag[])
+          : [];
+        return handlers.showContent(id, tags);
       }
       break;
     }

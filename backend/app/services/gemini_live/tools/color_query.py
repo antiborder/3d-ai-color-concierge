@@ -96,7 +96,7 @@ RULES_JA = """\
    - `activeSlide` があり話題と無関係なら DISMISS_CONTENT で閉じる。関連があれば開いたままでよい。
 
 3. **何を表示するか**
-   - 話題に明らかに有益な場合のみ、カラーセット（SET_COLOR_SETS）・スライド（SHOW_CONTENT）・色空間（CHANGE_SHAPE）への切替を実行/提案する。
+   - ユーザーの依頼に明らかに必要な場合のみ、カラーセット（SET_COLOR_SETS）・スライド（SHOW_CONTENT）・色空間（CHANGE_SHAPE）への切替を実行する。自分から提案はしない（提案はシステムから候補が届いたときだけ）。
 
 ---
 
@@ -126,7 +126,7 @@ Use the returned data to make three decisions before generating your response:
    - If `activeSlide` is set and unrelated to the topic, call DISMISS_CONTENT. If still relevant, leave it open.
 
 3. **What to show**
-   - Only when clearly beneficial to the topic: suggest/switch color set (SET_COLOR_SETS), slide (SHOW_CONTENT), or color space (CHANGE_SHAPE).
+   - Only when clearly needed for the user's request: switch color set (SET_COLOR_SETS), slide (SHOW_CONTENT), or color space (CHANGE_SHAPE). Do not suggest them on your own (suggest only when the system sends candidates).
 
 ---
 

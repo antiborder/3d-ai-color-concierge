@@ -36,6 +36,13 @@ class UserSuggestionReadyEvent:
 
 
 @dataclass
+class UserTagSelectedEvent:
+    """The user pressed a recommendation tag under a slide."""
+
+    id: str
+
+
+@dataclass
 class UserToolResultEvent:
     tool_call_id: str
     success: bool

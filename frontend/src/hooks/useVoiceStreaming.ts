@@ -320,8 +320,9 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
               /* best-effort */
             }
           };
-          if (msg.tool_name === 'ADJUST_VALUE' && toolCallId) {
-            sendToolResult();
+          if (msg.tool_name === 'ADJUST_VALUE') {
+            // A suggested adjustment run by the backend (RUN_SUGGESTION) has no tool call id
+            if (toolCallId) sendToolResult();
             setIsExecuting(false);
           } else if (msg.tool_name === 'SHOW_CONTENT' && toolCallId) {
             // The backend holds Gemini's tool response (and so its speech) until the
@@ -649,6 +650,21 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     [cancelSuggestionReady]
   );
 
+  // A recommendation tag under a slide was pressed: the backend has Gemini show or do it
+  const sendTagSelected = useCallback(
+    (id: string) => {
+      const ws = wsRef.current;
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      cancelSuggestionReady();
+      try {
+        ws.send(JSON.stringify({ type: 'tag_selected', id }));
+      } catch {
+        /* best-effort */
+      }
+    },
+    [cancelSuggestionReady]
+  );
+
   return {
     isConnecting,
     isConnected,
@@ -664,5 +680,6 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     start,
     stop,
     sendTextMessage,
+    sendTagSelected,
   };
 }

@@ -1,16 +1,20 @@
-"""SHOW_CONTENT — 色彩理論の教育コンテンツを表示するツール。
+"""SHOW_CONTENT — 色彩理論の教育コンテンツを表示するツール。あわせて、次に何を勧めるか。
 
-表示可能なスライドと、スライド間のつながり（次に何を勧めるか）は
-app/data/topic_graph.json で定義する。
+表示可能なスライドと、スライド間のつながりは app/data/topic_graph.json、
+トピック外の操作（明るくする、補色を表示する等）とそのつながりは app/data/action_graph.json で定義する。
 """
 
 from __future__ import annotations
 
 from app.services.gemini_live.tools.color_space import COLOR_SPACES
 from app.services.navigation import NavState, content_ids, load_topic_graph
+from app.services.navigation.action_graph import load_action_graph
+from app.services.navigation.recommender import choose, suggest, tags_for
 from app.services.prompts.topics import topic_script
 
 CONTENT_IDS = content_ids()
+# 提案を受け入れられたら RUN_SUGGESTION で実行する操作
+ACTION_IDS = load_action_graph().runnable_ids()
 
 DECLARATIONS: list[dict] = [
     {
@@ -58,7 +62,7 @@ DECLARATIONS: list[dict] = [
     {
         "name": "RECORD_DECLINE",
         "description": (
-            "Record that the user declined a next-topic candidate you suggested, "
+            "Record that the user declined a candidate you suggested (a slide or an action), "
             "so it is not suggested again. Call silently."
         ),
         "parameters": {
@@ -66,8 +70,27 @@ DECLARATIONS: list[dict] = [
             "properties": {
                 "id": {
                     "type": "string",
-                    "enum": CONTENT_IDS,
-                    "description": "Content ID of the declined suggestion.",
+                    "enum": [*CONTENT_IDS, *load_action_graph().action_ids],
+                    "description": "ID of the declined suggestion.",
+                }
+            },
+            "required": ["id"],
+        },
+    },
+    {
+        "name": "RUN_SUGGESTION",
+        "description": (
+            "Carry out an action you suggested (an id starting with 'act_') after the user "
+            "agreed to it. The app performs it; then report the result in one short sentence, "
+            "following the response."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "enum": ACTION_IDS,
+                    "description": "ID of the suggested action the user agreed to.",
                 }
             },
             "required": ["id"],
@@ -89,15 +112,21 @@ COMMANDS: dict[str, object] = {
 }
 
 
-def build_show_content_response(content_id: str, nav_state: NavState, language: str) -> dict:
-    """SHOW_CONTENT の tool response。発話スクリプトと次トピックの候補を Gemini に渡す。"""
+def build_show_content_response(
+    content_id: str, nav_state: NavState, language: str, ui: dict | None = None
+) -> dict:
+    """SHOW_CONTENT の tool response。発話スクリプトを Gemini に渡し、次の候補を保留する。"""
     graph = load_topic_graph()
     if content_id not in graph.nodes:
         return {"result": "error", "error": f"Unknown content id: {content_id}"}
     nav_state.mark_shown(content_id)
-    # The next-topic suggestion is not part of this response: it is held and given to Gemini as
+    # The next suggestion is not part of this response: it is held and given to Gemini as
     # its own turn after the narration has finished playing, so there is a pause between them.
-    nav_state.hold_suggestions(nav_state.next_suggestions(language, graph))
+    candidates = suggest(content_id, nav_state, language, ui or {}, graph)
+    held = choose(candidates, nav_state.rng)
+    nav_state.hold_suggestions(held)
+    # The same recommendations, as tags under the slide (the spoken one first)
+    nav_state.slide_tags = tags_for(held, candidates)
     return {
         "result": "ok",
         "title": graph.label(content_id, language),
@@ -115,21 +144,58 @@ NEXT_STEP = (
 )
 
 
+def _on_accept(s: dict, language: str) -> str:
+    """候補が受け入れられたときに呼ぶ tool（Gemini が取り違えないよう候補ごとに明示する）。"""
+    if s["id"] == "act_ask_preference":
+        return "答えに合わせて会話を続ける" if language == "ja" else "continue from their answer"
+    tool = "RUN_SUGGESTION" if s["kind"] == "action" else "SHOW_CONTENT"
+    return f'{tool}(id="{s["id"]}")'
+
+
 def build_suggestion_prompt(suggestions: list[dict], language: str) -> str:
-    """スライドの説明のあと、間を置いて次トピックを提案させるための指示（ユーザー発言ではない）。"""
-    lines = "\n".join(f"- id={s['id']}: {s['phrase']}" for s in suggestions)
+    """説明や操作の報告のあと、間を置いて次を提案させるための指示（ユーザー発言ではない）。
+
+    何を勧めるかはコードが決めている（recommender.choose）ので、Gemini には1件だけ渡して言わせる。
+    """
+    s = suggestions[0]
     if language == "ja":
         return (
             "（システムからの指示です。ユーザーの発言ではありません）"
-            "スライドの説明は終わりました。次の候補から会話の流れに最も合うものを1つ選び、"
-            "その phrase をほぼそのまま1文で言ってください（迷ったら先頭）。"
-            "説明を繰り返したり、ツールを呼んだりしないでください。\n" + lines
+            "あなたの発話は終わりました。次の「」内の文を、ほぼそのまま1文で言ってください。"
+            "直前の説明や報告を繰り返したり、ほかの提案を足したり、今ツールを呼んだりしないでください。"
+            f"\n「{s['phrase']}」\n"
+            f"ユーザーが同意したら：{_on_accept(s, language)}（別のツールで代わりに行わない）"
         )
     return (
         "(System instruction, not said by the user) "
-        "The slide narration has finished. Choose ONE of these that best fits the conversation "
-        "(if unsure, the first) and say its phrase nearly verbatim, in one sentence. "
-        "Do not repeat the explanation and do not call any tool.\n" + lines
+        "You have finished speaking. Say the quoted sentence below nearly verbatim, in one sentence. "
+        "Do not repeat what you just said, do not add other suggestions, and do not call any tool now."
+        f'\n"{s["phrase"]}"\n'
+        f"If the user agrees: {_on_accept(s, language)} (do not use a different tool instead)"
+    )
+
+
+def build_tag_prompt(node_id: str, language: str) -> str | None:
+    """スライド下のおすすめタグが押されたとき、Gemini にそれを行わせる指示。未知の id なら None。"""
+    graph = load_topic_graph()
+    actions = load_action_graph()
+    if node_id in graph.nodes:
+        name, call = graph.label(node_id, language), f'SHOW_CONTENT(id="{node_id}")'
+    elif node_id in actions.runnable_ids():
+        name = actions.actions[node_id]["label"][language]
+        call = f'RUN_SUGGESTION(id="{node_id}")'
+    else:
+        return None
+    if language == "ja":
+        return (
+            "（システムからの指示です。ユーザーの発言ではありません）"
+            f"ユーザーが画面のおすすめタグ「{name}」を押しました。"
+            f"前置きを言わずに、すぐ {call} を呼び、tool response に従って話してください。"
+        )
+    return (
+        "(System instruction, not said by the user) "
+        f'The user pressed the recommendation tag "{name}" on screen. '
+        f"Without any preamble, call {call} right away and speak as the tool response says."
     )
 
 
@@ -141,16 +207,21 @@ RULES_JA = """\
 **呼ぶタイミング**:
 1. enum のトピックについて明示的に質問された → 即座に SHOW_CONTENT を呼ぶ。
 2. あなたが提案したトピックにユーザーが同意した → 次のターンでその id で呼ぶ。
-3. 会話で enum のトピックに自然に触れた → 2回に1回程度、口頭で提案してよい。
 
 **呼び方**: 「表示します」「見てみましょう」等は言わない。まず SHOW_CONTENT を呼び、tool response を受けてから話す。色空間も切り替えるときは CHANGE_SHAPE を別に呼ばず colorSpace に指定する。SELECT_COLOR は呼ばない。
 
 **tool response に従って、1回の連続した発話で話す**:
 - script がある → s1 を言い、s2 が null でなければ続けて言う。
 - script が null → スライドはタイトルのみ。そのトピックを自分の知識で2文以内で説明する。
-- この発話では次のトピックを勧めない。説明を言い終えて少し間を置いたあと、システムから次トピックの候補が届いたら、その指示に従って1文で提案する。候補が届かなければ、他のトピックを自分から勧めない。
+- この発話では次を勧めない。説明を言い終えて少し間を置いたあと、システムから候補が届いたら、その指示に従って1文で提案する。
 
-**提案への返答**: 同意 → 候補にあったその id で SHOW_CONTENT。断られた → RECORD_DECLINE(id) を黙って呼ぶ（「記録します」等は言わない）。
+## 提案（スライド・操作）
+
+- **自分から次のスライドや操作を提案しない。** スライドの説明や操作の後には、システムが候補を届ける。提案するのは、その候補が届いたときだけ（候補の phrase を1文で言う）。
+- **提案への返答**:
+  - 同意された → id が act_ で始まらなければ SHOW_CONTENT(id)、act_ で始まれば RUN_SUGGESTION(id)。RUN_SUGGESTION の後は、tool response に従って結果を1文で伝える（instruction があればそれに従う）。
+  - act_ask_preference（好みを聞く質問）に答えが返ってきた → 答えに合わせて会話を続ける（RUN_SUGGESTION は呼ばない）。
+  - 断られた → RECORD_DECLINE(id) を黙って呼ぶ（「記録します」等は言わない）。
 
 ## DISMISS_CONTENT
 
@@ -165,16 +236,21 @@ Only slides in the id enum exist. For additive color mixing use rgb_primary (pri
 **When to call:**
 1. The user explicitly asks about a topic in the enum → call SHOW_CONTENT immediately.
 2. The user agrees to a topic you suggested → call it with that id in the next turn.
-3. The conversation naturally touches on a topic in the enum → offer it verbally about half the time.
 
 **How to call:** do NOT say "let me show you a slide". Call SHOW_CONTENT first and speak after the tool response arrives. To also switch the color space, pass colorSpace instead of calling CHANGE_SHAPE separately. Do NOT call SELECT_COLOR.
 
 **Follow the tool response, as one continuous utterance:**
 - script present → say s1, then s2 if it is not null.
 - script is null → the slide shows only a title. Explain the topic in at most 2 sentences from your own knowledge.
-- Do not suggest a next topic in this utterance. After you finish and a short pause, the system may send next-topic candidates; then follow that instruction and suggest one in a single sentence. If no candidates arrive, do not suggest other topics on your own.
+- Do not suggest anything next in this utterance. After you finish and a short pause, the system sends candidates; then follow that instruction and suggest one in a single sentence.
 
-**Replies to a suggestion:** agreed → SHOW_CONTENT with that candidate's id. Declined → call RECORD_DECLINE(id) silently (do not mention it).
+## Suggestions (slides and actions)
+
+- **Never suggest a next slide or action on your own.** After a slide's narration or an action, the system sends candidates. Suggest only when they arrive (say a candidate's phrase in one sentence).
+- **Replies to a suggestion:**
+  - Agreed → if the id does not start with act_, SHOW_CONTENT(id); if it does, RUN_SUGGESTION(id). After RUN_SUGGESTION, report the result in one sentence as the tool response says (follow its instruction if there is one).
+  - The user answers act_ask_preference (a question about their mood) → continue the conversation from their answer (do not call RUN_SUGGESTION).
+  - Declined → call RECORD_DECLINE(id) silently (do not mention it).
 
 ## DISMISS_CONTENT
 

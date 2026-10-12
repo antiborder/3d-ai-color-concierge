@@ -1,0 +1,2193 @@
+{
+  "version": 1,
+  "actions": [
+    {
+      "id": "act_lighter",
+      "kind": "adjust",
+      "label": {
+        "ja": "少し明るくする",
+        "en": "Make it lighter"
+      },
+      "phrase": {
+        "ja": "少し明るくしてみますか？",
+        "en": "Want to make it a little lighter?"
+      },
+      "run": [
+        {
+          "name": "ADJUST_VALUE",
+          "args": {
+            "property": "brightness",
+            "direction": "up",
+            "amount": 20
+          }
+        }
+      ],
+      "tag": {
+        "ja": "明るくする",
+        "en": "Lighter"
+      }
+    },
+    {
+      "id": "act_darker",
+      "kind": "adjust",
+      "label": {
+        "ja": "少し暗くする",
+        "en": "Make it darker"
+      },
+      "phrase": {
+        "ja": "少し暗くしてみますか？",
+        "en": "Want to make it a little darker?"
+      },
+      "run": [
+        {
+          "name": "ADJUST_VALUE",
+          "args": {
+            "property": "brightness",
+            "direction": "down",
+            "amount": 20
+          }
+        }
+      ],
+      "tag": {
+        "ja": "暗くする",
+        "en": "Darker"
+      }
+    },
+    {
+      "id": "act_more_vivid",
+      "kind": "adjust",
+      "label": {
+        "ja": "少し鮮やかにする",
+        "en": "Make it more vivid"
+      },
+      "phrase": {
+        "ja": "少し鮮やかにしてみますか？",
+        "en": "Want to make it a little more vivid?"
+      },
+      "run": [
+        {
+          "name": "ADJUST_VALUE",
+          "args": {
+            "property": "saturation",
+            "direction": "up",
+            "amount": 20
+          }
+        }
+      ],
+      "tag": {
+        "ja": "鮮やかにする",
+        "en": "More vivid"
+      }
+    },
+    {
+      "id": "act_less_vivid",
+      "kind": "adjust",
+      "label": {
+        "ja": "少し落ち着かせる",
+        "en": "Make it calmer"
+      },
+      "phrase": {
+        "ja": "少し落ち着いた色にしてみますか？",
+        "en": "Want to make it a little more muted?"
+      },
+      "run": [
+        {
+          "name": "ADJUST_VALUE",
+          "args": {
+            "property": "saturation",
+            "direction": "down",
+            "amount": 20
+          }
+        }
+      ],
+      "tag": {
+        "ja": "くすませる",
+        "en": "More muted"
+      }
+    },
+    {
+      "id": "act_shift_hue",
+      "kind": "adjust",
+      "label": {
+        "ja": "色相をずらす",
+        "en": "Shift the hue"
+      },
+      "phrase": {
+        "ja": "色相を少しずらしてみますか？",
+        "en": "Want to shift the hue a little?"
+      },
+      "run": [
+        {
+          "name": "ADJUST_VALUE",
+          "args": {
+            "property": "hue",
+            "direction": "up",
+            "amount": 30
+          }
+        }
+      ],
+      "tag": {
+        "ja": "色相をずらす",
+        "en": "Shift hue"
+      }
+    },
+    {
+      "id": "act_make_gray",
+      "kind": "adjust",
+      "label": {
+        "ja": "グレーにする",
+        "en": "Make it gray"
+      },
+      "phrase": {
+        "ja": "この色を、同じ明るさのグレーにしてみますか？",
+        "en": "Want to turn this color into a gray of the same lightness?"
+      },
+      "run": [
+        {
+          "name": "ADJUST_VALUE",
+          "args": {
+            "property": "saturation",
+            "direction": "down",
+            "amount": 100
+          }
+        }
+      ],
+      "tag": {
+        "ja": "グレーにする",
+        "en": "Make it gray"
+      }
+    },
+    {
+      "id": "act_hue_opposite",
+      "kind": "adjust",
+      "label": {
+        "ja": "補色にする",
+        "en": "Turn to the complement"
+      },
+      "phrase": {
+        "ja": "色相を反対側に回して、補色にしてみますか？",
+        "en": "Want to turn the hue halfway around, to its complement?"
+      },
+      "run": [
+        {
+          "name": "ADJUST_VALUE",
+          "args": {
+            "property": "hue",
+            "direction": "up",
+            "amount": 180
+          }
+        }
+      ],
+      "tag": {
+        "ja": "補色に変える",
+        "en": "To complement"
+      }
+    },
+    {
+      "id": "act_harmony_complementary",
+      "kind": "harmony",
+      "label": {
+        "ja": "補色を表示",
+        "en": "Show the complement"
+      },
+      "phrase": {
+        "ja": "この色の補色を表示してみますか？",
+        "en": "Want to show this color's complement?"
+      },
+      "run": [
+        {
+          "name": "SET_HARMONY",
+          "args": {
+            "mode": "complementary"
+          }
+        }
+      ],
+      "exclude_if": {
+        "harmony": "complementary"
+      },
+      "tag": {
+        "ja": "補色を表示",
+        "en": "Show complement"
+      }
+    },
+    {
+      "id": "act_harmony_triad",
+      "kind": "harmony",
+      "label": {
+        "ja": "三角配色を表示",
+        "en": "Show a triadic scheme"
+      },
+      "phrase": {
+        "ja": "三角配色を表示してみますか？",
+        "en": "Want to show a triadic scheme?"
+      },
+      "run": [
+        {
+          "name": "SET_HARMONY",
+          "args": {
+            "mode": "triangle"
+          }
+        }
+      ],
+      "exclude_if": {
+        "harmony": "triangle"
+      },
+      "tag": {
+        "ja": "三角配色を表示",
+        "en": "Show triad"
+      }
+    },
+    {
+      "id": "act_harmony_square",
+      "kind": "harmony",
+      "label": {
+        "ja": "四角配色を表示",
+        "en": "Show a tetradic scheme"
+      },
+      "phrase": {
+        "ja": "四角配色を表示してみますか？",
+        "en": "Want to show a tetradic scheme?"
+      },
+      "run": [
+        {
+          "name": "SET_HARMONY",
+          "args": {
+            "mode": "square"
+          }
+        }
+      ],
+      "exclude_if": {
+        "harmony": "square"
+      },
+      "tag": {
+        "ja": "四角配色を表示",
+        "en": "Show tetrad"
+      }
+    },
+    {
+      "id": "act_shape_rgb",
+      "kind": "shape",
+      "label": {
+        "ja": "RGB色空間で見る",
+        "en": "View in RGB space"
+      },
+      "phrase": {
+        "ja": "RGB色空間で見てみますか？",
+        "en": "Want to view it in RGB space?"
+      },
+      "run": [
+        {
+          "name": "CHANGE_SHAPE",
+          "args": {
+            "colorSpace": "RGB"
+          }
+        }
+      ],
+      "exclude_if": {
+        "shape": "RGB"
+      },
+      "tag": {
+        "ja": "RGBで見る",
+        "en": "View in RGB"
+      }
+    },
+    {
+      "id": "act_shape_cmyk",
+      "kind": "shape",
+      "label": {
+        "ja": "CMYK色空間で見る",
+        "en": "View in CMYK space"
+      },
+      "phrase": {
+        "ja": "CMYK色空間で見てみますか？",
+        "en": "Want to view it in CMYK space?"
+      },
+      "run": [
+        {
+          "name": "CHANGE_SHAPE",
+          "args": {
+            "colorSpace": "CMYK"
+          }
+        }
+      ],
+      "exclude_if": {
+        "shape": "CMYK"
+      },
+      "tag": {
+        "ja": "CMYKで見る",
+        "en": "View in CMYK"
+      }
+    },
+    {
+      "id": "act_shape_hsb",
+      "kind": "shape",
+      "label": {
+        "ja": "HSB色空間で見る",
+        "en": "View in HSB space"
+      },
+      "phrase": {
+        "ja": "HSB色空間で見てみますか？",
+        "en": "Want to view it in HSB space?"
+      },
+      "run": [
+        {
+          "name": "CHANGE_SHAPE",
+          "args": {
+            "colorSpace": "HSB"
+          }
+        }
+      ],
+      "exclude_if": {
+        "shape": "HSB"
+      },
+      "tag": {
+        "ja": "HSBで見る",
+        "en": "View in HSB"
+      }
+    },
+    {
+      "id": "act_shape_hsl",
+      "kind": "shape",
+      "label": {
+        "ja": "HSL色空間で見る",
+        "en": "View in HSL space"
+      },
+      "phrase": {
+        "ja": "HSL色空間で見てみますか？",
+        "en": "Want to view it in HSL space?"
+      },
+      "run": [
+        {
+          "name": "CHANGE_SHAPE",
+          "args": {
+            "colorSpace": "HSL"
+          }
+        }
+      ],
+      "exclude_if": {
+        "shape": "HSL"
+      },
+      "tag": {
+        "ja": "HSLで見る",
+        "en": "View in HSL"
+      }
+    },
+    {
+      "id": "act_shape_lab",
+      "kind": "shape",
+      "label": {
+        "ja": "Lab色空間で見る",
+        "en": "View in Lab space"
+      },
+      "phrase": {
+        "ja": "Lab色空間で見てみますか？",
+        "en": "Want to view it in Lab space?"
+      },
+      "run": [
+        {
+          "name": "CHANGE_SHAPE",
+          "args": {
+            "colorSpace": "Lab"
+          }
+        }
+      ],
+      "exclude_if": {
+        "shape": "Lab"
+      },
+      "tag": {
+        "ja": "Labで見る",
+        "en": "View in Lab"
+      }
+    },
+    {
+      "id": "act_shape_lch",
+      "kind": "shape",
+      "label": {
+        "ja": "LCH色空間で見る",
+        "en": "View in LCH space"
+      },
+      "phrase": {
+        "ja": "LCH色空間で見てみますか？",
+        "en": "Want to view it in LCH space?"
+      },
+      "run": [
+        {
+          "name": "CHANGE_SHAPE",
+          "args": {
+            "colorSpace": "LCH"
+          }
+        }
+      ],
+      "exclude_if": {
+        "shape": "LCH"
+      },
+      "tag": {
+        "ja": "LCHで見る",
+        "en": "View in LCH"
+      }
+    },
+    {
+      "id": "act_shape_oklab",
+      "kind": "shape",
+      "label": {
+        "ja": "OKLab色空間で見る",
+        "en": "View in OKLab space"
+      },
+      "phrase": {
+        "ja": "OKLab色空間で見てみますか？",
+        "en": "Want to view it in OKLab space?"
+      },
+      "run": [
+        {
+          "name": "CHANGE_SHAPE",
+          "args": {
+            "colorSpace": "OKLAB"
+          }
+        }
+      ],
+      "exclude_if": {
+        "shape": "OKLAB"
+      },
+      "tag": {
+        "ja": "OKLabで見る",
+        "en": "View in OKLab"
+      }
+    },
+    {
+      "id": "act_shape_oklch",
+      "kind": "shape",
+      "label": {
+        "ja": "OKLCH色空間で見る",
+        "en": "View in OKLCH space"
+      },
+      "phrase": {
+        "ja": "OKLCH色空間で見てみますか？",
+        "en": "Want to view it in OKLCH space?"
+      },
+      "run": [
+        {
+          "name": "CHANGE_SHAPE",
+          "args": {
+            "colorSpace": "OKLCH"
+          }
+        }
+      ],
+      "exclude_if": {
+        "shape": "OKLCH"
+      },
+      "tag": {
+        "ja": "OKLCHで見る",
+        "en": "View in OKLCH"
+      }
+    },
+    {
+      "id": "act_shape_xyz",
+      "kind": "shape",
+      "label": {
+        "ja": "XYZ色空間で見る",
+        "en": "View in XYZ space"
+      },
+      "phrase": {
+        "ja": "XYZ色空間で見てみますか？",
+        "en": "Want to view it in XYZ space?"
+      },
+      "run": [
+        {
+          "name": "CHANGE_SHAPE",
+          "args": {
+            "colorSpace": "XYZ"
+          }
+        }
+      ],
+      "exclude_if": {
+        "shape": "XYZ"
+      },
+      "tag": {
+        "ja": "XYZで見る",
+        "en": "View in XYZ"
+      }
+    },
+    {
+      "id": "act_shape_lms",
+      "kind": "shape",
+      "label": {
+        "ja": "LMS色空間で見る",
+        "en": "View in LMS space"
+      },
+      "phrase": {
+        "ja": "LMS色空間で見てみますか？",
+        "en": "Want to view it in LMS space?"
+      },
+      "run": [
+        {
+          "name": "CHANGE_SHAPE",
+          "args": {
+            "colorSpace": "LMS"
+          }
+        }
+      ],
+      "exclude_if": {
+        "shape": "LMS"
+      },
+      "tag": {
+        "ja": "LMSで見る",
+        "en": "View in LMS"
+      }
+    },
+    {
+      "id": "act_shape_xy",
+      "kind": "shape",
+      "label": {
+        "ja": "色度図で見る",
+        "en": "View in the chromaticity diagram"
+      },
+      "phrase": {
+        "ja": "色度図で見てみますか？",
+        "en": "Want to view it in the chromaticity diagram?"
+      },
+      "run": [
+        {
+          "name": "CHANGE_SHAPE",
+          "args": {
+            "colorSpace": "xy"
+          }
+        }
+      ],
+      "exclude_if": {
+        "shape": "xy"
+      },
+      "tag": {
+        "ja": "色度図で見る",
+        "en": "View as xy"
+      }
+    },
+    {
+      "id": "act_sets_japanese",
+      "kind": "sets",
+      "label": {
+        "ja": "日本の伝統色を表示",
+        "en": "Show Japanese traditional colors"
+      },
+      "phrase": {
+        "ja": "日本の伝統色を表示してみますか？",
+        "en": "Want to show the Japanese traditional colors?"
+      },
+      "run": [
+        {
+          "name": "SET_COLOR_SETS",
+          "args": {
+            "japanese": true
+          }
+        }
+      ],
+      "exclude_if": {
+        "colorSamples": "japanese"
+      },
+      "tag": {
+        "ja": "伝統色を表示",
+        "en": "Japanese colors"
+      }
+    },
+    {
+      "id": "act_sets_css",
+      "kind": "sets",
+      "label": {
+        "ja": "CSS Named Colorsを表示",
+        "en": "Show CSS named colors"
+      },
+      "phrase": {
+        "ja": "CSSの色を表示してみますか？",
+        "en": "Want to show the CSS named colors?"
+      },
+      "run": [
+        {
+          "name": "SET_COLOR_SETS",
+          "args": {
+            "css": true
+          }
+        }
+      ],
+      "exclude_if": {
+        "colorSamples": "css"
+      },
+      "tag": {
+        "ja": "CSSの色を表示",
+        "en": "CSS colors"
+      }
+    },
+    {
+      "id": "act_sets_material",
+      "kind": "sets",
+      "label": {
+        "ja": "Material Design Colorを表示",
+        "en": "Show Material Design colors"
+      },
+      "phrase": {
+        "ja": "マテリアルデザインの色を表示してみますか？",
+        "en": "Want to show the Material Design colors?"
+      },
+      "run": [
+        {
+          "name": "SET_COLOR_SETS",
+          "args": {
+            "material": true
+          }
+        }
+      ],
+      "exclude_if": {
+        "colorSamples": "material"
+      },
+      "tag": {
+        "ja": "Materialを表示",
+        "en": "Material colors"
+      }
+    },
+    {
+      "id": "act_sets_rgbgrid",
+      "kind": "sets",
+      "label": {
+        "ja": "RGB Cube Gridを表示",
+        "en": "Show the RGB cube grid"
+      },
+      "phrase": {
+        "ja": "RGB Cube Gridを表示してみますか？",
+        "en": "Want to show the RGB cube grid?"
+      },
+      "run": [
+        {
+          "name": "SET_COLOR_SETS",
+          "args": {
+            "rgbGrid": true
+          }
+        }
+      ],
+      "exclude_if": {
+        "colorSamples": "rgbGrid"
+      },
+      "tag": {
+        "ja": "RGB Gridを表示",
+        "en": "RGB grid"
+      }
+    },
+    {
+      "id": "act_pick_sky",
+      "kind": "pick",
+      "label": {
+        "ja": "空色を選ぶ",
+        "en": "Pick sky blue"
+      },
+      "phrase": {
+        "ja": "日本の伝統色の「空色」を選んでみますか？",
+        "en": "Want to pick sora-iro, the Japanese traditional sky blue?"
+      },
+      "run": [
+        {
+          "name": "SET_HEX",
+          "args": {
+            "hex": "#a0d8ef",
+            "target": "focused"
+          }
+        }
+      ],
+      "exclude_if": {
+        "hex": "#a0d8ef"
+      },
+      "tag": {
+        "ja": "空色を選ぶ",
+        "en": "Pick sky blue"
+      }
+    },
+    {
+      "id": "act_pick_akane",
+      "kind": "pick",
+      "label": {
+        "ja": "茜色を選ぶ",
+        "en": "Pick madder red"
+      },
+      "phrase": {
+        "ja": "夕焼けのような「茜色」を選んでみますか？",
+        "en": "Want to pick akane-iro, a sunset-like madder red?"
+      },
+      "run": [
+        {
+          "name": "SET_HEX",
+          "args": {
+            "hex": "#b7282e",
+            "target": "focused"
+          }
+        }
+      ],
+      "exclude_if": {
+        "hex": "#b7282e"
+      },
+      "tag": {
+        "ja": "茜色を選ぶ",
+        "en": "Pick madder red"
+      }
+    },
+    {
+      "id": "act_pick_sakura",
+      "kind": "pick",
+      "label": {
+        "ja": "桜色を選ぶ",
+        "en": "Pick cherry blossom pink"
+      },
+      "phrase": {
+        "ja": "パステルカラーの「桜色」を選んでみますか？",
+        "en": "Want to pick sakura-iro, a pastel cherry blossom pink?"
+      },
+      "run": [
+        {
+          "name": "SET_HEX",
+          "args": {
+            "hex": "#fef4f4",
+            "target": "focused"
+          }
+        }
+      ],
+      "exclude_if": {
+        "hex": "#fef4f4"
+      },
+      "tag": {
+        "ja": "桜色を選ぶ",
+        "en": "Pick sakura pink"
+      }
+    },
+    {
+      "id": "act_pick_magenta",
+      "kind": "pick",
+      "label": {
+        "ja": "マゼンタを選ぶ",
+        "en": "Pick magenta"
+      },
+      "phrase": {
+        "ja": "マゼンタを選んでみますか？",
+        "en": "Want to pick magenta?"
+      },
+      "run": [
+        {
+          "name": "SET_HEX",
+          "args": {
+            "hex": "#ff00ff",
+            "target": "focused"
+          }
+        }
+      ],
+      "exclude_if": {
+        "hex": "#ff00ff"
+      },
+      "tag": {
+        "ja": "マゼンタを選ぶ",
+        "en": "Pick magenta"
+      }
+    },
+    {
+      "id": "act_pick_yellow",
+      "kind": "pick",
+      "label": {
+        "ja": "黄色を選ぶ",
+        "en": "Pick yellow"
+      },
+      "phrase": {
+        "ja": "赤と緑の光を混ぜた黄色を選んでみますか？",
+        "en": "Want to pick yellow, the mix of red and green light?"
+      },
+      "run": [
+        {
+          "name": "SET_HEX",
+          "args": {
+            "hex": "#ffff00",
+            "target": "focused"
+          }
+        }
+      ],
+      "exclude_if": {
+        "hex": "#ffff00"
+      },
+      "tag": {
+        "ja": "黄色を選ぶ",
+        "en": "Pick yellow"
+      }
+    },
+    {
+      "id": "act_pick_cyan",
+      "kind": "pick",
+      "label": {
+        "ja": "シアンを選ぶ",
+        "en": "Pick cyan"
+      },
+      "phrase": {
+        "ja": "緑と青の光を混ぜたシアンを選んでみますか？",
+        "en": "Want to pick cyan, the mix of green and blue light?"
+      },
+      "run": [
+        {
+          "name": "SET_HEX",
+          "args": {
+            "hex": "#00ffff",
+            "target": "focused"
+          }
+        }
+      ],
+      "exclude_if": {
+        "hex": "#00ffff"
+      },
+      "tag": {
+        "ja": "シアンを選ぶ",
+        "en": "Pick cyan"
+      }
+    },
+    {
+      "id": "act_bg_black",
+      "kind": "background",
+      "label": {
+        "ja": "背景を黒にする",
+        "en": "Make the background black"
+      },
+      "phrase": {
+        "ja": "背景を黒にして、見え方を比べてみますか？",
+        "en": "Want to make the background black and compare how it looks?"
+      },
+      "run": [
+        {
+          "name": "SET_BACKGROUND_COLOR",
+          "args": {
+            "hex": "#000000"
+          }
+        }
+      ],
+      "exclude_if": {
+        "background": "#000000"
+      },
+      "tag": {
+        "ja": "背景を黒に",
+        "en": "Black background"
+      }
+    },
+    {
+      "id": "act_bg_white",
+      "kind": "background",
+      "label": {
+        "ja": "背景を白にする",
+        "en": "Make the background white"
+      },
+      "phrase": {
+        "ja": "背景を白にして、見え方を比べてみますか？",
+        "en": "Want to make the background white and compare how it looks?"
+      },
+      "run": [
+        {
+          "name": "SET_BACKGROUND_COLOR",
+          "args": {
+            "hex": "#ffffff"
+          }
+        }
+      ],
+      "exclude_if": {
+        "background": "#ffffff"
+      },
+      "tag": {
+        "ja": "背景を白に",
+        "en": "White background"
+      }
+    },
+    {
+      "id": "act_background_contrast",
+      "kind": "background",
+      "label": {
+        "ja": "映える背景色を試す",
+        "en": "Try a background that makes it stand out"
+      },
+      "phrase": {
+        "ja": "この色が映える背景色を試してみますか？",
+        "en": "Want to try a background color that makes this color stand out?"
+      },
+      "instruction": {
+        "ja": "今の色が映える背景色を1つ選んで SET_BACKGROUND_COLOR で設定し、何色にしたかを1文で伝える。",
+        "en": "Choose one background color that makes the current color stand out, set it with SET_BACKGROUND_COLOR, and say in one sentence what you chose."
+      },
+      "tag": {
+        "ja": "映える背景色",
+        "en": "Bold background"
+      }
+    },
+    {
+      "id": "act_bridge_blue_white",
+      "kind": "bridge",
+      "label": {
+        "ja": "青と白のグラデーション",
+        "en": "Blue-to-white gradient"
+      },
+      "phrase": {
+        "ja": "青と白の間のグラデーションを、Lab色空間で見てみますか？",
+        "en": "Want to see the gradient between blue and white, in Lab space?"
+      },
+      "run": [
+        {
+          "name": "CHANGE_SHAPE",
+          "args": {
+            "colorSpace": "Lab"
+          }
+        },
+        {
+          "name": "SET_BRIDGE_COLOR",
+          "args": {
+            "side": "left",
+            "r": 0,
+            "g": 0,
+            "b": 255
+          }
+        },
+        {
+          "name": "SET_BRIDGE_COLOR",
+          "args": {
+            "side": "right",
+            "r": 255,
+            "g": 255,
+            "b": 255
+          }
+        }
+      ],
+      "tag": {
+        "ja": "青→白の階調",
+        "en": "Blue to white"
+      }
+    },
+    {
+      "id": "act_bridge_red_cyan",
+      "kind": "bridge",
+      "label": {
+        "ja": "赤とシアンのグラデーション",
+        "en": "Red-to-cyan gradient"
+      },
+      "phrase": {
+        "ja": "補色どうしの赤とシアンの間のグラデーションを見てみますか？",
+        "en": "Want to see the gradient between red and cyan, a complementary pair?"
+      },
+      "run": [
+        {
+          "name": "CHANGE_SHAPE",
+          "args": {
+            "colorSpace": "RGB"
+          }
+        },
+        {
+          "name": "SET_BRIDGE_COLOR",
+          "args": {
+            "side": "left",
+            "r": 255,
+            "g": 0,
+            "b": 0
+          }
+        },
+        {
+          "name": "SET_BRIDGE_COLOR",
+          "args": {
+            "side": "right",
+            "r": 0,
+            "g": 255,
+            "b": 255
+          }
+        }
+      ],
+      "tag": {
+        "ja": "赤→シアンの階調",
+        "en": "Red to cyan"
+      }
+    },
+    {
+      "id": "act_closest_name",
+      "kind": "query",
+      "label": {
+        "ja": "近い色名を調べる",
+        "en": "Look up the closest color name"
+      },
+      "phrase": {
+        "ja": "この色に一番近い色の名前を調べてみますか？",
+        "en": "Want to look up the name of the closest color?"
+      },
+      "instruction": {
+        "ja": "GET_CLOSEST_COLOR を呼び、結果の色名を1文で伝える。",
+        "en": "Call GET_CLOSEST_COLOR and say the resulting color name in one sentence."
+      },
+      "tag": {
+        "ja": "近い色名",
+        "en": "Closest name"
+      }
+    },
+    {
+      "id": "act_ask_preference",
+      "kind": "talk",
+      "label": {
+        "ja": "好みを聞く",
+        "en": "Ask about their mood"
+      },
+      "phrase": {
+        "ja": "今はどんな色の気分ですか？",
+        "en": "What color are you in the mood for right now?"
+      },
+      "tag": {
+        "ja": "好みを話す",
+        "en": "Your mood"
+      }
+    }
+  ],
+  "contexts": [
+    {
+      "id": "ctx_color_selected",
+      "label": {
+        "ja": "色を選んだ",
+        "en": "A color was picked"
+      }
+    },
+    {
+      "id": "ctx_colors_shown",
+      "label": {
+        "ja": "複数の色を表示した",
+        "en": "Several colors were shown"
+      }
+    },
+    {
+      "id": "ctx_background_set",
+      "label": {
+        "ja": "背景色を変えた",
+        "en": "The background was changed"
+      }
+    }
+  ],
+  "links": [
+    {
+      "from": "act_pick_sky",
+      "to": "sky_blue_reason",
+      "phrase": {
+        "ja": "空は、なぜ青く見えるのでしょう。空が青い理由を見てみますか？",
+        "en": "Why does the sky look blue? Want to find out?"
+      }
+    },
+    {
+      "from": "act_pick_akane",
+      "to": "sunset_red_reason",
+      "phrase": {
+        "ja": "夕焼けは、なぜ赤くなるのでしょう。夕焼けが赤い理由を見てみますか？",
+        "en": "Why do sunsets turn red? Want to find out?"
+      }
+    },
+    {
+      "from": "act_shape_xy",
+      "to": "rainbow_mechanism",
+      "phrase": {
+        "ja": "色度図のふちには、虹の色が並んでいます。虹が見える仕組みを見てみますか？",
+        "en": "The rainbow's colors line the edge of the diagram. Want to see how rainbows form?"
+      }
+    },
+    {
+      "from": "act_shape_xy",
+      "to": "nature_of_light",
+      "phrase": {
+        "ja": "ふちに並ぶのは、波長ごとの光の色です。光の正体を見てみますか？",
+        "en": "The edge shows the color of light at each wavelength. Want to see what light is?"
+      }
+    },
+    {
+      "from": "act_shape_xy",
+      "to": "electromagnetic_wave",
+      "phrase": {
+        "ja": "ふちに並ぶ光は、電磁波のごく一部です。電磁波について見てみますか？",
+        "en": "The light along the edge is a tiny slice of electromagnetic waves. Want to learn about them?"
+      }
+    },
+    {
+      "from": "act_shape_lms",
+      "to": "light_visible_reason",
+      "phrase": {
+        "ja": "LMSは、目の反応で色を表します。光が見える理由を見てみますか？",
+        "en": "LMS describes color by the eye's response. Want to see why we can see light?"
+      }
+    },
+    {
+      "from": "act_shape_lms",
+      "to": "cone_cells",
+      "phrase": {
+        "ja": "L・M・Sは、目の3種類の錐体のことです。錐体について見てみますか？",
+        "en": "L, M and S are the eye's three kinds of cones. Want to learn about cone cells?"
+      }
+    },
+    {
+      "from": "act_shape_lms",
+      "to": "lms_space",
+      "phrase": {
+        "ja": "LMS座標系について、くわしく見てみますか？",
+        "en": "Want to look at the LMS color space in more detail?"
+      }
+    },
+    {
+      "from": "act_shape_lms",
+      "to": "xyz_lms_relation",
+      "phrase": {
+        "ja": "LMSとXYZは、計算でつながっています。2つの関係を見てみますか？",
+        "en": "LMS and XYZ are linked by a calculation. Want to see how they relate?"
+      }
+    },
+    {
+      "from": "act_shape_xyz",
+      "to": "xyz_lms_relation",
+      "phrase": {
+        "ja": "XYZとLMSは、計算でつながっています。2つの関係を見てみますか？",
+        "en": "XYZ and LMS are linked by a calculation. Want to see how they relate?"
+      }
+    },
+    {
+      "from": "act_shape_xy",
+      "to": "visible_gamut",
+      "phrase": {
+        "ja": "人が見分けられる色は、この馬蹄形の中に収まります。見てみますか？",
+        "en": "Every color people can see fits inside this horseshoe. Want to see?"
+      }
+    },
+    {
+      "from": "act_pick_cyan",
+      "to": "blue_green_cyan",
+      "phrase": {
+        "ja": "シアンは、緑と青の光を混ぜた色です。なぜそうなるのか見てみますか？",
+        "en": "Cyan is what green and blue light make together. Want to see why?"
+      }
+    },
+    {
+      "from": "act_pick_magenta",
+      "to": "magenta_not_in_rainbow",
+      "phrase": {
+        "ja": "マゼンタは、虹に無い色です。その理由を見てみますか？",
+        "en": "Magenta is a color not found in the rainbow. Want to see why?"
+      }
+    },
+    {
+      "from": "act_shape_xy",
+      "to": "magenta_not_in_rainbow",
+      "phrase": {
+        "ja": "色度図の下の直線には、虹に無いマゼンタなどが並びます。見てみますか？",
+        "en": "The straight bottom edge holds colors like magenta that the rainbow lacks. Want to see?"
+      }
+    },
+    {
+      "from": "act_pick_yellow",
+      "to": "red_green_yellow",
+      "phrase": {
+        "ja": "赤と緑の光を混ぜると、なぜ黄色になるのか見てみますか？",
+        "en": "Want to see why red and green light make yellow?"
+      }
+    },
+    {
+      "from": "act_shape_rgb",
+      "to": "rgb_primary",
+      "phrase": {
+        "ja": "RGBの3つの軸は、光の三原色です。光の三原色を見てみますか？",
+        "en": "RGB's three axes are the primary colors of light. Want to see them?"
+      }
+    },
+    {
+      "from": "act_shape_rgb",
+      "to": "screen_mechanism",
+      "phrase": {
+        "ja": "画面は、RGBの光で色を作っています。画面の仕組みを見てみますか？",
+        "en": "Screens make colors from RGB light. Want to see how screens work?"
+      }
+    },
+    {
+      "from": "act_shape_cmyk",
+      "to": "cmy_primary",
+      "phrase": {
+        "ja": "CMYKの元になる、色材の三原色を見てみますか？",
+        "en": "Want to see the primary colors of pigment that CMYK is built on?"
+      }
+    },
+    {
+      "from": "act_pick_magenta",
+      "to": "cmy_primary",
+      "phrase": {
+        "ja": "マゼンタは、色材の三原色の一つです。色材の三原色を見てみますか？",
+        "en": "Magenta is one of the primary colors of pigment. Want to see them?"
+      }
+    },
+    {
+      "from": "act_shape_cmyk",
+      "to": "cmyk_space",
+      "phrase": {
+        "ja": "CMYK色空間について、くわしく見てみますか？",
+        "en": "Want to look at the CMYK color space in more detail?"
+      }
+    },
+    {
+      "from": "act_bridge_red_cyan",
+      "to": "light_pigment_primary_relation",
+      "phrase": {
+        "ja": "赤とシアンのように、光の三原色と色材の三原色は補色の関係です。見てみますか？",
+        "en": "Like red and cyan, light primaries and pigment primaries are complements. Want to see?"
+      }
+    },
+    {
+      "from": "act_pick_cyan",
+      "to": "light_pigment_primary_relation",
+      "phrase": {
+        "ja": "シアンは、赤の補色で、色材の三原色の一つです。光と色材の三原色の関係を見てみますか？",
+        "en": "Cyan is red's complement and a pigment primary. Want to see how light and pigment primaries relate?"
+      }
+    },
+    {
+      "from": "act_shape_rgb",
+      "to": "rgb_space",
+      "phrase": {
+        "ja": "RGB色空間について、くわしく見てみますか？",
+        "en": "Want to look at the RGB color space in more detail?"
+      }
+    },
+    {
+      "from": "act_sets_rgbgrid",
+      "to": "rgb_space",
+      "phrase": {
+        "ja": "このColor SampleはRGBを元に作られています。RGB色空間も見てみますか？",
+        "en": "These samples are built on RGB. Want to see the RGB color space?"
+      }
+    },
+    {
+      "from": "act_sets_rgbgrid",
+      "to": "rgb_cube_grid",
+      "phrase": {
+        "ja": "RGB Cube Gridの並び方を、スライドで見てみますか？",
+        "en": "Want to see how the RGB cube grid is laid out?"
+      }
+    },
+    {
+      "from": "act_sets_css",
+      "to": "hex_code",
+      "phrase": {
+        "ja": "CSSの色は、HEXコードでも書けます。HEXコードについて見てみますか？",
+        "en": "CSS colors can also be written as HEX codes. Want to learn about HEX codes?"
+      }
+    },
+    {
+      "from": "act_shape_xyz",
+      "to": "rgb_xyz_relation",
+      "phrase": {
+        "ja": "RGBとXYZは、計算でつながっています。2つの関係を見てみますか？",
+        "en": "RGB and XYZ are linked by a calculation. Want to see how they relate?"
+      }
+    },
+    {
+      "from": "act_shape_xyz",
+      "to": "xyz_space",
+      "phrase": {
+        "ja": "XYZ空間について、くわしく見てみますか？",
+        "en": "Want to look at the XYZ color space in more detail?"
+      }
+    },
+    {
+      "from": "act_shape_xy",
+      "to": "chromaticity_diagram",
+      "phrase": {
+        "ja": "色度図の読み方を、スライドで見てみますか？",
+        "en": "Want to see how to read the chromaticity diagram?"
+      }
+    },
+    {
+      "from": "act_shape_xy",
+      "to": "display_gamut",
+      "phrase": {
+        "ja": "画面で表示できるのは、この中の三角形だけです。見てみますか？",
+        "en": "A screen can only show the triangle inside it. Want to see?"
+      }
+    },
+    {
+      "from": "act_shape_hsl",
+      "to": "hsl_space",
+      "phrase": {
+        "ja": "HSL色空間について、くわしく見てみますか？",
+        "en": "Want to look at the HSL color space in more detail?"
+      }
+    },
+    {
+      "from": "act_shape_hsb",
+      "to": "hsb_space",
+      "phrase": {
+        "ja": "HSB色空間について、くわしく見てみますか？",
+        "en": "Want to look at the HSB color space in more detail?"
+      }
+    },
+    {
+      "from": "act_shape_hsb",
+      "to": "hsb_vs_hsl",
+      "phrase": {
+        "ja": "HSBとHSLは似ていますが、明るさの決め方が違います。比べてみますか？",
+        "en": "HSB and HSL look alike but measure lightness differently. Want to compare?"
+      }
+    },
+    {
+      "from": "act_shape_hsl",
+      "to": "hsb_vs_hsl",
+      "phrase": {
+        "ja": "HSLとHSBは似ていますが、明るさの決め方が違います。比べてみますか？",
+        "en": "HSL and HSB look alike but measure lightness differently. Want to compare?"
+      }
+    },
+    {
+      "from": "act_sets_css",
+      "to": "css_color",
+      "phrase": {
+        "ja": "CSS Named Colorsについて、スライドで見てみますか？",
+        "en": "Want to learn about the CSS named colors?"
+      }
+    },
+    {
+      "from": "act_sets_material",
+      "to": "material_design_color",
+      "phrase": {
+        "ja": "Material Design Colorについて、スライドで見てみますか？",
+        "en": "Want to learn about the Material Design colors?"
+      }
+    },
+    {
+      "from": "act_shape_xyz",
+      "to": "color_matching_experiment",
+      "phrase": {
+        "ja": "XYZは、等色実験の結果から作られました。等色実験を見てみますか？",
+        "en": "XYZ was built from color matching experiments. Want to see how they work?"
+      }
+    },
+    {
+      "from": "act_shape_lab",
+      "to": "lab_space",
+      "phrase": {
+        "ja": "Lab色空間について、くわしく見てみますか？",
+        "en": "Want to look at the Lab color space in more detail?"
+      }
+    },
+    {
+      "from": "act_shape_lch",
+      "to": "lch_space",
+      "phrase": {
+        "ja": "LCH色空間について、くわしく見てみますか？",
+        "en": "Want to look at the LCH color space in more detail?"
+      }
+    },
+    {
+      "from": "act_shape_oklab",
+      "to": "oklab_space",
+      "phrase": {
+        "ja": "OKLab色空間について、くわしく見てみますか？",
+        "en": "Want to look at the OKLab color space in more detail?"
+      }
+    },
+    {
+      "from": "act_shape_oklch",
+      "to": "oklch_space",
+      "phrase": {
+        "ja": "OKLCH色空間について、くわしく見てみますか？",
+        "en": "Want to look at the OKLCH color space in more detail?"
+      }
+    },
+    {
+      "from": "act_bridge_blue_white",
+      "to": "lab_vs_oklab",
+      "phrase": {
+        "ja": "途中が紫っぽく見えるのは、Labの性質です。LabとOKLabの違いを見てみますか？",
+        "en": "The purplish middle comes from Lab itself. Want to see how Lab and OKLab differ?"
+      }
+    },
+    {
+      "from": "act_bridge_blue_white",
+      "to": "oklch_vs_lch",
+      "phrase": {
+        "ja": "同じずれは、LCHにもあります。LCHとOKLCHの違いを見てみますか？",
+        "en": "LCH has the same drift. Want to see how LCH and OKLCH differ?"
+      }
+    },
+    {
+      "from": "act_bg_black",
+      "to": "color_size",
+      "phrase": {
+        "ja": "背景が暗いと、明るい色は大きく見えます。色の大きさを見てみますか？",
+        "en": "On a dark background, light colors look bigger. Want to see the size of colors?"
+      }
+    },
+    {
+      "from": "act_lighter",
+      "to": "color_size",
+      "phrase": {
+        "ja": "明るい色ほど、大きく見えます。色の大きさを見てみますか？",
+        "en": "Lighter colors look bigger. Want to see the size of colors?"
+      }
+    },
+    {
+      "from": "act_lighter",
+      "to": "color_weight",
+      "phrase": {
+        "ja": "明るい色ほど、軽く感じられます。色の重みを見てみますか？",
+        "en": "Lighter colors feel lighter in weight. Want to see the weight of colors?"
+      }
+    },
+    {
+      "from": "act_darker",
+      "to": "color_weight",
+      "phrase": {
+        "ja": "暗い色ほど、重く感じられます。色の重みを見てみますか？",
+        "en": "Darker colors feel heavier. Want to see the weight of colors?"
+      }
+    },
+    {
+      "from": "act_shape_hsl",
+      "to": "color_distortion",
+      "phrase": {
+        "ja": "HSLでは、明るさの値がそろっていても、見た目の明るさはそろいません。色の歪みを見てみますか？",
+        "en": "In HSL, equal lightness values don't look equally light. Want to see color distortion?"
+      }
+    },
+    {
+      "from": "act_shape_oklch",
+      "to": "color_distortion",
+      "phrase": {
+        "ja": "OKLCHは、見た目の歪みが少ない色空間です。色の歪みについて見てみますか？",
+        "en": "OKLCH is a space with little visual distortion. Want to learn about color distortion?"
+      }
+    },
+    {
+      "from": "act_pick_akane",
+      "to": "warm_cool_colors",
+      "phrase": {
+        "ja": "茜色のような赤は、暖色です。暖色と寒色を見てみますか？",
+        "en": "Reds like this are warm colors. Want to see warm and cool colors?"
+      }
+    },
+    {
+      "from": "act_pick_sky",
+      "to": "warm_cool_colors",
+      "phrase": {
+        "ja": "空色のような青は、寒色です。暖色と寒色を見てみますか？",
+        "en": "Blues like this are cool colors. Want to see warm and cool colors?"
+      }
+    },
+    {
+      "from": "act_shift_hue",
+      "to": "warm_cool_colors",
+      "phrase": {
+        "ja": "色相を回すと、暖かい色にも冷たい色にもなります。暖色と寒色を見てみますか？",
+        "en": "Turning the hue can make a color warm or cool. Want to see warm and cool colors?"
+      }
+    },
+    {
+      "from": "act_closest_name",
+      "to": "color_difference",
+      "phrase": {
+        "ja": "近い色は、色差という値で探しています。色差について見てみますか？",
+        "en": "Close colors are found by a value called color difference. Want to learn about it?"
+      }
+    },
+    {
+      "from": "act_bg_black",
+      "to": "color_illusion",
+      "phrase": {
+        "ja": "同じ色でも、背景によって違う色に見えます。色の錯視を見てみますか？",
+        "en": "The same color looks different on different backgrounds. Want to see color illusions?"
+      }
+    },
+    {
+      "from": "act_bg_white",
+      "to": "color_illusion",
+      "phrase": {
+        "ja": "同じ色でも、背景によって違う色に見えます。色の錯視を見てみますか？",
+        "en": "The same color looks different on different backgrounds. Want to see color illusions?"
+      }
+    },
+    {
+      "from": "act_background_contrast",
+      "to": "contrast_readability",
+      "phrase": {
+        "ja": "読みやすさには、背景との明るさの差が大切です。コントラストと読みやすさを見てみますか？",
+        "en": "Readability depends on the lightness difference from the background. Want to see contrast and readability?"
+      }
+    },
+    {
+      "from": "act_bg_white",
+      "to": "contrast_readability",
+      "phrase": {
+        "ja": "背景との明るさの差が、読みやすさを決めます。コントラストと読みやすさを見てみますか？",
+        "en": "The lightness difference from the background decides readability. Want to see contrast and readability?"
+      }
+    },
+    {
+      "from": "act_bg_black",
+      "to": "contrast_readability",
+      "phrase": {
+        "ja": "背景との明るさの差が、読みやすさを決めます。コントラストと読みやすさを見てみますか？",
+        "en": "The lightness difference from the background decides readability. Want to see contrast and readability?"
+      }
+    },
+    {
+      "from": "act_more_vivid",
+      "to": "saturation",
+      "phrase": {
+        "ja": "鮮やかさは、彩度という値で表します。彩度について見てみますか？",
+        "en": "Vividness is measured as saturation. Want to learn about saturation?"
+      }
+    },
+    {
+      "from": "act_less_vivid",
+      "to": "saturation",
+      "phrase": {
+        "ja": "鮮やかさは、彩度という値で表します。彩度について見てみますか？",
+        "en": "Vividness is measured as saturation. Want to learn about saturation?"
+      }
+    },
+    {
+      "from": "act_make_gray",
+      "to": "saturation",
+      "phrase": {
+        "ja": "彩度が0になると、グレーになります。彩度について見てみますか？",
+        "en": "At zero saturation a color becomes gray. Want to learn about saturation?"
+      }
+    },
+    {
+      "from": "act_shift_hue",
+      "to": "hue",
+      "phrase": {
+        "ja": "色相は、色の種類のことです。色相について見てみますか？",
+        "en": "Hue is the kind of color. Want to learn about hue?"
+      }
+    },
+    {
+      "from": "act_hue_opposite",
+      "to": "hue",
+      "phrase": {
+        "ja": "色相を180度回すと、反対側の色になります。色相について見てみますか？",
+        "en": "Turning the hue by 180 degrees gives the opposite color. Want to learn about hue?"
+      }
+    },
+    {
+      "from": "act_shift_hue",
+      "to": "hue_circle",
+      "phrase": {
+        "ja": "色相を回すと、色相環の上を進みます。色相環を見てみますか？",
+        "en": "Turning the hue moves you around the color wheel. Want to see it?"
+      }
+    },
+    {
+      "from": "act_harmony_complementary",
+      "to": "hue_circle",
+      "phrase": {
+        "ja": "補色は、色相環の向かい側にある色です。色相環を見てみますか？",
+        "en": "A complement sits opposite on the color wheel. Want to see the color wheel?"
+      }
+    },
+    {
+      "from": "act_harmony_complementary",
+      "to": "complementary_colors",
+      "phrase": {
+        "ja": "補色について、スライドでくわしく見てみますか？",
+        "en": "Want to learn more about complementary colors?"
+      }
+    },
+    {
+      "from": "act_hue_opposite",
+      "to": "complementary_colors",
+      "phrase": {
+        "ja": "反対側の色は、元の色の補色です。補色について見てみますか？",
+        "en": "The opposite color is the original's complement. Want to learn about complementary colors?"
+      }
+    },
+    {
+      "from": "act_bridge_red_cyan",
+      "to": "complementary_colors",
+      "phrase": {
+        "ja": "赤とシアンは補色どうしです。補色について見てみますか？",
+        "en": "Red and cyan are complements. Want to learn about complementary colors?"
+      }
+    },
+    {
+      "from": "act_harmony_triad",
+      "to": "triadic_colors",
+      "phrase": {
+        "ja": "三角配色について、スライドで見てみますか？",
+        "en": "Want to learn more about triadic schemes?"
+      }
+    },
+    {
+      "from": "act_harmony_square",
+      "to": "tetradic_colors",
+      "phrase": {
+        "ja": "四角配色について、スライドで見てみますか？",
+        "en": "Want to learn more about tetradic schemes?"
+      }
+    },
+    {
+      "from": "act_harmony_complementary",
+      "to": "color_harmony",
+      "phrase": {
+        "ja": "補色や三角配色などを、カラーハーモニーとしてまとめて見てみますか？",
+        "en": "Want to see complements, triads and more together as color harmony?"
+      }
+    },
+    {
+      "from": "act_harmony_triad",
+      "to": "color_harmony",
+      "phrase": {
+        "ja": "補色や三角配色などを、カラーハーモニーとしてまとめて見てみますか？",
+        "en": "Want to see complements, triads and more together as color harmony?"
+      }
+    },
+    {
+      "from": "act_harmony_square",
+      "to": "color_harmony",
+      "phrase": {
+        "ja": "補色や三角配色などを、カラーハーモニーとしてまとめて見てみますか？",
+        "en": "Want to see complements, triads and more together as color harmony?"
+      }
+    },
+    {
+      "from": "act_lighter",
+      "to": "tone",
+      "phrase": {
+        "ja": "明るさと鮮やかさの調子を、トーンと呼びます。トーンについて見てみますか？",
+        "en": "The mix of lightness and vividness is called tone. Want to learn about tone?"
+      }
+    },
+    {
+      "from": "act_less_vivid",
+      "to": "tone",
+      "phrase": {
+        "ja": "明るさと鮮やかさの調子を、トーンと呼びます。トーンについて見てみますか？",
+        "en": "The mix of lightness and vividness is called tone. Want to learn about tone?"
+      }
+    },
+    {
+      "from": "act_make_gray",
+      "to": "monochrome_colors",
+      "phrase": {
+        "ja": "グレーだけでも、明るさの違いで形は伝わります。モノクロカラーを見てみますか？",
+        "en": "Even in gray, shapes come across through lightness. Want to see monochrome colors?"
+      }
+    },
+    {
+      "from": "act_less_vivid",
+      "to": "monochrome_colors",
+      "phrase": {
+        "ja": "1つの色相だけで作る配色もあります。モノクロカラーを見てみますか？",
+        "en": "Some schemes use a single hue. Want to see monochrome colors?"
+      }
+    },
+    {
+      "from": "act_pick_sakura",
+      "to": "pastel_colors",
+      "phrase": {
+        "ja": "桜色のような明るくやわらかい色を、パステルカラーと呼びます。見てみますか？",
+        "en": "Soft, light colors like this are called pastels. Want to see?"
+      }
+    },
+    {
+      "from": "act_lighter",
+      "to": "pastel_colors",
+      "phrase": {
+        "ja": "明るく、少しくすませると、パステルカラーになります。見てみますか？",
+        "en": "Lighter and a little muted gives you a pastel. Want to see pastel colors?"
+      }
+    },
+    {
+      "from": "act_less_vivid",
+      "to": "pastel_colors",
+      "phrase": {
+        "ja": "明るく、少しくすませると、パステルカラーになります。見てみますか？",
+        "en": "Lighter and a little muted gives you a pastel. Want to see pastel colors?"
+      }
+    },
+    {
+      "from": "act_less_vivid",
+      "to": "color_unity",
+      "phrase": {
+        "ja": "鮮やかさをそろえると、配色にまとまりが出ます。色の統一感を見てみますか？",
+        "en": "Matching vividness pulls a scheme together. Want to see color unity?"
+      }
+    },
+    {
+      "from": "act_harmony_complementary",
+      "to": "color_proportion",
+      "phrase": {
+        "ja": "補色は、アクセントとして少しだけ使うと効果的です。配色の比率を見てみますか？",
+        "en": "A complement works best as a small accent. Want to see color proportions?"
+      }
+    },
+    {
+      "from": "act_background_contrast",
+      "to": "color_contrast",
+      "phrase": {
+        "ja": "色どうしの差を、コントラストと呼びます。コントラストについて見てみますか？",
+        "en": "The difference between colors is called contrast. Want to learn about it?"
+      }
+    },
+    {
+      "from": "act_hue_opposite",
+      "to": "color_contrast",
+      "phrase": {
+        "ja": "補色どうしは、最も強い対比になります。コントラストについて見てみますか？",
+        "en": "Complements make the strongest contrast. Want to learn about contrast?"
+      }
+    },
+    {
+      "from": "act_bg_black",
+      "to": "color_contrast",
+      "phrase": {
+        "ja": "背景との明るさの差も、コントラストの一つです。コントラストについて見てみますか？",
+        "en": "The lightness difference from the background is a kind of contrast too. Want to learn about it?"
+      }
+    },
+    {
+      "from": "act_sets_japanese",
+      "to": "japanese_traditional_colors",
+      "phrase": {
+        "ja": "日本の伝統色について、スライドで見てみますか？",
+        "en": "Want to learn about Japanese traditional colors?"
+      }
+    },
+    {
+      "from": "act_closest_name",
+      "to": "japanese_traditional_colors",
+      "phrase": {
+        "ja": "近い色の名前には、日本の伝統色もあります。日本の伝統色について見てみますか？",
+        "en": "Close color names include Japanese traditional colors. Want to learn about them?"
+      }
+    },
+    {
+      "from": "act_sets_japanese",
+      "to": "color_samples",
+      "phrase": {
+        "ja": "このアプリで表示できる色見本を、まとめて見てみますか？",
+        "en": "Want to see all the color sample sets this app can show?"
+      }
+    },
+    {
+      "from": "act_sets_css",
+      "to": "color_samples",
+      "phrase": {
+        "ja": "このアプリで表示できる色見本を、まとめて見てみますか？",
+        "en": "Want to see all the color sample sets this app can show?"
+      }
+    },
+    {
+      "from": "act_sets_material",
+      "to": "color_samples",
+      "phrase": {
+        "ja": "このアプリで表示できる色見本を、まとめて見てみますか？",
+        "en": "Want to see all the color sample sets this app can show?"
+      }
+    },
+    {
+      "from": "act_sets_rgbgrid",
+      "to": "color_samples",
+      "phrase": {
+        "ja": "このアプリで表示できる色見本を、まとめて見てみますか？",
+        "en": "Want to see all the color sample sets this app can show?"
+      }
+    },
+    {
+      "from": "act_closest_name",
+      "to": "color_samples",
+      "phrase": {
+        "ja": "色の名前は、いくつかの色見本から探しています。色見本について見てみますか？",
+        "en": "Color names come from several sample sets. Want to see them?"
+      }
+    },
+    {
+      "from": "act_lighter",
+      "to": "brightness",
+      "phrase": {
+        "ja": "明るさを表す値の一つが、HSBの明度です。明度について見てみますか？",
+        "en": "One measure of lightness is HSB's brightness. Want to learn about it?"
+      }
+    },
+    {
+      "from": "act_lighter",
+      "to": "lightness",
+      "phrase": {
+        "ja": "明るさを表す値には、HSLの輝度もあります。輝度について見てみますか？",
+        "en": "HSL's lightness is another measure of it. Want to learn about it?"
+      }
+    },
+    {
+      "from": "act_darker",
+      "to": "brightness",
+      "phrase": {
+        "ja": "明るさを表す値の一つが、HSBの明度です。明度について見てみますか？",
+        "en": "One measure of lightness is HSB's brightness. Want to learn about it?"
+      }
+    },
+    {
+      "from": "act_darker",
+      "to": "lightness",
+      "phrase": {
+        "ja": "明るさを表す値には、HSLの輝度もあります。輝度について見てみますか？",
+        "en": "HSL's lightness is another measure of it. Want to learn about it?"
+      }
+    },
+    {
+      "from": "act_shape_hsb",
+      "to": "brightness",
+      "phrase": {
+        "ja": "HSBのBは、明度という明るさの値です。明度について見てみますか？",
+        "en": "HSB's B is a lightness value called brightness. Want to learn about it?"
+      }
+    },
+    {
+      "from": "act_shape_hsl",
+      "to": "lightness",
+      "phrase": {
+        "ja": "HSLのLは、輝度という明るさの値です。輝度について見てみますか？",
+        "en": "HSL's L is a value called lightness. Want to learn about it?"
+      }
+    },
+    {
+      "from": "act_shape_lab",
+      "to": "various_color_spaces",
+      "phrase": {
+        "ja": "目的に合わせて、色空間にはたくさんの種類があります。様々な色空間を見てみますか？",
+        "en": "There are many color spaces for different purposes. Want to see the family of color spaces?"
+      }
+    },
+    {
+      "from": "act_shape_oklch",
+      "to": "various_color_spaces",
+      "phrase": {
+        "ja": "目的に合わせて、色空間にはたくさんの種類があります。様々な色空間を見てみますか？",
+        "en": "There are many color spaces for different purposes. Want to see the family of color spaces?"
+      }
+    },
+    {
+      "from": "act_shape_cmyk",
+      "to": "various_color_spaces",
+      "phrase": {
+        "ja": "目的に合わせて、色空間にはたくさんの種類があります。様々な色空間を見てみますか？",
+        "en": "There are many color spaces for different purposes. Want to see the family of color spaces?"
+      }
+    },
+    {
+      "from": "act_shape_lms",
+      "to": "oklch_lineage",
+      "phrase": {
+        "ja": "色空間どうしのつながりを、系統図で見てみますか？",
+        "en": "Want to see how color spaces relate, on a family tree?"
+      }
+    },
+    {
+      "from": "act_shape_oklab",
+      "to": "oklch_lineage",
+      "phrase": {
+        "ja": "色空間どうしのつながりを、系統図で見てみますか？",
+        "en": "Want to see how color spaces relate, on a family tree?"
+      }
+    },
+    {
+      "from": "ctx_color_selected",
+      "to": "hue",
+      "phrase": {
+        "ja": "この色の種類を表すのが、色相です。色相について見てみますか？",
+        "en": "A color's kind is called its hue. Want to learn about hue?"
+      }
+    },
+    {
+      "from": "ctx_color_selected",
+      "to": "tone",
+      "phrase": {
+        "ja": "この色の明るさと鮮やかさの調子を、トーンと呼びます。トーンについて見てみますか？",
+        "en": "This color's mix of lightness and vividness is its tone. Want to learn about tone?"
+      }
+    },
+    {
+      "from": "ctx_color_selected",
+      "to": "warm_cool_colors",
+      "phrase": {
+        "ja": "この色は、暖色でしょうか、寒色でしょうか。暖色と寒色を見てみますか？",
+        "en": "Is this a warm color or a cool one? Want to see warm and cool colors?"
+      }
+    },
+    {
+      "from": "ctx_background_set",
+      "to": "color_contrast",
+      "phrase": {
+        "ja": "背景との差も、コントラストの一つです。コントラストについて見てみますか？",
+        "en": "The difference from the background is a kind of contrast. Want to learn about it?"
+      }
+    },
+    {
+      "from": "ctx_background_set",
+      "to": "contrast_readability",
+      "phrase": {
+        "ja": "背景との明るさの差が、読みやすさを決めます。コントラストと読みやすさを見てみますか？",
+        "en": "The lightness difference from the background decides readability. Want to see contrast and readability?"
+      }
+    },
+    {
+      "from": "ctx_background_set",
+      "to": "color_illusion",
+      "phrase": {
+        "ja": "同じ色でも、背景によって違う色に見えます。色の錯視を見てみますか？",
+        "en": "The same color looks different on different backgrounds. Want to see color illusions?"
+      }
+    },
+    {
+      "from": "act_ask_preference",
+      "to": "warm_cool_colors",
+      "phrase": {
+        "ja": "色によって、暖かさや冷たさの印象が違います。暖色と寒色を見てみますか？",
+        "en": "Colors feel warm or cool. Want to see warm and cool colors?"
+      }
+    },
+    {
+      "from": "act_ask_preference",
+      "to": "color_weight",
+      "phrase": {
+        "ja": "色には、重さの印象もあります。色の重みを見てみますか？",
+        "en": "Colors also feel heavy or light. Want to see the weight of colors?"
+      }
+    },
+    {
+      "from": "ctx_color_selected",
+      "to": "act_harmony_complementary"
+    },
+    {
+      "from": "ctx_color_selected",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "ctx_color_selected",
+      "to": "act_lighter"
+    },
+    {
+      "from": "ctx_color_selected",
+      "to": "act_more_vivid"
+    },
+    {
+      "from": "ctx_color_selected",
+      "to": "act_background_contrast"
+    },
+    {
+      "from": "ctx_color_selected",
+      "to": "act_ask_preference"
+    },
+    {
+      "from": "ctx_colors_shown",
+      "to": "act_harmony_complementary"
+    },
+    {
+      "from": "ctx_colors_shown",
+      "to": "act_ask_preference"
+    },
+    {
+      "from": "ctx_background_set",
+      "to": "act_background_contrast"
+    },
+    {
+      "from": "act_lighter",
+      "to": "act_darker",
+      "both": true
+    },
+    {
+      "from": "act_more_vivid",
+      "to": "act_less_vivid",
+      "both": true
+    },
+    {
+      "from": "act_lighter",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "act_darker",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "act_more_vivid",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "act_less_vivid",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "act_more_vivid",
+      "to": "act_lighter"
+    },
+    {
+      "from": "act_less_vivid",
+      "to": "act_lighter"
+    },
+    {
+      "from": "act_make_gray",
+      "to": "act_more_vivid"
+    },
+    {
+      "from": "act_shift_hue",
+      "to": "act_harmony_complementary"
+    },
+    {
+      "from": "act_shift_hue",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "act_hue_opposite",
+      "to": "act_harmony_complementary"
+    },
+    {
+      "from": "act_hue_opposite",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "act_harmony_complementary",
+      "to": "act_harmony_triad",
+      "both": true
+    },
+    {
+      "from": "act_harmony_triad",
+      "to": "act_harmony_square",
+      "both": true
+    },
+    {
+      "from": "act_harmony_complementary",
+      "to": "act_background_contrast"
+    },
+    {
+      "from": "act_pick_sky",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "act_pick_sky",
+      "to": "act_harmony_complementary"
+    },
+    {
+      "from": "act_pick_akane",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "act_pick_akane",
+      "to": "act_harmony_complementary"
+    },
+    {
+      "from": "act_pick_sakura",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "act_pick_sakura",
+      "to": "act_harmony_complementary"
+    },
+    {
+      "from": "act_pick_magenta",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "act_pick_magenta",
+      "to": "act_harmony_complementary"
+    },
+    {
+      "from": "act_pick_yellow",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "act_pick_yellow",
+      "to": "act_harmony_complementary"
+    },
+    {
+      "from": "act_pick_cyan",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "act_pick_cyan",
+      "to": "act_harmony_complementary"
+    },
+    {
+      "from": "act_bg_black",
+      "to": "act_bg_white",
+      "both": true
+    },
+    {
+      "from": "act_bg_black",
+      "to": "act_background_contrast"
+    },
+    {
+      "from": "act_bg_white",
+      "to": "act_background_contrast"
+    },
+    {
+      "from": "act_sets_japanese",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "act_sets_css",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "act_sets_material",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "act_sets_rgbgrid",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "act_sets_japanese",
+      "to": "act_sets_css",
+      "both": true
+    },
+    {
+      "from": "act_sets_css",
+      "to": "act_sets_material",
+      "both": true
+    },
+    {
+      "from": "act_sets_material",
+      "to": "act_sets_japanese",
+      "both": true
+    },
+    {
+      "from": "act_sets_rgbgrid",
+      "to": "act_sets_css",
+      "both": true
+    },
+    {
+      "from": "act_shape_rgb",
+      "to": "act_shape_cmyk",
+      "both": true
+    },
+    {
+      "from": "act_shape_hsb",
+      "to": "act_shape_hsl",
+      "both": true
+    },
+    {
+      "from": "act_shape_lab",
+      "to": "act_shape_lch",
+      "both": true
+    },
+    {
+      "from": "act_shape_lab",
+      "to": "act_shape_oklab",
+      "both": true
+    },
+    {
+      "from": "act_shape_lch",
+      "to": "act_shape_oklch",
+      "both": true
+    },
+    {
+      "from": "act_shape_oklab",
+      "to": "act_shape_oklch",
+      "both": true
+    },
+    {
+      "from": "act_shape_xyz",
+      "to": "act_shape_xy",
+      "both": true
+    },
+    {
+      "from": "act_shape_xyz",
+      "to": "act_shape_lms",
+      "both": true
+    },
+    {
+      "from": "act_bridge_blue_white",
+      "to": "act_shape_lch"
+    }
+  ]
+}
