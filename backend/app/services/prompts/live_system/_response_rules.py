@@ -45,7 +45,6 @@ RESPONSE_RULES_JA = """\
 - HSB → エイチエスビー
 - HSL → エイチエスエル
 - CIE → シーアイイー
-- 色差 → しきさ
 - 錯視 → さくし
 
 ## tool call 共通ルール
