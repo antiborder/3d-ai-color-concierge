@@ -60,8 +60,9 @@ interface VoiceControlProps {
   isLoading?: boolean;
   onSpeak?: (text: string) => void;
   helpRequest?: { text: string; id: number } | null;
-  // A recommendation tag under a slide was pressed (nonce distinguishes repeated presses)
-  tagRequest?: { id: string; nonce: number } | null;
+  // A topic was chosen from a tag under a slide or from the topic network
+  // (nonce distinguishes repeated presses)
+  tagRequest?: { id: string; nonce: number; source: 'tag' | 'network' } | null;
 }
 
 const VoiceControl = ({
@@ -89,6 +90,7 @@ const VoiceControl = ({
   const pendingHelpRef = useRef<string | null>(null);
   const lastHelpIdRef = useRef<number>(0);
   const lastTagNonceRef = useRef<number>(0);
+  const pendingTagRef = useRef<{ id: string; source: 'tag' | 'network' } | null>(null);
 
   const SESSION_LIMIT_MS = 5 * 60 * 1000;
 
@@ -183,12 +185,25 @@ const VoiceControl = ({
     }
   }, [isConnected, sendTextMessage]);
 
-  // React to a pressed recommendation tag (slides only appear during a session, so it is connected)
+  // Send a topic chosen before the session was connected (from the topic network)
+  useEffect(() => {
+    if (isConnected && pendingTagRef.current) {
+      sendTagSelected(pendingTagRef.current.id, pendingTagRef.current.source);
+      pendingTagRef.current = null;
+    }
+  }, [isConnected, sendTagSelected]);
+
+  // React to a topic chosen from a tag or the topic network; start a session if there is none
   useEffect(() => {
     if (!tagRequest || tagRequest.nonce === lastTagNonceRef.current) return;
     lastTagNonceRef.current = tagRequest.nonce;
     clearSubtitle();
-    sendTagSelected(tagRequest.id);
+    if (isConnected) {
+      sendTagSelected(tagRequest.id, tagRequest.source);
+    } else {
+      pendingTagRef.current = { id: tagRequest.id, source: tagRequest.source };
+      if (!isStreaming && !isConnecting) void start({ skipIntro: true, skipGreeting: true });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tagRequest]);
 

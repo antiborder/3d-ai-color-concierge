@@ -46,6 +46,15 @@ DECLARATIONS: list[dict] = [
         },
     },
     {
+        "name": "OPEN_TOPIC_NETWORK",
+        "description": (
+            "Open the topic network: a 3D map of all topics and how they connect, where the user "
+            "can pick a topic. Use it when the user asks what topics there are, wants to see "
+            "other topics, or asks to learn more in general (not about one specific topic)."
+        ),
+        "parameters": {"type": "object", "properties": {}},
+    },
+    {
         "name": "DISMISS_CONTENT",
         "description": (
             "Close/dismiss the educational slide currently shown on screen. "
@@ -109,6 +118,7 @@ def _show_content(args: dict) -> dict:
 COMMANDS: dict[str, object] = {
     "SHOW_CONTENT": _show_content,
     "DISMISS_CONTENT": lambda _args: {},
+    "OPEN_TOPIC_NETWORK": lambda _args: {},
 }
 
 
@@ -175,8 +185,9 @@ def build_suggestion_prompt(suggestions: list[dict], language: str) -> str:
     )
 
 
-def build_tag_prompt(node_id: str, language: str) -> str | None:
-    """スライド下のおすすめタグが押されたとき、Gemini にそれを行わせる指示。未知の id なら None。"""
+def build_tag_prompt(node_id: str, language: str, source: str = "tag") -> str | None:
+    """スライド下のおすすめタグ、またはトピックネットワークのトピックが選ばれたとき、
+    Gemini にそれを行わせる指示。未知の id なら None。"""
     graph = load_topic_graph()
     actions = load_action_graph()
     if node_id in graph.nodes:
@@ -187,15 +198,21 @@ def build_tag_prompt(node_id: str, language: str) -> str | None:
     else:
         return None
     if language == "ja":
+        if source == "network":
+            chosen = f"ユーザーがトピックネットワークで「{name}」を選びました。"
+        else:
+            chosen = f"ユーザーが画面のおすすめタグ「{name}」を押しました。"
         return (
             "（システムからの指示です。ユーザーの発言ではありません）"
-            f"ユーザーが画面のおすすめタグ「{name}」を押しました。"
-            f"前置きを言わずに、すぐ {call} を呼び、tool response に従って話してください。"
+            f"{chosen}前置きを言わずに、すぐ {call} を呼び、tool response に従って話してください。"
         )
+    if source == "network":
+        chosen = f'The user chose "{name}" in the topic network. '
+    else:
+        chosen = f'The user pressed the recommendation tag "{name}" on screen. '
     return (
         "(System instruction, not said by the user) "
-        f'The user pressed the recommendation tag "{name}" on screen. '
-        f"Without any preamble, call {call} right away and speak as the tool response says."
+        f"{chosen}Without any preamble, call {call} right away and speak as the tool response says."
     )
 
 
@@ -222,6 +239,13 @@ RULES_JA = """\
   - 同意された → id が act_ で始まらなければ SHOW_CONTENT(id)、act_ で始まれば RUN_SUGGESTION(id)。RUN_SUGGESTION の後は、tool response に従って結果を1文で伝える（instruction があればそれに従う）。
   - act_ask_preference（好みを聞く質問）に答えが返ってきた → 答えに合わせて会話を続ける（RUN_SUGGESTION は呼ばない）。
   - 断られた → RECORD_DECLINE(id) を黙って呼ぶ（「記録します」等は言わない）。
+
+## OPEN_TOPIC_NETWORK — トピックの一覧（トピックネットワーク）
+
+- どんなトピックがあるかを聞かれた、他のトピックも見たいと言われた、特定のトピックではなく「もっといろいろ教えて」と言われた
+  （例：「どんなトピックがあるんですか？」「他のトピックも見せて」「もっといろんなことを教えてください」）→ OPEN_TOPIC_NETWORK を呼ぶ。
+- 呼んだら「トピックの一覧を表示しました。気になるものを選んでください。」のように1文だけ言う。トピック名を列挙しない。
+- 特定のトピックを聞かれたときは、これではなく SHOW_CONTENT を呼ぶ。
 
 ## DISMISS_CONTENT
 
@@ -251,6 +275,13 @@ Only slides in the id enum exist. For additive color mixing use rgb_primary (pri
   - Agreed → if the id does not start with act_, SHOW_CONTENT(id); if it does, RUN_SUGGESTION(id). After RUN_SUGGESTION, report the result in one sentence as the tool response says (follow its instruction if there is one).
   - The user answers act_ask_preference (a question about their mood) → continue the conversation from their answer (do not call RUN_SUGGESTION).
   - Declined → call RECORD_DECLINE(id) silently (do not mention it).
+
+## OPEN_TOPIC_NETWORK — The list of topics (topic network)
+
+- The user asks what topics there are, wants to see other topics, or asks to learn more in general rather than about one topic
+  (e.g. "What topics are there?", "Show me other topics", "Teach me more about all sorts of things") → call OPEN_TOPIC_NETWORK.
+- Then say just one sentence, such as "Here are all the topics — pick one you like." Do not list topic names.
+- When the user asks about one specific topic, call SHOW_CONTENT instead.
 
 ## DISMISS_CONTENT
 

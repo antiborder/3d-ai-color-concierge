@@ -650,14 +650,15 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
     [cancelSuggestionReady]
   );
 
-  // A recommendation tag under a slide was pressed: the backend has Gemini show or do it
+  // A topic or action was chosen (a tag under a slide, or the topic network):
+  // the backend has Gemini show or do it
   const sendTagSelected = useCallback(
-    (id: string) => {
+    (id: string, source: 'tag' | 'network' = 'tag') => {
       const ws = wsRef.current;
       if (!ws || ws.readyState !== WebSocket.OPEN) return;
       cancelSuggestionReady();
       try {
-        ws.send(JSON.stringify({ type: 'tag_selected', id }));
+        ws.send(JSON.stringify({ type: 'tag_selected', id, source }));
       } catch {
         /* best-effort */
       }

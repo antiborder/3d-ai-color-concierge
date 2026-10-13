@@ -450,3 +450,21 @@ def test_a_slide_that_switches_the_color_space_does_not_offer_that_space():
     nav = NavState()
     _process([("SHOW_CONTENT", {"id": "hsb_space", "colorSpace": "HSB"})], nav)
     assert "act_shape_hsb" not in [t["id"] for t in nav.slide_tags]
+
+
+def test_tag_prompt_says_where_the_topic_was_chosen():
+    from app.services.gemini_live.tools.educational import build_tag_prompt
+
+    assert "トピックネットワーク" in build_tag_prompt("hue", "ja", "network")
+    assert "おすすめタグ" in build_tag_prompt("hue", "ja")
+    assert "topic network" in build_tag_prompt("hue", "en", "network")
+
+
+def test_open_topic_network_is_a_tool_with_a_frontend_command():
+    from app.services.gemini_live.tools import tool_call_to_frontend_command
+
+    assert "OPEN_TOPIC_NETWORK" in _declared_tools()
+    assert tool_call_to_frontend_command("OPEN_TOPIC_NETWORK", {}) == {
+        "action": "OPEN_TOPIC_NETWORK",
+        "parameters": {},
+    }

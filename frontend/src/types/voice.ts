@@ -21,6 +21,7 @@ export interface Command {
     | 'SELECT_BRIDGE_POSITION'
     | 'SHOW_CONTENT'
     | 'DISMISS_CONTENT'
+    | 'OPEN_TOPIC_NETWORK'
     | 'SHOW_COLOR_LABELS'
     | 'DISABLE_CHAT'
     | 'RESET_ZOOM'

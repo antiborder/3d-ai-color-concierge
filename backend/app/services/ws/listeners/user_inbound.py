@@ -64,18 +64,18 @@ class UserSuggestionReadyEventListener(AbstractEventListener):
 
 
 class UserTagSelectedEventListener(AbstractEventListener):
-    """A recommendation tag under a slide was pressed: have Gemini show or do it."""
+    """A tag under a slide, or a topic in the topic network, was chosen: have Gemini show or do it."""
 
     async def handle(self, event: UserTagSelectedEvent) -> None:
         from app.services.gemini_live.tools.educational import build_tag_prompt
 
-        prompt = build_tag_prompt(event.id, self._ctx.language)
+        prompt = build_tag_prompt(event.id, self._ctx.language, event.source)
         if prompt is None:
             logger.info("TAG: unknown id %s", event.id)
             return
         # The user has chosen: drop the suggestion still waiting to be spoken
         self._ctx.gemini_ws.clear_pending_suggestions()
-        logger.info("TAG: selected %s", event.id)
+        logger.info("TAG: selected %s (from %s)", event.id, event.source)
         await self._ctx.gemini_ws.send_text(prompt)
 
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import * as THREE from 'three';
@@ -22,6 +22,8 @@ const RADIUS = 10;
 const BACKGROUND = '#0f1220';
 const FOV = 35;
 const NARROW_PX = 600;
+// A pointer that moved more than this between press and release was rotating the view
+const DRAG_PX = 6;
 
 // Laid out once: the graph is static, and a fixed seed keeps the same shape on every visit
 const POSITIONS = forceLayout3d(TOPICS.length, LINKS, {
@@ -54,10 +56,12 @@ const Network = ({
   lang,
   hovered,
   onHover,
+  onSelect,
 }: {
   lang: Lang;
   hovered: number | null;
   onHover: (i: number | null) => void;
+  onSelect: (id: string) => void;
 }) => {
   const allLinks = useMemo(() => linkGeometry(LINKS), []);
   const hoveredLinks = useMemo(
@@ -72,6 +76,9 @@ const Network = ({
   // While a topic is hovered, it and its neighbors stay bright and the rest fade back
   const isLit = (i: number) => hovered === null || i === hovered || NEIGHBORS[hovered].has(i);
   const isNamed = (i: number) => (hovered === null ? !isNarrow : isLit(i));
+  useEffect(() => () => void (document.body.style.cursor = ''), []);
+  // Click events do not say whether it was a touch, so remember it from the press
+  const pointerType = useRef('mouse');
 
   return (
     <>
@@ -98,10 +105,27 @@ const Network = ({
               onPointerOver={(e) => {
                 e.stopPropagation();
                 onHover(i);
+                document.body.style.cursor = 'pointer';
               }}
               // A touch has no hover: the tapped topic stays highlighted until another topic
               // or the background is tapped
-              onPointerOut={(e) => e.pointerType !== 'touch' && onHover(null)}
+              onPointerOut={(e) => {
+                document.body.style.cursor = '';
+                if (e.pointerType !== 'touch') onHover(null);
+              }}
+              onPointerDown={(e) => {
+                pointerType.current = e.pointerType;
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (e.delta > DRAG_PX) return; // the end of a drag to rotate, not a click
+                // On touch, the first tap shows the topic and its connections; a second tap opens it
+                if (pointerType.current === 'touch' && hovered !== i) {
+                  onHover(i);
+                  return;
+                }
+                onSelect(t.id);
+              }}
             >
               <sphereGeometry args={[size, 20, 14]} />
               <meshStandardMaterial
@@ -142,11 +166,40 @@ const FitCamera = () => {
   return null;
 };
 
+// The part of the page actually on screen. The 3D view is larger than the screen (120vw), so on
+// phones the page is wider than the screen and a fixed `inset: 0` overlay would stretch past its
+// right edge (hiding the close button); the overlay is fitted to the visible area instead.
+const useVisibleArea = (): CSSProperties | undefined => {
+  const [area, setArea] = useState<CSSProperties>();
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () =>
+      setArea({ left: vv.offsetLeft, top: vv.offsetTop, width: vv.width, height: vv.height });
+    update();
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
+    return () => {
+      vv.removeEventListener('resize', update);
+      vv.removeEventListener('scroll', update);
+    };
+  }, []);
+  return area;
+};
+
 /** All topics and their connections as a rotatable 3D network, shown full screen */
-const TopicNetwork = ({ onClose }: { onClose: () => void }) => {
+const TopicNetwork = ({
+  onClose,
+  onSelect,
+}: {
+  onClose: () => void;
+  // A topic was clicked: show its slide and explanation
+  onSelect: (id: string) => void;
+}) => {
   const { t, i18n } = useTranslation();
   const lang: Lang = i18n.language.startsWith('ja') ? 'ja' : 'en';
   const [hovered, setHovered] = useState<number | null>(null);
+  const visibleArea = useVisibleArea();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -164,7 +217,7 @@ const TopicNetwork = ({ onClose }: { onClose: () => void }) => {
   ];
 
   return (
-    <Overlay role="dialog" aria-label={t('topicNetwork.title')}>
+    <Overlay role="dialog" aria-label={t('topicNetwork.title')} style={visibleArea}>
       <Canvas
         camera={{ position: [0, 0, RADIUS * 3.2], fov: FOV }}
         onPointerMissed={() => setHovered(null)}
@@ -173,7 +226,7 @@ const TopicNetwork = ({ onClose }: { onClose: () => void }) => {
         <ambientLight intensity={0.8} />
         <pointLight position={[20, 20, 20]} intensity={600} />
         <FitCamera />
-        <Network lang={lang} hovered={hovered} onHover={setHovered} />
+        <Network lang={lang} hovered={hovered} onHover={setHovered} onSelect={onSelect} />
         <OrbitControls
           enablePan={false}
           minDistance={RADIUS * 0.8}
@@ -190,8 +243,9 @@ const TopicNetwork = ({ onClose }: { onClose: () => void }) => {
             {t('topicNetwork.summary', { topics: TOPICS.length, links: LINKS.length })}
           </Summary>
         </div>
-        <CloseButton type="button" onClick={onClose} aria-label={t('topicNetwork.close')}>
-          ×
+        <CloseButton type="button" onClick={onClose}>
+          <span aria-hidden>✕</span>
+          {t('topicNetwork.close')}
         </CloseButton>
       </Header>
 
@@ -209,20 +263,25 @@ const TopicNetwork = ({ onClose }: { onClose: () => void }) => {
 
 const Overlay = styled.div`
   position: fixed;
+  /* Replaced by the visible area when the browser reports it (see useVisibleArea) */
   inset: 0;
   z-index: 3000;
   background: ${BACKGROUND};
 `;
 
+// Above the topic names (drei Html labels use z-indexes up to 100), so they never cover the button
 const Header = styled.div`
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
+  z-index: 200;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 16px;
+  gap: 12px;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 16px
+    max(16px, env(safe-area-inset-left));
   color: #fff;
   pointer-events: none;
 `;
@@ -239,20 +298,28 @@ const Summary = styled.div`
   color: #b5bccf;
 `;
 
+// A labeled white button, easy to spot on the dark background and easy to tap on a phone
 const CloseButton = styled.button`
   pointer-events: auto;
-  width: 40px;
-  height: 40px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  font-size: 24px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 22px;
+  background: #fff;
+  color: #1a1f33;
+  font-size: 16px;
+  font-weight: 700;
   line-height: 1;
+  white-space: nowrap;
   cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.18);
+    background: #e8ecf6;
   }
 `;
 

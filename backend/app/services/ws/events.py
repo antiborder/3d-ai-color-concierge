@@ -37,9 +37,10 @@ class UserSuggestionReadyEvent:
 
 @dataclass
 class UserTagSelectedEvent:
-    """The user pressed a recommendation tag under a slide."""
+    """The user chose a topic or action: a tag under a slide, or a topic in the topic network."""
 
     id: str
+    source: str = "tag"
 
 
 @dataclass
