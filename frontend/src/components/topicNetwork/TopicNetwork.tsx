@@ -237,12 +237,7 @@ const TopicNetwork = ({
       </Canvas>
 
       <Header>
-        <div>
-          <Title>{t('topicNetwork.title')}</Title>
-          <Summary>
-            {t('topicNetwork.summary', { topics: TOPICS.length, links: LINKS.length })}
-          </Summary>
-        </div>
+        <Title>{t('topicNetwork.title')}</Title>
         <CloseButton type="button" onClick={onClose}>
           <span aria-hidden>✕</span>
           {t('topicNetwork.close')}
@@ -290,12 +285,6 @@ const Title = styled.h2`
   margin: 0;
   font-size: 20px;
   font-weight: 700;
-`;
-
-const Summary = styled.div`
-  margin-top: 4px;
-  font-size: 14px;
-  color: #b5bccf;
 `;
 
 // A labeled white button, easy to spot on the dark background and easy to tap on a phone

@@ -647,7 +647,6 @@
   "topicNetwork": {
     "open": "トピックネットワーク",
     "title": "トピックネットワーク",
-    "summary": "{{topics}} トピック · {{links}} のつながり",
     "close": "閉じる",
     "unclassified": "未分類"
   },
