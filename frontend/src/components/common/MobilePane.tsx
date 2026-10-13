@@ -239,12 +239,15 @@ const MobileMenuBar = ({ activeSheet, onIconClick }: MobileMenuBarProps) => (
   </IconBar>
 );
 
+// The nine icons need 442px at full size, wider than a phone: on narrow screens the icons and
+// the gaps shrink so the bar never makes the page wider than the screen
 const IconBar = styled.div.attrs({ className: UI_PANEL_CLASS })`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: clamp(2px, 1.5vw, 8px);
+  max-width: 100%;
   padding: 6px 8px;
   background: rgba(255, 255, 255);
   border: 1px solid #ddd;
@@ -256,7 +259,8 @@ const IconButton = styled.button<{ $active: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
+  flex: 0 1 40px;
+  min-width: 28px;
   height: 40px;
   padding: 0;
   border: ${(p) => (p.$active ? '2px solid #4e8cee' : '0px solid transparent')};
@@ -271,6 +275,12 @@ const IconButton = styled.button<{ $active: boolean }>`
 
   &:hover {
     background: ${(p) => (p.$active ? '#dceaf9' : '#f5f5f5')};
+  }
+
+  & > svg {
+    width: 100%;
+    max-width: 40px;
+    height: auto;
   }
 `;
 

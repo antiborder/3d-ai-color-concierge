@@ -671,6 +671,12 @@ const LangSelectorWrapper = styled.div`
   z-index: 1001;
   display: flex;
   gap: 8px;
+
+  /* Side by side the two buttons would overlap the Current Colors panel on a narrow phone */
+  @media (max-width: 400px) {
+    flex-direction: column-reverse;
+    align-items: flex-end;
+  }
 `;
 
 export default App;

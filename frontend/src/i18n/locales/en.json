@@ -647,7 +647,6 @@
   "topicNetwork": {
     "open": "Topic network",
     "title": "Topic network",
-    "summary": "{{topics}} topics · {{links}} connections",
     "close": "Close",
     "unclassified": "Unclassified"
   },
