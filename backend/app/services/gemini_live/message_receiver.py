@@ -21,6 +21,7 @@ from app.services.gemini_live.tools import (
     tool_call_function_calls,
     tool_call_to_frontend_command,
 )
+from app.services.gemini_live.tools.color_mix import MODES, mix, parse_hex, to_hex
 from app.services.gemini_live.tools.educational import build_show_content_response
 from app.services.gemini_live.transcription import (
     extract_finished_from_transcription_obj,
@@ -70,6 +71,34 @@ def _hold_after_action(nav_state: NavState, name: str, args: dict, ui: dict, lan
         [s["id"] for s in nav_state.pending_suggestions],
     )
     return bool(nav_state.pending_suggestions)
+
+
+async def _mix_colors(args: dict, event_q: asyncio.Queue, color_service, language: str) -> dict:
+    """MIX_COLORS: 混色をコードで計算し、結果の色を選択して、元の色と結果を3D空間にラベル表示する。"""
+    items = [c for c in (args.get("colors") or []) if isinstance(c, dict)]
+    parsed = [(str(c.get("name") or "").strip(), parse_hex(c.get("hex"))) for c in items]
+    parsed = [(n, rgb) for n, rgb in parsed if rgb is not None][:4]
+    if len(parsed) < 2:
+        return {"result": "error", "error": "Give at least two colors, each with a #RRGGBB hex."}
+    mode = args.get("mode") if args.get("mode") in MODES else "light"
+    r, g, b = mix([rgb for _, rgb in parsed], mode)
+    mixed_label = ("混色" if language == "ja" else "Mix") + f" {to_hex((r, g, b))}"
+    labels = [{"r": c[0], "g": c[1], "b": c[2], "label": n or to_hex(c)} for n, c in parsed]
+    labels.append({"r": r, "g": g, "b": b, "label": mixed_label})
+    for name, params in (
+        ("SELECT_COLOR", {"r": r, "g": g, "b": b, "target": "focused"}),
+        ("SHOW_COLOR_LABELS", {"colors": labels}),
+    ):
+        cmd = tool_call_to_frontend_command(name, params)
+        await event_q.put(LiveCommandEvent(command=cmd, tool_name=name, tool_call_id=None))
+    resp: dict = {"result": "ok", "mode": mode, "hex": to_hex((r, g, b))}
+    if color_service is not None:
+        closest = color_service.find_closest_colors(r, g, b, top_n=1, language=language)
+        if closest:
+            resp["name"] = closest[0]["name"]
+            resp["name_tags"] = closest[0]["tags"]
+    logger.info("MIX_COLORS: %s %s -> %s", mode, [to_hex(c) for _, c in parsed], resp)
+    return resp
 
 
 async def _run_suggestion(
@@ -468,6 +497,20 @@ async def process_live_message(
                 lang = getattr(cfg, "language", "ja")
                 # After an action (not a slide), hold what to suggest next
                 held = nav_state is not None and _hold_after_action(nav_state, name, args, ui, lang)
+
+                if name == "MIX_COLORS":
+                    resp = await _mix_colors(args, event_q, color_service, lang)
+                    if held:
+                        resp["next_step"] = ACTION_NEXT_STEP
+                    try:
+                        if callable(send_tool) and FunctionResponse is not None:
+                            fr = FunctionResponse(name=name, response=resp, id=call_id)
+                            maybe = send_tool(function_responses=fr)
+                            if inspect.isawaitable(maybe):
+                                await maybe
+                    except Exception as e:
+                        logger.info("MIX_COLORS send_tool_response failed: %s", str(e))
+                    continue
 
                 if name == "RUN_SUGGESTION" and nav_state is not None:
                     resp = await _run_suggestion(str(args.get("id")), nav_state, event_q, ui, lang)

@@ -642,6 +642,23 @@
       "drift": "purplish midway",
       "keep": "stays blue",
       "use": "OKLab suits gradients and math"
+    },
+    "blue_yellow_paint": {
+      "title": "Why blue + yellow paint makes green",
+      "rule": "By the pigment primaries",
+      "blueIs": "blue = cyan + magenta",
+      "bandR": "red",
+      "bandG": "green",
+      "bandB": "blue",
+      "rowBlue": "blue",
+      "rowYellow": "yellow",
+      "rowMix": "mixed",
+      "black": "black",
+      "real": "With real paints",
+      "green": "green",
+      "bluePaint": "blue paint",
+      "yellowPaint": "yellow paint",
+      "caution": "Results vary with the kind of paint"
     }
   },
   "topicNetwork": {

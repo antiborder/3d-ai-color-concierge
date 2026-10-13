@@ -10,6 +10,7 @@ from . import (
     color_bridge,
     color_harmony,
     color_labels,
+    color_mix,
     color_query,
     color_select,
     color_sets,
@@ -23,6 +24,7 @@ from . import (
 _TOOL_MODULES = [
     color_select,
     color_adjust,
+    color_mix,
     color_space,
     camera,
     color_query,

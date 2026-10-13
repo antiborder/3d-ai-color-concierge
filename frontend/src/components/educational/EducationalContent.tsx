@@ -62,6 +62,7 @@ import ColorProportion from './slides/ColorProportion';
 import ContrastReadability from './slides/ContrastReadability';
 import ColorContrast from './slides/ColorContrast';
 import LabVsOklab from './slides/LabVsOklab';
+import BlueYellowPaint from './slides/BlueYellowPaint';
 import PlaceholderSlide from './slides/PlaceholderSlide';
 import type { SlideTag } from '../../types/voice';
 
@@ -142,6 +143,7 @@ const SLIDES: Record<string, React.ComponentType> = {
   contrast_readability: ContrastReadability,
   color_contrast: ColorContrast,
   lab_vs_oklab: LabVsOklab,
+  blue_yellow_paint: BlueYellowPaint,
 };
 
 const EducationalContent = ({

@@ -642,6 +642,23 @@
       "drift": "途中が紫っぽい",
       "keep": "青のまま",
       "use": "グラデーションや色の計算に OKLab"
+    },
+    "blue_yellow_paint": {
+      "title": "青と黄色の絵の具で緑になる理由",
+      "rule": "色材の三原色のルールでは",
+      "blueIs": "青 ＝ シアン ＋ マゼンタ",
+      "bandR": "赤",
+      "bandG": "緑",
+      "bandB": "青",
+      "rowBlue": "青",
+      "rowYellow": "黄",
+      "rowMix": "混ぜると",
+      "black": "黒",
+      "real": "実際の絵の具では",
+      "green": "緑",
+      "bluePaint": "青の絵の具",
+      "yellowPaint": "黄の絵の具",
+      "caution": "結果は絵の具の種類で変わる"
     }
   },
   "topicNetwork": {

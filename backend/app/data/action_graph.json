@@ -996,6 +996,26 @@
       }
     },
     {
+      "id": "act_mix_blue_yellow_paint",
+      "kind": "mix",
+      "label": {
+        "ja": "青と黄色の絵の具をルールで混ぜる",
+        "en": "Mix blue and yellow paint by the rules"
+      },
+      "phrase": {
+        "ja": "色材の混色のルールで、青と黄色を混ぜた色を画面で見てみますか？",
+        "en": "Want to see on screen what blue and yellow make by the rules of pigment mixing?"
+      },
+      "instruction": {
+        "ja": "MIX_COLORS を mode='paint'、colors=[{name:'青', hex:'#0000FF'}, {name:'黄色', hex:'#FFFF00'}] で呼び、結果を1文で伝える。",
+        "en": "Call MIX_COLORS with mode='paint' and colors=[{name:'blue', hex:'#0000FF'}, {name:'yellow', hex:'#FFFF00'}], then say the result in one sentence."
+      },
+      "tag": {
+        "ja": "ルールで混ぜる",
+        "en": "Mix by the rules"
+      }
+    },
+    {
       "id": "act_closest_name",
       "kind": "query",
       "label": {
@@ -1052,6 +1072,20 @@
       "label": {
         "ja": "背景色を変えた",
         "en": "The background was changed"
+      }
+    },
+    {
+      "id": "ctx_mix_light",
+      "label": {
+        "ja": "光の混色をした",
+        "en": "Colors were mixed as light"
+      }
+    },
+    {
+      "id": "ctx_mix_paint",
+      "label": {
+        "ja": "絵の具の混色をした",
+        "en": "Colors were mixed as paint"
       }
     }
   ],
@@ -1929,6 +1963,54 @@
       }
     },
     {
+      "from": "ctx_mix_light",
+      "to": "rgb_primary",
+      "phrase": {
+        "ja": "光は、混ぜるほど明るくなります。光の三原色を見てみますか？",
+        "en": "Light gets brighter as you mix it. Want to see the primary colors of light?"
+      }
+    },
+    {
+      "from": "ctx_mix_light",
+      "to": "red_green_yellow",
+      "phrase": {
+        "ja": "赤と緑の光を混ぜると、なぜ黄色になるのか見てみますか？",
+        "en": "Want to see why red and green light make yellow?"
+      }
+    },
+    {
+      "from": "act_mix_blue_yellow_paint",
+      "to": "blue_yellow_paint",
+      "phrase": {
+        "ja": "ルールでは黒ですが、実際の絵の具では緑になります。理由を見てみますか？",
+        "en": "By the rules it is black, yet real paints make green. Want to see why?"
+      }
+    },
+    {
+      "from": "ctx_mix_paint",
+      "to": "blue_yellow_paint",
+      "phrase": {
+        "ja": "実際の絵の具では、ルールと違う色になることがあります。青と黄色の場合を見てみますか？",
+        "en": "Real paints can differ from the rules. Want to see blue and yellow?"
+      }
+    },
+    {
+      "from": "ctx_mix_paint",
+      "to": "cmy_primary",
+      "phrase": {
+        "ja": "絵の具は、混ぜるほど暗くなります。色材の三原色を見てみますか？",
+        "en": "Paint gets darker as you mix it. Want to see the primary colors of pigment?"
+      }
+    },
+    {
+      "from": "ctx_mix_paint",
+      "to": "light_pigment_primary_relation",
+      "phrase": {
+        "ja": "光の混色と絵の具の混色の違いを、三原色の関係から見てみますか？",
+        "en": "Want to see how mixing light and mixing paint differ, through their primaries?"
+      }
+    },
+    {
       "from": "act_ask_preference",
       "to": "warm_cool_colors",
       "phrase": {
@@ -1979,6 +2061,14 @@
     {
       "from": "ctx_background_set",
       "to": "act_background_contrast"
+    },
+    {
+      "from": "ctx_mix_light",
+      "to": "act_closest_name"
+    },
+    {
+      "from": "ctx_mix_paint",
+      "to": "act_closest_name"
     },
     {
       "from": "act_lighter",

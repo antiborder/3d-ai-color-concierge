@@ -401,7 +401,9 @@ def test_every_topic_and_action_has_a_short_tag_name(raw):
     graph = load_topic_graph()
     for nid in graph.node_ids:
         for lang in ("ja", "en"):
-            assert 0 < len(graph.short(nid, lang)) <= 16, (nid, lang)
+            # up to 3 tags share a 300px row at 14px (Japanese characters are about twice as wide)
+            limit = 12 if lang == "ja" else 18
+            assert 0 < len(graph.short(nid, lang)) <= limit, (nid, lang)
     for a in raw["actions"]:
         for lang in ("ja", "en"):
             assert 0 < len(a["tag"][lang]) <= 20, (a["id"], lang)

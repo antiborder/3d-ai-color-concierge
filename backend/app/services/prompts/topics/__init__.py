@@ -105,6 +105,9 @@ from app.services.prompts.topics import (
     lab_space as _lab,
 )
 from app.services.prompts.topics import (
+    blue_yellow_paint as _blue_yellow_paint,
+)
+from app.services.prompts.topics import (
     lab_vs_oklab as _lab_vs_oklab,
 )
 from app.services.prompts.topics import (
@@ -264,6 +267,7 @@ _TOPIC_MODULES = [
     _contrast_readability,
     _color_contrast,
     _lab_vs_oklab,
+    _blue_yellow_paint,
 ]
 
 TOPICS: dict[str, dict] = {m.TOPIC["id"]: m.TOPIC for m in _TOPIC_MODULES}
