@@ -417,7 +417,10 @@ const Structure = (props: StructureProps) => {
   }, [props.harmonyColors, props.shape, props.focusR, props.focusG, props.focusB]);
 
   return (
-    <div>
+    // The canvas is larger than the screen (120vw x 120vh); clip it to the screen. Otherwise the
+    // page is wider than the screen, and on phones the layout viewport grows to fit it, pushing
+    // bottom- and right-aligned fixed UI (the Start Chatting button) off screen.
+    <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
       <Canvas
         camera={{ position: cameraPosition, near: 2 }}
         style={{ height: '120vh', width: '120vw' }}
