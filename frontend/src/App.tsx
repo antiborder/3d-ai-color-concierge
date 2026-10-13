@@ -178,7 +178,11 @@ function App() {
   const [slideTags, setSlideTags] = useState<{ contentId: string; tags: SlideTag[] } | null>(
     null
   );
-  const [tagRequest, setTagRequest] = useState<{ id: string; nonce: number } | null>(null);
+  const [tagRequest, setTagRequest] = useState<{
+    id: string;
+    nonce: number;
+    source: 'tag' | 'network';
+  } | null>(null);
   const [openCIEPanelSignal, setOpenCIEPanelSignal] = useState(0);
   const activeContentIdRef = useRef<string | null>(null);
   activeContentIdRef.current = activeContentId;
@@ -285,6 +289,7 @@ function App() {
     },
     resetCameraZoom: () => { setResetCameraZoomSignal((n) => n + 1); },
     zoomToHarmony: () => { setHarmonyZoomSignal((n) => n + 1); },
+    openTopicNetwork: () => setIsTopicNetworkOpen(true),
     setSceneBackgroundColor,
     routeColorToBackground,
     setColorTarget,
@@ -316,6 +321,9 @@ function App() {
   const KEEP_SLIDE_ACTIONS = ['SHOW_CONTENT', 'CHANGE_SHAPE'];
 
   const handleWsCommand = (command: VoiceCommand) => {
+    // Any screen operation (a slide, a color space change, ...) first closes the topic network,
+    // so it happens on the normal screen
+    if (command.action !== 'OPEN_TOPIC_NETWORK') setIsTopicNetworkOpen(false);
     if (!KEEP_SLIDE_ACTIONS.includes(command.action)) {
       cancelPendingSlide();
       if (activeContentIdRef.current !== null) setActiveContentId(null);
@@ -637,11 +645,17 @@ function App() {
         contentId={activeContentId}
         onClose={() => setActiveContentId(null)}
         tags={slideTags?.contentId === activeContentId ? slideTags.tags : []}
-        onTagClick={(tag) => setTagRequest({ id: tag.id, nonce: Date.now() })}
+        onTagClick={(tag) => setTagRequest({ id: tag.id, nonce: Date.now(), source: 'tag' })}
       />
       {isTopicNetworkOpen && (
         <Suspense fallback={null}>
-          <TopicNetwork onClose={() => setIsTopicNetworkOpen(false)} />
+          <TopicNetwork
+            onClose={() => setIsTopicNetworkOpen(false)}
+            onSelect={(id) => {
+              setIsTopicNetworkOpen(false);
+              setTagRequest({ id, nonce: Date.now(), source: 'network' });
+            }}
+          />
         </Suspense>
       )}
     </>

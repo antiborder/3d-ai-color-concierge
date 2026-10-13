@@ -135,7 +135,8 @@ class UserWebSocket(AbstractWebSocket):
                         if msg_type == "tag_selected" and isinstance(payload, dict):
                             tag_id = payload.get("id")
                             if isinstance(tag_id, str) and tag_id:
-                                await queue.put(UserTagSelectedEvent(id=tag_id[:64]))
+                                source = "network" if payload.get("source") == "network" else "tag"
+                                await queue.put(UserTagSelectedEvent(id=tag_id[:64], source=source))
                         if msg_type == "text_message" and isinstance(payload, dict):
                             text = str(payload.get("text", "")).strip()
                             if text:

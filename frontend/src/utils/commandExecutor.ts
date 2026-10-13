@@ -39,6 +39,7 @@ export interface VoiceCommandHandlers {
   addAllColorsToHistory: (colors: Array<{ r: number; g: number; b: number }>) => void;
   resetCameraZoom: () => void;
   zoomToHarmony: () => void;
+  openTopicNetwork: () => void;
   setSceneBackgroundColor: (hex: string) => void;
   routeColorToBackground: (r: number, g: number, b: number) => void;
   setColorTarget: (target: 'focused' | 'background') => void;
@@ -323,6 +324,11 @@ export function executeCommand(
           : [];
         return handlers.showContent(id, tags);
       }
+      break;
+    }
+
+    case 'OPEN_TOPIC_NETWORK': {
+      handlers.openTopicNetwork();
       break;
     }
 
