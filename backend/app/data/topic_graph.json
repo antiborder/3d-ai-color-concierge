@@ -778,6 +778,18 @@
         "ja": "Lab vs OKLab",
         "en": "Lab vs. OKLab"
       }
+    },
+    {
+      "id": "blue_yellow_paint",
+      "cluster": "machine",
+      "label": {
+        "ja": "青と黄色の絵の具を混ぜると緑になるのはなぜ",
+        "en": "Why blue + yellow paint makes green"
+      },
+      "short": {
+        "ja": "青＋黄の絵の具",
+        "en": "Blue+yellow paint"
+      }
     }
   ],
   "edges": [
@@ -3774,6 +3786,62 @@
         "backward": {
           "ja": "寒色の代表の青は、空の色でもあります。空が青い理由を見てみますか？",
           "en": "Blue, the classic cool color, is also the color of the sky. Want to see why the sky is blue?"
+        }
+      }
+    },
+    {
+      "from": "cmy_primary",
+      "to": "blue_yellow_paint",
+      "suggest": {
+        "forward": {
+          "ja": "ルールでは黒になる青と黄色も、実際の絵の具では緑になります。理由を見てみますか？",
+          "en": "By the rules, blue and yellow make black, yet real paints make green. Want to see why?"
+        },
+        "backward": {
+          "ja": "色材の三原色のルールそのものも見てみますか？",
+          "en": "Want to see the rules of the pigment primaries themselves?"
+        }
+      }
+    },
+    {
+      "from": "light_pigment_primary_relation",
+      "to": "blue_yellow_paint",
+      "suggest": {
+        "forward": {
+          "ja": "青と黄色の絵の具を混ぜると、なぜ緑になるのか見てみますか？",
+          "en": "Want to see why blue and yellow paint make green?"
+        },
+        "backward": {
+          "ja": "光の三原色と色材の三原色の関係も見てみますか？",
+          "en": "Want to see how light primaries and pigment primaries relate?"
+        }
+      }
+    },
+    {
+      "from": "blue_yellow_paint",
+      "to": "nature_of_light",
+      "suggest": {
+        "forward": {
+          "ja": "絵の具の色は、どの波長の光を反射するかで決まります。光の正体を見てみますか？",
+          "en": "A paint's color comes from which wavelengths it reflects. Want to see what light is?"
+        },
+        "backward": {
+          "ja": "波長ごとの反射の違いで、絵の具の混色も説明できます。青と黄色の絵の具の場合を見てみますか？",
+          "en": "Reflection by wavelength also explains mixing paint. Want to see blue and yellow paint?"
+        }
+      }
+    },
+    {
+      "from": "blue_green_cyan",
+      "to": "blue_yellow_paint",
+      "suggest": {
+        "forward": {
+          "ja": "光ではなく絵の具の青と黄色を混ぜると、緑になります。理由を見てみますか？",
+          "en": "Mix blue and yellow paint instead of light, and you get green. Want to see why?"
+        },
+        "backward": {
+          "ja": "光の青と緑を混ぜるとシアンになる理由も見てみますか？",
+          "en": "Want to see why blue and green light make cyan?"
         }
       }
     }

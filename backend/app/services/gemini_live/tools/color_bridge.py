@@ -57,12 +57,20 @@ def _select_bridge_position(args: dict) -> dict:
     return {"position": float(args.get("position", 0.5))}
 
 
+def _channel(value) -> int:
+    """0〜255 に収める（Gemini が 1255 のような範囲外の値を送ることがある）。"""
+    try:
+        return max(0, min(255, int(value)))
+    except (TypeError, ValueError):
+        return 0
+
+
 def _set_bridge_color(args: dict) -> dict:
     return {
         "side": args.get("side"),
-        "r": int(args.get("r", 0)),
-        "g": int(args.get("g", 0)),
-        "b": int(args.get("b", 0)),
+        "r": _channel(args.get("r", 0)),
+        "g": _channel(args.get("g", 0)),
+        "b": _channel(args.get("b", 0)),
     }
 
 

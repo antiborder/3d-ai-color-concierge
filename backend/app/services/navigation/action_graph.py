@@ -28,6 +28,7 @@ PRIORITY_SHOW_CONTENT = 100
 PRIORITY_RUN_SUGGESTION = 90
 _PRIORITY = {
     "ADJUST_VALUE": 80,
+    "MIX_COLORS": 75,
     "SELECT_COLOR": 70,
     "SET_COLOR": 70,
     "SET_HEX": 70,
@@ -132,6 +133,8 @@ class ActionGraph:
         if name == "SET_COLOR_SETS":
             shown = next((k for k, v in args.items() if v is True), None)
             return f"act_sets_{shown.lower()}" if shown else None
+        if name == "MIX_COLORS":
+            return "ctx_mix_paint" if args.get("mode") == "paint" else "ctx_mix_light"
         if name == "SHOW_COLOR_LABELS":
             return "ctx_colors_shown"
         if name == "GET_CLOSEST_COLOR":

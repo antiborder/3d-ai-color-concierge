@@ -184,6 +184,7 @@ function App() {
     source: 'tag' | 'network';
   } | null>(null);
   const [openCIEPanelSignal, setOpenCIEPanelSignal] = useState(0);
+  const [openOneDPickerSignal, setOpenOneDPickerSignal] = useState(0);
   const activeContentIdRef = useRef<string | null>(null);
   activeContentIdRef.current = activeContentId;
   // When the color space shape last started deforming, so a slide can wait for it to finish
@@ -276,7 +277,11 @@ function App() {
     setColorSets,
     setBridgeColorA,
     setBridgeColorB,
-    setIsBridgeOpen,
+    // When the AI sets up the 1D picker, also open its panel so the gradient is on screen
+    setIsBridgeOpen: (open: boolean) => {
+      setIsBridgeOpen(open);
+      if (open) setOpenOneDPickerSignal((n) => n + 1);
+    },
     selectBridgePosition: (position: number) => {
       const [r, g, b] = interpolateRgb(bridgeColorA, bridgeColorB, colorState.shape, position);
       updateFromRgb(r, g, b);
@@ -607,6 +612,7 @@ function App() {
         onColorsLinkedChange={setIsColorsLinked}
         onHelpClick={handleHelpClick}
         openCIEPanelSignal={openCIEPanelSignal}
+        openOneDPickerSignal={openOneDPickerSignal}
       />
       <VoiceControl
         currentColorState={colorState}
