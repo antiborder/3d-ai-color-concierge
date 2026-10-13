@@ -83,6 +83,7 @@ export interface ControlPaneProps extends BridgeProps {
 
   // Panel navigation (incremented each time AI requests a specific panel)
   openCIEPanelSignal?: number;
+  openOneDPickerSignal?: number;
 }
 
 export interface BridgeProps {

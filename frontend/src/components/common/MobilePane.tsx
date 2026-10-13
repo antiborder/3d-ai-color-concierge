@@ -60,6 +60,10 @@ const MobilePane = (props: MobilePaneProps) => {
   }, [controlPaneProps.openCIEPanelSignal]);
 
   useEffect(() => {
+    if (controlPaneProps.openOneDPickerSignal) setActiveSheet('oneDPicker');
+  }, [controlPaneProps.openOneDPickerSignal]);
+
+  useEffect(() => {
     controlPaneProps.onBridgeOpenChange(activeSheet === 'oneDPicker');
   }, [activeSheet]);
 

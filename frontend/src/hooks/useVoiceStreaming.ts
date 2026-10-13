@@ -378,6 +378,8 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
       scheduleSuggestionReady,
     ]
   );
+  const handleWsMessageRef = useRef(handleWsMessage);
+  handleWsMessageRef.current = handleWsMessage;
 
   // ─── Session: start / stop ───────────────────────────────────────────────────
 
@@ -529,7 +531,10 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           setIsConnecting(false);
         };
 
-        ws.onmessage = handleWsMessage;
+        // Always route through the latest handler: handleWsMessage is recreated as the app's state
+        // changes, and a handler captured at connect time would run commands on that old state
+        // (e.g. SELECT_BRIDGE_POSITION mixing the 1D picker's colors from when the chat started)
+        ws.onmessage = (evt) => handleWsMessageRef.current(evt);
 
         ws.onerror = (evt) => {
           console.warn('[useVoiceStreaming] WebSocket error', { url: getWsUrl(), event: evt });

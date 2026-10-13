@@ -110,16 +110,24 @@ DECLARATIONS: list[dict] = [
 ]
 
 
+def _channel(value) -> int:
+    """0〜255 に収める（Gemini が範囲外の値を送ることがある）。"""
+    try:
+        return max(0, min(255, int(value)))
+    except (TypeError, ValueError):
+        return 0
+
+
 def _select_color(args: dict) -> dict:
-    r = int(args.get("r", 0))
-    g = int(args.get("g", 0))
-    b = int(args.get("b", 0))
+    r = _channel(args.get("r", 0))
+    g = _channel(args.get("g", 0))
+    b = _channel(args.get("b", 0))
     target = args.get("target", "focused")
     return {"color": {"r": r, "g": g, "b": b}, "target": target}
 
 
 def _set_color(args: dict) -> dict:
-    result = {k: int(args[k]) for k in ("r", "g", "b") if k in args}
+    result = {k: _channel(args[k]) for k in ("r", "g", "b") if k in args}
     result["target"] = args.get("target", "focused")
     return result
 
