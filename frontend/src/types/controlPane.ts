@@ -84,6 +84,10 @@ export interface ControlPaneProps extends BridgeProps {
   // Panel navigation (incremented each time AI requests a specific panel)
   openCIEPanelSignal?: number;
   openOneDPickerSignal?: number;
+  // Whether the panel holding the active space's 1D picker, and the color difference (ΔE) panel,
+  // are on screen; the 3D view only draws their path / ΔE line while they are
+  onBridgePanelShownChange?: (shown: boolean) => void;
+  onColorDifferenceShownChange?: (shown: boolean) => void;
 }
 
 export interface BridgeProps {

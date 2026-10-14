@@ -1,7 +1,8 @@
-import { Line, Html } from '@react-three/drei';
-import type { PositionFunction } from '../../types/structure';
+import { useMemo } from 'react';
+import { Line } from '@react-three/drei';
 import type { ColorSpace } from '../../types/color';
-import { deltaEab } from '../../utils/colorConverter';
+import { interpolateRgb } from '../menus/controls/ColorBridge';
+import { type PositionFunctions, positionForShape } from './positionForShape';
 
 interface RGB {
   r: number;
@@ -9,116 +10,47 @@ interface RGB {
   b: number;
 }
 
-interface ColorBridgeLineProps {
+interface ColorBridgeLineProps extends PositionFunctions {
   colorA: RGB;
   colorB: RGB;
   shape: ColorSpace;
-  getRgbPosition: PositionFunction;
-  getHslPosition: PositionFunction;
-  getHsbPosition: PositionFunction;
-  getMunsellPosition: PositionFunction;
-  getLabPosition: PositionFunction;
-  getXyzPosition: PositionFunction;
-  getXyzChromaticityPosition: PositionFunction;
-  getXyChromaticityPosition: PositionFunction;
 }
 
-function resolvePosition(
-  color: RGB,
-  shape: ColorSpace,
-  getRgbPosition: PositionFunction,
-  getHslPosition: PositionFunction,
-  getHsbPosition: PositionFunction,
-  getMunsellPosition: PositionFunction,
-  getLabPosition: PositionFunction,
-  getXyzPosition: PositionFunction,
-  getXyzChromaticityPosition: PositionFunction,
-  getXyChromaticityPosition: PositionFunction
-): [number, number, number] {
-  const { r, g, b } = color;
-  if (shape === 'HSL') return getHslPosition(r, g, b);
-  if (shape === 'HSB') return getHsbPosition(r, g, b);
-  if (shape === 'LCH') return getMunsellPosition(r, g, b);
-  if (shape === 'Lab') return getLabPosition(r, g, b);
-  if (shape === 'XYZ') return getXyzPosition(r, g, b);
-  if (shape === 'xyz') return getXyzChromaticityPosition(r, g, b);
-  if (shape === 'xy') return getXyChromaticityPosition(r, g, b);
-  return getRgbPosition(r, g, b);
-}
+// Points sampled along the path; enough for the hue-based spaces' curves to look smooth
+const STEPS = 32;
 
 function toHex(r: number, g: number, b: number): string {
   return '#' + [r, g, b].map((v) => Math.round(v).toString(16).padStart(2, '0')).join('');
 }
 
-const ColorBridgeLine = ({
-  colorA,
-  colorB,
-  shape,
-  getRgbPosition,
-  getHslPosition,
-  getHsbPosition,
-  getMunsellPosition,
-  getLabPosition,
-  getXyzPosition,
-  getXyzChromaticityPosition,
-  getXyChromaticityPosition,
-}: ColorBridgeLineProps) => {
-  const posA = resolvePosition(
-    colorA,
-    shape,
-    getRgbPosition,
-    getHslPosition,
-    getHsbPosition,
-    getMunsellPosition,
-    getLabPosition,
-    getXyzPosition,
-    getXyzChromaticityPosition,
-    getXyChromaticityPosition
+/**
+ * The 1D picker's path in 3D: the colors between the two endpoints, interpolated in the active
+ * color space exactly as the picker's gradient is, so the path curves where the gradient does
+ * (around the hue in HSB, HSL, LCH and OkLCH).
+ */
+const ColorBridgeLine = ({ colorA, colorB, shape, ...fns }: ColorBridgeLineProps) => {
+  const points = useMemo(
+    () =>
+      Array.from({ length: STEPS + 1 }, (_, i) => {
+        const [r, g, b] = interpolateRgb(colorA, colorB, shape, i / STEPS);
+        return positionForShape({ r, g, b }, shape, fns);
+      }),
+    // the position functions are rebuilt by Structure on each render but only depend on shape
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [colorA.r, colorA.g, colorA.b, colorB.r, colorB.g, colorB.b, shape]
   );
-  const posB = resolvePosition(
-    colorB,
-    shape,
-    getRgbPosition,
-    getHslPosition,
-    getHsbPosition,
-    getMunsellPosition,
-    getLabPosition,
-    getXyzPosition,
-    getXyzChromaticityPosition,
-    getXyChromaticityPosition
-  );
-
-  const mid: [number, number, number] = [
-    (posA[0] + posB[0]) / 2,
-    (posA[1] + posB[1]) / 2,
-    (posA[2] + posB[2]) / 2,
-  ];
-  const de = deltaEab(colorA.r, colorA.g, colorA.b, colorB.r, colorB.g, colorB.b);
 
   return (
     <>
-      <Line points={[posA, posB]} color="white" lineWidth={2} />
-      <mesh position={posA}>
+      <Line points={points} color="white" lineWidth={2} />
+      <mesh position={points[0]}>
         <sphereGeometry args={[0.25, 16, 16]} />
         <meshBasicMaterial color={toHex(colorA.r, colorA.g, colorA.b)} />
       </mesh>
-      <mesh position={posB}>
+      <mesh position={points[STEPS]}>
         <sphereGeometry args={[0.25, 16, 16]} />
         <meshBasicMaterial color={toHex(colorB.r, colorB.g, colorB.b)} />
       </mesh>
-      <Html position={mid} zIndexRange={[100, 5]}>
-        <div style={{
-          color: 'white',
-          fontWeight: 'bold',
-          fontSize: '13px',
-          textShadow: '0 0 2px #000, 0 0 2px #000',
-          whiteSpace: 'nowrap',
-          userSelect: 'none',
-          pointerEvents: 'none',
-        }}>
-          ΔE = {de.toFixed(1)}
-        </div>
-      </Html>
     </>
   );
 };

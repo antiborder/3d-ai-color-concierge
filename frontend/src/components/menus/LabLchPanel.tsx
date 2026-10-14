@@ -4,6 +4,7 @@ import { PanelShell } from './PanelShell';
 import LabSliders from './controls/LabSliders';
 import LchSliders from './controls/LchSliders';
 import TwoDPicker from './controls/TwoDPicker';
+import OneDPicker from './controls/OneDPicker';
 import type { ControlPaneProps } from '../../types/controlPane';
 
 const LabLchPanel = (props: ControlPaneProps) => {
@@ -33,9 +34,19 @@ const LabLchPanel = (props: ControlPaneProps) => {
     <PanelShell>
       <Section>
         <LabSliders {...interceptedProps} />
-        {props.shape === 'Lab' && <TwoDPicker {...liveProps} />}
+        {props.shape === 'Lab' && (
+          <>
+            <OneDPicker {...liveProps} />
+            <TwoDPicker {...liveProps} />
+          </>
+        )}
         <LchSliders {...interceptedProps} />
-        {props.shape === 'LCH' && <TwoDPicker {...liveProps} />}
+        {props.shape === 'LCH' && (
+          <>
+            <OneDPicker {...liveProps} />
+            <TwoDPicker {...liveProps} />
+          </>
+        )}
       </Section>
     </PanelShell>
   );
