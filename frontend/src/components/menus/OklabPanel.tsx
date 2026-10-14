@@ -5,6 +5,7 @@ import LmsSliders from './controls/LmsSliders';
 import OkLabSliders from './controls/OkLabSliders';
 import OklchSliders from './controls/OklchSliders';
 import TwoDPicker from './controls/TwoDPicker';
+import OneDPicker from './controls/OneDPicker';
 import ColorDifferencePanel from './controls/ColorDifferencePanel';
 import type { ControlPaneProps } from '../../types/controlPane';
 
@@ -42,9 +43,16 @@ const OklabPanel = (props: ControlPaneProps) => {
     <PanelShell>
       <Section>
         <LmsSliders {...interceptedProps} />
+        {props.shape === 'LMS' && <OneDPicker {...liveProps} />}
         <OkLabSliders {...interceptedProps} />
+        {props.shape === 'OKLAB' && <OneDPicker {...liveProps} />}
         <OklchSliders {...interceptedProps} />
-        {props.shape === 'OKLCH' && <TwoDPicker {...liveProps} />}
+        {props.shape === 'OKLCH' && (
+          <>
+            <OneDPicker {...liveProps} />
+            <TwoDPicker {...liveProps} />
+          </>
+        )}
         <ColorDifferencePanel
           currentColor={
             props.colorTarget === 'background'

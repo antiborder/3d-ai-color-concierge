@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ControlPaneSliders } from '../menus/ControlPaneSliders';
-import OneDPickerPanel from '../menus/OneDPickerPanel';
 import LabLchPanel from '../menus/LabLchPanel';
 import OklabPanel from '../menus/OklabPanel';
 import CIEPanel from '../menus/CIEPanel';
@@ -12,7 +11,6 @@ import ColorSearchPanel from '../menus/ColorSearchPanel';
 import type { ControlPaneProps, ColorPanelProps } from '../../types/controlPane';
 import {
   IconSliders,
-  IconOneDPicker,
   IconLabLch,
   IconOkLab,
   IconCIE,
@@ -21,6 +19,7 @@ import {
   IconHistory,
   IconSearch,
 } from './MenuIcons';
+import { menuForShape } from './menuForShape';
 import { UI_PANEL_CLASS } from './uiPanel';
 
 export type MobileSheetId =
@@ -28,7 +27,6 @@ export type MobileSheetId =
   | 'cie'
   | 'labLch'
   | 'oklab'
-  | 'oneDPicker'
   | 'displayed'
   | 'harmony'
   | 'history'
@@ -59,12 +57,22 @@ const MobilePane = (props: MobilePaneProps) => {
     if (controlPaneProps.openCIEPanelSignal) setActiveSheet('cie');
   }, [controlPaneProps.openCIEPanelSignal]);
 
+  // The sheet holding the active space's panel (and so its 1D picker)
+  const shapeMenu = menuForShape(controlPaneProps.shape);
+  const shapeSheet: MobileSheetId = shapeMenu === 'sliders' ? 'control' : shapeMenu;
+
+  // The AI set up the 1D picker: open the sheet of the active space, where the 1D picker is
   useEffect(() => {
-    if (controlPaneProps.openOneDPickerSignal) setActiveSheet('oneDPicker');
+    if (controlPaneProps.openOneDPickerSignal) setActiveSheet(shapeSheet);
   }, [controlPaneProps.openOneDPickerSignal]);
 
   useEffect(() => {
-    controlPaneProps.onBridgeOpenChange(activeSheet === 'oneDPicker');
+    controlPaneProps.onBridgePanelShownChange?.(activeSheet === shapeSheet);
+  }, [activeSheet, shapeSheet]);
+
+  // The color difference (ΔE) panel is part of the LMS / OkLab / OkLCH sheet
+  useEffect(() => {
+    controlPaneProps.onColorDifferenceShownChange?.(activeSheet === 'oklab');
   }, [activeSheet]);
 
   const onIconClick = useCallback((id: MobileSheetId) => {
@@ -114,11 +122,6 @@ const MobilePane = (props: MobilePaneProps) => {
       {activeSheet === 'oklab' && (
         <SheetBlock>
           <OklabPanel {...controlPaneProps} />
-        </SheetBlock>
-      )}
-      {activeSheet === 'oneDPicker' && (
-        <SheetBlock>
-          <OneDPickerPanel {...controlPaneProps} />
         </SheetBlock>
       )}
       {activeSheet === 'displayed' && (
@@ -194,15 +197,6 @@ const MobileMenuBar = ({ activeSheet, onIconClick }: MobileMenuBarProps) => (
       onClick={() => onIconClick('oklab')}
     >
       <IconOkLab />
-    </IconButton>
-    <IconButton
-      type="button"
-      aria-label="1D picker"
-      aria-pressed={activeSheet === 'oneDPicker'}
-      $active={activeSheet === 'oneDPicker'}
-      onClick={() => onIconClick('oneDPicker')}
-    >
-      <IconOneDPicker />
     </IconButton>
     <IconButton
       type="button"

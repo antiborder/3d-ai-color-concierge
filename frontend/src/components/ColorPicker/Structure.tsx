@@ -26,6 +26,7 @@ import CylinderEllipses from './CylinderEllipses';
 import ColorCursor from './ColorCursor';
 import HarmonyMarkers from './HarmonyMarkers';
 import ColorBridgeLine from './ColorBridgeLine';
+import ColorDifferenceLine from './ColorDifferenceLine';
 import AxisIndicators from './AxisIndicators';
 import CylindricalAxisArrows from './CylindricalAxisArrows';
 import FocusAxisArrows from './FocusAxisArrows';
@@ -282,6 +283,15 @@ import type { ColorSpace } from '../../types/color';
 
 const cameraPosition: [number, number, number] = [0, 15, 0];
 
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const h = hex.replace('#', '');
+  return {
+    r: parseInt(h.slice(0, 2), 16),
+    g: parseInt(h.slice(2, 4), 16),
+    b: parseInt(h.slice(4, 6), 16),
+  };
+}
+
 function resolveLabelPositions(
   labels: Array<{ r: number; g: number; b: number }> | undefined,
   shape: ColorSpace,
@@ -490,6 +500,14 @@ const Structure = (props: StructureProps) => {
             <ColorBridgeLine
               colorA={props.bridgeColorA}
               colorB={props.bridgeColorB}
+              shape={props.shape}
+              {...positionProps}
+            />
+          )}
+          {props.isColorDifferenceShown && (
+            <ColorDifferenceLine
+              focused={{ r: props.focusR, g: props.focusG, b: props.focusB }}
+              background={hexToRgb(backgroundColor)}
               shape={props.shape}
               {...positionProps}
             />

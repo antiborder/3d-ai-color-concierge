@@ -185,6 +185,9 @@ function App() {
   } | null>(null);
   const [openCIEPanelSignal, setOpenCIEPanelSignal] = useState(0);
   const [openOneDPickerSignal, setOpenOneDPickerSignal] = useState(0);
+  // Whether the panel holding the active space's 1D picker, and the ΔE panel, are on screen
+  const [isBridgePanelShown, setIsBridgePanelShown] = useState(false);
+  const [isColorDifferenceShown, setIsColorDifferenceShown] = useState(false);
   const activeContentIdRef = useRef<string | null>(null);
   activeContentIdRef.current = activeContentId;
   // When the color space shape last started deforming, so a slide can wait for it to finish
@@ -524,10 +527,13 @@ function App() {
     return { focusH: pH, focusS: pS, focusL: pL, focusHsvS: pHsvS, focusV: pV };
   }, [previewRgb]);
 
+  // The 3D view draws the 1D picker's path only while the picker is open and on screen
+  const isBridgeVisible = isBridgeOpen && isBridgePanelShown;
   const bridgeForStructure = {
-    bridgeColorA: isBridgeOpen ? bridgeColorA : undefined,
-    bridgeColorB: isBridgeOpen ? bridgeColorB : undefined,
-    isBridgeOpen,
+    bridgeColorA: isBridgeVisible ? bridgeColorA : undefined,
+    bridgeColorB: isBridgeVisible ? bridgeColorB : undefined,
+    isBridgeOpen: isBridgeVisible,
+    isColorDifferenceShown,
     isTwoDPickerOpen,
   };
 
@@ -538,6 +544,8 @@ function App() {
     onSetBridgeColorB: setBridgeColorB,
     isBridgeOpen,
     onBridgeOpenChange: setIsBridgeOpen,
+    onBridgePanelShownChange: setIsBridgePanelShown,
+    onColorDifferenceShownChange: setIsColorDifferenceShown,
     isTwoDPickerOpen,
     onTwoDPickerOpenChange: setIsTwoDPickerOpen,
   };

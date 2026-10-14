@@ -17,6 +17,8 @@ export interface StructureProps {
   bridgeColorB?: { r: number; g: number; b: number };
   isBridgeOpen?: boolean;
   isTwoDPickerOpen?: boolean;
+  // Draw the focused ↔ background line with their OkLab ΔE (while the ΔE panel is shown)
+  isColorDifferenceShown?: boolean;
   harmonyColors?: HarmonyColor[];
   aiColorLabels?: AiColorLabel[];
   shape: ColorSpace;

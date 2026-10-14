@@ -6,34 +6,6 @@ export function IconSliders() {
   );
 }
 
-export function IconOneDPicker() {
-  return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M5,10 L12,10 L12,14 L5,14 Q3,14 3,12 Q3,10 5,10 Z" fill="white" />
-      <path d="M12,10 L19,10 Q21,10 21,12 Q21,14 19,14 L12,14 Z" fill="currentColor" />
-      <rect
-        x="3"
-        y="10"
-        width="18"
-        height="4"
-        rx="2"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        fill="none"
-      />
-      <line
-        x1="12"
-        y1="7"
-        x2="12"
-        y2="17"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 export function IconCIE() {
   return (
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden>

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import convert from 'color-convert';
 import { PanelShell } from './PanelShell';
 import TwoDPicker from './controls/TwoDPicker';
+import OneDPicker from './controls/OneDPicker';
 import RgbSliders from './controls/RgbSliders';
 import CmykSliders from './controls/CmykSliders';
 import HslSliders from './controls/HslSliders';
@@ -10,7 +11,7 @@ import HsbSliders from './controls/HsbSliders';
 import type { ControlPaneProps } from '../../types/controlPane';
 import '../../App.css';
 
-/** RGB/CMYK/HSB/HSL sliders + TwoDPicker. Lab/LCH sliders live in OneDPickerPanel. */
+/** RGB/CMYK/HSB/HSL sliders; the active space's panel is followed by the 1D and 2D pickers. */
 export const ControlPaneSliders = (props: ControlPaneProps) => {
   const [liveRgb, setLiveRgb] = useState<{ r: number; g: number; b: number } | null>(null);
 
@@ -121,7 +122,12 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
           onLiveDrag={onRgbLiveDrag}
           onDragEnd={onDragEnd}
         />
-        {props.shape === 'RGB' && <TwoDPicker {...liveProps} />}
+        {props.shape === 'RGB' && (
+          <>
+            <OneDPicker {...liveProps} />
+            <TwoDPicker {...liveProps} />
+          </>
+        )}
         <CmykSliders
           {...liveProps}
           mainElement={props.cmykMainElement}
@@ -130,7 +136,12 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
           onLiveDrag={onCmykLiveDrag}
           onDragEnd={onDragEnd}
         />
-        {props.shape === 'CMYK' && <TwoDPicker {...liveProps} />}
+        {props.shape === 'CMYK' && (
+          <>
+            <OneDPicker {...liveProps} />
+            <TwoDPicker {...liveProps} />
+          </>
+        )}
         <HslSliders
           {...liveProps}
           mainElement={props.hslMainElement}
@@ -139,7 +150,12 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
           onLiveDrag={onHslLiveDrag}
           onDragEnd={onDragEnd}
         />
-        {props.shape === 'HSL' && <TwoDPicker {...liveProps} />}
+        {props.shape === 'HSL' && (
+          <>
+            <OneDPicker {...liveProps} />
+            <TwoDPicker {...liveProps} />
+          </>
+        )}
         <HsbSliders
           {...liveProps}
           mainElement={props.hsbMainElement}
@@ -148,7 +164,12 @@ export const ControlPaneSliders = (props: ControlPaneProps) => {
           onLiveDrag={onHsbLiveDrag}
           onDragEnd={onDragEnd}
         />
-        {props.shape === 'HSB' && <TwoDPicker {...liveProps} />}
+        {props.shape === 'HSB' && (
+          <>
+            <OneDPicker {...liveProps} />
+            <TwoDPicker {...liveProps} />
+          </>
+        )}
       </SlidersSection>
     </PanelShell>
   );

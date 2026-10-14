@@ -4,6 +4,16 @@ import convert from 'color-convert';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import type { ColorSpace } from '../../../types/color';
+import {
+  lmsToRgb,
+  oklabToRgb,
+  oklchToRgb,
+  rgbToLms,
+  rgbToOklab,
+  rgbToOklch,
+  rgbToXYZ,
+  xyzToRgb,
+} from '../../../utils/gamutUtils';
 
 interface RGB {
   r: number;
@@ -107,6 +117,30 @@ export function interpolateRgb(
     const H = lerpAngle(H1, H2, t);
     const Hrad = (H * Math.PI) / 180;
     return labToRgb(L, C * Math.cos(Hrad), C * Math.sin(Hrad));
+  }
+  if (shape === 'OKLAB') {
+    const A = rgbToOklab(r1, g1, b1);
+    const B = rgbToOklab(r2, g2, b2);
+    return oklabToRgb(lerp(A[0], B[0], t), lerp(A[1], B[1], t), lerp(A[2], B[2], t));
+  }
+  if (shape === 'OKLCH') {
+    const [L1, C1, H1] = rgbToOklch(r1, g1, b1);
+    const [L2, C2, H2] = rgbToOklch(r2, g2, b2);
+    // A gray has no hue of its own: take the other end's, so the path does not swing round
+    const h1 = C1 < 1e-4 ? H2 : H1;
+    const h2 = C2 < 1e-4 ? H1 : H2;
+    return oklchToRgb(lerp(L1, L2, t), lerp(C1, C2, t), lerpAngle(h1, h2, t));
+  }
+  if (shape === 'LMS') {
+    const A = rgbToLms(r1, g1, b1);
+    const B = rgbToLms(r2, g2, b2);
+    return lmsToRgb(lerp(A[0], B[0], t), lerp(A[1], B[1], t), lerp(A[2], B[2], t));
+  }
+  if (shape === 'XYZ' || shape === 'xyz' || shape === 'xy') {
+    // Mixing in XYZ, which is linear in light: on the chromaticity diagram the path is straight
+    const A = rgbToXYZ(r1, g1, b1);
+    const B = rgbToXYZ(r2, g2, b2);
+    return xyzToRgb(lerp(A[0], B[0], t), lerp(A[1], B[1], t), lerp(A[2], B[2], t));
   }
   return [Math.round(lerp(r1, r2, t)), Math.round(lerp(g1, g2, t)), Math.round(lerp(b1, b2, t))];
 }

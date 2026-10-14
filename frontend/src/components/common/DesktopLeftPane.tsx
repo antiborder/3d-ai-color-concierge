@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ControlPaneSliders } from '../menus/ControlPaneSliders';
-import OneDPickerPanel from '../menus/OneDPickerPanel';
 import LabLchPanel from '../menus/LabLchPanel';
 import OklabPanel from '../menus/OklabPanel';
 import CIEPanel from '../menus/CIEPanel';
 import type { ControlPaneProps } from '../../types/controlPane';
-import { IconSliders, IconOneDPicker, IconLabLch, IconOkLab, IconCIE } from './MenuIcons';
+import { IconSliders, IconLabLch, IconOkLab, IconCIE } from './MenuIcons';
+import { menuForShape } from './menuForShape';
 import { UI_PANEL_CLASS } from './uiPanel';
 
-type DesktopMenuId = 'sliders' | 'oneDPicker' | 'labLch' | 'oklab' | 'cie';
+type DesktopMenuId = 'sliders' | 'labLch' | 'oklab' | 'cie';
 
 const DesktopLeftPane = (props: ControlPaneProps) => {
   const [activeMenu, setActiveMenu] = useState<DesktopMenuId | null>('sliders');
@@ -18,12 +18,18 @@ const DesktopLeftPane = (props: ControlPaneProps) => {
     if (props.openCIEPanelSignal) setActiveMenu('cie');
   }, [props.openCIEPanelSignal]);
 
+  // The AI set up the 1D picker: open the menu of the active space, where the 1D picker is
   useEffect(() => {
-    if (props.openOneDPickerSignal) setActiveMenu('oneDPicker');
+    if (props.openOneDPickerSignal) setActiveMenu(menuForShape(props.shape));
   }, [props.openOneDPickerSignal]);
 
   useEffect(() => {
-    props.onBridgeOpenChange(activeMenu === 'oneDPicker');
+    props.onBridgePanelShownChange?.(activeMenu === menuForShape(props.shape));
+  }, [activeMenu, props.shape]);
+
+  // The color difference (ΔE) panel is part of the LMS / OkLab / OkLCH menu
+  useEffect(() => {
+    props.onColorDifferenceShownChange?.(activeMenu === 'oklab');
   }, [activeMenu]);
 
   const onIconClick = useCallback((id: DesktopMenuId) => {
@@ -35,7 +41,6 @@ const DesktopLeftPane = (props: ControlPaneProps) => {
       <DesktopMenuBar activeMenu={activeMenu} onIconClick={onIconClick} />
       <PanelArea>
         {activeMenu === 'sliders' && <ControlPaneSliders {...props} />}
-        {activeMenu === 'oneDPicker' && <OneDPickerPanel {...props} />}
         {activeMenu === 'labLch' && <LabLchPanel {...props} />}
         {activeMenu === 'oklab' && <OklabPanel {...props} />}
         {activeMenu === 'cie' && <CIEPanel {...props} />}
@@ -86,15 +91,6 @@ const DesktopMenuBar = ({ activeMenu, onIconClick }: DesktopMenuBarProps) => (
       onClick={() => onIconClick('oklab')}
     >
       <IconOkLab />
-    </MenuIconButton>
-    <MenuIconButton
-      type="button"
-      aria-label="1D picker"
-      aria-pressed={activeMenu === 'oneDPicker'}
-      $active={activeMenu === 'oneDPicker'}
-      onClick={() => onIconClick('oneDPicker')}
-    >
-      <IconOneDPicker />
     </MenuIconButton>
   </MenuBar>
 );
