@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { rgbToHsl, rgbToHsv } from './floatColor';
 import convert from 'color-convert';
 import { getMunsellHVC } from './munsellUtils';
 import type {
@@ -80,7 +81,8 @@ export const cylindricalToCartesian: CylindricalToCartesianFunction = (theta, ra
 ];
 
 export const getHslPosition: PositionFunction = (r, g, b) => {
-  const [h, s, l] = convert.rgb.hsl([Math.round(r), Math.round(g), Math.round(b)]);
+  // Unrounded: whole-degree / whole-percent values would make paths through this space jagged
+  const [h, s, l] = rgbToHsl(r, g, b);
   const theta = (h / 360) * (2 * Math.PI) - Math.PI / 6;
   // Bicone: radius scales to 0 at L=0 and L=100, max at L=50
   const radius = (s / 100) * cylinderRadius * (1 - Math.abs(2 * l / 100 - 1));
@@ -96,7 +98,8 @@ export const rescaleHsb = (h: number, s: number, v: number): [number, number, nu
 ];
 
 export const getHsbPosition: PositionFunction = (r, g, b) => {
-  const [h, s, v] = convert.rgb.hsv([Math.round(r), Math.round(g), Math.round(b)]);
+  // Unrounded: whole-degree / whole-percent values would make paths through this space jagged
+  const [h, s, v] = rgbToHsv(r, g, b);
   return cylindricalToCartesian(...rescaleHsb(h, s, v));
 };
 

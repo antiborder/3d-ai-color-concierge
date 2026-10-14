@@ -14,6 +14,14 @@ import {
   rgbToXYZ,
   xyzToRgb,
 } from '../../../utils/gamutUtils';
+import {
+  cmykToRgb,
+  hslToRgb,
+  hsvToRgb,
+  rgbToCmyk,
+  rgbToHsl,
+  rgbToHsv,
+} from '../../../utils/floatColor';
 
 interface RGB {
   r: number;
@@ -57,7 +65,7 @@ function rgbToLab(r: number, g: number, b: number): [number, number, number] {
   return [116 * f(Yn) - 16, 500 * (f(Xn) - f(Yn)), 200 * (f(Yn) - f(Zn))];
 }
 
-function labToRgb(L: number, a: number, b: number): [number, number, number] {
+function labToRgb(L: number, a: number, b: number, exact = false): [number, number, number] {
   const fy = (L + 16) / 116;
   const fx = a / 500 + fy;
   const fz = fy - b / 200;
@@ -68,11 +76,12 @@ function labToRgb(L: number, a: number, b: number): [number, number, number] {
   const rl = X * 3.2404542 - Y * 1.5371385 - Z * 0.4985314;
   const gl = -X * 0.969266 + Y * 1.8760108 + Z * 0.041556;
   const bl = X * 0.0556434 - Y * 0.2040259 + Z * 1.0572252;
-  const toSrgb = (c: number) =>
-    Math.round(
+  const toSrgb = (c: number) => {
+    const v =
       Math.max(0, Math.min(1, c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055)) *
-        255
-    );
+      255;
+    return exact ? v : Math.round(v);
+  };
   return [toSrgb(rl), toSrgb(gl), toSrgb(bl)];
 }
 
@@ -80,30 +89,40 @@ export function interpolateRgb(
   colorA: RGB,
   colorB: RGB,
   shape: ColorSpace,
-  t: number
+  t: number,
+  // Unrounded RGB, for drawing the path smoothly in 3D (picked colors are whole numbers)
+  exact = false
 ): [number, number, number] {
   const { r: r1, g: g1, b: b1 } = colorA;
   const { r: r2, g: g2, b: b2 } = colorB;
 
   if (shape === 'HSL') {
-    const [h1, s1, l1] = convert.rgb.hsl([r1, g1, b1]);
-    const [h2, s2, l2] = convert.rgb.hsl([r2, g2, b2]);
-    return convert.hsl.rgb([lerpAngle(h1, h2, t), lerp(s1, s2, t), lerp(l1, l2, t)]);
+    const [h1, s1, l1] = rgbToHsl(r1, g1, b1);
+    const [h2, s2, l2] = rgbToHsl(r2, g2, b2);
+    const hsl: [number, number, number] = [lerpAngle(h1, h2, t), lerp(s1, s2, t), lerp(l1, l2, t)];
+    return exact ? hslToRgb(...hsl) : convert.hsl.rgb(hsl);
   }
   if (shape === 'HSB') {
-    const [h1, s1, v1] = convert.rgb.hsv([r1, g1, b1]);
-    const [h2, s2, v2] = convert.rgb.hsv([r2, g2, b2]);
-    return convert.hsv.rgb([lerpAngle(h1, h2, t), lerp(s1, s2, t), lerp(v1, v2, t)]);
+    const [h1, s1, v1] = rgbToHsv(r1, g1, b1);
+    const [h2, s2, v2] = rgbToHsv(r2, g2, b2);
+    const hsv: [number, number, number] = [lerpAngle(h1, h2, t), lerp(s1, s2, t), lerp(v1, v2, t)];
+    return exact ? hsvToRgb(...hsv) : convert.hsv.rgb(hsv);
   }
   if (shape === 'CMYK') {
-    const [c1, m1, y1, k1] = convert.rgb.cmyk([r1, g1, b1]);
-    const [c2, m2, y2, k2] = convert.rgb.cmyk([r2, g2, b2]);
-    return convert.cmyk.rgb([lerp(c1, c2, t), lerp(m1, m2, t), lerp(y1, y2, t), lerp(k1, k2, t)]);
+    const [c1, m1, y1, k1] = rgbToCmyk(r1, g1, b1);
+    const [c2, m2, y2, k2] = rgbToCmyk(r2, g2, b2);
+    const cmyk: [number, number, number, number] = [
+      lerp(c1, c2, t),
+      lerp(m1, m2, t),
+      lerp(y1, y2, t),
+      lerp(k1, k2, t),
+    ];
+    return exact ? cmykToRgb(...cmyk) : convert.cmyk.rgb(cmyk);
   }
   if (shape === 'Lab') {
     const [L1, a1, b_1] = rgbToLab(r1, g1, b1);
     const [L2, a2, b_2] = rgbToLab(r2, g2, b2);
-    return labToRgb(lerp(L1, L2, t), lerp(a1, a2, t), lerp(b_1, b_2, t));
+    return labToRgb(lerp(L1, L2, t), lerp(a1, a2, t), lerp(b_1, b_2, t), exact);
   }
   if (shape === 'LCH') {
     const [L1, a1, b_1] = rgbToLab(r1, g1, b1);
@@ -116,7 +135,7 @@ export function interpolateRgb(
     const C = lerp(C1, C2, t);
     const H = lerpAngle(H1, H2, t);
     const Hrad = (H * Math.PI) / 180;
-    return labToRgb(L, C * Math.cos(Hrad), C * Math.sin(Hrad));
+    return labToRgb(L, C * Math.cos(Hrad), C * Math.sin(Hrad), exact);
   }
   if (shape === 'OKLAB') {
     const A = rgbToOklab(r1, g1, b1);
@@ -142,7 +161,8 @@ export function interpolateRgb(
     const B = rgbToXYZ(r2, g2, b2);
     return xyzToRgb(lerp(A[0], B[0], t), lerp(A[1], B[1], t), lerp(A[2], B[2], t));
   }
-  return [Math.round(lerp(r1, r2, t)), Math.round(lerp(g1, g2, t)), Math.round(lerp(b1, b2, t))];
+  const rgb: [number, number, number] = [lerp(r1, r2, t), lerp(g1, g2, t), lerp(b1, b2, t)];
+  return exact ? rgb : (rgb.map(Math.round) as [number, number, number]);
 }
 
 function buildGradientStops(colorA: RGB, colorB: RGB, shape: ColorSpace, steps = 20): string {

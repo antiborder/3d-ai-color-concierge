@@ -32,7 +32,7 @@ const ColorBridgeLine = ({ colorA, colorB, shape, ...fns }: ColorBridgeLineProps
   const points = useMemo(
     () =>
       Array.from({ length: STEPS + 1 }, (_, i) => {
-        const [r, g, b] = interpolateRgb(colorA, colorB, shape, i / STEPS);
+        const [r, g, b] = interpolateRgb(colorA, colorB, shape, i / STEPS, true);
         return positionForShape({ r, g, b }, shape, fns);
       }),
     // the position functions are rebuilt by Structure on each render but only depend on shape
