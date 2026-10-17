@@ -2072,16 +2072,6 @@
     },
     {
       "from": "act_lighter",
-      "to": "act_darker",
-      "both": true
-    },
-    {
-      "from": "act_more_vivid",
-      "to": "act_less_vivid",
-      "both": true
-    },
-    {
-      "from": "act_lighter",
       "to": "act_closest_name"
     },
     {

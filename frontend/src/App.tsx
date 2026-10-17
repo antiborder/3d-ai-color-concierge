@@ -25,6 +25,8 @@ import { type HarmonyMode, computeHarmonyColors } from './utils/colorHarmony';
 import { interpolateRgb } from './components/menus/controls/ColorBridge';
 import type { AiColorLabel } from './types/structure';
 import type { ColorSpace } from './types/color';
+import { adjustOklch } from './utils/adjustOklch';
+import type { AdjustProperty } from './utils/adjustOklch';
 
 // Loaded only when opened: it carries the whole topic graph
 const TopicNetwork = lazy(() => import('./components/topicNetwork/TopicNetwork'));
@@ -256,11 +258,25 @@ function App() {
 
   const { helpRequest, handleHelpClick } = useHelpRequest(i18n.language);
 
+  // Setting the background on its own ends the link to the selected color; otherwise the next
+  // selected color would overwrite it
+  const setBackgroundColor = (hex: string) => {
+    setIsColorsLinked(false);
+    setSceneBackgroundColor(hex);
+  };
+
   const routeColorToBackground = (r: number, g: number, b: number) => {
     const ri = Math.round(r), gi = Math.round(g), bi = Math.round(b);
-    setSceneBackgroundColor('#' + convert.rgb.hex([ri, gi, bi]).toLowerCase());
+    setBackgroundColor('#' + convert.rgb.hex([ri, gi, bi]).toLowerCase());
     addColor(ri, gi, bi);
   };
+
+  // The 1D picker's endpoints and color space as the AI last set them: it may set the endpoints,
+  // change the space and pick a position in one go, before React re-renders
+  const aiBridgeRef = useRef({ a: bridgeColorA, b: bridgeColorB, shape: colorState.shape });
+  useEffect(() => {
+    aiBridgeRef.current = { a: bridgeColorA, b: bridgeColorB, shape: colorState.shape };
+  }, [bridgeColorA, bridgeColorB, colorState.shape]);
 
   // Voice command handlers
   const voiceCommandHandlers = {
@@ -269,6 +285,7 @@ function App() {
     updateRgbValue,
     setShape: (shape: ColorSpace) => {
       if (shape !== colorState.shape) shapeMorphStartedAtRef.current = performance.now();
+      aiBridgeRef.current.shape = shape;
       setShape(shape);
     },
     toggleLabel,
@@ -278,16 +295,24 @@ function App() {
     getCurrentShape: () => colorState.shape,
     setHarmonyMode,
     setColorSets,
-    setBridgeColorA,
-    setBridgeColorB,
+    setBridgeColorA: (c: { r: number; g: number; b: number }) => {
+      aiBridgeRef.current.a = c;
+      setBridgeColorA(c);
+    },
+    setBridgeColorB: (c: { r: number; g: number; b: number }) => {
+      aiBridgeRef.current.b = c;
+      setBridgeColorB(c);
+    },
     // When the AI sets up the 1D picker, also open its panel so the gradient is on screen
     setIsBridgeOpen: (open: boolean) => {
       setIsBridgeOpen(open);
       if (open) setOpenOneDPickerSignal((n) => n + 1);
     },
     selectBridgePosition: (position: number) => {
-      const [r, g, b] = interpolateRgb(bridgeColorA, bridgeColorB, colorState.shape, position);
+      const { a, b: bEnd, shape } = aiBridgeRef.current;
+      const [r, g, b] = interpolateRgb(a, bEnd, shape, position);
       updateFromRgb(r, g, b);
+      return '#' + convert.rgb.hex([r, g, b]).toLowerCase();
     },
     showContent: showContentAfterMorph,
     openCIEPanel: () => setOpenCIEPanelSignal((n) => n + 1),
@@ -298,7 +323,15 @@ function App() {
     resetCameraZoom: () => { setResetCameraZoomSignal((n) => n + 1); },
     zoomToHarmony: () => { setHarmonyZoomSignal((n) => n + 1); },
     openTopicNetwork: () => setIsTopicNetworkOpen(true),
-    setSceneBackgroundColor,
+    setSceneBackgroundColor: setBackgroundColor,
+    adjustBackground: (property: AdjustProperty, direction: 'up' | 'down', amount?: number) => {
+      setIsColorsLinked(false);
+      setSceneBackgroundColor((prev) => {
+        const [r, g, b] = convert.hex.rgb(prev);
+        const rgb = adjustOklch(r, g, b, property, direction, amount);
+        return rgb ? '#' + convert.rgb.hex(rgb).toLowerCase() : prev;
+      });
+    },
     routeColorToBackground,
     setColorTarget,
   };

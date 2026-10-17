@@ -22,6 +22,7 @@ from app.services.gemini_live.tools import (
     tool_call_to_frontend_command,
 )
 from app.services.gemini_live.tools.color_mix import MODES, mix, parse_hex, to_hex
+from app.services.gemini_live.tools.color_shift import DEFAULT_AMOUNT, shift_toward
 from app.services.gemini_live.tools.educational import build_show_content_response
 from app.services.gemini_live.transcription import (
     extract_finished_from_transcription_obj,
@@ -92,12 +93,53 @@ async def _mix_colors(args: dict, event_q: asyncio.Queue, color_service, languag
         cmd = tool_call_to_frontend_command(name, params)
         await event_q.put(LiveCommandEvent(command=cmd, tool_name=name, tool_call_id=None))
     resp: dict = {"result": "ok", "mode": mode, "hex": to_hex((r, g, b))}
+    resp = _with_closest_name(resp, (r, g, b), color_service, language)
+    logger.info("MIX_COLORS: %s %s -> %s", mode, [to_hex(c) for _, c in parsed], resp)
+    return resp
+
+
+def _with_closest_name(resp: dict, rgb: tuple[int, int, int], color_service, language: str) -> dict:
     if color_service is not None:
-        closest = color_service.find_closest_colors(r, g, b, top_n=1, language=language)
+        closest = color_service.find_closest_colors(*rgb, top_n=1, language=language)
         if closest:
             resp["name"] = closest[0]["name"]
             resp["name_tags"] = closest[0]["tags"]
-    logger.info("MIX_COLORS: %s %s -> %s", mode, [to_hex(c) for _, c in parsed], resp)
+    return resp
+
+
+def _color_set_by(name: str, params: object) -> tuple[int, int, int] | None:
+    """SELECT_COLOR / SET_HEX / SET_BACKGROUND_COLOR が設定する色。それ以外は None。"""
+    if not isinstance(params, dict):
+        return None
+    if name == "SELECT_COLOR" and isinstance(params.get("color"), dict):
+        c = params["color"]
+        return int(c.get("r", 0)), int(c.get("g", 0)), int(c.get("b", 0))
+    if name in ("SET_HEX", "SET_BACKGROUND_COLOR"):
+        return parse_hex(params.get("hex"))
+    return None
+
+
+async def _shift_toward(args: dict, event_q: asyncio.Queue, ui: dict, color_service, language: str) -> dict:
+    """SHIFT_TOWARD_COLOR: 選択色または背景色を、指定の色へ OKLab で近づけて適用する。"""
+    goal = parse_hex(args.get("hex"))
+    target = "background" if args.get("target") == "background" else "focused"
+    current = parse_hex(ui.get("background") if target == "background" else ui.get("hex"))
+    if goal is None or current is None:
+        return {"result": "error", "error": "Give the color to move toward as a #RRGGBB hex."}
+    try:
+        amount = float(args.get("amount", DEFAULT_AMOUNT))
+    except (TypeError, ValueError):
+        amount = DEFAULT_AMOUNT
+    rgb = shift_toward(current, goal, amount)
+    if target == "background":
+        name, params = "SET_BACKGROUND_COLOR", {"hex": to_hex(rgb)}
+    else:
+        name, params = "SELECT_COLOR", {"r": rgb[0], "g": rgb[1], "b": rgb[2], "target": "focused"}
+    cmd = tool_call_to_frontend_command(name, params)
+    await event_q.put(LiveCommandEvent(command=cmd, tool_name=name, tool_call_id=None))
+    resp = {"result": "ok", "target": target, "before": to_hex(current), "hex": to_hex(rgb)}
+    resp = _with_closest_name(resp, rgb, color_service, language)
+    logger.info("SHIFT_TOWARD_COLOR: %s %s -> %s (%s)", target, to_hex(current), resp, args)
     return resp
 
 
@@ -133,6 +175,8 @@ async def _run_suggestion(
 _FRONTEND_CONFIRM_TIMEOUT_S: dict[str, float] = {
     "ADJUST_VALUE": 0.5,
     "SHOW_CONTENT": 4.0,
+    # The frontend returns the color it picked, so the AI can name it
+    "SELECT_BRIDGE_POSITION": 1.0,
 }
 
 
@@ -498,8 +542,11 @@ async def process_live_message(
                 # After an action (not a slide), hold what to suggest next
                 held = nav_state is not None and _hold_after_action(nav_state, name, args, ui, lang)
 
-                if name == "MIX_COLORS":
-                    resp = await _mix_colors(args, event_q, color_service, lang)
+                if name in ("MIX_COLORS", "SHIFT_TOWARD_COLOR"):
+                    if name == "MIX_COLORS":
+                        resp = await _mix_colors(args, event_q, color_service, lang)
+                    else:
+                        resp = await _shift_toward(args, event_q, ui, color_service, lang)
                     if held:
                         resp["next_step"] = ACTION_NEXT_STEP
                     try:
@@ -509,7 +556,7 @@ async def process_live_message(
                             if inspect.isawaitable(maybe):
                                 await maybe
                     except Exception as e:
-                        logger.info("MIX_COLORS send_tool_response failed: %s", str(e))
+                        logger.info("%s send_tool_response failed: %s", name, str(e))
                     continue
 
                 if name == "RUN_SUGGESTION" and nav_state is not None:
@@ -558,13 +605,21 @@ async def process_live_message(
                     continue
 
                 if name == "GET_CLOSEST_COLOR":
+                    bg = parse_hex(ui.get("background")) if args.get("target") == "background" else None
                     if color_service is not None and current_color_state:
-                        r = current_color_state.get("r", 0)
-                        g = current_color_state.get("g", 0)
-                        b = current_color_state.get("b", 0)
-                        lang = getattr(cfg, "language", "ja")
+                        r, g, b = bg or (
+                            current_color_state.get("r", 0),
+                            current_color_state.get("g", 0),
+                            current_color_state.get("b", 0),
+                        )
                         closest = color_service.find_closest_colors(r, g, b, top_n=5, language=lang)
-                        resp = {"r": r, "g": g, "b": b, "closest": closest}
+                        resp = {
+                            "target": "background" if bg else "focused",
+                            "r": r,
+                            "g": g,
+                            "b": b,
+                            "closest": closest,
+                        }
                         if held:
                             resp["next_step"] = ACTION_NEXT_STEP
                         logger.info(
@@ -715,11 +770,23 @@ async def process_live_message(
                         # the confirmation only delays it until the slide is on screen.
                         if name == "ADJUST_VALUE" and isinstance(frontend_resp, dict):
                             tool_resp = dict(frontend_resp)
+                        if name == "SELECT_BRIDGE_POSITION" and isinstance(frontend_resp, dict):
+                            picked = parse_hex((frontend_resp.get("data") or {}).get("hex"))
+                            if picked is not None:
+                                tool_resp["hex"] = to_hex(picked)
+                                tool_resp = _with_closest_name(
+                                    tool_resp, picked, color_service, lang
+                                )
                     except (asyncio.TimeoutError, asyncio.CancelledError):
                         logger.info("%s: timeout waiting for frontend confirmation", name)
                     finally:
                         pending_tool_futures.pop(call_id, None)
 
+                # The name of the color just set, so the AI does not describe it by guess
+                chosen = _color_set_by(name, cmd.get("parameters"))
+                if chosen is not None:
+                    tool_resp["hex"] = to_hex(chosen)
+                    tool_resp = _with_closest_name(tool_resp, chosen, color_service, lang)
                 if held:
                     tool_resp["next_step"] = ACTION_NEXT_STEP
                 # Send tool response back to Gemini Live

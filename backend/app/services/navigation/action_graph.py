@@ -29,6 +29,7 @@ PRIORITY_RUN_SUGGESTION = 90
 _PRIORITY = {
     "ADJUST_VALUE": 80,
     "MIX_COLORS": 75,
+    "SHIFT_TOWARD_COLOR": 75,
     "SELECT_COLOR": 70,
     "SET_COLOR": 70,
     "SET_HEX": 70,
@@ -97,6 +98,8 @@ class ActionGraph:
 
     def _node_for_call(self, name: str, args: dict) -> str | None:
         if name == "ADJUST_VALUE":
+            if args.get("target") == "background":
+                return "ctx_background_set"
             prop, up = args.get("property"), args.get("direction") == "up"
             amount = _number(args.get("amount"))
             if prop == "brightness":
@@ -108,7 +111,7 @@ class ActionGraph:
             if prop == "hue":
                 return "act_hue_opposite" if amount == 180 else "act_shift_hue"
             return None
-        if name in ("SELECT_COLOR", "SET_COLOR", "SET_HEX", "SELECT_BRIDGE_POSITION"):
+        if name in ("SELECT_COLOR", "SET_COLOR", "SET_HEX", "SELECT_BRIDGE_POSITION", "SHIFT_TOWARD_COLOR"):
             if args.get("target") == "background":
                 return "ctx_background_set"
             if name == "SET_HEX":
@@ -134,7 +137,7 @@ class ActionGraph:
             shown = next((k for k, v in args.items() if v is True), None)
             return f"act_sets_{shown.lower()}" if shown else None
         if name == "MIX_COLORS":
-            return "ctx_mix_paint" if args.get("mode") == "paint" else "ctx_mix_light"
+            return "ctx_mix_paint" if args.get("mode") in ("paint", "pigment") else "ctx_mix_light"
         if name == "SHOW_COLOR_LABELS":
             return "ctx_colors_shown"
         if name == "GET_CLOSEST_COLOR":

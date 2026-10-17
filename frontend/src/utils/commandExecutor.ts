@@ -31,7 +31,8 @@ export interface VoiceCommandHandlers {
   setBridgeColorA: (c: { r: number; g: number; b: number }) => void;
   setBridgeColorB: (c: { r: number; g: number; b: number }) => void;
   setIsBridgeOpen: (open: boolean) => void;
-  selectBridgePosition: (position: number) => void;
+  /** Selects the color at a position of the 1D picker; returns it as #rrggbb. */
+  selectBridgePosition: (position: number) => string;
   /** Shows a slide; resolves once it is on screen (after any running shape deformation). */
   showContent: (id: string, tags: SlideTag[]) => Promise<void>;
   openCIEPanel: () => void;
@@ -41,6 +42,11 @@ export interface VoiceCommandHandlers {
   zoomToHarmony: () => void;
   openTopicNetwork: () => void;
   setSceneBackgroundColor: (hex: string) => void;
+  adjustBackground: (
+    property: 'brightness' | 'saturation' | 'hue',
+    direction: 'up' | 'down',
+    amount?: number
+  ) => void;
   routeColorToBackground: (r: number, g: number, b: number) => void;
   setColorTarget: (target: 'focused' | 'background') => void;
 }
@@ -58,14 +64,15 @@ function applyShape(colorSpace: string | undefined, handlers: VoiceCommandHandle
   }
 }
 
+/** What a command returns to the backend: SHOW_CONTENT's Promise, or the color a pick selected. */
+export type CommandOutcome = Promise<void> | { hex: string } | undefined;
+
 /**
  * コマンドを実行
- * SHOW_CONTENT はスライドが表示されたときに resolve する Promise を返す（他は undefined）。
+ * SHOW_CONTENT はスライドが表示されたときに resolve する Promise を返し、
+ * SELECT_BRIDGE_POSITION は選んだ色を返す（他は undefined）。
  */
-export function executeCommand(
-  command: Command,
-  handlers: VoiceCommandHandlers
-): Promise<void> | undefined {
+export function executeCommand(command: Command, handlers: VoiceCommandHandlers): CommandOutcome {
   switch (command.action) {
     case 'SELECT_COLOR': {
       const color = command.parameters.color as { r: number; g: number; b: number };
@@ -152,8 +159,16 @@ export function executeCommand(
         return;
       }
 
-      handlers.rotateCameraOnColorChange();
       try {
+        if (command.parameters.target === 'background') {
+          handlers.adjustBackground(
+            property as 'brightness' | 'saturation' | 'hue',
+            direction as 'up' | 'down',
+            amount
+          );
+          break;
+        }
+        handlers.rotateCameraOnColorChange();
         handlers.adjustOklchValue(
           property as 'brightness' | 'saturation' | 'hue',
           direction as 'up' | 'down',
@@ -295,7 +310,7 @@ export function executeCommand(
       if (typeof position === 'number' && position >= 0 && position <= 1) {
         handlers.rotateCameraOnColorChange();
         handlers.setIsBridgeOpen(true);
-        handlers.selectBridgePosition(position);
+        return { hex: handlers.selectBridgePosition(position) };
       }
       break;
     }

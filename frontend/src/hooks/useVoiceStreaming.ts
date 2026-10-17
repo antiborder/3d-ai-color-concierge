@@ -4,6 +4,7 @@ import type { Command, WsInboundText } from '@/types/voice';
 import type { ColorState as UiColorState } from '@/types/colorState';
 import type { ColorHistoryItem } from '@/hooks/useColorHistory';
 import type { UiContext } from './useWsColorSync';
+import type { CommandOutcome } from '../utils/commandExecutor';
 import { floatTo16BitPCM, downsample } from '../utils/audioUtils';
 import { getWsUrl, fetchWsToken } from '../utils/wsEndpoint';
 import { usePcmPlayer } from './usePcmPlayer';
@@ -24,7 +25,7 @@ export interface UseVoiceStreamingOptions {
     text: string,
     meta?: { source?: string | null; segmentId?: string | null; final?: boolean | null }
   ) => void;
-  onCommand?: (command: Command) => void | Promise<void>;
+  onCommand?: (command: Command) => CommandOutcome;
   onError?: (message: string) => void;
 }
 
@@ -311,10 +312,10 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           }
           const applied = onCommand ? onCommand(msg.command) : undefined;
           const toolCallId = msg.tool_call_id;
-          const sendToolResult = () => {
+          const sendToolResult = (data?: object) => {
             try {
               wsRef.current?.send(
-                JSON.stringify({ type: 'tool_result', tool_call_id: toolCallId, success: true })
+                JSON.stringify({ type: 'tool_result', tool_call_id: toolCallId, success: true, data })
               );
             } catch {
               /* best-effort */
@@ -327,7 +328,10 @@ export function useVoiceStreaming(options: UseVoiceStreamingOptions = {}) {
           } else if (msg.tool_name === 'SHOW_CONTENT' && toolCallId) {
             // The backend holds Gemini's tool response (and so its speech) until the
             // slide is on screen, which may be after the color space deformation.
-            void Promise.resolve(applied).finally(sendToolResult);
+            void Promise.resolve(applied).finally(() => sendToolResult());
+          } else if (msg.tool_name === 'SELECT_BRIDGE_POSITION' && toolCallId) {
+            // The color picked on the 1D picker, so the AI can say what it is
+            sendToolResult(applied && 'hex' in applied ? applied : undefined);
           }
         } else if (msg.type === 'suggestion_pending') {
           scheduleSuggestionReady(msg.token);

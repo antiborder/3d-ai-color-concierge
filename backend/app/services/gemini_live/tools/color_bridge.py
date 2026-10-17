@@ -9,7 +9,8 @@ DECLARATIONS: list[dict] = [
             "Select the color at a specific position along the 1D Picker (Color Bridge) gradient. "
             "The gradient runs from bridgeColorA (left, position=0.0) to bridgeColorB (right, position=1.0). "
             "Use this when the user says 'select the middle color', 'pick a right-leaning color', etc. "
-            "The frontend will linearly interpolate the RGB values and select the resulting color. "
+            "The frontend interpolates in the color space on screen and selects the resulting color; "
+            "the tool response gives its hex and closest name. "
             "Before calling this, you can call GET_UI_STATE to see the current bridgeColorA and bridgeColorB values."
         ),
         "parameters": {
@@ -80,11 +81,13 @@ COMMANDS: dict[str, object] = {
 }
 
 RULES_JA = """\
+- **「AとBの中間の色」「AとBの真ん中は？」**：混色（MIX_COLORS）ではなく、表示中の色空間での中点を 1D Picker で選ぶ。SET_BRIDGE_COLOR(side="left", A) → SET_BRIDGE_COLOR(side="right", B) → SELECT_BRIDGE_POSITION(0.5) の順に呼ぶ。「今の色と白の中間」のように今の色が入るときは、今の色をその端に使う。結果は tool response の name で「〇〇色空間での中間は△△です」と答える。
 - ユーザーが 1D Picker（カラーブリッジ）の左端・右端の色を変えるよう求めた場合は、SET_BRIDGE_COLOR を side="left" または side="right" と RGB値で呼び出してください。
 - ユーザーが 1D Picker のグラデーション上の特定位置の色を選ぶよう求めた場合（例：「真ん中の色」「右寄りの色」「左端の色」）、SELECT_BRIDGE_POSITION を position（0.0=左端/A、0.5=中央、1.0=右端/B）で呼び出してください。GET_UI_STATE の応答に bridgeColorA と bridgeColorB が含まれるので、端点色を説明したい場合は活用してください。\
 """
 
 RULES_EN = """\
+- **"The color halfway between A and B" / "the middle of A and B"**: this is NOT mixing (MIX_COLORS) but the midpoint in the color space on screen, picked with the 1D Picker. Call SET_BRIDGE_COLOR(side="left", A) → SET_BRIDGE_COLOR(side="right", B) → SELECT_BRIDGE_POSITION(0.5), in that order. When the current color is one of them ("halfway between this and white"), use it for that end. Answer with the name in the tool response, e.g. "In OKLCH, the midpoint is ...".
 - If the user asks to change the left or right endpoint color of the 1D Picker (Color Bridge), call SET_BRIDGE_COLOR with side="left" or side="right" and the RGB values.
 - If the user asks to select a color at a specific position on the 1D Picker gradient (e.g. "middle", "center", "right-leaning"), call SELECT_BRIDGE_POSITION with position (0.0=left/A, 0.5=center, 1.0=right/B). GET_UI_STATE returns bridgeColorA and bridgeColorB so you can describe the endpoints if helpful.\
 """

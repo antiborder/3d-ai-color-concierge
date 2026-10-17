@@ -98,8 +98,14 @@ def test_links_between_actions_go_one_way_unless_marked_both():
     after_complement = {s["id"] for s in suggest("act_harmony_complementary", NavState(), "ja", {})}
     assert "act_harmony_complementary" in after_pick
     assert "act_pick_sky" not in after_complement
-    after_darker = {s["id"] for s in suggest("act_darker", NavState(), "ja", {})}
-    assert "act_lighter" in after_darker  # lighter ↔ darker is marked both
+    after_black = {s["id"] for s in suggest("act_bg_black", NavState(), "ja", {})}
+    assert "act_bg_white" in after_black  # black ↔ white background is marked both
+
+
+def test_an_adjustment_never_offers_its_undo():
+    after_darker = {s["id"] for s in suggest("act_darker", NavState(), "ja", {}, k=50)}
+    after_duller = {s["id"] for s in suggest("act_less_vivid", NavState(), "ja", {}, k=50)}
+    assert "act_lighter" not in after_darker and "act_more_vivid" not in after_duller
 
 
 def test_context_nodes_are_never_offered():

@@ -18,7 +18,8 @@ DECLARATIONS: list[dict] = [
             "(5) color.uiContext.activeSlide — ID of the educational slide currently shown on screen "
             "    (null means none is shown); "
             "(6) color.uiContext.harmony — current harmony mode "
-            "    ('none' means off, 'complementary', 'triangle', 'square', 'pentagon', 'hexagon', etc.). "
+            "    ('none' means off, 'complementary', 'triangle', 'square', 'pentagon', 'hexagon', etc.); "
+            "(7) color.uiContext.background — the background color (#rrggbb). "
             "Use this to decide what to say, what to dismiss (DISMISS_CONTENT), and what to show "
             "(SHOW_CONTENT, SET_COLOR_SETS, CHANGE_SHAPE)."
         ),
@@ -30,7 +31,8 @@ DECLARATIONS: list[dict] = [
     {
         "name": "GET_CLOSEST_COLOR",
         "description": (
-            "Find the closest matching color names from the database for the currently selected color. "
+            "Find the closest matching color names from the database for the selected color, "
+            "or for the background with target='background'. "
             "Use this when the user asks 'what color is this?', 'what is this color called?', "
             "'what Japanese traditional color is closest to this?', or any question about identifying the current color by name. "
             "Returns the top 5 closest colors with their names, hex codes, and RGB distance. "
@@ -38,7 +40,13 @@ DECLARATIONS: list[dict] = [
         ),
         "parameters": {
             "type": "object",
-            "properties": {},
+            "properties": {
+                "target": {
+                    "type": "string",
+                    "enum": ["focused", "background"],
+                    "description": "'background' when the user asks about the background; otherwise 'focused'.",
+                },
+            },
         },
     },
     {
@@ -100,12 +108,12 @@ RULES_JA = """\
 
 ---
 
-- 色名を挙げた、または「どんな色がある？」等と聞かれた場合：SEARCH_COLOR を呼び、**複数結果なら上位3〜5件を SHOW_COLOR_LABELS で3D空間に表示する**（「どれにしますか？」と聞き返さない）。
-- **SELECT_COLOR（単色）を呼ぶのは**：(a) 明示的に1色の選択・適用を指示された場合、または (b) 検索結果が1件のみの場合、**のみ**。
-- **漠然とした聞き返し（「どんな青がお好みですか？」等）は禁止**。まず SEARCH_COLOR → 複数なら即 SHOW_COLOR_LABELS、1件なら即 SELECT_COLOR、「選んで」と言われたら SELECT_COLOR。
+- 色を選ぶ・変える依頼（「緑を選んで」「〜にして」）は、SEARCH_COLOR の結果が複数でも1色に決めて SELECT_COLOR（color_select の ① のルール）。
+- 候補を見たいという依頼（「どんな青がある？」「青系の色を見せて」）は、SEARCH_COLOR の上位3〜5件を SHOW_COLOR_LABELS で3D空間に表示する（「どれにしますか？」と聞き返さない）。
+- **漠然とした聞き返し（「どんな青がお好みですか？」等）は禁止**。
 - **SEARCH_COLOR の query 言語**：日本の伝統色は name1 が漢字（例「桜色」）・name2 がひらがな。CSS・Material Design は name1 が英語（例「skyblue」）。色の種類に合わせてクエリ言語を選ぶ（「スカイブルー」→ query="sky blue"、「桜色」→ query="桜色"）。0件なら別言語や短いキーワードで再試行。
 - 以前の色や履歴について聞かれたら GET_COLOR_HISTORY を呼ぶ。
-- 「この色の名前は？」等には GET_CLOSEST_COLOR を呼ぶ。結果は色名＋所属コレクション（"tags"参照：JAPANESE→「日本の伝統色」、MATERIAL→「マテリアルデザインカラー」、CSS→「CSSカラー」）を必ず言う（例：「CSSカラーの Sky Blue に最も近いです。」）。RGB値・距離の数値は言わない。\
+- 「この色の名前は？」等には GET_CLOSEST_COLOR を呼ぶ（「背景は何色？」なら target="background"）。結果は色名＋所属コレクション（"tags"参照：JAPANESE→「日本の伝統色」、MATERIAL→「マテリアルデザインカラー」、CSS→「CSSカラー」）を必ず言う（例：「CSSカラーの Sky Blue に最も近いです。」）。RGB値・距離の数値は言わない。\
 """
 
 RULES_EN = """\
@@ -130,10 +138,10 @@ Use the returned data to make three decisions before generating your response:
 
 ---
 
-- **When the user names a color or asks what's available** (e.g., "show me blues"): call SEARCH_COLOR, then SHOW_COLOR_LABELS with the top 3–5 results in 3D space. Do NOT ask "which one?" first — just show them.
-- **Only call SELECT_COLOR (single color)** when: (a) the user explicitly selects/sets/applies a specific color, OR (b) exactly one SEARCH_COLOR result was returned.
-- **Never ask vague open-ended questions before acting** — search first, then show with SHOW_COLOR_LABELS immediately.
+- A request to pick or change to a color ("pick green", "make it ...") → decide on ONE color and SELECT_COLOR, even when SEARCH_COLOR returns several (rule ① of color selection).
+- A request to see options ("what blues are there?", "show me some blues") → SHOW_COLOR_LABELS with the top 3–5 SEARCH_COLOR results. Do NOT ask "which one?" first — just show them.
+- **Never ask vague open-ended questions before acting.**
 - **SEARCH_COLOR**: the database uses English names (e.g. "skyblue"). Always search in English. If 0 results, try a shorter/simpler keyword.
 - If the user asks about previous colors or wants to go back, call GET_COLOR_HISTORY first.
-- If asked what the current color is called or resembles, call GET_CLOSEST_COLOR. Always mention both the color name AND its collection (from "tags"): JAPANESE → "Japanese traditional color", MATERIAL → "Material Design color", CSS → "CSS color" (e.g. "This is Sky Blue, a CSS color."). Never mention RGB values or distance numbers.\
+- If asked what the current color is called or resembles, call GET_CLOSEST_COLOR (target="background" when asked about the background). Always mention both the color name AND its collection (from "tags"): JAPANESE → "Japanese traditional color", MATERIAL → "Material Design color", CSS → "CSS color" (e.g. "This is Sky Blue, a CSS color."). Never mention RGB values or distance numbers.\
 """

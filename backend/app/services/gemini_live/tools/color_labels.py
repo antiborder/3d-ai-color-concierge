@@ -71,7 +71,7 @@ RULES_JA = """\
   - 合わせる背景色・文字色を提案するとき
   - 対照的な色・補色を具体的なラベル付きで示すとき（SET_HARMONY との併用も可）
   - 彩度や明度を上げた/下げた色のバリエーションを比較するとき
-  - **必須ルール — SEARCH_COLOR を先に呼ぶこと**：SHOW_COLOR_LABELS に渡す色は必ずカラーデータベースに登録されているものだけ使用すること。RGB値もラベルも SEARCH_COLOR が返した結果（name1 または name2）をそのまま使い、自分で作った色名や RGB 値は絶対に使わないこと。
+  - **必須ルール — SEARCH_COLOR を先に呼ぶこと**：SHOW_COLOR_LABELS に渡す色は必ずカラーデータベースに登録されているものだけ使用すること。RGB値もラベルも SEARCH_COLOR が返した結果（name1 または name2）をそのまま使い、自分で作った色名や RGB 値は使わないこと。ただし、SEARCH_COLOR で合う色が見つからないときは、色彩理論で自分で決めた色を、分かりやすい名前（例：「くすんだ青」）で表示する。「見つかりませんでした」で終えない。
   - 表示された色は全てhistoryに追加されます。背景色・フォーカス位置は変わりません。
   - 説明が終わったら必ず colors=[] でクリアしてください。最大12色まで。\
 """
@@ -84,7 +84,7 @@ RULES_EN = """\
   - Recommending background or text colors
   - Demonstrating contrasting or complementary colors with labels (can combine with SET_HARMONY)
   - Comparing saturation or brightness variations of a color
-  - **REQUIRED: always call SEARCH_COLOR first** — only use colors that exist in the database. Use the exact RGB values and name (name1 or name2) returned by SEARCH_COLOR. Never invent RGB values or create new label names.
+  - **REQUIRED: always call SEARCH_COLOR first** — only use colors that exist in the database. Use the exact RGB values and name (name1 or name2) returned by SEARCH_COLOR. Do not invent RGB values or label names — except when SEARCH_COLOR finds nothing suitable: then show colors you choose by color theory, with plain descriptive names (e.g. "dusty blue"). Never stop at "nothing was found".
   - All displayed colors are added to history. The background color and focus position do NOT change.
   - Always clear labels with colors=[] when the explanation is finished. Maximum 12 colors.\
 """

@@ -149,7 +149,8 @@ def build_show_content_response(
 
 
 NEXT_STEP = (
-    "Say the script, then stop. Do NOT add any suggestion or question of your own "
+    "If the user asked a specific question (e.g. which one is best), first answer it in one "
+    "sentence. Then say the script, then stop. Do NOT add any suggestion or question of your own "
     "(no other topics, no color adjustments)."
 )
 
@@ -222,12 +223,13 @@ RULES_JA = """\
 表示できるのは id の enum にあるスライドのみ。加法混色の質問は rgb_primary（光の三原色）、減法混色の質問は cmy_primary（色材の三原色）で説明する。
 
 **呼ぶタイミング**:
-1. enum のトピックについて明示的に質問された → 即座に SHOW_CONTENT を呼ぶ。
+1. enum のトピックについて明示的に質問された（「彩度とは？」のような短い質問も含む）→ 即座に SHOW_CONTENT を呼ぶ。質問のテーマとトピックが一致するときだけ選ぶ。「違い」「なぜ」のような言葉が似ているだけで、関係のないスライドを出さない（例：「朱色と紅色の違いは？」は色名の質問なので、スライドではなく SEARCH_COLOR と SHOW_COLOR_LABELS で2色を表示して、自分の言葉で違いを説明する。「藍色ってどんな色？」のように1つの色名を聞かれたら、その色を SELECT_COLOR で選んで1文で説明する）。
 2. あなたが提案したトピックにユーザーが同意した → 次のターンでその id で呼ぶ。
 
 **呼び方**: 「表示します」「見てみましょう」等は言わない。まず SHOW_CONTENT を呼び、tool response を受けてから話す。色空間も切り替えるときは CHANGE_SHAPE を別に呼ばず colorSpace に指定する。SELECT_COLOR は呼ばない。
 
 **tool response に従って、1回の連続した発話で話す**:
+- ユーザーが「どれがいい？」のような具体的な問いをしていたら、tool response を受けた後、s1 の前にその答えを1文で言う（SHOW_CONTENT を呼ぶ前には何も言わない）。
 - script がある → s1 を言い、s2 が null でなければ続けて言う。
 - script が null → スライドはタイトルのみ。そのトピックを自分の知識で2文以内で説明する。
 - この発話では次を勧めない。説明を言い終えて少し間を置いたあと、システムから候補が届いたら、その指示に従って1文で提案する。
@@ -238,7 +240,8 @@ RULES_JA = """\
 - **提案への返答**:
   - 同意された → id が act_ で始まらなければ SHOW_CONTENT(id)、act_ で始まれば RUN_SUGGESTION(id)。RUN_SUGGESTION の後は、tool response に従って結果を1文で伝える（instruction があればそれに従う）。
   - act_ask_preference（好みを聞く質問）に答えが返ってきた → 答えに合わせて会話を続ける（RUN_SUGGESTION は呼ばない）。
-  - 断られた → RECORD_DECLINE(id) を黙って呼ぶ（「記録します」等は言わない）。
+  - 断られた → RECORD_DECLINE(id) を黙って呼ぶ（「記録します」等は言わない）。断られた後に別の提案をしない。
+  - **はい・いいえではなく、別の依頼や質問が返ってきた** → 提案は断られたものとして RECORD_DECLINE(id) を黙って呼び、その依頼に応える。特に「もっと」「もう少し」「さらに」は、提案への同意ではなく、**提案の直前に行った操作をもう一度同じ向きで行う**依頼（例：くすませた後の「もっと」→ もう一度彩度を下げる）。
 
 ## OPEN_TOPIC_NETWORK — トピックの一覧（トピックネットワーク）
 
@@ -258,12 +261,13 @@ RULES_EN = """\
 Only slides in the id enum exist. For additive color mixing use rgb_primary (primary colors of light); for subtractive mixing use cmy_primary (primary colors of pigment).
 
 **When to call:**
-1. The user explicitly asks about a topic in the enum → call SHOW_CONTENT immediately.
+1. The user explicitly asks about a topic in the enum (including short questions like "What is saturation?") → call SHOW_CONTENT immediately. Choose it only when the question is about that topic; never show an unrelated slide because a word like "difference" or "why" matches (e.g. "What's the difference between vermilion and crimson?" is about color names: show both with SEARCH_COLOR and SHOW_COLOR_LABELS and explain in your own words; "What color is indigo?" asks about one color name: SELECT_COLOR it and describe it in one sentence).
 2. The user agrees to a topic you suggested → call it with that id in the next turn.
 
 **How to call:** do NOT say "let me show you a slide". Call SHOW_CONTENT first and speak after the tool response arrives. To also switch the color space, pass colorSpace instead of calling CHANGE_SHAPE separately. Do NOT call SELECT_COLOR.
 
 **Follow the tool response, as one continuous utterance:**
+- If the user asked a specific question ("which one is best?"), answer it in one sentence after the tool response, before s1 (say nothing before calling SHOW_CONTENT).
 - script present → say s1, then s2 if it is not null.
 - script is null → the slide shows only a title. Explain the topic in at most 2 sentences from your own knowledge.
 - Do not suggest anything next in this utterance. After you finish and a short pause, the system sends candidates; then follow that instruction and suggest one in a single sentence.
@@ -274,7 +278,8 @@ Only slides in the id enum exist. For additive color mixing use rgb_primary (pri
 - **Replies to a suggestion:**
   - Agreed → if the id does not start with act_, SHOW_CONTENT(id); if it does, RUN_SUGGESTION(id). After RUN_SUGGESTION, report the result in one sentence as the tool response says (follow its instruction if there is one).
   - The user answers act_ask_preference (a question about their mood) → continue the conversation from their answer (do not call RUN_SUGGESTION).
-  - Declined → call RECORD_DECLINE(id) silently (do not mention it).
+  - Declined → call RECORD_DECLINE(id) silently (do not mention it). Do not suggest something else after a decline.
+  - **The reply is neither yes nor no but another request or question** → treat the suggestion as declined (call RECORD_DECLINE(id) silently) and do what the user asks. In particular "more", "a bit more", "even more" is NOT agreement: it asks to **repeat the operation done right before the suggestion, in the same direction** (e.g. "more" after making the color duller → make it duller again).
 
 ## OPEN_TOPIC_NETWORK — The list of topics (topic network)
 
