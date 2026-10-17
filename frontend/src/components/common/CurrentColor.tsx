@@ -33,6 +33,8 @@ const CurrentColor = (props: ControlPaneProps) => {
 
   const handleBgUpdate = () => {
     if (isBgHexFormat()) {
+      // A background of its own ends the link, or the selected color would overwrite it
+      setSyncBgWithSelected(false);
       props.onBackgroundColorChange('#' + bgHexInput);
     }
   };

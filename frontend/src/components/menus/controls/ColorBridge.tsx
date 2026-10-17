@@ -85,6 +85,11 @@ function labToRgb(L: number, a: number, b: number, exact = false): [number, numb
   return [toSrgb(rl), toSrgb(gl), toSrgb(bl)];
 }
 
+/** A gray has no hue of its own: it takes the other end's, so the path does not swing round. */
+function grayTakesOtherHue(h1: number, gray1: boolean, h2: number, gray2: boolean): [number, number] {
+  return [gray1 ? h2 : h1, gray2 ? h1 : h2];
+}
+
 export function interpolateRgb(
   colorA: RGB,
   colorB: RGB,
@@ -99,13 +104,15 @@ export function interpolateRgb(
   if (shape === 'HSL') {
     const [h1, s1, l1] = rgbToHsl(r1, g1, b1);
     const [h2, s2, l2] = rgbToHsl(r2, g2, b2);
-    const hsl: [number, number, number] = [lerpAngle(h1, h2, t), lerp(s1, s2, t), lerp(l1, l2, t)];
+    const [ha, hb] = grayTakesOtherHue(h1, s1 === 0, h2, s2 === 0);
+    const hsl: [number, number, number] = [lerpAngle(ha, hb, t), lerp(s1, s2, t), lerp(l1, l2, t)];
     return exact ? hslToRgb(...hsl) : convert.hsl.rgb(hsl);
   }
   if (shape === 'HSB') {
     const [h1, s1, v1] = rgbToHsv(r1, g1, b1);
     const [h2, s2, v2] = rgbToHsv(r2, g2, b2);
-    const hsv: [number, number, number] = [lerpAngle(h1, h2, t), lerp(s1, s2, t), lerp(v1, v2, t)];
+    const [ha, hb] = grayTakesOtherHue(h1, s1 === 0, h2, s2 === 0);
+    const hsv: [number, number, number] = [lerpAngle(ha, hb, t), lerp(s1, s2, t), lerp(v1, v2, t)];
     return exact ? hsvToRgb(...hsv) : convert.hsv.rgb(hsv);
   }
   if (shape === 'CMYK') {
@@ -133,7 +140,8 @@ export function interpolateRgb(
     const H2 = (Math.atan2(b_2, a2) * 180) / Math.PI;
     const L = lerp(L1, L2, t);
     const C = lerp(C1, C2, t);
-    const H = lerpAngle(H1, H2, t);
+    const [ha, hb] = grayTakesOtherHue(H1, C1 < 1e-3, H2, C2 < 1e-3);
+    const H = lerpAngle(ha, hb, t);
     const Hrad = (H * Math.PI) / 180;
     return labToRgb(L, C * Math.cos(Hrad), C * Math.sin(Hrad), exact);
   }
@@ -145,9 +153,7 @@ export function interpolateRgb(
   if (shape === 'OKLCH') {
     const [L1, C1, H1] = rgbToOklch(r1, g1, b1);
     const [L2, C2, H2] = rgbToOklch(r2, g2, b2);
-    // A gray has no hue of its own: take the other end's, so the path does not swing round
-    const h1 = C1 < 1e-4 ? H2 : H1;
-    const h2 = C2 < 1e-4 ? H1 : H2;
+    const [h1, h2] = grayTakesOtherHue(H1, C1 < 1e-4, H2, C2 < 1e-4);
     return oklchToRgb(lerp(L1, L2, t), lerp(C1, C2, t), lerpAngle(h1, h2, t));
   }
   if (shape === 'LMS') {

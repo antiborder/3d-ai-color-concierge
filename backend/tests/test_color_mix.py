@@ -40,8 +40,19 @@ def test_mixing_light_adds_the_colors(colors, expected):
         ([PURPLE, YELLOW], (128, 0, 0)),
     ],
 )
-def test_mixing_paint_multiplies_the_colors(colors, expected):
-    assert mix(colors, "paint") == expected
+def test_mixing_pigment_multiplies_the_colors(colors, expected):
+    assert mix(colors, "pigment") == expected
+
+
+def test_mixing_paint_is_like_real_paint():
+    r, g, b = mix([BLUE, YELLOW], "paint")
+    assert g > r and g > b  # blue and yellow paint make green, not black
+    r, g, b = mix([RED, (255, 255, 255)], "paint")
+    assert r == 255 and 40 < g < 128 and 40 < b < 128  # white lightens red
+    r, g, b = mix([RED, (0, 0, 0)], "paint")
+    assert 60 < r < 160 and g < 60 and b < 60  # black darkens it
+    r, g, b = mix([(255, 255, 255), (0, 0, 0)], "paint")
+    assert r == g == b and 60 < r < 200  # gray
 
 
 def test_hex_parsing_and_formatting():
@@ -110,13 +121,13 @@ def test_mix_colors_selects_the_mix_and_labels_the_colors():
     assert nav.pending_suggestions and "next_step" in resp
 
 
-def test_mix_colors_as_paint():
+def test_mix_colors_as_pigment():
     args = {
         "colors": [{"name": "シアン", "hex": "#00FFFF"}, {"name": "マゼンタ", "hex": "#FF00FF"}],
-        "mode": "paint",
+        "mode": "pigment",
     }
     resp, _ = _process("MIX_COLORS", args)
-    assert resp["hex"] == "#0000FF" and resp["mode"] == "paint"
+    assert resp["hex"] == "#0000FF" and resp["mode"] == "pigment"
 
 
 def test_mix_colors_needs_two_valid_colors():
@@ -129,6 +140,7 @@ def test_mix_colors_needs_two_valid_colors():
 def test_mix_context_nodes():
     ag = load_action_graph()
     assert ag.context_for_call("MIX_COLORS", {"mode": "paint"})[0] == "ctx_mix_paint"
+    assert ag.context_for_call("MIX_COLORS", {"mode": "pigment"})[0] == "ctx_mix_paint"
     assert ag.context_for_call("MIX_COLORS", {"mode": "light"})[0] == "ctx_mix_light"
 
 

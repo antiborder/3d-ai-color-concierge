@@ -7,8 +7,8 @@ _TARGET_PROP = {
         "type": "string",
         "enum": ["focused", "background"],
         "description": (
-            "Which cursor to apply to. 'background' if the user explicitly says 'background'/'background color', "
-            "otherwise use the current uiContext.colorTarget."
+            "Which cursor to apply to: 'background' only if the user talks about the background, "
+            "otherwise 'focused'."
         ),
     }
 }
@@ -153,16 +153,18 @@ COMMANDS: dict[str, object] = {
 }
 
 RULES_JA = """\
-- **カーソルの概念**: 2つのカーソルがある — **Focused Color**（円形ワイヤーフレーム、主たる選択色）と **Background Color**（別の球体ワイヤーフレーム、3D背景色）。現在どちらが選択中かは `uiContext.colorTarget`（"focused"/"background"）で確認。起動直後は両者が連動（同色）。
+- **カーソルの概念**: 2つのカーソルがある — **Focused Color**（円形ワイヤーフレーム、主たる選択色）と **Background Color**（別の球体ワイヤーフレーム、3D背景色 = `uiContext.background`）。起動直後は背景が選択色に連動している（同色）。背景を個別に設定すると、連動は自動で解除される。
 
-- **target決定ルール**: 「背景/background」を明示→`target: "background"`。「フォーカス/選択色/focused」を明示→`target: "focused"`。曖昧なら `uiContext.colorTarget` の値をそのまま使う。
+- **target決定ルール**: ユーザーが「背景」と言ったとき、または直前の背景の話の続き（「背景を暗くして」→「もう少し」）のときだけ `target: "background"`。それ以外は常に `target: "focused"`（`uiContext.colorTarget` が background のままでも、「〜を選んで」「〜にして」は選択色のこと）。
+- 「今の色（選択色）を背景にして」→ SET_BACKGROUND_COLOR に選択色の HEX を渡す。「背景と選択色を入れ替えて」→ SET_HEX(target="focused") に今の背景の HEX、SET_BACKGROUND_COLOR に今の選択色の HEX。
 
 - **色指定時はまず SEARCH_COLOR を呼び、以下で判断する（逆質問は絶対にしない）**：
 
-  **① 一意に特定できる色 → SELECT_COLOR**（例：「クリムゾンにして」「深い緑を選んで」）
-  SEARCH_COLOR の結果から最適な1色を選んで SELECT_COLOR を実行し、「〇〇を選びました」と一言添える。
+  **① 色を選ぶ・変える依頼 → SELECT_COLOR**（例：「緑を選んで」「鮮やかな赤にして」「落ち着いた青を選んで」「クリムゾンにして」）
+  「赤」「緑」のような基本色名や「落ち着いた〜」のような説明でも、選ぶ・変える依頼なら必ず1色に決めて SELECT_COLOR を実行する。候補を並べるだけで終わらせない。基本色名は、検索結果ではなく次の典型的な色を使う：赤 #E60033、オレンジ #EE7800、黄色 #FFD900、緑 #3EB370、水色 #68C3E6、青 #0068B7、紫 #884898、ピンク #F09199、茶色 #8F5E3C、灰色 #7D7D7D。データベースに無い色名（例：「ティファニーブルー」）は、自分の知識で代表的な色を決める（見つからなかったことを謝らない）。
+  選んだ後は tool response の name を使って「〇〇を選びました」と一言で伝える（色の見た目を推測で言わない）。
 
-  **② 色カテゴリ・系統 → SHOW_COLOR_LABELS**（例：「赤い色をお願いします」「青系の色」「暖かい色」）
+  **② 候補を見たいという依頼 → SHOW_COLOR_LABELS**（例：「青系の色を見せて」「赤い色にはどんなのがある？」「春っぽい色をいくつか」）
   SEARCH_COLOR の結果から代表色を **3〜5色** 選んで SHOW_COLOR_LABELS で表示する。
 
 - **SELECT_COLOR の直後は必ず CHANGE_SHAPE で色空間を切り替える**：ほぼ白（明度90%以上）・グレー系 → HSL、純粋な原色（R/G/Bいずれか1チャンネルのみ）→ RGB、シアン/マゼンタ/イエローの純粋二次色 → CMYK、それ以外（大多数）→ HSB。
@@ -173,16 +175,18 @@ RULES_JA = """\
 """
 
 RULES_EN = """\
-- **Cursor concept**: two cursors — **Focused Color** (circle wireframe, primary selected color) and **Background Color** (separate sphere wireframe, 3D canvas background). Check `uiContext.colorTarget` ("focused"/"background") for the active one. On startup both are linked (same color).
+- **Cursor concept**: two cursors — **Focused Color** (circle wireframe, primary selected color) and **Background Color** (separate sphere wireframe, 3D canvas background = `uiContext.background`). On startup the background follows the selected color (same color). Setting the background on its own ends that link automatically.
 
-- **Target resolution**: explicit "background"/"background color" → `target: "background"`. Explicit "focused"/"selected color" → `target: "focused"`. Ambiguous (e.g. "make it green") → use current `uiContext.colorTarget`.
+- **Target resolution**: `target: "background"` only when the user says "background", or continues talking about the background ("darken the background" → "a bit more"). Otherwise always `target: "focused"` (even when `uiContext.colorTarget` is still background, "pick X" / "make it X" means the selected color).
+- "Make the current (selected) color the background" → SET_BACKGROUND_COLOR with the selected color's hex. "Swap the background and the selected color" → SET_HEX(target="focused") with the current background's hex, and SET_BACKGROUND_COLOR with the current selected color's hex.
 
 - **When the user specifies a color, first call SEARCH_COLOR, then decide (never ask a follow-up question)**:
 
-  **① Uniquely identifiable color → SELECT_COLOR** (e.g. "crimson", "deep green", "#FF5733")
-  Pick the single best match from SEARCH_COLOR results, call SELECT_COLOR, and announce what you picked.
+  **① A request to pick or change to a color → SELECT_COLOR** (e.g. "pick green", "make it a vivid red", "choose a calm blue", "crimson")
+  Even for a basic name like "red" or "green", or a description like "a calm blue", decide on ONE color and call SELECT_COLOR. Never stop at showing candidates. For a basic name, use these typical colors rather than search results: red #E60033, orange #EE7800, yellow #FFD900, green #3EB370, light blue #68C3E6, blue #0068B7, purple #884898, pink #F09199, brown #8F5E3C, gray #7D7D7D. For a name not in the database (e.g. "Tiffany blue"), choose a typical color from your own knowledge (do not apologize that it was not found).
+  Then announce it in one sentence using the name in the tool response (never describe the color by guess).
 
-  **② Color category/family → SHOW_COLOR_LABELS** (e.g. "a red color", "warm colors")
+  **② A request to see options → SHOW_COLOR_LABELS** (e.g. "show me some blues", "what reds are there?", "a few spring colors")
   Pick **3–5 representative colors** from SEARCH_COLOR results and display with SHOW_COLOR_LABELS.
 
 - **Immediately after SELECT_COLOR, always call CHANGE_SHAPE**: near-white (lightness ≥90%)/grays → HSL, pure primaries (one of R/G/B dominant) → RGB, pure CMY secondaries → CMYK, everything else (majority) → HSB.

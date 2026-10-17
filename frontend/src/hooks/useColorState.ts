@@ -2,7 +2,8 @@ import { useState, useCallback } from 'react';
 import type { ColorState } from '../types/colorState';
 import { initialColorState } from '../types/colorState';
 import { ColorConverter } from '../utils/colorConverter';
-import { rgbToOklch, oklchToRgbGamutMapped } from '../utils/gamutUtils';
+import { adjustOklch } from '../utils/adjustOklch';
+import type { AdjustProperty } from '../utils/adjustOklch';
 import type { ColorSpace } from '../types/color';
 import { playTransformSound, playSelectSound } from '../utils/soundEffects';
 
@@ -263,31 +264,11 @@ export const useColorState = () => {
   }, []);
 
   const adjustOklchValue = useCallback(
-    (property: 'brightness' | 'saturation' | 'hue', direction: 'up' | 'down', amount?: number) => {
+    (property: AdjustProperty, direction: 'up' | 'down', amount?: number) => {
       setColorState((prev) => {
-        const [okL, okC, okH] = rgbToOklch(prev.r, prev.g, prev.b);
-
-        if (property === 'brightness') {
-          if (direction === 'up' && okL >= 1) return prev;
-          if (direction === 'down' && okL <= 0) return prev;
-        } else if (property === 'saturation') {
-          if (direction === 'down' && okC <= 0) return prev;
-        }
-
-        const sign = direction === 'up' ? 1 : -1;
-        let newL = okL, newC = okC, newH = okH;
-        if (property === 'brightness') {
-          const delta = sign * (amount ?? 10) / 100;
-          newL = Math.max(0, Math.min(1, okL + delta));
-        } else if (property === 'saturation') {
-          const delta = sign * (amount ?? 10) / 250;
-          newC = Math.max(0, okC + delta);
-        } else {
-          const delta = sign * (amount ?? 10);
-          newH = (((okH + delta) % 360) + 360) % 360;
-        }
-
-        const [r, g, b] = oklchToRgbGamutMapped(newL, newC, newH);
+        const rgb = adjustOklch(prev.r, prev.g, prev.b, property, direction, amount);
+        if (!rgb) return prev;
+        const [r, g, b] = rgb;
         const allFormats = ColorConverter.fromRgb(r, g, b);
         return {
           ...prev,

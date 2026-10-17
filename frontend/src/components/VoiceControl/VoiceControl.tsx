@@ -7,6 +7,7 @@ import type { Command } from '../../types/voice';
 import type { ColorState } from '../../types/colorState';
 import type { ColorHistoryItem } from '../../hooks/useColorHistory';
 import type { UiContext } from '../../hooks/useWsColorSync';
+import type { CommandOutcome } from '../../utils/commandExecutor';
 import {
   VoiceControlRoot,
   TranscriptionPanel,
@@ -54,7 +55,7 @@ interface VoiceControlProps {
     text: string,
     meta?: { source?: string | null; segmentId?: string | null; final?: boolean | null }
   ) => void;
-  onCommand?: (command: Command) => void | Promise<void>;
+  onCommand?: (command: Command) => CommandOutcome;
   onError?: (error: string) => void;
   // onOpenChatHistory?: () => void;
   isLoading?: boolean;
